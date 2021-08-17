@@ -1,0 +1,202 @@
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-BlackItalic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 800;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-ExtraLightItalic.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-ThinItalic.ttf") format("truetype");
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Exo2;
+  src: url("../fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-ExtraBoldItalic.ttf") format("truetype");
+  font-weight: 800;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/OpenSans-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}

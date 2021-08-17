@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { MetaMaskProvider } from "metamask-react";
 
-import "./index.css";
+import "./index.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { store } from "./store";

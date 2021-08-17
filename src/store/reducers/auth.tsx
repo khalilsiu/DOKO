@@ -1,12 +1,23 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, SliceCaseReducers } from "@reduxjs/toolkit";
+import { User } from "../../interfaces";
 
-export const authSlice = createSlice({
-  name: "auth",
-  initialState: {
-    user: {
-      address: null,
-    },
+export interface AuthState {
+  user: User;
+}
+
+const initialState: AuthState = {
+  user: {
+    address: null,
   },
+};
+
+export const authSlice = createSlice<
+  AuthState,
+  SliceCaseReducers<AuthState>,
+  string
+>({
+  name: "auth",
+  initialState,
   reducers: {
     setUser: (state, action) => {
       state.user = action.payload;
