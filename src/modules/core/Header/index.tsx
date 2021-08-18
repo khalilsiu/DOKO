@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppBar, Grid, Toolbar, Typography } from "@material-ui/core";
+import {
+  AppBar,
+  Grid,
+  makeStyles,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
 
 import { setUser } from "../../../store/reducers/auth";
 import Moralis, {
@@ -17,6 +23,7 @@ export const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector<State, User>((state) => state.auth.user);
   const [loading, setLoading] = useState(false);
+  const styles = useStyles();
 
   const logout = useCallback(() => {
     setLoading(true);
@@ -67,7 +74,11 @@ export const Header = () => {
   };
 
   return (
-    <AppBar position="static" color="transparent">
+    <AppBar
+      position="static"
+      color="transparent"
+      className={styles.headerContainer}
+    >
       <Toolbar style={{ paddingTop: 8, paddingBottom: 8 }}>
         <Grid container alignItems="center" spacing={3}>
           <Grid item style={{ marginTop: 4 }}>
@@ -89,3 +100,9 @@ export const Header = () => {
     </AppBar>
   );
 };
+
+const useStyles = makeStyles(() => ({
+  headerContainer: {
+    boxShadow: "none",
+  },
+}));
