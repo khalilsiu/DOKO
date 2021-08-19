@@ -3,20 +3,27 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { MetaMaskProvider } from "metamask-react";
+import { MoralisProvider } from "react-moralis";
 
 import "./index.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { store } from "./store";
 import ThemeProvider from "./core/ThemeProvider";
+import { config } from "./config";
 
 ReactDOM.render(
   <React.StrictMode>
     <MetaMaskProvider>
       <Provider store={store}>
         <ThemeProvider>
-          <CssBaseline />
-          <App />
+          <MoralisProvider
+            appId={config.moralisApplicationId}
+            serverUrl={config.moralisServerUrl}
+          >
+            <CssBaseline />
+            <App />
+          </MoralisProvider>
         </ThemeProvider>
       </Provider>
     </MetaMaskProvider>

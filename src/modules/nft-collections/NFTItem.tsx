@@ -1,5 +1,14 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { Card, CardContent, makeStyles } from "@material-ui/core";
+import {
+  Card,
+  CardActions,
+  CardContent,
+  Grid,
+  IconButton,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
+import Share from "@material-ui/icons/Share";
 
 interface NFTItemProps {
   nft: any;
@@ -14,13 +23,23 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   return (
     <Card className={styles.card}>
       <CardContent className={styles.cardContent}>
-        <LazyLoadImage
-          className={styles.image}
-          alt=""
-          width="100%"
-          src={nft.image}
-        />
+        <Grid container alignItems="center" style={{ height: "100%" }}>
+          <LazyLoadImage
+            className={styles.image}
+            alt=""
+            width="100%"
+            src={nft.image}
+          />
+        </Grid>
+        <Typography className={styles.nftName} variant="caption">
+          {nft.name}
+        </Typography>
       </CardContent>
+      <CardActions className={styles.cardActions}>
+        <IconButton>
+          <Share fontSize="small" color="primary" />
+        </IconButton>
+      </CardActions>
     </Card>
   );
 };
@@ -29,13 +48,25 @@ const useStyles = makeStyles(() => ({
   card: {
     height: "100%",
     borderRadius: 12,
+    display: "flex",
+    flexDirection: "column",
     background: "white",
   },
   cardContent: {
-    padding: 10,
+    padding: 6,
+    height: "100%",
+  },
+  cardActions: {
+    justifyContent: "flex-end",
+  },
+  nftName: {
+    fontWeight: "bold",
+    marginLeft: 8,
+    color: "black",
   },
   image: {
-    borderRadius: 12,
+    borderTopRightRadius: 12,
+    borderTopLeftRadius: 12,
     maxHeight: 400,
   },
 }));

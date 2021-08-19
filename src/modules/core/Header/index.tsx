@@ -13,7 +13,7 @@ import Moralis, {
   moralisAuthenticate,
   moralisCurrentUser,
   moralisLogout,
-} from "../../../helper/moralis";
+} from "../../../libs/moralis";
 import { State } from "../../../store";
 import { User } from "../../../interfaces";
 import { HeaderUserButton } from "./HeaderUserButton";
