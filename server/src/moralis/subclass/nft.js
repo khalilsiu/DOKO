@@ -21,7 +21,6 @@ class NFT extends Moralis.Object {
           existing[0].set('owner', data.owner);
           return await existing[0].save();
         }
-        console.log(existing[0].attributes);
         return;
       } else {
         const nft = new NFT();

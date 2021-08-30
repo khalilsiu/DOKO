@@ -1,76 +1,85 @@
-const axios = require('axios');
-const _ = require('lodash');
-
+const { database } = require('../db');
 const { Moralis } = require('../libs/moralis');
-const { fetchNFTs } = require('../moralis/helpers/fetch-nfts');
-const NFT = require('../moralis/subclass/nft');
-
-const isValidHttpUrl = string => {
-  let url;
-
-  try {
-    url = new URL(string);
-  } catch (_) {
-    return false;
-  }
-
-  return url.protocol === 'http:' || url.protocol === 'https:';
-};
+const { fetchNFTs, fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
 
 const setMetadata = async (nft, address) => {
-  let metadata;
+  const newNFT = await fetchNFTMetadata(nft, address);
+  console.log('new', newNFT);
 
-  if (!nft.token_uri) {
-    metadata = null;
-  } else if (isValidHttpUrl(nft.token_uri)) {
-    try {
-      const nftRes = await axios.get(nft.token_uri);
-      metadata = nftRes.data;
-    } catch (err) {
-      console.error('NFT get error:\n', err.response);
+  const db = database();
+  const collection = db.collection('nfts');
+
+  try {
+    const query = {
+      token_id: newNFT.token_id,
+      token_address: newNFT.token_address
+    };
+    const exists = await collection.findOne(query);
+
+    console.log('exists', exists);
+
+    if (exists) {
+      return await collection.updateOne(query, {
+        $set: newNFT
+      });
+    } else {
+      return await collection.insertOne(newNFT);
     }
-  } else if (nft.token_uri.includes('data:application/json;utf8,')) {
-    try {
-      metadata = JSON.parse(nft.token_uri.replace('data:application/json;utf8,', ''));
-    } catch (err) {
-      console.error('NFT get error:\n', err, nft);
-    }
-    return;
-  } else if (nft.token_uri.includes('data:application/json;base64,')) {
-    try {
-      const buff = Buffer.from(
-        nft.token_uri.replace('data:application/json;base64,', ''),
-        'base64'
-      );
-      metadata = JSON.parse(buff.toString('utf-8'));
-    } catch (err) {
-      console.error('NFT get error:\n', err, nft);
-    }
-  } else {
-    console.error('NFT get error:\n', nft);
+  } catch (err) {
+    console.error('NFT save error:\n', err);
   }
-  const newNFT = {
-    ...nft,
-    metadata: metadata
-      ? {
-          ...metadata,
-          image: metadata.image || metadata.image_url || ''
-        }
-      : {},
-    owner: address,
-    metadata_updated: !!metadata
-  };
-  return await NFT.save(newNFT);
+};
+
+const watchAddress = async address => {
+  let watching = 0;
+
+  for (const chain of ['Eth', 'Bsc', 'Polygon']) {
+    const className = `Watched${chain}Address`;
+    const query = new Moralis.Query(Moralis.Object.extend(className));
+
+    try {
+      query.equalTo('address', address);
+      const exists = await query.find();
+
+      if (exists.length) {
+        watching++;
+        continue;
+      }
+    } catch (err) {}
+
+    Moralis.Cloud.run(`watch${chain}Address`, {
+      address
+    });
+  }
+  return watching;
 };
 
 const controller = {
+  getNFTs: async (req, res) => {
+    const { offset, address } = req.query;
+    const collection = database().collection('nfts');
+
+    const items = await collection
+      .find({
+        owner: address,
+        metadata_updated: true
+      })
+      .sort({ name: 1 })
+      .skip(+offset || 0)
+      .limit(9)
+      .toArray();
+
+    return res.json(items);
+  },
   indexCollections: async (req, res, next) => {
     const { address } = req.body;
 
-    for (const chain of ['Eth', 'Bsc', 'Polygon']) {
-      Moralis.Cloud.run(`watch${chain}Address`, {
-        address
-      });
+    console.log('indexCollections: ', address);
+
+    const watching = await watchAddress(address);
+
+    if (watching === 3) {
+      return res.json({ message: 'Already indexed' });
     }
     const nfts = await fetchNFTs(address);
 

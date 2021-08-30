@@ -15,7 +15,7 @@
     "express": "^4.17.1",
     "lodash": "^4.17.21",
     "mongodb": "^4.1.0",
-    "moralis": "^0.0.34"
+    "moralis": "^0.0.36"
   },
   "devDependencies": {
     "dotenv": "^10.0.0",

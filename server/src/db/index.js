@@ -13,6 +13,7 @@ const connectDB = () =>
       }
       console.log('DB connected');
       db = client.db(process.env.DB_NAME);
+      db.collection('nfts').createIndex({ token_id: 1, token_address: 1 });
       resolve(db);
     });
   });

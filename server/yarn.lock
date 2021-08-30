@@ -2091,10 +2091,10 @@ mongodb@^4.1.0:
   optionalDependencies:
     saslprep "^1.0.0"
 
-moralis@^0.0.34:
-  version "0.0.34"
-  resolved "https://registry.yarnpkg.com/moralis/-/moralis-0.0.34.tgz#ccce8ea2170c25901ccb41ebe277f3fee3898730"
-  integrity sha512-5kha2h81j9UdcPuwTv0rGm47tInKlpKur3tJ+Nu8pb8CtM8iKLTqxe7rGtSG+LEE8NqucXO40mn2nUvxeDOc1A==
+moralis@^0.0.36:
+  version "0.0.36"
+  resolved "https://registry.yarnpkg.com/moralis/-/moralis-0.0.36.tgz#3e5679f64478495f13bcf6848b4f1da933b391d1"
+  integrity sha512-ZKX4CI6GUA8xubFjIgfD/jq9HbBGEyCFhjsBdY+JvL+bqXcCiVP7aOZUO3js9evc7iO6WrVkh+VwWkaI1lppYg==
   dependencies:
     "@babel/runtime" "7.12.5"
     "@babel/runtime-corejs3" "7.12.5"
