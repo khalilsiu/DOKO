@@ -11,27 +11,36 @@ import { Filter } from './Filter';
 export const NftCollections = () => {
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState<number>(-1);
   const address = useSelector<State, string>(state => state.auth.user.address as string);
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
+  const [allLoaded, setAllLoaded] = useState(false);
+
+  const fetchNfts = async () => {
+    if (!address || index < 0) {
+      return;
+    }
+
+    try {
+      const res = await getNFTs(address, index);
+      setNFTs(nfts => [...nfts, ...res.data]);
+      setAllLoaded(res.data.length < 12);
+    } catch (err) {}
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchNfts = async () => {
-      if (!address) {
-        setNFTs([]);
-        setIndex(0);
-      } else {
-        try {
-          const res = await getNFTs(address, index);
-          setNFTs(nfts => [...nfts, ...res.data]);
-        } catch (err) {}
-      }
-      setLoading(false);
-    };
+    setNFTs([]);
+    setIndex(address ? 0 : -1);
+    setAllLoaded(false);
+  }, [address]);
+
+  useEffect(() => {
     setLoading(true);
     fetchNfts();
-  }, [index, address]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
 
   return (
     <Grid container wrap="nowrap" className={styles.collectionContainer}>
@@ -49,7 +58,7 @@ export const NftCollections = () => {
         </Tabs>
 
         <TabPanel index={0} value={tabValue}>
-          {/* <Filter /> */}
+          <Filter />
           <Grid container wrap="wrap" alignItems="stretch" spacing={2}>
             {nfts.map(nft => (
               <Grid item key={`${nft.token_address}-${nft.token_id}`} lg={3} md={4} xs={6}>
@@ -58,15 +67,19 @@ export const NftCollections = () => {
             ))}
           </Grid>
           {nfts.length ? (
-            <Button
-              style={{ margin: '24px 0' }}
-              variant="outlined"
-              color="primary"
-              onClick={() => setIndex(index + 9)}
-              disabled={loading}
-            >
-              Show More
-            </Button>
+            allLoaded ? (
+              <></>
+            ) : (
+              <Button
+                style={{ margin: '24px 0' }}
+                variant="outlined"
+                color="primary"
+                onClick={() => setIndex(index + 9)}
+                disabled={loading || allLoaded}
+              >
+                Show More
+              </Button>
+            )
           ) : address ? (
             <Typography>No Items</Typography>
           ) : (

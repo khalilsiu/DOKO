@@ -43,6 +43,11 @@ const darkTheme = createTheme({
       input: {
         padding: '10.5px 14px'
       }
+    },
+    MuiButton: {
+      root: {
+        borderRadius: 60
+      }
     }
   }
 });

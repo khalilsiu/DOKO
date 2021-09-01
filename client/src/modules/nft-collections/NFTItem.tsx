@@ -18,7 +18,7 @@ interface NFTItemProps {
 }
 
 export const NFTItem = ({ nft }: NFTItemProps) => {
-  if (nft.metadata.image.indexOf('ipfs') === 0) {
+  if (nft.metadata?.image?.indexOf('ipfs') === 0) {
     nft.metadata.image = `https://ipfs.io/${nft.metadata.image
       .replace('ipfs/', '')
       .replace('ipfs://', 'ipfs/')}`;
@@ -29,10 +29,12 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
     <Card className={styles.card}>
       <CardContent className={styles.cardContent}>
         <Grid container alignItems="center" style={{ flex: 1 }}>
-          <LazyLoadImage className={styles.image} alt="" width="100%" src={nft.metadata.image} />
+          {nft.metadata.image && (
+            <LazyLoadImage className={styles.image} alt="" width="100%" src={nft.metadata?.image} />
+          )}
         </Grid>
         <Typography className={styles.nftName} variant="caption">
-          {nft.name || '-'}
+          {nft.metadata?.name || nft.name || '-'}
         </Typography>
       </CardContent>
       <CardActions className={styles.cardActions}>
