@@ -1,39 +1,41 @@
+const { database } = require('../db');
 const { Moralis } = require('../libs/moralis');
-const NFT = require('../moralis/subclass/nft');
+const { fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
 
 const afterSaveNftTransactions = async (req, res) => {
-  console.log(req.body);
+  console.log('NFT Transfer Webhook:', req.body);
+
   const {
-    object: { to_address, token_address, token_id, className, confirmed }
+    object: { to_address, token_address, token_id, className }
   } = req.body;
 
-  if (!confirmed) {
-    return;
-  }
   const addressClassMapping = {
     EthNFTTransfers: 'Eth',
     BscNFTTransfers: 'Bsc',
     PolygonNFTTransfers: 'Polygon'
   };
-  console.log(addressClassMapping[className]);
 
   if (!addressClassMapping[className]) {
     return res.status(400);
   }
-  const nftQuery = new Moralis.Query(NFT);
+  const collection = database().collection('nfts');
+  const query = { token_id, token_address };
+  const exists = await collection.findOne(query);
 
-  nftQuery.equalTo('token_id', token_id);
-  nftQuery.equalTo('token_address', token_address);
+  const nft = await Moralis.Web3API.token.getTokenIdMetadata({
+    token_address,
+    'token_id}': token_id
+  });
+  const nftWithMetadata = await fetchNFTMetadata(nft, to_address);
 
-  const nfts = await nftQuery.find();
-  const nft = nfts[0];
-
-  if (nft) {
-    nft.set('owner', to_address);
-    await nft.save();
+  if (exists) {
+    await collection.updateOne(query, {
+      $set: nftWithMetadata
+    });
   } else {
-
+    await collection.insertOne(nftWithMetadata);
   }
+  return res.json({ success: true });
 };
 
 module.exports = {

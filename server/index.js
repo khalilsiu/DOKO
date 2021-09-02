@@ -6,6 +6,7 @@ const cors = require('cors');
 const { connectDB } = require('./src/db');
 const { afterSaveNftTransactions } = require('./src/webhooks/moralis');
 const initRouter = require('./src/routes');
+const { setupCronJobs } = require('./src/jobs');
 
 const app = express();
 
@@ -20,6 +21,7 @@ connectDB()
     const port = +process.env.PORT || 3000;
     app.listen(port, () => {
       console.log(`App is running at ${port}`);
+      setupCronJobs();
     });
   })
   .catch(err => {

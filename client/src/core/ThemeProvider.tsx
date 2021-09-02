@@ -3,7 +3,6 @@ import { PropsWithChildren } from 'react';
 
 const darkTheme = createTheme({
   palette: {
-    type: 'dark',
     primary: {
       main: '#ff06d7'
     },
@@ -46,7 +45,31 @@ const darkTheme = createTheme({
     },
     MuiButton: {
       root: {
-        borderRadius: 60
+        borderRadius: 60,
+        textTransform: 'unset',
+        fontWeight: 600,
+        fontFamily: 'OpenSans'
+      }
+    },
+    MuiTypography: {
+      root: {
+        color: 'white'
+      }
+    },
+    MuiMenuItem: {
+      root: {
+        '&.selected': {
+          background: '#ff06d7',
+          color: 'white',
+          '.MuiTypography-root': {
+            color: 'white'
+          }
+        }
+      }
+    },
+    MuiList: {
+      root: {
+        padding: 0
       }
     }
   }

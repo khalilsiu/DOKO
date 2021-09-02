@@ -4,8 +4,6 @@ const { fetchNFTs, fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts')
 
 const setMetadata = async (nft, address) => {
   const newNFT = await fetchNFTMetadata(nft, address);
-  console.log('new', newNFT);
-
   const db = database();
   const collection = db.collection('nfts');
 
@@ -15,8 +13,6 @@ const setMetadata = async (nft, address) => {
       token_address: newNFT.token_address
     };
     const exists = await collection.findOne(query);
-
-    console.log('exists', exists);
 
     if (exists) {
       return await collection.updateOne(query, {
@@ -56,17 +52,28 @@ const watchAddress = async address => {
 
 const controller = {
   getNFTs: async (req, res) => {
-    const { offset, address } = req.query;
+    const { offset, address, chain, term, orderBy, direction } = req.query;
     const collection = database().collection('nfts');
 
+    const query = {
+      owner: address
+    };
+
+    if (chain) {
+      query.chain = {
+        $in: chain
+      };
+    }
+
+    if (term) {
+      query.name = new RegExp(`/.*${term}.*/`);
+    }
+
     const items = await collection
-      .find({
-        owner: address,
-        metadata_updated: true
-      })
-      .sort({ name: 1 })
+      .find(query)
+      .sort({ [orderBy || 'name']: +direction || 1 })
       .skip(+offset || 0)
-      .limit(9)
+      .limit(12)
       .toArray();
 
     return res.json(items);

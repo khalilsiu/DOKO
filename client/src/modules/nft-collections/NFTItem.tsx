@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import {
   Card,
@@ -6,6 +7,8 @@ import {
   Grid,
   IconButton,
   makeStyles,
+  MenuItem,
+  MenuList,
   Typography
 } from '@material-ui/core';
 import eth from './assets/eth.png';
@@ -13,6 +16,10 @@ import bsc from './assets/bsc.png';
 import matic from './assets/polygon.png';
 import activeShare from './assets/active-share.png';
 import inactiveShare from './assets/inactive-share.png';
+import facebook from './assets/facebook.png';
+import twitter from './assets/twitter.png';
+import instagram from './assets/instagram.png';
+import Popover from '../../components/Popover';
 interface NFTItemProps {
   nft: any;
 }
@@ -25,41 +32,98 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   }
   const styles = useStyles();
 
+  const [shareActive, setShareActive] = useState(false);
+
   return (
-    <Card className={styles.card}>
-      <CardContent className={styles.cardContent}>
-        <Grid container alignItems="center" style={{ flex: 1 }}>
-          {nft.metadata.image && (
-            <LazyLoadImage className={styles.image} alt="" width="100%" src={nft.metadata?.image} />
-          )}
-        </Grid>
-        <Typography className={styles.nftName} variant="caption">
-          {nft.metadata?.name || nft.name || '-'}
-        </Typography>
-      </CardContent>
-      <CardActions className={styles.cardActions}>
-        <img
-          className={styles.networkIcon}
-          width="12px"
-          src={{ eth, bsc, matic }[nft.chain as string]}
-          alt={nft.chain}
-        />
-        <IconButton>
-          <img className={styles.shareIcon} src={inactiveShare} alt="share" />
-          {/* <Share fontSize="small" color="primary" /> */}
-        </IconButton>
-      </CardActions>
-    </Card>
+    <div className={styles.wrapper}>
+      <Card className={styles.card}>
+        <CardContent className={styles.cardContent}>
+          <Grid container alignItems="center" style={{ flex: 1 }}>
+            {nft.metadata.image && (
+              <LazyLoadImage
+                className={styles.image}
+                alt=""
+                width="100%"
+                src={nft.metadata?.image}
+              />
+            )}
+          </Grid>
+          <Typography className={styles.nftName} variant="caption">
+            {nft.metadata?.name || nft.name || '-'}
+          </Typography>
+        </CardContent>
+        <CardActions className={styles.cardActions}>
+          <img
+            className={styles.networkIcon}
+            width="12px"
+            src={{ eth, bsc, matic }[nft.chain as string]}
+            alt={nft.chain}
+          />
+          <Popover
+            reference={
+              <IconButton
+                onMouseEnter={() => setShareActive(true)}
+                onMouseLeave={() => setShareActive(false)}
+              >
+                {shareActive ? (
+                  <img className={styles.shareIcon} src={activeShare} alt="share" />
+                ) : (
+                  <img className={styles.shareIcon} src={inactiveShare} alt="share" />
+                )}
+              </IconButton>
+            }
+            placement="bottom-end"
+          >
+            <MenuList>
+              <MenuItem className={styles.shareItem}>
+                <img src={facebook} alt="facebook" />
+                Share on Facebook
+              </MenuItem>
+              <MenuItem className={styles.shareItem}>
+                <img src={twitter} alt="twitter" />
+                Share on Twitter
+              </MenuItem>
+              <MenuItem className={styles.shareItem}>
+                <img src={instagram} alt="instagram" />
+                Share on Instagram
+              </MenuItem>
+            </MenuList>
+          </Popover>
+        </CardActions>
+      </Card>
+    </div>
   );
 };
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+  wrapper: {
+    height: '100%',
+    borderRadius: 12,
+    backgroundClip: 'padding-box',
+    border: 'solid 3px transparent',
+    position: 'relative',
+    '&:hover': {
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        background:
+          'linear-gradient(-45deg, rgba(63,199,203,1) 0%, rgba(63,199,203,1) 30%, rgba(80,92,176,1) 50%, rgba(148,64,161,1) 80%, rgba(226,69,162,1) 100%)',
+        borderRadius: 'inherit',
+        margin: -3,
+        zIndex: -1
+      }
+    }
+  },
   card: {
     height: '100%',
     borderRadius: 12,
     display: 'flex',
     flexDirection: 'column',
-    background: 'white'
+    cursor: 'pointer'
   },
   cardContent: {
     padding: 6,
@@ -89,5 +153,15 @@ const useStyles = makeStyles(() => ({
   },
   shareIcon: {
     width: 20
+  },
+  shareItem: {
+    '&:hover': {
+      background: theme.palette.primary.main,
+      color: 'white'
+    },
+    '& > img': {
+      width: 24,
+      marginRight: 12
+    }
   }
 }));

@@ -9,5 +9,6 @@ module.exports = {
     }
 
     return url.protocol === 'http:' || url.protocol === 'https:';
-  }
+  },
+  wait: time => new Promise(resolve => setTimeout(resolve, time))
 };

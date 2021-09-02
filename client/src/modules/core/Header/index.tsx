@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppBar, Grid, makeStyles, Toolbar, Typography } from '@material-ui/core';
+import {
+  AppBar,
+  FormControl,
+  Grid,
+  InputAdornment,
+  makeStyles,
+  OutlinedInput,
+  Toolbar,
+  Typography
+} from '@material-ui/core';
 import { useMetaMask } from 'metamask-react';
 
 import { setUser } from '../../../store/reducers/auth';
@@ -9,7 +18,7 @@ import { User } from '../../../interfaces';
 import { HeaderUserButton } from './HeaderUserButton';
 import Logo from './DOKO_LOGO_COLOUR.png';
 import { indexAddress } from '../../api';
-import { config } from '../../../config';
+import { Search } from '@material-ui/icons';
 
 export const Header = () => {
   const dispatch = useDispatch();
@@ -43,8 +52,8 @@ export const Header = () => {
   return (
     <AppBar position="static" color="transparent" className={styles.headerContainer}>
       <Toolbar style={{ paddingTop: 8, paddingBottom: 8 }}>
-        <Grid container alignItems="center" spacing={3}>
-          <Grid item style={{ marginTop: 4 }}>
+        <Grid container alignItems="center" spacing={2}>
+          <Grid item style={{ marginTop: 10 }}>
             <img src={Logo} width={48} alt="" />
           </Grid>
           <Grid item>
@@ -52,6 +61,18 @@ export const Header = () => {
               DOKO
             </Typography>
           </Grid>
+        </Grid>
+        <Grid>
+          <FormControl>
+            <OutlinedInput
+              placeholder="Search your collection"
+              startAdornment={
+                <InputAdornment position="start">
+                  <Search fontSize="small" />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
         </Grid>
         <HeaderUserButton
           loading={loading}

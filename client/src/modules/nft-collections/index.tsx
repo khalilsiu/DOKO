@@ -16,6 +16,7 @@ export const NftCollections = () => {
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
   const [allLoaded, setAllLoaded] = useState(false);
+  const [filter, setFilter] = useState<any>({});
 
   const fetchNfts = async () => {
     if (!address || index < 0) {
@@ -23,7 +24,7 @@ export const NftCollections = () => {
     }
 
     try {
-      const res = await getNFTs(address, index);
+      const res = await getNFTs(address, index, filter);
       setNFTs(nfts => [...nfts, ...res.data]);
       setAllLoaded(res.data.length < 12);
     } catch (err) {}
@@ -32,9 +33,13 @@ export const NftCollections = () => {
 
   useEffect(() => {
     setNFTs([]);
+    if (index === 0) {
+      fetchNfts();
+    }
     setIndex(address ? 0 : -1);
     setAllLoaded(false);
-  }, [address]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, filter]);
 
   useEffect(() => {
     setLoading(true);
@@ -58,7 +63,7 @@ export const NftCollections = () => {
         </Tabs>
 
         <TabPanel index={0} value={tabValue}>
-          <Filter />
+          <Filter onChange={setFilter} />
           <Grid container wrap="wrap" alignItems="stretch" spacing={2}>
             {nfts.map(nft => (
               <Grid item key={`${nft.token_address}-${nft.token_id}`} lg={3} md={4} xs={6}>

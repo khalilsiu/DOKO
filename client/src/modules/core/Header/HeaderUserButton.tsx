@@ -1,6 +1,6 @@
-import { Button, MenuItem, MenuList, Paper } from "@material-ui/core";
-import { useState } from "react";
-import { ArrowContainer, Popover } from "react-tiny-popover";
+import { Button, MenuItem, MenuList, Paper } from '@material-ui/core';
+import { useState } from 'react';
+import { ArrowContainer, Popover } from 'react-tiny-popover';
 
 interface Props {
   onLogin: () => void;
@@ -15,7 +15,7 @@ export const HeaderUserButton = ({
   onLogin = () => null,
   address,
   onLogout = () => null,
-  loading,
+  loading
 }: Props) => {
   const [open, setOpen] = useState(false);
 
@@ -33,14 +33,14 @@ export const HeaderUserButton = ({
   return address ? (
     <Popover
       isOpen={open}
-      positions={["bottom"]}
+      positions={['bottom']}
       content={({ position, childRect, popoverRect }) => (
         <ArrowContainer
           position={position}
           childRect={childRect}
           popoverRect={popoverRect}
           arrowSize={8}
-          arrowColor={"white"}
+          arrowColor={'white'}
         >
           <Paper>
             <MenuList
@@ -55,23 +55,24 @@ export const HeaderUserButton = ({
       )}
     >
       <Button
-        color="default"
+        className="gradient-button"
         variant="outlined"
         disabled={loading}
         onMouseEnter={() => showPopover()}
         onMouseLeave={() => hidePopover(100)}
       >
-        {address.substring(0, 6) + "..." + address.substr(-4)}
+        {address.substring(0, 6) + '...' + address.substr(-4)}
       </Button>
     </Popover>
   ) : (
     <Button
+      style={{ marginLeft: 24, width: 240 }}
+      className="gradient-button"
       disabled={loading}
-      color="default"
       variant="outlined"
       onClick={() => onLogin()}
     >
-      Connect
+      Connect Metamask
     </Button>
   );
 };

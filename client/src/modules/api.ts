@@ -1,10 +1,11 @@
 import api from '../libs/api';
 
-export const getNFTs = (address: string, offset: number) =>
+export const getNFTs = (address: string, offset: number, params: any = {}) =>
   api.get('/nfts', {
     params: {
       address,
-      offset
+      offset,
+      ...params
     }
   });
 
