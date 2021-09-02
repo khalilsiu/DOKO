@@ -9,10 +9,10 @@ function App() {
     <BrowserRouter>
       <Header></Header>
       <Switch>
-        <Route path="/">
+        <Route path="/" exact>
           <Landing />
         </Route>
-        <Route path="/profile">
+        <Route path="/profile" exact>
           <NftCollections />
         </Route>
       </Switch>
