@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 initRouter(app);
-app.post('/webhooks/nft-transfer', afterSaveNftTransactions);
+app.post('/api/webhooks/nft-transfer', afterSaveNftTransactions);
 
 connectDB()
   .then(() => {
