@@ -1,6 +1,6 @@
 import { Button, MenuItem, MenuList, Paper } from '@material-ui/core';
-import { useState } from 'react';
-import { ArrowContainer, Popover } from 'react-tiny-popover';
+import Popover from '../../../components/Popover';
+import { minimizeAddress } from '../../../libs/utils';
 
 interface Props {
   onLogin: () => void;
@@ -9,60 +9,34 @@ interface Props {
   loading: boolean;
 }
 
-let popoverTimeout: any = null;
-
 export const HeaderUserButton = ({
   onLogin = () => null,
   address,
   onLogout = () => null,
   loading
 }: Props) => {
-  const [open, setOpen] = useState(false);
-
-  const hidePopover = (time = 0) => {
-    popoverTimeout = setTimeout(() => {
-      setOpen(false);
-    }, time);
-  };
-
-  const showPopover = () => {
-    clearTimeout(popoverTimeout);
-    setOpen(true);
-  };
-
   return address ? (
     <Popover
-      isOpen={open}
-      positions={['bottom']}
-      content={({ position, childRect, popoverRect }) => (
-        <ArrowContainer
-          position={position}
-          childRect={childRect}
-          popoverRect={popoverRect}
-          arrowSize={8}
-          arrowColor={'white'}
-        >
-          <Paper>
-            <MenuList
-              color="primary"
-              onMouseEnter={() => showPopover()}
-              onMouseLeave={() => hidePopover(100)}
-            >
-              <MenuItem onClick={() => onLogout()}>Sign Out</MenuItem>
-            </MenuList>
-          </Paper>
-        </ArrowContainer>
-      )}
+      reference={
+        <Button className="gradient-button" variant="outlined" disabled={loading}>
+          {minimizeAddress(address)}
+        </Button>
+      }
     >
-      <Button
-        className="gradient-button"
-        variant="outlined"
-        disabled={loading}
-        onMouseEnter={() => showPopover()}
-        onMouseLeave={() => hidePopover(100)}
-      >
-        {address.substring(0, 6) + '...' + address.substr(-4)}
-      </Button>
+      <Paper>
+        <MenuList color="primary">
+          <MenuItem>
+            <a
+              style={{ textDecoration: 'none', color: 'black' }}
+              href="https://app.gitbook.com/@doko-nft/s/doko/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              About DOKO
+            </a>
+          </MenuItem>
+        </MenuList>
+      </Paper>
     </Popover>
   ) : (
     <Button

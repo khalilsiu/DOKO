@@ -1,6 +1,7 @@
 .landing-top-section {
   text-align: center;
   color: white;
+  padding: 120px 0;
 
   h1 {
     font-size: 64px;
@@ -11,4 +12,22 @@
     max-width: 50%;
     margin: 0 auto;
   }
+}
+
+.beta-section {
+  background: #ffffff;
+  padding: 64px 0;
+  position: relative;
+
+  .beta-image {
+    position: absolute;
+    height: 100%;
+    left: 10%;
+    top: 0;
+  }
+}
+
+.what-can-you-do-section {
+  padding: 48px;
+  font-family: Exo2;
 }

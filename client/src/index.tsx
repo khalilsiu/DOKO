@@ -1,34 +1,34 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { MetaMaskProvider } from "metamask-react";
-import { MoralisProvider } from "react-moralis";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { MetaMaskProvider } from 'metamask-react';
+import { MoralisProvider } from 'react-moralis';
 
-import "./index.scss";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import { store } from "./store";
-import ThemeProvider from "./core/ThemeProvider";
-import { config } from "./config";
+import './index.scss';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+import { store } from './store';
+import ThemeProvider from './core/ThemeProvider';
+import { config } from './config';
+import { AuthContextProvider } from './contexts/AuthContext';
 
 ReactDOM.render(
   <React.StrictMode>
     <MetaMaskProvider>
       <Provider store={store}>
         <ThemeProvider>
-          <MoralisProvider
-            appId={config.moralisApplicationId}
-            serverUrl={config.moralisServerUrl}
-          >
-            <CssBaseline />
-            <App />
+          <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
+            <AuthContextProvider>
+              <CssBaseline />
+              <App />
+            </AuthContextProvider>
           </MoralisProvider>
         </ThemeProvider>
       </Provider>
     </MetaMaskProvider>
   </React.StrictMode>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

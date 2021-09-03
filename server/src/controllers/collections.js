@@ -56,7 +56,7 @@ const controller = {
     const collection = database().collection('nfts');
 
     const query = {
-      owner: address
+      owner: address.toLowerCase()
     };
 
     if (chain) {

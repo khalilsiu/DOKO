@@ -71,6 +71,11 @@ const darkTheme = createTheme({
       root: {
         padding: 0
       }
+    },
+    MuiCard: {
+      root: {
+        borderRadius: 16
+      }
     }
   }
 });

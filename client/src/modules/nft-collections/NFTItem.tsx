@@ -35,8 +35,16 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
       .replace('ipfs://', 'ipfs/')}`;
   }
   const styles = useStyles();
-
   const [shareActive, setShareActive] = useState(false);
+  const share = (type: 'facebook' | 'instagram' | 'twitter') => {
+    const url = `${window.origin}/collections/${nft.owner}`;
+    const link = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT collection on DOKO at now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT collection on @doko_nft now!`,
+      instagram: ''
+    };
+    window.open(link[type], '_blank');
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -86,15 +94,15 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
             placement="bottom-end"
           >
             <MenuList>
-              <MenuItem className={styles.shareItem}>
+              <MenuItem className={styles.shareItem} onClick={() => share('facebook')}>
                 <img src={facebook} alt="facebook" />
                 Share on Facebook
               </MenuItem>
-              <MenuItem className={styles.shareItem}>
+              <MenuItem className={styles.shareItem} onClick={() => share('twitter')}>
                 <img src={twitter} alt="twitter" />
                 Share on Twitter
               </MenuItem>
-              <MenuItem className={styles.shareItem}>
+              <MenuItem className={styles.shareItem} onClick={() => share('instagram')}>
                 <img src={instagram} alt="instagram" />
                 Share on Instagram
               </MenuItem>

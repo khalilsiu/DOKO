@@ -1,22 +1,34 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Grid, makeStyles, Tab, Tabs, Typography } from '@material-ui/core';
+import {
+  Button,
+  Card,
+  Grid,
+  IconButton,
+  makeStyles,
+  Tab,
+  Tabs,
+  Typography
+} from '@material-ui/core';
+import { useParams } from 'react-router-dom';
 
 import { NFTItem } from './NFTItem';
 import { getNFTs } from '../api';
-import { useSelector } from 'react-redux';
-import { State } from '../../store';
 import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
+import { Intro } from '../core/Intro';
+import { minimizeAddress } from '../../libs/utils';
+import { Check, CheckCircleOutlined } from '@material-ui/icons';
 
 export const NftCollections = () => {
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
   const [index, setIndex] = useState<number>(-1);
-  const address = useSelector<State, string>(state => state.auth.user.address as string);
+  const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
   const [allLoaded, setAllLoaded] = useState(false);
   const [filter, setFilter] = useState<any>({});
+  const [copied, setCopied] = useState(false);
 
   const fetchNfts = async () => {
     if (!address || index < 0) {
@@ -47,12 +59,42 @@ export const NftCollections = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index]);
 
+  const copy = () => {
+    if (copied) {
+      return;
+    }
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <Grid container wrap="nowrap" className={styles.collectionContainer}>
-      <Grid item md={4}>
-        <Card style={{ height: 600, margin: '0 24px' }}></Card>
+      <Grid item>
+        <Card className={styles.introCard}>
+          <Intro />
+        </Card>
       </Grid>
-      <Grid container direction="column" alignItems="flex-start" style={{ padding: 24 }}>
+      <Grid container direction="column" alignItems="flex-start" style={{ padding: '0 24px' }}>
+        <Grid>
+          <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+            {minimizeAddress(address)}
+          </Typography>
+          <Grid container alignItems="center">
+            <Typography variant="h6" style={{ lineHeight: 2 }}>
+              {minimizeAddress(address)}
+            </Typography>
+            {!copied ? (
+              <IconButton onClick={() => copy()}>
+                <img height={13} src="/copy.png" alt="" />
+              </IconButton>
+            ) : (
+              <Typography style={{ marginLeft: 8 }} variant="caption" color="secondary">
+                Copied!
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
         <Tabs
           indicatorColor="primary"
           textColor="primary"
@@ -98,9 +140,14 @@ export const NftCollections = () => {
 
 const useStyles = makeStyles(theme => ({
   collectionContainer: {
+    padding: 24,
     marginTop: 36,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column'
-    }
+    },
+    minHeight: 'calc(100vh)'
+  },
+  introCard: {
+    position: 'relative'
   }
 }));

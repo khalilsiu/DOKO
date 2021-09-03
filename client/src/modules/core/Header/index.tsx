@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useContext, useState } from 'react';
 import {
   AppBar,
   FormControl,
@@ -10,76 +9,56 @@ import {
   Toolbar,
   Typography
 } from '@material-ui/core';
-import { useMetaMask } from 'metamask-react';
-
-import { setUser } from '../../../store/reducers/auth';
-import { State } from '../../../store';
-import { User } from '../../../interfaces';
-import { HeaderUserButton } from './HeaderUserButton';
-import Logo from './DOKO_LOGO_COLOUR.png';
-import { indexAddress } from '../../api';
+import { Link, useHistory } from 'react-router-dom';
 import { Search } from '@material-ui/icons';
 
+import { HeaderUserButton } from './HeaderUserButton';
+import Logo from './DOKO_LOGO_COLOUR.png';
+import { AuthContext } from '../../../contexts/AuthContext';
+
 export const Header = () => {
-  const dispatch = useDispatch();
-  const { account, connect } = useMetaMask();
-  const user = useSelector<State, User>(state => state.auth.user);
-  const [loading, setLoading] = useState(false);
+  const { login, loading, address } = useContext(AuthContext);
   const styles = useStyles();
+  const [search, setSearch] = useState('');
+  const history = useHistory();
 
   const logout = async () => {};
-
-  const userLogin = async () => {
-    setLoading(true);
-
-    await connect();
-
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    dispatch(
-      setUser({
-        address: account
-      })
-    );
-
-    if (account) {
-      indexAddress(account);
-    }
-  }, [account, dispatch]);
 
   return (
     <AppBar position="static" color="transparent" className={styles.headerContainer}>
       <Toolbar style={{ paddingTop: 8, paddingBottom: 8 }}>
-        <Grid container alignItems="center" spacing={2}>
-          <Grid item style={{ marginTop: 10 }}>
-            <img src={Logo} width={48} alt="" />
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item style={{ marginTop: 10 }}>
+                <img src={Logo} width={48} alt="" />
+              </Grid>
+              <Grid item>
+                <Typography variant="h3" style={{ fontWeight: 800 }}>
+                  DOKO
+                </Typography>
+              </Grid>
+            </Grid>
+          </Link>
+          <Grid>
+            <FormControl>
+              <OutlinedInput
+                placeholder="Search your collection"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onKeyDown={e =>
+                  search && e.key === 'Enter' && history.push(`/collections/${search}`)
+                }
+                startAdornment={
+                  <InputAdornment position="start">
+                    <Search fontSize="small" />
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
           </Grid>
-          <Grid item>
-            <Typography variant="h3" style={{ fontWeight: 800 }}>
-              DOKO
-            </Typography>
-          </Grid>
+          <HeaderUserButton loading={loading} address={address} onLogin={login} onLogout={logout} />
         </Grid>
-        <Grid>
-          <FormControl>
-            <OutlinedInput
-              placeholder="Search your collection"
-              startAdornment={
-                <InputAdornment position="start">
-                  <Search fontSize="small" />
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-        </Grid>
-        <HeaderUserButton
-          loading={loading}
-          address={user.address}
-          onLogin={userLogin}
-          onLogout={logout}
-        />
       </Toolbar>
     </AppBar>
   );
