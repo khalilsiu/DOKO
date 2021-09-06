@@ -1,7 +1,7 @@
-import { makeStyles } from '@material-ui/core';
 import { Placement } from '@popperjs/core';
 import { PropsWithChildren, useState } from 'react';
 import { usePopper } from 'react-popper';
+import styled from 'styled-components';
 
 interface Props {
   reference: any;
@@ -9,6 +9,56 @@ interface Props {
 }
 
 let toggleTimeout: any;
+
+const Arrow = styled.div`
+  width: 0.6rem;
+  height: 0.6rem;
+
+  &::before {
+    content: '';
+    background: white;
+    width: 0.6rem;
+    height: 0.6rem;
+    transform: translate(-50%, -50%) rotate(45deg);
+    position: absolute;
+    border-radius: 2px;
+    top: 0;
+    left: 0;
+  }
+`;
+
+const Wrapper = styled.div`
+  transition: visibility 150ms linear, opacity 150ms linear;
+  background: white;
+  border: 1px solid #ececec;
+  box-shadow: -1px 0px 10px 7px rgb(0 0 0 / 4%);
+  border-radius: 8px;
+  z-index: 999;
+
+  &[data-popper-placement^='right'] {
+    ${Arrow} {
+      left: 0px;
+    }
+  }
+
+  &[data-popper-placement^='left'] {
+    ${Arrow} {
+      right: 0px;
+    }
+  }
+
+  &[data-popper-placement^='top'] {
+    ${Arrow} {
+      bottom: 0px;
+    }
+  }
+
+  &[data-popper-placement^='bottom'] {
+    ${Arrow} {
+      top: 0px;
+    }
+  }
+`;
 
 const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithChildren<Props>) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
@@ -18,15 +68,14 @@ const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithC
     placement,
     strategy: 'fixed',
     modifiers: [
-      { name: 'offset', options: { offset: [0, 24] } }
-      // {
-      //   name: 'arrow',
-      //   options: { element: arrowElement }
-      // }
+      { name: 'offset', options: { offset: [0, 24] } },
+      {
+        name: 'arrow',
+        options: { element: arrowElement }
+      }
     ]
   });
   const [show, setShow] = useState(false);
-  const classes = useStyles();
 
   const toggleShow = (shown: boolean) => {
     if (shown) {
@@ -47,46 +96,18 @@ const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithC
       >
         {reference}
       </span>
-      <div
+      <Wrapper
         onMouseEnter={() => toggleShow(true)}
         onMouseLeave={() => toggleShow(false)}
-        className={classes.container}
         ref={setPopperElement}
         style={{ ...styles.popper, visibility: show ? 'visible' : 'hidden', opacity: +show }}
         {...attributes.popper}
       >
         {children}
-        {/* <div className={classes.arrow} ref={setArrowElement} style={styles.arrow} /> */}
-      </div>
+        <Arrow ref={setArrowElement} style={styles.arrow} />
+      </Wrapper>
     </div>
   );
 };
-
-const useStyles = makeStyles(() => ({
-  container: {
-    transition: 'visibility 150ms linear, opacity 150ms linear',
-    background: 'white',
-    border: '1px solid #ececec',
-    boxShadow: '-1px 0px 10px 7px rgb(0 0 0 / 4%)',
-    borderRadius: 8,
-    zIndex: 999
-  },
-  arrow: {
-    width: 10,
-    height: 10,
-    borderRadius: 2,
-    zIndex: -1,
-    '&::before': {
-      content: '""',
-      transform: 'rotate(45deg)',
-      background: 'white',
-      width: 10,
-      height: 10,
-      borderRadius: 2,
-      zIndex: -1,
-      display: 'block'
-    }
-  }
-}));
 
 export default Popover;

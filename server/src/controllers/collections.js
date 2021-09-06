@@ -52,12 +52,12 @@ const watchAddress = async address => {
 
 const controller = {
   getNFTs: async (req, res) => {
-    const { offset, address, chain, term, orderBy, direction } = req.query;
+    const { offset, address, token_address, chain, term, orderBy, direction } = req.query;
     const collection = database().collection('nfts');
+    const query = {};
 
-    const query = {
-      owner: address.toLowerCase()
-    };
+    address && (query.owner = address.toLowerCase());
+    token_address && (query.token_address = token_address);
 
     if (chain) {
       query.chain = {
@@ -68,6 +68,8 @@ const controller = {
     if (term) {
       query.name = new RegExp(`/.*${term}.*/`);
     }
+
+    console.log(query);
 
     const items = await collection
       .find(query)

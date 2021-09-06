@@ -18,7 +18,6 @@ import activeShare from './assets/active-share.png';
 import inactiveShare from './assets/inactive-share.png';
 import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
-import instagram from './assets/instagram.png';
 import Popover from '../../components/Popover';
 interface NFTItemProps {
   nft: any;
@@ -36,7 +35,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   }
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
-  const share = (type: 'facebook' | 'instagram' | 'twitter') => {
+  const share = (type: 'facebook' | 'twitter') => {
     const url = `${window.origin}/collections/${nft.owner}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT collection on DOKO at now!`,
@@ -102,10 +101,6 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
                 <img src={twitter} alt="twitter" />
                 Share on Twitter
               </MenuItem>
-              <MenuItem className={styles.shareItem} onClick={() => share('instagram')}>
-                <img src={instagram} alt="instagram" />
-                Share on Instagram
-              </MenuItem>
             </MenuList>
           </Popover>
         </CardActions>
@@ -148,7 +143,8 @@ const useStyles = makeStyles(theme => ({
     padding: 6,
     flex: 1,
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    minHeight: 200
   },
   cardActions: {
     justifyContent: 'space-between',

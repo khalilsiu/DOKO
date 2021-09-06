@@ -1,71 +1,79 @@
-import { useContext, useState } from 'react';
+import { cloneElement, useContext, useState } from 'react';
 import {
   AppBar,
-  FormControl,
-  Grid,
-  InputAdornment,
+  Hidden,
   makeStyles,
-  OutlinedInput,
   Toolbar,
-  Typography
+  useScrollTrigger,
+  withStyles
 } from '@material-ui/core';
-import { Link, useHistory } from 'react-router-dom';
-import { Search } from '@material-ui/icons';
 
-import { HeaderUserButton } from './HeaderUserButton';
-import Logo from './DOKO_LOGO_COLOUR.png';
 import { AuthContext } from '../../../contexts/AuthContext';
+import { LargeScreen } from './LargeScreen';
+import { SmallScreen } from './SmallScreen';
+
+interface Props {
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window?: () => Window;
+  children: React.ReactElement;
+}
+
+function ElevationScroll(props: Props) {
+  const { children, window } = props;
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 0,
+    target: window ? window() : undefined
+  });
+
+  return cloneElement(children, {
+    elevation: trigger ? 2 : 0,
+    style: {
+      background: trigger ? 'black' : 'transparent'
+    }
+  });
+}
+
+const ResponsiveToolbar = withStyles(theme => ({
+  root: {
+    paddingTop: 24,
+    paddingBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 8,
+      paddingBottom: 8
+    }
+  }
+}))(Toolbar);
 
 export const Header = () => {
   const { login, loading, address } = useContext(AuthContext);
   const styles = useStyles();
   const [search, setSearch] = useState('');
-  const history = useHistory();
-
-  const logout = async () => {};
 
   return (
-    <AppBar position="static" color="transparent" className={styles.headerContainer}>
-      <Toolbar style={{ paddingTop: 8, paddingBottom: 8 }}>
-        <Grid container justifyContent="space-between" alignItems="center">
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <Grid container alignItems="center" spacing={2}>
-              <Grid item style={{ marginTop: 10 }}>
-                <img src={Logo} width={48} alt="" />
-              </Grid>
-              <Grid item>
-                <Typography variant="h3" style={{ fontWeight: 800 }}>
-                  DOKO
-                </Typography>
-              </Grid>
-            </Grid>
-          </Link>
-          <Grid>
-            <FormControl>
-              <OutlinedInput
-                placeholder="Search your collection"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                onKeyDown={e =>
-                  search && e.key === 'Enter' && history.push(`/collections/${search}`)
-                }
-                startAdornment={
-                  <InputAdornment position="start">
-                    <Search fontSize="small" />
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-          </Grid>
-          <HeaderUserButton loading={loading} address={address} onLogin={login} onLogout={logout} />
-        </Grid>
-      </Toolbar>
-    </AppBar>
+    <ElevationScroll>
+      <AppBar position="sticky" color="transparent" className={styles.headerContainer}>
+        <ResponsiveToolbar>
+          <Hidden smDown>
+            <LargeScreen {...{ login, loading, address, search, setSearch }} />
+          </Hidden>
+          <Hidden mdUp>
+            <SmallScreen {...{ login, loading, address, search, setSearch }} />
+          </Hidden>
+        </ResponsiveToolbar>
+      </AppBar>
+    </ElevationScroll>
   );
 };
 
 const useStyles = makeStyles(() => ({
   headerContainer: {
-    boxShadow: 'none'
+    transition: 'background linear 0.1s'
   }
 }));

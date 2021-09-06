@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography, withStyles } from '@material-ui/core';
 
 const socialLinks = [
   {
@@ -15,38 +15,58 @@ const socialLinks = [
   }
 ];
 
+const FooterContainer = withStyles(theme => ({
+  root: {
+    background: '#ffffff',
+    padding: '24px 60px',
+    [theme.breakpoints.down('sm')]: {
+      padding: '12px 24px'
+    }
+  }
+}))(Grid);
+
 export const Footer = () => {
   const styles = useStyles();
 
   return (
-    <Grid
-      className={styles.footerContainer}
-      container
-      justifyContent="space-between"
-      alignItems="center"
-    >
-      <Typography variant="caption" style={{ color: 'black' }}>
-        Ⓒ 2021 DOKO
-      </Typography>
+    <FooterContainer container justifyContent="space-between" alignItems="center">
+      <Grid item xs={4}>
+        <Typography variant="caption" style={{ color: 'black' }}>
+          Ⓒ 2021 DOKO
+        </Typography>
+      </Grid>
       <img height={24} src="/DOKO_LOGO_LOCKUP.png" alt="DOKO" />
-      <Grid item>
-        <Grid container spacing={3}>
+      <Grid item xs={4}>
+        <Grid container alignItems="center" justifyContent="flex-end">
           {socialLinks.map(s => (
-            <Grid item key={s.image}>
-              <a rel="noreferrer" href={s.link} target="_blank">
-                <img width={28} src={s.image} alt="" />
+            <Grid className={styles.socialImageItem} item key={s.image}>
+              <a
+                rel="noreferrer"
+                href={s.link}
+                target="_blank"
+                style={{ display: 'block', lineHeight: 1 }}
+              >
+                <img src={s.image} alt="" />
               </a>
             </Grid>
           ))}
         </Grid>
       </Grid>
-    </Grid>
+    </FooterContainer>
   );
 };
 
-const useStyles = makeStyles(() => ({
-  footerContainer: {
-    background: '#ffffff',
-    padding: '24px 60px'
+const useStyles = makeStyles(theme => ({
+  socialImageItem: {
+    paddingLeft: theme.spacing(3),
+    '& img': {
+      width: 28,
+      [theme.breakpoints.down('sm')]: {
+        width: 20
+      }
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: theme.spacing(2)
+    }
   }
 }));

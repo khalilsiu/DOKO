@@ -76,6 +76,14 @@ const darkTheme = createTheme({
       root: {
         borderRadius: 16
       }
+    },
+    MuiDrawer: {
+      paper: {
+        borderTopRightRadius: 32,
+        borderBottomRightRadius: 32,
+        overflow: 'hidden',
+        height: '101%'
+      }
     }
   }
 });

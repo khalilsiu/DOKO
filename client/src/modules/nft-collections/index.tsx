@@ -3,11 +3,14 @@ import {
   Button,
   Card,
   Grid,
+  Hidden,
   IconButton,
   makeStyles,
   Tab,
   Tabs,
-  Typography
+  Tooltip,
+  Typography,
+  withStyles
 } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 
@@ -17,9 +20,23 @@ import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
 import { Intro } from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
-import { Check, CheckCircleOutlined } from '@material-ui/icons';
 
-export const NftCollections = () => {
+const CustomTabs = withStyles({
+  root: {
+    width: '100%'
+  },
+  flexContainer: {
+    borderBottom: '2px solid #46324a'
+  }
+})(Tabs);
+
+const CustomTab = withStyles({
+  wrapper: {
+    textTransform: 'none'
+  }
+})(Tab);
+
+export const NftCollections = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
   const [index, setIndex] = useState<number>(-1);
@@ -70,45 +87,45 @@ export const NftCollections = () => {
 
   return (
     <Grid container wrap="nowrap" className={styles.collectionContainer}>
-      <Grid item>
-        <Card className={styles.introCard}>
-          <Intro />
-        </Card>
-      </Grid>
-      <Grid container direction="column" alignItems="flex-start" style={{ padding: '0 24px' }}>
+      {
+        <Hidden smDown>
+          <Grid item>
+            <Card className={styles.introCard}>
+              <Intro />
+            </Card>
+          </Grid>
+        </Hidden>
+      }
+      <Grid className={styles.itemsContainer} container direction="column" alignItems="flex-start">
         <Grid>
           <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
             {minimizeAddress(address)}
           </Typography>
-          <Grid container alignItems="center">
-            <Typography variant="h6" style={{ lineHeight: 2 }}>
-              {minimizeAddress(address)}
-            </Typography>
-            {!copied ? (
-              <IconButton onClick={() => copy()}>
+          <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
+            <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
+              <Typography variant="h6" style={{ lineHeight: 2 }}>
+                {minimizeAddress(address)}
+              </Typography>
+              <IconButton>
                 <img height={13} src="/copy.png" alt="" />
               </IconButton>
-            ) : (
-              <Typography style={{ marginLeft: 8 }} variant="caption" color="secondary">
-                Copied!
-              </Typography>
-            )}
-          </Grid>
+            </Grid>
+          </Tooltip>
         </Grid>
-        <Tabs
+        <CustomTabs
           indicatorColor="primary"
           textColor="primary"
           value={tabValue}
           onChange={(event, newValue) => setTabValue(newValue)}
         >
-          <Tab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
-        </Tabs>
+          <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
+        </CustomTabs>
 
         <TabPanel index={0} value={tabValue}>
           <Filter onChange={setFilter} />
           <Grid container wrap="wrap" alignItems="stretch" spacing={2}>
             {nfts.map(nft => (
-              <Grid item key={`${nft.token_address}-${nft.token_id}`} lg={3} md={4} xs={6}>
+              <Grid item key={`${nft.token_address}-${nft.token_id}`} lg={3} md={4} sm={6} xs={12}>
                 <NFTItem nft={nft} />
               </Grid>
             ))}
@@ -127,10 +144,8 @@ export const NftCollections = () => {
                 Show More
               </Button>
             )
-          ) : address ? (
-            <Typography>No Items</Typography>
           ) : (
-            <Typography>Please sign in first</Typography>
+            <Typography variant="h6">No Items</Typography>
           )}
         </TabPanel>
       </Grid>
@@ -149,5 +164,11 @@ const useStyles = makeStyles(theme => ({
   },
   introCard: {
     position: 'relative'
+  },
+  itemsContainer: {
+    paddingLeft: 36,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 0
+    }
   }
 }));

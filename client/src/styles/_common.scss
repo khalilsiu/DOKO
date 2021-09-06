@@ -1,3 +1,5 @@
+@import './variables';
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -8,36 +10,22 @@
 }
 
 .gradient-button {
-  background: linear-gradient(
-    -45deg,
-    rgba(63, 199, 203, 1) 0%,
-    rgba(63, 199, 203, 1) 30%,
-    rgba(80, 92, 176, 1) 50%,
-    rgba(148, 64, 161, 1) 80%,
-    rgba(226, 69, 162, 1) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  position: relative;
-  border: solid 3px transparent;
+  border-color: $primary !important;
+  color: $primary !important;
+  transition: all linear 0.2s !important;
 
-  // &::before {
-  //   content: '';
-  //   position: absolute;
-  //   top: 0;
-  //   left: 0;
-  //   bottom: 0;
-  //   right: 0;
-  //   border-radius: inherit;
-  //   z-index: -1;
-  //   margin: -3px;
-  //   background: linear-gradient(
-  //     -45deg,
-  //     rgba(63, 199, 203, 1) 0%,
-  //     rgba(63, 199, 203, 1) 30%,
-  //     rgba(80, 92, 176, 1) 50%,
-  //     rgba(148, 64, 161, 1) 80%,
-  //     rgba(226, 69, 162, 1) 100%
-  //   );
-  // }
+  &:hover {
+    background: $primary !important;
+    color: white !important;
+  }
+}
+
+.hover-button {
+  opacity: 1;
+  transition: opacity linear 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }

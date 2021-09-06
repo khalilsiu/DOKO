@@ -1,43 +1,33 @@
-import { Button, MenuItem, MenuList, Paper } from '@material-ui/core';
-import Popover from '../../../components/Popover';
+import { Button, makeStyles, Tooltip } from '@material-ui/core';
+import { useState } from 'react';
 import { minimizeAddress } from '../../../libs/utils';
 
 interface Props {
   onLogin: () => void;
-  onLogout: () => void;
   address: string | null;
   loading: boolean;
 }
 
-export const HeaderUserButton = ({
-  onLogin = () => null,
-  address,
-  onLogout = () => null,
-  loading
-}: Props) => {
+export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Props) => {
+  const styles = useStyles();
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => {
+    if (copied) {
+      return;
+    }
+    navigator.clipboard.writeText(address as string);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1000);
+  };
+
   return address ? (
-    <Popover
-      reference={
-        <Button className="gradient-button" variant="outlined" disabled={loading}>
-          {minimizeAddress(address)}
-        </Button>
-      }
-    >
-      <Paper>
-        <MenuList color="primary">
-          <MenuItem>
-            <a
-              style={{ textDecoration: 'none', color: 'black' }}
-              href="https://app.gitbook.com/@doko-nft/s/doko/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              About DOKO
-            </a>
-          </MenuItem>
-        </MenuList>
-      </Paper>
-    </Popover>
+    <Tooltip title={copied ? 'Copied' : 'Copy'}>
+      <Button className={styles.loggedInBtn} variant="outlined" disabled={loading} onClick={copy}>
+        {minimizeAddress(address)}
+        <img height={13} src="/copy.png" alt="" />
+      </Button>
+    </Tooltip>
   ) : (
     <Button
       style={{ marginLeft: 24, width: 240 }}
@@ -50,3 +40,14 @@ export const HeaderUserButton = ({
     </Button>
   );
 };
+
+const useStyles = makeStyles(() => ({
+  loggedInBtn: {
+    borderRadius: 8,
+    color: 'white',
+    borderColor: 'white !important',
+    '& img': {
+      marginLeft: 8
+    }
+  }
+}));

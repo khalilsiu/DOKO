@@ -25,9 +25,8 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
     setLoading(true);
 
     connect()
-      .then(accounts => {
+      .then(() => {
         setLoading(false);
-        accounts?.length && history.push(`/collections/${accounts[0] as string}`);
       })
       .catch(() => setLoading(false));
   };
@@ -37,8 +36,10 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
 
     if (account) {
       indexAddress(account);
+      history && history.push(`/collections/${account}`);
     }
-  }, [account]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, history]);
 
   return (
     <AuthContext.Provider value={{ address, loading, login }}>{children}</AuthContext.Provider>

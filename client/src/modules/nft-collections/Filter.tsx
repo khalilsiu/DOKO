@@ -8,13 +8,12 @@ import {
   InputAdornment,
   makeStyles,
   MenuItem,
-  MenuList,
-  OutlinedInput,
-  Typography
+  MenuList
 } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { ArrowDropDown, ArrowDropUp, Search } from '@material-ui/icons';
 import { useEffect, useRef, useState } from 'react';
+import { RadiusInput } from '../../components';
 
 import Popover from '../../components/Popover';
 
@@ -147,8 +146,8 @@ export function Filter({ onChange }: FilterProps) {
   return (
     <Grid container spacing={2} direction="column" style={{ paddingTop: 24, paddingBottom: 36 }}>
       <Grid item>
-        <FormControl>
-          <OutlinedInput
+        <FormControl className={styles.searchInput}>
+          <RadiusInput
             value={filter.term}
             placeholder="Search your collection"
             startAdornment={
@@ -164,7 +163,7 @@ export function Filter({ onChange }: FilterProps) {
         <Grid container justifyContent="space-between">
           <Popover
             reference={
-              <Button variant="contained" color="primary">
+              <Button className="gradient-button" variant="outlined" color="primary">
                 Blockchain
               </Button>
             }
@@ -195,7 +194,12 @@ export function Filter({ onChange }: FilterProps) {
                 justifyContent="flex-end"
                 style={{ paddingTop: 12, paddingBottom: 8, paddingRight: 12 }}
               >
-                <Button variant="outlined" color="primary" onClick={() => applyFilter()}>
+                <Button
+                  className="gradient-button"
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => applyFilter()}
+                >
                   Apply
                 </Button>
               </Grid>
@@ -203,7 +207,7 @@ export function Filter({ onChange }: FilterProps) {
           </Popover>
           <Popover
             reference={
-              <Button variant="contained" color="primary">
+              <Button className="gradient-button" variant="outlined" color="primary">
                 Sort By: {filter.sort.label}
                 {filter.sort.order === 1 ? <ArrowDropUp /> : <ArrowDropDown />}
               </Button>
@@ -236,6 +240,12 @@ const useStyles = makeStyles(theme => ({
     fontSize: 12,
     '& > span:last-child': {
       color: 'black'
+    }
+  },
+  searchInput: {
+    width: 300,
+    [theme.breakpoints.down('xs')]: {
+      width: '100%'
     }
   }
 }));

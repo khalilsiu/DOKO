@@ -11,7 +11,6 @@ import reportWebVitals from './reportWebVitals';
 import { store } from './store';
 import ThemeProvider from './core/ThemeProvider';
 import { config } from './config';
-import { AuthContextProvider } from './contexts/AuthContext';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -19,10 +18,8 @@ ReactDOM.render(
       <Provider store={store}>
         <ThemeProvider>
           <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
-            <AuthContextProvider>
-              <CssBaseline />
-              <App />
-            </AuthContextProvider>
+            <CssBaseline />
+            <App />
           </MoralisProvider>
         </ThemeProvider>
       </Provider>
