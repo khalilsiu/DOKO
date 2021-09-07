@@ -7,7 +7,7 @@ const fetchNFTs = async (address, chain) => {
   const chains = chain ? [chain] : ['eth', 'bsc', 'polygon'];
 
   try {
-    const nftCollections = await Promise.all(
+    let nftCollections = await Promise.all(
       chains.map(c =>
         Moralis.Web3API.account.getNFTs({
           address,
@@ -16,6 +16,7 @@ const fetchNFTs = async (address, chain) => {
       )
     );
     console.log(address, nftCollections);
+    nftCollections = nftCollections.map(n => n.result || n);
     chains.forEach((chain, index) => {
       for (const nft of nftCollections[index]) {
         nft.chain = chain;
