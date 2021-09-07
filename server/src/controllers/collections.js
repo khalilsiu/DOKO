@@ -1,9 +1,11 @@
 const { database } = require('../db');
 const { Moralis } = require('../libs/moralis');
 const { fetchNFTs, fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
+const { wait } = require('../moralis/helpers/utils');
 
 const setMetadata = async (nft, address) => {
   const newNFT = await fetchNFTMetadata(nft, address);
+  await wait(1500);
   const db = database();
   const collection = db.collection('nfts');
 
@@ -66,10 +68,10 @@ const controller = {
     }
 
     if (term) {
-      query.name = new RegExp(`/.*${term}.*/`);
+      query.$text = {
+        $search: term
+      };
     }
-
-    console.log(query);
 
     const items = await collection
       .find(query)
