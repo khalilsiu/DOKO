@@ -15,7 +15,7 @@ import {
 import { useParams } from 'react-router-dom';
 
 import { NFTItem } from './NFTItem';
-import { getNFTs } from '../api';
+import { getNFTs, indexAddress } from '../api';
 import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
 import { Intro } from '../core/Intro';
@@ -59,6 +59,10 @@ export const NftCollections = (): JSX.Element => {
     } catch (err) {}
     setLoading(false);
   };
+
+  useEffect(() => {
+    indexAddress(address);
+  }, [address]);
 
   useEffect(() => {
     setNFTs([]);
@@ -123,13 +127,11 @@ export const NftCollections = (): JSX.Element => {
 
         <TabPanel index={0} value={tabValue}>
           <Filter onChange={setFilter} />
-          <Grid container wrap="wrap" alignItems="stretch" spacing={2}>
+          <div className={styles.nftsContainer}>
             {nfts.map(nft => (
-              <Grid item key={`${nft.token_address}-${nft.token_id}`} lg={3} md={4} sm={6} xs={12}>
-                <NFTItem nft={nft} />
-              </Grid>
+              <NFTItem key={`${nft.token_address}-${nft.token_id}`} nft={nft} />
             ))}
-          </Grid>
+          </div>
           {nfts.length ? (
             allLoaded ? (
               <></>
@@ -163,12 +165,29 @@ const useStyles = makeStyles(theme => ({
     minHeight: 'calc(100vh)'
   },
   introCard: {
-    position: 'relative'
+    position: 'sticky',
+    top: 120
   },
   itemsContainer: {
     paddingLeft: 36,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 0
+    }
+  },
+  nftsContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridAutoRows: '1fr',
+    columnGap: 12,
+    rowGap: 12,
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: 'repeat(3, 1fr)'
+    },
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: 'repeat(2, 1fr)'
+    },
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: 'repeat(1, 1fr)'
     }
   }
 }));

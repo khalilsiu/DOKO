@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
   Card,
   CardActions,
@@ -11,6 +12,7 @@ import {
   MenuList,
   Typography
 } from '@material-ui/core';
+
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
@@ -18,6 +20,7 @@ import activeShare from './assets/active-share.png';
 import inactiveShare from './assets/inactive-share.png';
 import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
+import NoImage from './assets/NoImage.png';
 import Popover from '../../components/Popover';
 interface NFTItemProps {
   nft: any;
@@ -44,14 +47,15 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
     };
     window.open(link[type], '_blank');
   };
+  const [error, setError] = useState(false);
 
   return (
     <div className={styles.wrapper}>
       <Card className={styles.card}>
         <CardContent className={styles.cardContent}>
           <Grid container alignItems="center" style={{ flex: 1 }}>
-            {nft.metadata.image &&
-              (nft.metadata.image.indexOf('<svg') === 0 ? (
+            {nft.metadata.image && !error ? (
+              nft.metadata.image.indexOf('<svg') === 0 ? (
                 <div
                   style={{ flex: 1 }}
                   dangerouslySetInnerHTML={{ __html: nft.metadata.image }}
@@ -63,8 +67,35 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
                   alt=""
                   width="100%"
                   src={nft.metadata.image}
+                  effect="opacity"
+                  onError={() => setError(true)}
                 />
-              ))}
+              )
+            ) : (
+              <Grid
+                container
+                alignItems="center"
+                justifyContent="center"
+                style={{ flex: 1 }}
+                className={styles.image}
+                direction="column"
+              >
+                <img width={60} src={NoImage} style={{ marginBottom: 24 }} alt="Not Available" />
+                {error ? (
+                  <div>
+                    <Typography className={styles.notAvailableText} gutterBottom variant="h5">
+                      Sorry!
+                    </Typography>
+                    <Typography className={styles.notAvailableText}>Image unavailable</Typography>
+                    <Typography className={styles.notAvailableText}>due to host error</Typography>
+                  </div>
+                ) : (
+                  <Typography className={styles.notAvailableText}>
+                    The NFT doesn't have image
+                  </Typography>
+                )}
+              </Grid>
+            )}
           </Grid>
           <Typography className={styles.nftName} variant="caption">
             {nft.metadata?.name || nft.name || '-'}
@@ -178,5 +209,9 @@ const useStyles = makeStyles(theme => ({
       width: 24,
       marginRight: 12
     }
+  },
+  notAvailableText: {
+    color: '#b3b3b3',
+    textAlign: 'center'
   }
 }));

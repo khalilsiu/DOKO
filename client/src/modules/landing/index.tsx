@@ -20,7 +20,7 @@ export const Landing = () => {
   return (
     <div>
       <Container maxWidth="lg" className="landing-top-section">
-        <h1>All Your NFTs in One Place</h1>
+        <h1 className={styles.landingTopTitle}>All Your NFTs in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
           View your NFT collection for any Ethereum, BSC and Polygon address under one single
           dashboard
@@ -49,7 +49,7 @@ export const Landing = () => {
         </Container>
       </section>
 
-      <section className="what-can-you-do-section">
+      <section className={styles.whatCanYouDoSection}>
         <div className={styles.whatCanYouDoTextContainer}>
           <div className={styles.highlightText}>What Can You</div>
           <div className={styles.highlightText}>Do With DOKO?</div>
@@ -152,6 +152,11 @@ export const Landing = () => {
 };
 
 const useStyles = makeStyles(theme => ({
+  landingTopTitle: {
+    fontSize: 64,
+    fontFamily: 'Exo2',
+    marginTop: 0
+  },
   landingTopMiddleText: {
     maxWidth: '50%',
     margin: '0 auto',

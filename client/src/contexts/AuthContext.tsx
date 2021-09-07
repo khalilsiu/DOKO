@@ -1,7 +1,6 @@
 import { useMetaMask } from 'metamask-react';
-import { createContext, PropsWithChildren, useEffect, useState } from 'react';
+import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { indexAddress } from '../modules/api';
 
 interface AuthContextValue {
   address: string | null;
@@ -20,6 +19,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const { account, connect } = useMetaMask();
   const history = useHistory();
   const [address, setAddress] = useState<string | null>('');
+  const firstTime = useRef(true);
 
   const login = async () => {
     setLoading(true);
@@ -34,9 +34,12 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   useEffect(() => {
     setAddress(account);
 
-    if (account) {
-      indexAddress(account);
+    if (account && !firstTime.current) {
       history && history.push(`/collections/${account}`);
+    }
+
+    if (account) {
+      firstTime.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, history]);
