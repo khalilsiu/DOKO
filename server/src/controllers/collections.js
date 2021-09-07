@@ -1,61 +1,39 @@
-const { database } = require('../db');
+const Address = require('../db/Address');
+const NFTS = require('../db/Nfts');
 const { Moralis } = require('../libs/moralis');
-const { fetchNFTs, fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
-const { wait } = require('../moralis/helpers/utils');
-
-const setMetadata = async (nft, address) => {
-  const newNFT = await fetchNFTMetadata(nft, address);
-  await wait(1500);
-  const db = database();
-  const collection = db.collection('nfts');
-
-  try {
-    const query = {
-      token_id: newNFT.token_id,
-      token_address: newNFT.token_address
-    };
-    const exists = await collection.findOne(query);
-
-    if (exists) {
-      return await collection.updateOne(query, {
-        $set: newNFT
-      });
-    } else {
-      return await collection.insertOne(newNFT);
-    }
-  } catch (err) {
-    console.error('NFT save error:\n', err);
-  }
-};
+const { syncNFTs } = require('../services/nfts');
 
 const watchAddress = async address => {
-  let watching = 0;
-
   for (const chain of ['Eth', 'Bsc', 'Polygon']) {
-    const className = `Watched${chain}Address`;
-    const query = new Moralis.Query(Moralis.Object.extend(className));
-
-    try {
-      query.equalTo('address', address);
-      const exists = await query.find();
-
-      if (exists.length) {
-        watching++;
-        continue;
-      }
-    } catch (err) {}
-
     Moralis.Cloud.run(`watch${chain}Address`, {
       address
     });
   }
-  return watching;
+
+  try {
+    const collection = new Address();
+    const item = await collection.findOne({ address });
+
+    if (item) {
+      return item;
+    }
+    const data = {
+      address,
+      sync_status: 'new',
+      sync_progress: 0,
+      last_error: null
+    };
+    await collection.insertOne(data);
+    return data;
+  } catch (err) {
+    console.error('Address Status get Error:', err);
+  }
 };
 
 const controller = {
   getNFTs: async (req, res) => {
     const { offset, address, token_address, chain, term, orderBy, direction } = req.query;
-    const collection = database().collection('nfts');
+    const collection = new NFTS();
     const query = {};
 
     address && (query.owner = address.toLowerCase());
@@ -73,51 +51,27 @@ const controller = {
       };
     }
 
-    const items = await collection
+    const items = await collection.instance
       .find(query)
-      .sort({ [orderBy || 'name']: +direction || 1 })
+      .sort({ 'metadata.name': +direction || 1, name: +direction || 1 })
       .skip(+offset || 0)
       .limit(12)
       .toArray();
 
     return res.json(items);
   },
-  indexCollections: async (req, res, next) => {
+  indexCollections: async (req, res) => {
     const { address } = req.body;
 
     console.log('indexCollections: ', address);
 
-    const watching = await watchAddress(address);
+    const status = await watchAddress(address);
 
-    if (watching === 3) {
-      return res.json({ message: 'Already indexed' });
-    }
-    const nfts = await fetchNFTs(address);
+    console.log(status);
 
-    for (const nft of nfts.sort((a, b) => {
-      if (a.name && b.name) {
-        return a.name > b.name ? 1 : -1;
-      }
-
-      if (a.name && !b.name) {
-        return 1;
-      }
-
-      if (!a.name && b.name) {
-        return -1;
-      }
-
-      return a.token_address > b.token_address
-        ? 1
-        : a.token_address < b.token_address
-        ? -1
-        : a.token_id > b.token_d
-        ? 1
-        : -1;
-    })) {
-      await setMetadata(nft, address);
-    }
-    return res.json({ success: true });
+    await syncNFTs(address, status);
+    // await
+    return res.json({ success: true, message: 'Successfully indexed' });
   }
 };
 

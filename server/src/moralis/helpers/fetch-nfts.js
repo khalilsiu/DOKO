@@ -15,7 +15,7 @@ const fetchNFTs = async (address, chain) => {
         })
       )
     );
-    console.log(nftCollections);
+    console.log(address, nftCollections);
     chains.forEach((chain, index) => {
       for (const nft of nftCollections[index]) {
         nft.chain = chain;
@@ -23,13 +23,14 @@ const fetchNFTs = async (address, chain) => {
     });
     return _.flatten(nftCollections);
   } catch (err) {
-    console.error('NFT collection error:\n', err);
+    console.error('fetchNFTs:\n', err);
     return [];
   }
 };
 
 const fetchNFTMetadata = async (nft, address) => {
   let metadata;
+  let metadata_updated = false;
 
   if (!nft.token_uri) {
     metadata = null;
@@ -37,13 +38,15 @@ const fetchNFTMetadata = async (nft, address) => {
     try {
       const nftRes = await axios.get(nft.token_uri);
       metadata = nftRes.data;
+      metadata_updated = true;
     } catch (err) {
-      console.error('NFT get error:\n', err.response);
+      console.error('NFT get error:\n', { error: err.response?.data, nft });
       metadata = { error: 'API', message: err.response?.data };
     }
   } else if (nft.token_uri.includes('data:application/json;utf8,')) {
     try {
       metadata = JSON.parse(nft.token_uri.replace('data:application/json;utf8,', ''));
+      metadata_updated = true;
     } catch (err) {
       metadata = { error: 'JSON' };
       console.error('NFT get error:\n', err, nft);
@@ -55,6 +58,7 @@ const fetchNFTMetadata = async (nft, address) => {
         'base64'
       );
       metadata = JSON.parse(buff.toString('utf-8'));
+      metadata_updated = true;
     } catch (err) {
       metadata = { error: 'BASE64' };
       console.error('NFT get error:\n', err, nft);
@@ -62,6 +66,7 @@ const fetchNFTMetadata = async (nft, address) => {
   } else {
     try {
       metadata = JSON.parse(nft.token_uri);
+      metadata_updated = true;
     } catch (err) {
       metadata = { error: 'STRING' };
       console.error('NFT get error:\n', err, nft);
@@ -76,7 +81,7 @@ const fetchNFTMetadata = async (nft, address) => {
         }
       : {},
     owner: address,
-    metadata_updated: !!metadata
+    metadata_updated
   };
   return newNFT;
 };
