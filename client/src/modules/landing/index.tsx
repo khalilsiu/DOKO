@@ -38,7 +38,7 @@ export const Landing = () => {
 
       <section className={styles.betaSection}>
         <Container maxWidth="md">
-          <Grid container alignItems="center" justifyContent="space-evenly">
+          <Grid wrap="nowrap" container alignItems="center" justifyContent="space-evenly">
             {images.map(image => (
               <Grid item key={image} className={styles.betaSectionImage} sm={2} xs={4}>
                 <img height={42} src={image} alt="" />
@@ -64,7 +64,7 @@ export const Landing = () => {
         >
           <img src="landing/ViewNFTsGraphic.png" alt="" />
           <div>
-            <Grid container alignItems="center" spacing={6}>
+            <Grid wrap="nowrap" container alignItems="center" spacing={6}>
               <Grid item>
                 <Typography className={styles.numberText} component="h1" variant="h1">
                   1
@@ -84,9 +84,10 @@ export const Landing = () => {
           justifyContent="center"
           spacing={10}
         >
+          <img className={styles.wereHereImage} src="landing/WereHere.png" alt="" />
           <img src="landing/ShareNFTsGraphic.png" alt="" />
           <div>
-            <Grid container alignItems="center" spacing={6}>
+            <Grid wrap="nowrap" container alignItems="center" spacing={6}>
               <Grid item>
                 <Typography className={styles.numberText} component="h1" variant="h1">
                   2
@@ -108,7 +109,7 @@ export const Landing = () => {
         >
           <img src="landing/TrendsGraphic.png" alt="" />
           <div>
-            <Grid container alignItems="center" spacing={6}>
+            <Grid container wrap="nowrap" alignItems="center" spacing={6}>
               <Grid item>
                 <Typography className={styles.numberText} component="h1" variant="h1">
                   3
@@ -183,7 +184,10 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 600,
     fontSize: 22,
     width: 240,
-    fontFamily: 'Exo2'
+    fontFamily: 'Exo2',
+    [theme.breakpoints.down('xs')]: {
+      width: 'unset'
+    }
   },
   betaSection: {
     background: '#ffffff',
@@ -208,6 +212,7 @@ const useStyles = makeStyles(theme => ({
   },
   whatYouCanDoItem: {
     padding: '0 84px 36px',
+    position: 'relative',
     '& > img': {
       width: '25%',
       [theme.breakpoints.down('sm')]: {
@@ -231,5 +236,12 @@ const useStyles = makeStyles(theme => ({
     [theme.breakpoints.down('sm')]: {
       marginBottom: 48
     }
+  },
+  wereHereImage: {
+    width: '80px !important'
+    // [theme.breakpoints.down('sm')]: {
+    //   left: 300,
+    //   top: 0
+    // }
   }
 }));

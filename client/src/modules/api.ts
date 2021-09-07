@@ -13,3 +13,5 @@ export const indexAddress = (address: string) =>
   api.post('/nfts/index', {
     address
   });
+
+export const getAddressStatus = (address: string) => api.get(`/address/${address}`);

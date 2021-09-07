@@ -11,7 +11,7 @@ const socialLinks = [
   },
   {
     image: '/social/Medium.png',
-    link: 'https://medium.com/@doko_nft'
+    link: 'https://medium.com/doko-one'
   }
 ];
 

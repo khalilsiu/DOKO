@@ -16,7 +16,7 @@ const socialLinks = [
   },
   {
     image: '/social/Medium.png',
-    link: 'https://medium.com/@doko_nft'
+    link: 'https://medium.com/doko-one'
   }
 ];
 
@@ -70,7 +70,7 @@ export const Intro = ({ drawer = false }: Props) => {
           <Grid item>
             <a
               style={{ textDecoration: 'none' }}
-              href="https://app.gitbook.com/@doko-nft/s/doko/"
+              href="https://doko-one.gitbook.io/doko/"
               target="_blank"
               rel="noreferrer"
             >

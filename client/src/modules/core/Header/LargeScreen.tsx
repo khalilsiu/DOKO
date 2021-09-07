@@ -37,7 +37,7 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
             <a
               style={{ textDecoration: 'none', display: 'block' }}
               className="hover-button"
-              href="https://app.gitbook.com/@doko-nft/s/doko/"
+              href="https://doko-one.gitbook.io/doko/"
               target="_blank"
               rel="noreferrer"
             >

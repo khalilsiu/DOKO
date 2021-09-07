@@ -21,6 +21,7 @@ import inactiveShare from './assets/inactive-share.png';
 import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
+import loading from './assets/loading.gif';
 import Popover from '../../components/Popover';
 interface NFTItemProps {
   nft: any;
@@ -67,6 +68,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
                   alt=""
                   width="100%"
                   src={nft.metadata.image}
+                  placeholder={<img src={loading} alt="" />}
                   effect="opacity"
                   onError={() => setError(true)}
                 />
@@ -190,7 +192,11 @@ const useStyles = makeStyles(theme => ({
     borderTopRightRadius: 12,
     borderTopLeftRadius: 12,
     maxHeight: 400,
-    minHeight: 200
+    minHeight: 200,
+    '& > svg': {
+      width: '100%',
+      height: 'auto'
+    }
   },
   networkIcon: {
     width: 10,

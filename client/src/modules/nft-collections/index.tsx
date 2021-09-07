@@ -15,11 +15,12 @@ import {
 import { useParams } from 'react-router-dom';
 
 import { NFTItem } from './NFTItem';
-import { getNFTs, indexAddress } from '../api';
+import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
 import { Intro } from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
+import { AddressStatus } from './AddressStatus';
 
 const CustomTabs = withStyles({
   root: {
@@ -36,6 +37,8 @@ const CustomTab = withStyles({
   }
 })(Tab);
 
+let syncInterval: any;
+
 export const NftCollections = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
@@ -46,8 +49,10 @@ export const NftCollections = (): JSX.Element => {
   const [allLoaded, setAllLoaded] = useState(false);
   const [filter, setFilter] = useState<any>({});
   const [copied, setCopied] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<any>(null);
 
   const fetchNfts = async () => {
+    console.log(index);
     if (!address || index < 0) {
       return;
     }
@@ -61,11 +66,38 @@ export const NftCollections = (): JSX.Element => {
   };
 
   useEffect(() => {
+    clearInterval(syncInterval);
+    return () => clearInterval(syncInterval);
+  }, []);
+
+  useEffect(() => {
+    if (!address) {
+      return;
+    }
     indexAddress(address);
+    clearInterval(syncInterval);
+
+    syncInterval = setInterval(async () => {
+      try {
+        const res = await getAddressStatus(address);
+        const sync = res.data;
+        setSyncStatus(sync || {});
+
+        if (sync?.sync_status === 'done') {
+          clearInterval(syncInterval);
+
+          !nfts.length && fetchNfts();
+        }
+      } catch (err) {
+        syncStatus || setSyncStatus({});
+      }
+    }, 2000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   useEffect(() => {
     setNFTs([]);
+
     if (index === 0) {
       fetchNfts();
     }
@@ -129,7 +161,7 @@ export const NftCollections = (): JSX.Element => {
           <Filter onChange={setFilter} />
           <div className={styles.nftsContainer}>
             {nfts.map(nft => (
-              <NFTItem key={`${nft.token_address}-${nft.token_id}`} nft={nft} />
+              <NFTItem key={`${nft.token_address}_${nft.token_id}`} nft={nft} />
             ))}
           </div>
           {nfts.length ? (
@@ -140,14 +172,14 @@ export const NftCollections = (): JSX.Element => {
                 style={{ margin: '24px 0' }}
                 variant="outlined"
                 color="primary"
-                onClick={() => setIndex(index + 9)}
+                onClick={() => setIndex(nfts.length)}
                 disabled={loading || allLoaded}
               >
                 Show More
               </Button>
             )
           ) : (
-            <Typography variant="h6">No Items</Typography>
+            <AddressStatus status={syncStatus} />
           )}
         </TabPanel>
       </Grid>
