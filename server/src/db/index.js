@@ -14,7 +14,14 @@ const connectDB = () =>
       console.log('DB connected');
       db = client.db(process.env.DB_NAME);
       db.collection('nfts').createIndex({ token_id: 1, token_address: 1 });
-      db.collection('nfts').createIndex({ name: 'text', 'metadata.name': 'text' });
+      db.collection('nfts').createIndex(
+        { name: 'text', 'metadata.name': 'text' },
+        {
+          name: 'text_search',
+          default_language: 'en',
+          language_override: 'en'
+        }
+      );
       resolve(db);
     });
   });
