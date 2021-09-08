@@ -2,7 +2,6 @@ import { Button, Container, Grid, Typography, makeStyles } from '@material-ui/co
 import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
-import './index.scss';
 
 export const Landing = () => {
   const images = [
@@ -19,7 +18,7 @@ export const Landing = () => {
 
   return (
     <div>
-      <Container maxWidth="lg" className="landing-top-section">
+      <Container maxWidth="lg" className={styles.landingTopSection}>
         <h1 className={styles.landingTopTitle}>All Your NFTs in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
           View your NFT collection for any Ethereum, BSC and Polygon address under one single
@@ -38,7 +37,7 @@ export const Landing = () => {
 
       <section className={styles.betaSection}>
         <Container maxWidth="md">
-          <Grid wrap="nowrap" container alignItems="center" justifyContent="space-evenly">
+          <Grid wrap="wrap" container alignItems="center" justifyContent="space-evenly">
             {images.map(image => (
               <Grid item key={image} className={styles.betaSectionImage} sm={2} xs={4}>
                 <img height={42} src={image} alt="" />
@@ -131,7 +130,7 @@ export const Landing = () => {
         >
           <img src="landing/MintBuySellGraphic.png" alt="" />
           <div>
-            <Grid container alignItems="center" spacing={6}>
+            <Grid wrap="nowrap" container alignItems="center" spacing={6}>
               <Grid item>
                 <Typography className={styles.numberText} component="h1" variant="h1">
                   4
@@ -153,6 +152,15 @@ export const Landing = () => {
 };
 
 const useStyles = makeStyles(theme => ({
+  landingTopSection: {
+    textAlign: 'center',
+    color: 'white',
+    height: 'calc(100vh - 75px)',
+    display: 'flex !important',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   landingTopTitle: {
     fontSize: 64,
     fontFamily: 'Exo2',
@@ -239,9 +247,5 @@ const useStyles = makeStyles(theme => ({
   },
   wereHereImage: {
     width: '80px !important'
-    // [theme.breakpoints.down('sm')]: {
-    //   left: 300,
-    //   top: 0
-    // }
   }
 }));

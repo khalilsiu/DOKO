@@ -1,10 +1,11 @@
-import { CircularProgress, LinearProgress, Typography } from '@material-ui/core';
+import { CircularProgress, Grid, Typography } from '@material-ui/core';
 
 interface Props {
   status: any;
+  loader?: boolean;
 }
 
-export const AddressStatus = ({ status }: Props) => {
+export const AddressStatus = ({ status, loader = true }: Props) => {
   if (!status) {
     return <CircularProgress />;
   }
@@ -12,16 +13,23 @@ export const AddressStatus = ({ status }: Props) => {
   switch (status.sync_status) {
     case 'done':
     case 'empty':
-      return <Typography variant="h6">No Items</Typography>;
+      return loader ? <Typography variant="h6">No Items</Typography> : <></>;
     case 'progress':
     case 'new':
-      return (
-        <>
-          <Typography variant="h6" gutterBottom>
+      return loader ? (
+        <CircularProgress />
+      ) : (
+        <Grid container alignItems="center" justifyContent="flex-end">
+          <CircularProgress
+            variant="determinate"
+            color="primary"
+            value={status.sync_progress || 0}
+            size={24}
+          />
+          <Typography style={{ marginLeft: 12 }} variant="body1">
             Syncing the NFTs...
           </Typography>
-          <LinearProgress variant="determinate" color="primary" value={status.sync_progress || 0} />
-        </>
+        </Grid>
       );
     default:
       return <></>;

@@ -1,6 +1,7 @@
 import { FormControl, Grid, InputAdornment, Typography } from '@material-ui/core';
-import { Search } from '@material-ui/icons';
+import SearchIcon from '@material-ui/icons/Search';
 import { Link, useHistory } from 'react-router-dom';
+
 import { RadiusInput } from '../../../components';
 import { HeaderUserButton } from './HeaderUserButton';
 import { ToolbarItemsProps } from './types';
@@ -25,7 +26,7 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
             onKeyDown={e => search && e.key === 'Enter' && history.push(`/collections/${search}`)}
             startAdornment={
               <InputAdornment position="start">
-                <Search color="action" fontSize="small" />
+                <SearchIcon color="action" fontSize="small" />
               </InputAdornment>
             }
           />

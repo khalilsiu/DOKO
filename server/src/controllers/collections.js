@@ -53,7 +53,7 @@ const controller = {
 
     const items = await collection.instance
       .find(query)
-      .sort({ 'metadata.name': +direction || 1, name: +direction || 1 })
+      .sort({ 'metadata.name': +direction || 1, name: +direction || 1, _id: 1 })
       .skip(+offset || 0)
       .limit(12)
       .toArray();

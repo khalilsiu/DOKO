@@ -52,7 +52,6 @@ export const NftCollections = (): JSX.Element => {
   const [syncStatus, setSyncStatus] = useState<any>(null);
 
   const fetchNfts = async () => {
-    console.log(index);
     if (!address || index < 0) {
       return;
     }
@@ -63,6 +62,21 @@ export const NftCollections = (): JSX.Element => {
       setAllLoaded(res.data.length < 12);
     } catch (err) {}
     setLoading(false);
+  };
+
+  const checkSyncStatus = async () => {
+    try {
+      const res = await getAddressStatus(address);
+      const sync = res.data;
+      setSyncStatus(sync || {});
+
+      if (sync?.sync_status === 'done' || sync?.sync_status === 'empty') {
+        clearInterval(syncInterval);
+        setIndex(nfts.length);
+      }
+    } catch (err) {
+      syncStatus || setSyncStatus({});
+    }
   };
 
   useEffect(() => {
@@ -77,21 +91,8 @@ export const NftCollections = (): JSX.Element => {
     indexAddress(address);
     clearInterval(syncInterval);
 
-    syncInterval = setInterval(async () => {
-      try {
-        const res = await getAddressStatus(address);
-        const sync = res.data;
-        setSyncStatus(sync || {});
-
-        if (sync?.sync_status === 'done') {
-          clearInterval(syncInterval);
-
-          !nfts.length && fetchNfts();
-        }
-      } catch (err) {
-        syncStatus || setSyncStatus({});
-      }
-    }, 2000);
+    syncInterval = setInterval(() => checkSyncStatus(), 5000);
+    checkSyncStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
@@ -133,20 +134,29 @@ export const NftCollections = (): JSX.Element => {
         </Hidden>
       }
       <Grid className={styles.itemsContainer} container direction="column" alignItems="flex-start">
-        <Grid>
-          <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-            {minimizeAddress(address)}
-          </Typography>
-          <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
-            <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
-              <Typography variant="h6" style={{ lineHeight: 2 }}>
-                {minimizeAddress(address)}
-              </Typography>
-              <IconButton>
-                <img height={13} src="/copy.png" alt="" />
-              </IconButton>
-            </Grid>
-          </Tooltip>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid item>
+            <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+              {minimizeAddress(address)}
+            </Typography>
+            <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
+              <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
+                <Typography variant="h6" style={{ lineHeight: 2 }}>
+                  {minimizeAddress(address)}
+                </Typography>
+                <IconButton>
+                  <img height={13} src="/copy.png" alt="" />
+                </IconButton>
+              </Grid>
+            </Tooltip>
+          </Grid>
+          <Grid item xs={6}>
+            <Hidden xsDown>
+              <Grid container justifyContent="flex-end">
+                <AddressStatus status={syncStatus} loader={false} />
+              </Grid>
+            </Hidden>
+          </Grid>
         </Grid>
         <CustomTabs
           indicatorColor="primary"
@@ -158,10 +168,15 @@ export const NftCollections = (): JSX.Element => {
         </CustomTabs>
 
         <TabPanel index={0} value={tabValue}>
+          <Hidden smUp>
+            <Grid container justifyContent="flex-end">
+              <AddressStatus status={syncStatus} loader={false} />
+            </Grid>
+          </Hidden>
           <Filter onChange={setFilter} />
           <div className={styles.nftsContainer}>
             {nfts.map(nft => (
-              <NFTItem key={`${nft.token_address}_${nft.token_id}`} nft={nft} />
+              <NFTItem key={nft._id} nft={nft} />
             ))}
           </div>
           {nfts.length ? (
@@ -179,7 +194,7 @@ export const NftCollections = (): JSX.Element => {
               </Button>
             )
           ) : (
-            <AddressStatus status={syncStatus} />
+            <AddressStatus status={syncStatus} loader />
           )}
         </TabPanel>
       </Grid>
