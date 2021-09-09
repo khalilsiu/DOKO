@@ -15,7 +15,6 @@ const fetchNFTs = async (address, chain) => {
         })
       )
     );
-    console.log(address, nftCollections);
     nftCollections = nftCollections.map(n => n.result || n);
     chains.forEach((chain, index) => {
       for (const nft of nftCollections[index]) {
@@ -41,7 +40,7 @@ const fetchNFTMetadata = async (nft, address) => {
       metadata = nftRes.data;
       metadata_updated = true;
     } catch (err) {
-      console.error('NFT get error:\n', { error: err.response?.data, nft });
+      console.error('NFT get error:\n', err.response?.data, nft.token_uri);
       metadata = { error: 'API', message: err.response?.data };
     }
   } else if (nft.token_uri.includes('data:application/json;utf8,')) {
@@ -50,7 +49,7 @@ const fetchNFTMetadata = async (nft, address) => {
       metadata_updated = true;
     } catch (err) {
       metadata = { error: 'JSON' };
-      console.error('NFT get error:\n', err, nft);
+      console.error('NFT get error:\n', err, nft.token_uri);
     }
   } else if (nft.token_uri.includes('data:application/json;base64,')) {
     try {
@@ -58,11 +57,16 @@ const fetchNFTMetadata = async (nft, address) => {
         nft.token_uri.replace('data:application/json;base64,', ''),
         'base64'
       );
-      metadata = JSON.parse(buff.toString('utf-8'));
+      let str = buff.toString('utf-8');
+
+      if (str[str.length - 1] !== '}') {
+        str += '}';
+      }
+      metadata = JSON.parse(str);
       metadata_updated = true;
     } catch (err) {
       metadata = { error: 'BASE64' };
-      console.error('NFT get error:\n', err, nft);
+      console.error('NFT get error:\n', err, nft.token_uri);
     }
   } else {
     try {
@@ -70,7 +74,7 @@ const fetchNFTMetadata = async (nft, address) => {
       metadata_updated = true;
     } catch (err) {
       metadata = { error: 'STRING' };
-      console.error('NFT get error:\n', err, nft);
+      console.error('NFT get error:\n', err, nft.token_uri);
     }
   }
   const newNFT = {

@@ -42,7 +42,6 @@ let syncInterval: any;
 export const NftCollections = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
-  const [index, setIndex] = useState<number>(-1);
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
@@ -51,67 +50,67 @@ export const NftCollections = (): JSX.Element => {
   const [copied, setCopied] = useState(false);
   const [syncStatus, setSyncStatus] = useState<any>(null);
 
-  const fetchNfts = async () => {
-    if (!address || index < 0) {
+  const fetchNfts = async (offset: number, reset = false) => {
+    if (!address) {
       return;
     }
+    setLoading(true);
 
     try {
-      const res = await getNFTs(address, index, filter);
-      setNFTs(nfts => [...nfts, ...res.data]);
+      console.log(offset);
+      const res = await getNFTs(address, offset, filter);
+      setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
       setAllLoaded(res.data.length < 12);
     } catch (err) {}
     setLoading(false);
+  };
+
+  const loadMore = () => {
+    fetchNfts(nfts.length);
   };
 
   const checkSyncStatus = async () => {
     try {
       const res = await getAddressStatus(address);
       const sync = res.data;
-      setSyncStatus(sync || {});
 
       if (sync?.sync_status === 'done' || sync?.sync_status === 'empty') {
         clearInterval(syncInterval);
-        setIndex(nfts.length);
+
+        if (Date.now() / 1000 - sync.timestamp < 5000 && sync.sync_status === 'done') {
+          fetchNfts(0, true);
+        }
       }
+      setSyncStatus(sync);
     } catch (err) {
       syncStatus || setSyncStatus({});
     }
   };
 
   useEffect(() => {
-    clearInterval(syncInterval);
     return () => clearInterval(syncInterval);
   }, []);
 
   useEffect(() => {
+    clearInterval(syncInterval);
+    setSyncStatus(null);
+
     if (!address) {
       return;
     }
     indexAddress(address);
-    clearInterval(syncInterval);
 
-    syncInterval = setInterval(() => checkSyncStatus(), 5000);
+    syncInterval = setInterval(() => checkSyncStatus(), 3000);
     checkSyncStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   useEffect(() => {
     setNFTs([]);
-
-    if (index === 0) {
-      fetchNfts();
-    }
-    setIndex(address ? 0 : -1);
     setAllLoaded(false);
+    fetchNfts(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, filter]);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchNfts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index]);
 
   const copy = () => {
     if (copied) {
@@ -187,7 +186,7 @@ export const NftCollections = (): JSX.Element => {
                 style={{ margin: '24px 0' }}
                 variant="outlined"
                 color="primary"
-                onClick={() => setIndex(nfts.length)}
+                onClick={() => loadMore()}
                 disabled={loading || allLoaded}
               >
                 Show More

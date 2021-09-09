@@ -67,8 +67,6 @@ const controller = {
 
     const status = await watchAddress(address);
 
-    console.log(status);
-
     await syncNFTs(address, status);
     // await
     return res.json({ success: true, message: 'Successfully indexed' });

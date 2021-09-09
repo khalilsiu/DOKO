@@ -1,29 +1,7 @@
-const Address = require('../db/Address');
 const NFTS = require('../db/Nfts');
-const { fetchNFTs, fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
+const { fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
 const { wait } = require('../moralis/helpers/utils');
-
-const setMetadata = async (nft, address) => {
-  const newNFT = await fetchNFTMetadata(nft, address); // Updated NFT metadata from token uri
-  await wait(1500); // Waiting because of OpenSea throttling issue
-  const nftsCollection = new NFTS();
-
-  try {
-    const query = {
-      token_id: newNFT.token_id,
-      token_address: newNFT.token_address
-    };
-    return await nftsCollection.instance.updateOne(
-      query,
-      { $set: newNFT },
-      {
-        upsert: true
-      }
-    );
-  } catch (err) {
-    console.error('setMetadata:\n', err);
-  }
-};
+const { nftSyncQueue } = require('../queue');
 
 const updateNFTs = async address => {
   console.log('updateNFTs:', address);
@@ -34,7 +12,7 @@ const updateNFTs = async address => {
   }
   const collection = new NFTS();
   const nfts = await collection.find(query);
-  console.log('updateNFTs: nfts', nfts);
+  console.log('updateNFTs: nfts', nfts.length);
 
   for (const nft of nfts) {
     if (!nft.token_uri) {
@@ -56,79 +34,37 @@ const updateNFTs = async address => {
   }
 };
 
-const syncNFTs = async (address, address_status) => {
-  const addressCollection = new Address();
+const processSyncNFTsJob = async address => {
+  await nftSyncQueue
+    .createJob({ address })
+    .setId(address)
+    .retries(2)
+    .save()
+    .then(job => {
+      console.log('JOB CREATED: ', job.id, job.data);
+    });
+};
 
+const syncNFTs = async (address, address_status) => {
   try {
     switch (address_status.sync_status) {
-      case 'progress':
       case 'empty':
+        return;
+      case 'progress':
+        const job = await nftSyncQueue.getJob(address);
+
+        if (job) {
+          console.log('IN PROGRESS:', job.data);
+          return;
+        }
+        await processSyncNFTsJob(address);
         return;
       case 'done':
         await updateNFTs(address);
         return;
-      case 'new': {
-        addressCollection.updateOne(
-          { address },
-          {
-            sync_status: 'progress',
-            sync_progress: 0
-          }
-        );
-        const nfts = await fetchNFTs(address).then(items =>
-          items.sort((a, b) => {
-            if (a.name && b.name) {
-              return a.name > b.name ? 1 : -1;
-            }
-
-            if (a.name && !b.name) {
-              return 1;
-            }
-
-            if (!a.name && b.name) {
-              return -1;
-            }
-
-            return a.token_address > b.token_address
-              ? 1
-              : a.token_address < b.token_address
-              ? -1
-              : a.token_id > b.token_d
-              ? 1
-              : -1;
-          })
-        );
-
-        if (!nfts.length) {
-          await addressCollection.updateOne(
-            { address },
-            {
-              sync_status: 'empty',
-              sync_progress: 0
-            }
-          );
-          return;
-        }
-
-        for (const nft of nfts) {
-          await setMetadata(nft, address);
-          addressCollection.updateOne(
-            { address },
-            {
-              sync_status: 'progress',
-              sync_progress: Math.floor((nfts.indexOf(nft) / nfts.length) * 100)
-            }
-          );
-        }
-
-        await addressCollection.updateOne(
-          { address },
-          {
-            sync_status: 'done',
-            sync_progress: 0
-          }
-        );
-      }
+      case 'new':
+        await processSyncNFTsJob(address);
+        return;
     }
   } catch (err) {
     console.error('syncNFTs:', err);

@@ -16,10 +16,14 @@ app.use(express.json());
 initRouter(app);
 app.post('/api/webhooks/nft-transfer', afterSaveNftTransactions);
 
+let server;
+let dbClient;
+
 connectDB()
-  .then(() => {
+  .then(client => {
+    dbClient = client;
     const port = +process.env.PORT || 3000;
-    app.listen(port, () => {
+    server = app.listen(port, '0.0.0.0', () => {
       console.log(`App is running at ${port}`);
       setupCronJobs();
     });
@@ -27,3 +31,12 @@ connectDB()
   .catch(err => {
     process.exit(1);
   });
+
+process.once('SIGUSR2', function () {
+  process.kill(process.pid, 'SIGUSR2');
+});
+
+process.on('SIGINT', function () {
+  // this is only called on ctrl+c, not restart
+  process.kill(process.pid, 'SIGINT');
+});
