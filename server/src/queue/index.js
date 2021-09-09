@@ -2,7 +2,6 @@ const Queue = require('bee-queue');
 const Address = require('../db/Address');
 const NFTS = require('../db/Nfts');
 const { fetchNFTs, fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
-const { wait } = require('../moralis/helpers/utils');
 
 const queue = new Queue('sync_nfts', {
   prefix: 'doko',
@@ -12,7 +11,7 @@ const queue = new Queue('sync_nfts', {
 queue.on('ready', () => {
   console.log(`QUEUE ${queue.name} is ready`);
 
-  queue.process(2, async job => {
+  queue.process(10, async job => {
     const addressCollection = new Address();
     console.log(`NFT Sync Start: ${job.id}`, job.data);
     const { address } = job.data;
@@ -87,8 +86,8 @@ queue.on('ready', () => {
   });
 });
 
-queue.on('job succeeded', (jobId, result) => {
-  console.log(`QUEUE ${queue.name}: JOB ${jobId} - SUCCESS\n`, result);
+queue.on('job succeeded', jobId => {
+  console.log(`QUEUE ${queue.name}: JOB ${jobId} - SUCCESS\n`);
 });
 
 queue.on('job retrying', (jobId, error) => {
@@ -105,7 +104,10 @@ queue.on('error', err => {
 
 const setMetadata = async (nft, address) => {
   const newNFT = await fetchNFTMetadata(nft, address); // Updated NFT metadata from token uri
-  await wait(1500); // Waiting because of OpenSea throttling issue
+
+  if (!newNFT) {
+    return;
+  }
   const nftsCollection = new NFTS();
 
   try {

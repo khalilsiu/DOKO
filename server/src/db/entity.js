@@ -22,6 +22,10 @@ class Entity {
   find(query) {
     return this.instance.find(query).toArray();
   }
+
+  deleteOne(query) {
+    return this.instance.deleteOne(query);
+  }
 }
 
 module.exports = Entity;

@@ -1,6 +1,6 @@
 const { Moralis } = require('../../libs/moralis');
 const _ = require('lodash');
-const { isValidHttpUrl } = require('./utils');
+const { isValidHttpUrl, wait } = require('./utils');
 const { default: axios } = require('axios');
 
 const fetchNFTs = async (address, chain) => {
@@ -34,14 +34,34 @@ const fetchNFTMetadata = async (nft, address) => {
 
   if (!nft.token_uri) {
     metadata = null;
+    metadata_updated = true;
   } else if (isValidHttpUrl(nft.token_uri)) {
     try {
+      if (nft.token_uri.includes('api.opensea.io')) {
+        await wait(1500); // Waiting because of OpenSea throttling issue
+      }
       const nftRes = await axios.get(nft.token_uri);
+
       metadata = nftRes.data;
       metadata_updated = true;
+
+      if (nft.token_uri.includes('api.airnfts.com')) {
+        metadata = metadata.nft;
+      }
     } catch (err) {
-      console.error('NFT get error:\n', err.response?.data, nft.token_uri);
-      metadata = { error: 'API', message: err.response?.data };
+      const errorData = {
+        statusCode: err.response?.status,
+        message: err.response?.data
+      };
+      console.error('NFT get error:\n', {
+        tokenUri: nft.token_uri,
+        ...errorData
+      });
+
+      if ([400, 403, 404].includes(err.response?.status)) {
+        return null;
+      }
+      metadata = { error: 'API', ...errorData };
     }
   } else if (nft.token_uri.includes('data:application/json;utf8,')) {
     try {

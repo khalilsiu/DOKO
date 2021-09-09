@@ -1,6 +1,5 @@
 const NFTS = require('../db/Nfts');
 const { fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
-const { wait } = require('../moralis/helpers/utils');
 const { nftSyncQueue } = require('../queue');
 
 const updateNFTs = async address => {
@@ -19,15 +18,17 @@ const updateNFTs = async address => {
       continue;
     }
     try {
-      await wait(1000);
       const newNFT = await fetchNFTMetadata(nft, nft.owner);
-      await collection.updateOne(
-        {
-          token_id: newNFT.token_id,
-          token_address: newNFT.token_address
-        },
-        newNFT
-      );
+      const query = {
+        token_id: nft.token_id,
+        token_address: nft.token_address
+      };
+
+      if (!newNFT) {
+        await collection.deleteOne(query);
+        continue;
+      }
+      await collection.updateOne(query, newNFT);
     } catch (err) {
       console.error('updateMetadata:', err);
     }

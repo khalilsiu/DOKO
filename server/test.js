@@ -7,9 +7,16 @@ const MORALIS_MASTER_KEY = 'CFBcjio2OtDj7ZWdZOaR3V8r61lAc3orN0tLyWuA';
 Moralis.initialize(MORALIS_APPLICATION_ID, '', MORALIS_MASTER_KEY);
 Moralis.serverURL = MORALIS_SERVER_URL;
 
-Moralis.Web3API.token
-  .getTokenIdMetadata({
-    address: '0x495f947276749ce646f68ac8c248420045cb7b5e',
-    token_id: '17003309565658552223638016050791502219984530074156173480718531428060680421377'
+// Moralis.Web3API.token
+//   .getTokenIdMetadata({
+//     address: '0x495f947276749ce646f68ac8c248420045cb7b5e',
+//     token_id: '17003309565658552223638016050791502219984530074156173480718531428060680421377'
+//   })
+//   .then(console.log);
+
+Moralis.Web3API.account
+  .getNFTs({
+    address: '0xe9c700bc103205e483a93d50a663935c5a68b4ba',
+    chain: 'bsc'
   })
   .then(console.log);

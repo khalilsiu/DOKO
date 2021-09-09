@@ -21,8 +21,6 @@ const afterSaveNftTransactions = async (req, res) => {
   const collection = new NFTS();
   const query = { token_id, token_address };
 
-  const exists = await collection.findOne(query);
-
   try {
     const nft = await Moralis.Web3API.token.getTokenIdMetadata({
       address: token_address,
@@ -31,11 +29,16 @@ const afterSaveNftTransactions = async (req, res) => {
 
     const nftWithMetadata = await fetchNFTMetadata(nft, to_address);
 
-    if (exists) {
-      await collection.updateOne(query, nftWithMetadata);
-    } else {
-      await collection.insertOne(nftWithMetadata);
+    if (!nftWithMetadata || to_address === '0x000000000000000000000000000000000000dEaD') {
+      return await collection.deleteOne(query);
     }
+    return await collection.instance.updateOne(
+      query,
+      { $set: nftWithMetadata },
+      {
+        upsert: true
+      }
+    );
   } catch (err) {
     console.error('WEBHOOK ERROR:', err);
   }
