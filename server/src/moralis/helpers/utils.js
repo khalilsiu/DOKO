@@ -10,5 +10,6 @@ module.exports = {
 
     return url.protocol === 'http:' || url.protocol === 'https:';
   },
-  wait: time => new Promise(resolve => setTimeout(resolve, time))
+  wait: time => new Promise(resolve => setTimeout(resolve, time)),
+  isOpenseaNFT: nft => nft.token_uri.includes('api.opensea.io')
 };

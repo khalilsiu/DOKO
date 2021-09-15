@@ -25,6 +25,7 @@ const connectDB = () =>
         }
       );
       db.collection('address').createIndex({ address: 1 });
+      db.collection('collections').createIndex({ address: 1 });
       /*******************************/
       resolve(client);
     });

@@ -40,7 +40,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const share = (type: 'facebook' | 'twitter') => {
-    const url = `${window.origin}/collections/${nft.owner}`;
+    const url = `${window.origin}/collections/${nft.owner_of}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT collection on DOKO at now!`,
       twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT collection on @doko_nft now!`,

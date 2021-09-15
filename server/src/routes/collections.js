@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const collections = require('../controllers/collections');
+const controller = require('../controllers/collections');
 
-router.get('/nfts', collections.getNFTs).post('/nfts/index', collections.indexCollections);
+router.post('/collections/index', controller.indexCollections);
 
 module.exports = router;

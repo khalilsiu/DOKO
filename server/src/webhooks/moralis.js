@@ -1,6 +1,6 @@
 const NFTS = require('../db/Nfts');
 const { Moralis } = require('../libs/moralis');
-const { fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
+const { queueNFTMetadata } = require('../services/nft-metadata');
 
 const afterSaveNftTransactions = async (req, res) => {
   console.log('NFT Transfer Webhook:', req.body);
@@ -21,26 +21,20 @@ const afterSaveNftTransactions = async (req, res) => {
   const collection = new NFTS();
   const query = { token_id, token_address };
 
+  if (to_address === '0x000000000000000000000000000000000000dEaD') {
+    await collection.deleteOne(query);
+    return res.json({ success: true });
+  }
+
   try {
     const nft = await Moralis.Web3API.token.getTokenIdMetadata({
       address: token_address,
       token_id
     });
-
-    const nftWithMetadata = await fetchNFTMetadata(nft, to_address);
-
-    if (!nftWithMetadata || to_address === '0x000000000000000000000000000000000000dEaD') {
-      return await collection.deleteOne(query);
-    }
-    return await collection.instance.updateOne(
-      query,
-      { $set: nftWithMetadata },
-      {
-        upsert: true
-      }
-    );
+    await queueNFTMetadata(nft);
   } catch (err) {
     console.error('WEBHOOK ERROR:', err);
+    return res.json({ success: false, token_id, token_address });
   }
 
   return res.json({ success: true });

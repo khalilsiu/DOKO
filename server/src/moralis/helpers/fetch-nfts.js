@@ -1,34 +1,77 @@
-const { Moralis } = require('../../libs/moralis');
 const _ = require('lodash');
-const { isValidHttpUrl, wait } = require('./utils');
 const { default: axios } = require('axios');
+const { Moralis } = require('../../libs/moralis');
+const { isValidHttpUrl, wait, isOpenseaNFT } = require('./utils');
+const { CHAINS } = require('../../constants');
+const NFTS = require('../../db/Nfts');
 
-const fetchNFTs = async (address, chain) => {
-  const chains = chain ? [chain] : ['eth', 'bsc', 'polygon'];
+const fetchAccountNFTs = async (address, chain) => {
+  if (chain && !CHAINS.includes(chain)) {
+    return [];
+  }
+  const chains = chain ? [chain] : CHAINS;
 
   try {
-    let nftCollections = await Promise.all(
-      chains.map(c =>
-        Moralis.Web3API.account.getNFTs({
+    let all = [];
+
+    for (const chain of chains) {
+      let nfts = [];
+
+      while (1) {
+        const { total, result } = await Moralis.Web3API.account.getNFTs({
           address,
-          chain: c
-        })
-      )
-    );
-    nftCollections = nftCollections.map(n => n.result || n);
-    chains.forEach((chain, index) => {
-      for (const nft of nftCollections[index]) {
-        nft.chain = chain;
+          chain
+        });
+        nfts = nfts.concat(result);
+
+        if (nfts.length >= total) {
+          nfts = nfts.map(nft => ({ ...nft, chain }));
+          break;
+        }
       }
-    });
-    return _.flatten(nftCollections);
+      all = all.concat(nfts);
+    }
+    return all;
   } catch (err) {
-    console.error('fetchNFTs:\n', err);
+    console.error('fetchAccountNFTs:\n', err);
     return [];
   }
 };
 
-const fetchNFTMetadata = async (nft, address) => {
+const fetchCollectionNFTs = async (address, chain) => {
+  if (chain && !CHAINS.includes(chain)) {
+    return [];
+  }
+  const chains = chain ? [chain] : CHAINS;
+
+  try {
+    let all = [];
+
+    for (const chain of chains) {
+      let nfts = [];
+
+      while (1) {
+        const { total, result } = await Moralis.Web3API.token.getNFTOwners({
+          address,
+          chain
+        });
+        nfts = nfts.concat(result);
+
+        if (nfts.length >= total) {
+          nfts = nfts.map(nft => ({ ...nft, chain }));
+          break;
+        }
+      }
+      all = all.concat(nfts);
+    }
+    return all;
+  } catch (err) {
+    console.error('fetchCollectionNFTs:\n', err);
+    return [];
+  }
+};
+
+const fetchNFTMetadata = async nft => {
   let metadata;
   let metadata_updated = false;
 
@@ -37,7 +80,7 @@ const fetchNFTMetadata = async (nft, address) => {
     metadata_updated = true;
   } else if (isValidHttpUrl(nft.token_uri)) {
     try {
-      if (nft.token_uri.includes('api.opensea.io')) {
+      if (isOpenseaNFT(nft)) {
         await wait(1500); // Waiting because of OpenSea throttling issue
       }
       const nftRes = await axios.get(nft.token_uri);
@@ -61,14 +104,14 @@ const fetchNFTMetadata = async (nft, address) => {
       if ([400, 403, 404].includes(err.response?.status)) {
         return null;
       }
-      metadata = { error: 'API', ...errorData };
+      metadata = { error: true, reason: 'API', ...errorData };
     }
   } else if (nft.token_uri.includes('data:application/json;utf8,')) {
     try {
       metadata = JSON.parse(nft.token_uri.replace('data:application/json;utf8,', ''));
       metadata_updated = true;
     } catch (err) {
-      metadata = { error: 'JSON' };
+      metadata = { error: true, reason: 'JSON' };
       console.error('NFT get error:\n', err, nft.token_uri);
     }
   } else if (nft.token_uri.includes('data:application/json;base64,')) {
@@ -85,7 +128,7 @@ const fetchNFTMetadata = async (nft, address) => {
       metadata = JSON.parse(str);
       metadata_updated = true;
     } catch (err) {
-      metadata = { error: 'BASE64' };
+      metadata = { error: true, reason: 'BASE64' };
       console.error('NFT get error:\n', err, nft.token_uri);
     }
   } else {
@@ -93,7 +136,7 @@ const fetchNFTMetadata = async (nft, address) => {
       metadata = JSON.parse(nft.token_uri);
       metadata_updated = true;
     } catch (err) {
-      metadata = { error: 'STRING' };
+      metadata = { error: true, reason: 'STRING' };
       console.error('NFT get error:\n', err, nft.token_uri);
     }
   }
@@ -105,13 +148,34 @@ const fetchNFTMetadata = async (nft, address) => {
           image: metadata.image || metadata.image_url || ''
         }
       : {},
-    owner: address,
     metadata_updated
   };
   return newNFT;
 };
 
+const setMetadata = async nft => {
+  const nftsCollection = new NFTS();
+  const newNFT = await fetchNFTMetadata(nft); // Updated NFT metadata from token uri
+  const query = {
+    token_id: newNFT.token_id,
+    token_address: newNFT.token_address
+  };
+
+  if (!newNFT) {
+    await nftsCollection.deleteOne(query);
+    return;
+  }
+
+  try {
+    return await nftsCollection.updateOrInsertOne(query, newNFT);
+  } catch (err) {
+    console.error('setMetadata:\n', err);
+  }
+};
+
 module.exports = {
-  fetchNFTs,
-  fetchNFTMetadata
+  fetchAccountNFTs,
+  fetchCollectionNFTs,
+  fetchNFTMetadata,
+  setMetadata
 };

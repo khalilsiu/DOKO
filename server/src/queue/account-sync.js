@@ -1,12 +1,16 @@
 const Queue = require('bee-queue');
 const Address = require('../db/Address');
-const NFTS = require('../db/Nfts');
-const { fetchNFTs, fetchNFTMetadata } = require('../moralis/helpers/fetch-nfts');
+const { fetchAccountNFTs } = require('../moralis/helpers/fetch-nfts');
+const { queueNFTMetadata } = require('../services/nft-metadata');
+const { setupQueue } = require('./base');
 
 const queue = new Queue('sync_nfts', {
   prefix: 'doko',
-  removeOnSuccess: true
+  removeOnSuccess: true,
+  removeOnFailure: true
 });
+
+queue.removeJob('0x373fb9eed5f48cbab800a5e4f01ad0ade3bee754');
 
 queue.on('ready', () => {
   console.log(`QUEUE ${queue.name} is ready`);
@@ -24,7 +28,7 @@ queue.on('ready', () => {
         timestamp: Date.now() / 1000
       }
     );
-    const nfts = await fetchNFTs(address).then(items =>
+    const nfts = await fetchAccountNFTs(address).then(items =>
       items.sort((a, b) => {
         if (a.name && b.name) {
           return a.name > b.name ? 1 : -1;
@@ -63,8 +67,7 @@ queue.on('ready', () => {
     }
 
     for (const nft of nfts) {
-      console.log(`SYNC RUNNIG: ${job.id} - ${nft.token_uri}`);
-      await setMetadata(nft, address);
+      await queueNFTMetadata(nft);
       await addressCollection.updateOne(
         { address },
         {
@@ -86,47 +89,6 @@ queue.on('ready', () => {
   });
 });
 
-queue.on('job succeeded', jobId => {
-  console.log(`QUEUE ${queue.name}: JOB ${jobId} - SUCCESS\n`);
-});
+setupQueue(queue);
 
-queue.on('job retrying', (jobId, error) => {
-  console.error(`QUEUE ${queue.name}: JOB ${jobId} - RETRYING\n`, error);
-});
-
-queue.on('job failed', (jobId, error) => {
-  console.log(`QUEUE ${queue.name}: JOB ${jobId} - FAILED\n`, error);
-});
-
-queue.on('error', err => {
-  console.error(`QUEUE ${queue.name} - ERROR\n`, err);
-});
-
-const setMetadata = async (nft, address) => {
-  const newNFT = await fetchNFTMetadata(nft, address); // Updated NFT metadata from token uri
-
-  if (!newNFT) {
-    return;
-  }
-  const nftsCollection = new NFTS();
-
-  try {
-    const query = {
-      token_id: newNFT.token_id,
-      token_address: newNFT.token_address
-    };
-    return await nftsCollection.instance.updateOne(
-      query,
-      { $set: newNFT },
-      {
-        upsert: true
-      }
-    );
-  } catch (err) {
-    console.error('setMetadata:\n', err);
-  }
-};
-
-module.exports = {
-  nftSyncQueue: queue
-};
+module.exports = queue;

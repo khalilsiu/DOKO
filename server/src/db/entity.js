@@ -9,6 +9,10 @@ class Entity {
     return this.instance.insertOne(data);
   }
 
+  updateOrInsertOne(query, data) {
+    return this.instance.updateOne(query, { $set: data }, { upsert: true });
+  }
+
   updateOne(query, data) {
     return this.instance.updateOne(query, {
       $set: data
