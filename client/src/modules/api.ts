@@ -9,9 +9,10 @@ export const getNFTs = (address: string, offset: number, params: any = {}) =>
     }
   });
 
-export const indexAddress = (address: string) =>
+export const indexAddress = (address: string, reindex = false) =>
   api.post('/nfts/index', {
-    address
+    address,
+    reindex
   });
 
 export const getAddressStatus = (address: string) => api.get(`/address/${address}`);

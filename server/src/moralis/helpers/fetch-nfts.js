@@ -157,8 +157,8 @@ const setMetadata = async nft => {
   const nftsCollection = new NFTS();
   const newNFT = await fetchNFTMetadata(nft); // Updated NFT metadata from token uri
   const query = {
-    token_id: newNFT.token_id,
-    token_address: newNFT.token_address
+    token_id: nft.token_id,
+    token_address: nft.token_address
   };
 
   if (!newNFT) {
@@ -167,6 +167,7 @@ const setMetadata = async nft => {
   }
 
   try {
+    delete nft._id;
     return await nftsCollection.updateOrInsertOne(query, newNFT);
   } catch (err) {
     console.error('setMetadata:\n', err);

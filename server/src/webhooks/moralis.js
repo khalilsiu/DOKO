@@ -29,7 +29,8 @@ const afterSaveNftTransactions = async (req, res) => {
   try {
     const nft = await Moralis.Web3API.token.getTokenIdMetadata({
       address: token_address,
-      token_id
+      token_id,
+      chain: addressClassMapping[className].toLowerCase()
     });
     await queueNFTMetadata(nft);
   } catch (err) {
