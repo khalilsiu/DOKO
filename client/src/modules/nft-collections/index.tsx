@@ -16,7 +16,7 @@ import { useParams } from 'react-router-dom';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { NFTItem } from './NFTItem';
-import { getAddressStatus, getNFTs, indexAddress } from '../api';
+import { getAddressStatus, getNFTs, getSolanaNFTs, indexAddress } from '../api';
 import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
 import { Intro } from '../core/Intro';
@@ -63,12 +63,24 @@ export const NftCollections = (): JSX.Element => {
     }
     setLoading(true);
 
-    try {
-      console.log(offset);
-      const res = await getNFTs(address, offset, filter);
-      setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
-      setAllLoaded(res.data.length < 12);
-    } catch (err) {}
+    if (address.indexOf('0x') == -1) {
+      try {
+        console.log(offset);
+        const res = await getSolanaNFTs(address);
+        console.log(res);
+        setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
+        setAllLoaded(res.data.length < 12);
+      } catch (err) {console.log(err)}
+    }
+    else {
+      try {
+        console.log(offset);
+        const res = await getNFTs(address, offset, filter);
+        console.log(res);
+        setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
+        setAllLoaded(res.data.length < 12);
+      } catch (err) {}
+    }
     setLoading(false);
   };
 
