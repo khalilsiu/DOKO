@@ -20,7 +20,7 @@ import { getAddressStatus, getNFTs, getSolanaNFTs, indexAddress } from '../api';
 import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
 import { Intro } from '../core/Intro';
-import { minimizeAddress } from '../../libs/utils';
+import { minimizeAddress, isSolanaAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
 
 const CustomTabs = withStyles({
@@ -62,25 +62,12 @@ export const NftCollections = (): JSX.Element => {
       return;
     }
     setLoading(true);
-
-    if (address.indexOf('0x') == -1) {
-      try {
-        console.log(offset);
-        const res = await getSolanaNFTs(address);
-        console.log(res);
-        setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
-        setAllLoaded(res.data.length < 12);
-      } catch (err) {console.log(err)}
-    }
-    else {
-      try {
-        console.log(offset);
-        const res = await getNFTs(address, offset, filter);
-        console.log(res);
-        setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
-        setAllLoaded(res.data.length < 12);
-      } catch (err) {}
-    }
+    try {
+      console.log(offset);
+      const res = isSolanaAddress(address)? await getSolanaNFTs(address, offset, filter): await getNFTs(address, offset, filter);
+      setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
+      setAllLoaded(res.data.length < 12);
+    } catch (err) {}
     setLoading(false);
   };
 

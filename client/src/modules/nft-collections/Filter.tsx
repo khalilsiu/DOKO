@@ -33,6 +33,10 @@ const chains = [
   {
     name: 'polygon',
     label: 'Polygon'
+  },
+  {
+    name: 'solana',
+    label: 'Solana'
   }
 ];
 
@@ -49,7 +53,7 @@ const sorts = [
   }
 ];
 
-type ChainKey = 'all' | 'eth' | 'bsc' | 'polygon';
+type ChainKey = 'all' | 'eth' | 'bsc' | 'polygon' | 'solana';
 
 interface FilterProps {
   onChange: (filter: any) => void;
@@ -65,7 +69,8 @@ export function Filter({ onChange }: FilterProps) {
       all: true,
       eth: false,
       bsc: false,
-      polygon: false
+      polygon: false,
+      solana: false
     },
     sort: sorts[0]
   });
@@ -81,14 +86,15 @@ export function Filter({ onChange }: FilterProps) {
           all: checked,
           eth: checked,
           bsc: checked,
-          polygon: checked
+          polygon: checked,
+          solana: checked
         }
       }));
     } else {
       const chain = { ...filter.chain };
       chain[name as ChainKey] = checked;
 
-      if (chain.eth && chain.bsc && chain.polygon) {
+      if (chain.eth && chain.bsc && chain.polygon && chain.solana) {
         chain.all = true;
       } else {
         chain.all = false;
@@ -124,7 +130,7 @@ export function Filter({ onChange }: FilterProps) {
     onChange({
       term: data.term,
       chain: data.chain.all
-        ? ['eth', 'bsc', 'polygon']
+        ? ['eth', 'bsc', 'polygon', 'solana']
         : Object.entries(data.chain)
             .map(([key, value]) => (key === 'all' || !value ? null : key))
             .filter(Boolean),
