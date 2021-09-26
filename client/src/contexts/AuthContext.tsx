@@ -1,6 +1,8 @@
-import { useMetaMask } from 'metamask-react';
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+
+
+declare let window: any;
 
 interface AuthContextValue {
   address: string | null;
@@ -16,19 +18,22 @@ export const AuthContext = createContext<AuthContextValue>({
 
 export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [loading, setLoading] = useState(false);
-  const { account, connect } = useMetaMask();
+  const [account, setAccount] = useState('');
   const history = useHistory();
   const [address, setAddress] = useState<string | null>('');
   const firstTime = useRef(true);
-
+  
   const login = async () => {
+    if(!window.solana || !window.solana.isPhantom) {
+      window.open("https://phantom.app/", "_blank");
+      return;
+    }
     setLoading(true);
-
-    connect()
-      .then(() => {
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    window.solana.connect();
+    window.solana.on("connect", () => {
+      setAccount(window.solana.publicKey.toString());
+      setLoading(false);
+    })
   };
 
   useEffect(() => {
