@@ -4,7 +4,7 @@ import { Header } from './modules/core/Header';
 import { NftCollections } from './modules/nft-collections';
 import { Landing } from './modules/landing';
 import { Footer } from './modules/core/Footer';
-import { AuthContextProvider } from './contexts/AuthContext';
+import { AuthContextProvider } from './contexts/SolanaAuthContext';
 import { makeStyles } from '@material-ui/core';
 import { DrawerContextProvider } from './contexts/DrawerContext';
 

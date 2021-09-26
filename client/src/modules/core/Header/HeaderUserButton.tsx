@@ -36,7 +36,7 @@ export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Pro
       variant="outlined"
       onClick={() => onLogin()}
     >
-      Connect Metamask
+      Connect Phantom
     </Button>
   );
 };
