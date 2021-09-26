@@ -2,10 +2,6 @@ import api from '../libs/api';
 import { getTokenInfo, getSolanaNFTMetadata, getTokenAccountsByOwner } from "../libs/metaplex/utils";
 import { Metadata } from '../libs/metaplex/classes';
 
-const solanaRpcUrl = 'https://black-fragrant-tree.solana-mainnet.quiknode.pro/580c20b14f5a8fb782624bdce35ee63037ee3d3c/';
-const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-const METADATA_PROGRAM_ID = 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s';
-
 export const getNFTs = (address: string, offset: number, params: any = {}) =>
   api.get('/nfts', {
     params: {
