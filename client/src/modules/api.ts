@@ -41,7 +41,15 @@ export const getSolanaNFTs = async (address: string, offset: number, params: any
   NFTsMetadataRes.forEach((metadata: Metadata) => {
     promiseList.push(getSolanaNFTMetadata(metadata))
   })
-  const data = await Promise.all(promiseList);
-  data.filter(x => x);
+  const nfts = await Promise.all(promiseList);
+  const data = nfts.filter(x => x).map((value: any) => {
+    return {
+      _id: value.mint,
+      name: value.metadata.data.name,
+      symbol: value.metadata.data.symbol,
+      owner_of: address,
+      metadata: value.metadata.data
+    }
+  });
   return { data };
 }

@@ -47,11 +47,8 @@ export const getSolanaNFTMetadata = async (NFTMetadata: Metadata) => {
   try {
     const metadata: any = await axios.get(NFTMetadata.data.uri);
     return {
-      _id: NFTMetadata.mint,
-      name: metadata.data.name,
-      metadata: metadata.data,
-      chain: 'solana',
-      symbol: metadata.data.symbol
+      mint: NFTMetadata.mint,
+      metadata: metadata
     };
   } catch(err) { console.log(err) }
 }
