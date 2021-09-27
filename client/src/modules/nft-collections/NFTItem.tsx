@@ -23,11 +23,15 @@ import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 import Popover from '../../components/Popover';
+import { useParams, useHistory } from 'react-router-dom';
 interface NFTItemProps {
   nft: any;
 }
 
-export const NFTItem = ({ nft }: NFTItemProps) => {
+export const NFTItem = ({ nft}: NFTItemProps) => {
+
+  const history = useHistory();
+
   if (nft.metadata && !nft.metadata.image && nft.metadata.image_data) {
     nft.metadata.image = nft.metadata.image_data;
   }
@@ -51,7 +55,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   const [error, setError] = useState(false);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} onClick={() => { history.push(`/nft/${nft.token_address}/${nft.token_id}`) } }>
       <Card className={styles.card}>
         <CardContent className={styles.cardContent}>
           <Grid container alignItems="center" style={{ flex: 1 }}>

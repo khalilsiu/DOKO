@@ -12,7 +12,7 @@ import {
   Typography,
   withStyles
 } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 
 import { NFTItem } from './NFTItem';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
@@ -40,6 +40,9 @@ const CustomTab = withStyles({
 let syncInterval: any;
 
 export const NftCollections = (): JSX.Element => {
+
+  const history = useHistory()
+
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
   const { address } = useParams<{ address: string }>();
@@ -68,6 +71,7 @@ export const NftCollections = (): JSX.Element => {
   const loadMore = () => {
     fetchNfts(nfts.length);
   };
+
 
   const checkSyncStatus = async () => {
     try {
@@ -109,6 +113,7 @@ export const NftCollections = (): JSX.Element => {
     setNFTs([]);
     setAllLoaded(false);
     fetchNfts(0);
+    console.log(nfts)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, filter]);
 

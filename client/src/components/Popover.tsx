@@ -6,6 +6,7 @@ import styled from 'styled-components';
 interface Props {
   reference: any;
   placement?: Placement;
+  style?: any; 
 }
 
 let toggleTimeout: any;
@@ -60,7 +61,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithChildren<Props>) => {
+const Popover = ({ children, reference, placement = 'bottom-start', style }: PropsWithChildren<Props>) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
@@ -88,7 +89,7 @@ const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithC
   };
 
   return (
-    <div>
+    <div style={style}>
       <span
         ref={setReferenceElement}
         onMouseEnter={() => toggleShow(true)}

@@ -60,6 +60,14 @@ const controller = {
 
     return res.json(items);
   },
+  getNFT: async(req,res) => {
+    const {address, id} = req.params;
+    const collection = new NFTS()
+    const query = { token_address: address.toLowerCase(), token_id: id.toString() };
+    const items = await collection.instance.findOne(query);
+    return res.json(items);
+  },
+
   indexNFTs: async (req, res) => {
     const { address } = req.body;
 
