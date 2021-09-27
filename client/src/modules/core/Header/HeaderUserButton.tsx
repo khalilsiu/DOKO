@@ -6,9 +6,10 @@ interface Props {
   onLogin: () => void;
   address: string | null;
   loading: boolean;
+  setModalOpen: (modalState: boolean) => void;
 }
 
-export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Props) => {
+export const HeaderUserButton = ({ onLogin = () => null, address, loading, setModalOpen }: Props) => {
   const styles = useStyles();
   const [copied, setCopied] = useState(false);
 
@@ -34,7 +35,8 @@ export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Pro
       className="gradient-button"
       disabled={loading}
       variant="outlined"
-      onClick={() => onLogin()}
+      // onClick={() => onLogin()}
+      onClick={()=>setModalOpen(true)}
     >
       Connect Metamask
     </Button>
