@@ -30,6 +30,10 @@ class Entity {
   deleteOne(query) {
     return this.instance.deleteOne(query);
   }
+
+  deleteMany(query) {
+    return this.instance.deleteMany(query);
+  }
 }
 
 module.exports = Entity;

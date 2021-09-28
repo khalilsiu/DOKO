@@ -13,6 +13,7 @@ import {
   withStyles
 } from '@material-ui/core';
 import { useParams, useHistory } from 'react-router-dom';
+import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { NFTItem } from './NFTItem';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
@@ -36,6 +37,12 @@ const CustomTab = withStyles({
     textTransform: 'none'
   }
 })(Tab);
+
+const CustomIconButton = withStyles({
+  disabled: {
+    color: '#333 !important'
+  }
+})(IconButton);
 
 let syncInterval: any;
 
@@ -126,6 +133,14 @@ export const NftCollections = (): JSX.Element => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const reIndex = () => {
+    indexAddress(address, true);
+    setSyncStatus(null);
+    setNFTs([]);
+    clearInterval(syncInterval);
+    syncInterval = setInterval(() => checkSyncStatus(), 3000);
+  };
+
   return (
     <Grid container wrap="nowrap" className={styles.collectionContainer}>
       {
@@ -142,6 +157,19 @@ export const NftCollections = (): JSX.Element => {
           <Grid item>
             <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
               {minimizeAddress(address)}
+              <Tooltip title="Refetch all of your nfts">
+                <CustomIconButton
+                  disabled={
+                    !syncStatus ||
+                    syncStatus.sync_status === 'progress' ||
+                    syncStatus.sync_status === 'new'
+                  }
+                  onClick={() => reIndex()}
+                  color="secondary"
+                >
+                  <RefreshOutlinedIcon />
+                </CustomIconButton>
+              </Tooltip>
             </Typography>
             <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
               <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>

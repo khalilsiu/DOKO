@@ -3,7 +3,7 @@ const NFTS = require('../db/Nfts');
 const { Moralis } = require('../libs/moralis');
 const { syncNFTs } = require('../services/nfts');
 
-const watchAddress = async address => {
+const watchAddress = async (address, reindex) => {
   for (const chain of ['Eth', 'Bsc', 'Polygon']) {
     Moralis.Cloud.run(`watch${chain}Address`, {
       address
@@ -12,10 +12,19 @@ const watchAddress = async address => {
 
   try {
     const collection = new Address();
-    const item = await collection.findOne({ address });
 
-    if (item) {
-      return item;
+    if (reindex) {
+      const nftsCollection = new NFTS();
+      await Promise.all([
+        collection.deleteOne({ address }),
+        nftsCollection.deleteMany({ address })
+      ]);
+    } else {
+      const item = await collection.findOne({ address });
+
+      if (item) {
+        return item;
+      }
     }
     const data = {
       address,
@@ -69,11 +78,11 @@ const controller = {
   },
 
   indexNFTs: async (req, res) => {
-    const { address } = req.body;
+    const { address, reindex } = req.body;
 
     console.log('indexCollections: ', address);
 
-    const status = await watchAddress(address);
+    const status = await watchAddress(address, reindex);
 
     await syncNFTs(address, status);
     // await
