@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable no-param-reassign */
 import { useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
@@ -10,8 +12,9 @@ import {
   makeStyles,
   MenuItem,
   MenuList,
-  Typography
+  Typography,
 } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
 
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
@@ -23,13 +26,12 @@ import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 import Popover from '../../components/Popover';
-import { useParams, useHistory } from 'react-router-dom';
+
 interface NFTItemProps {
   nft: any;
 }
 
-export const NFTItem = ({ nft}: NFTItemProps) => {
-
+export const NFTItem = ({ nft }: NFTItemProps) => {
   const history = useHistory();
 
   if (nft.metadata && !nft.metadata.image && nft.metadata.image_data) {
@@ -41,6 +43,7 @@ export const NFTItem = ({ nft}: NFTItemProps) => {
       .replace('ipfs/', '')
       .replace('ipfs://', 'ipfs/')}`;
   }
+  // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const share = (type: 'facebook' | 'twitter') => {
@@ -48,14 +51,19 @@ export const NFTItem = ({ nft}: NFTItemProps) => {
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT collection on DOKO at now!`,
       twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT collection on @doko_nft now!`,
-      instagram: ''
+      instagram: '',
     };
     window.open(link[type], '_blank');
   };
   const [error, setError] = useState(false);
 
+  const onClickCard = () => {
+    history.push(`/nft/${nft.token_address}/${nft.token_id}`);
+  };
+
   return (
-    <div className={styles.wrapper} onClick={() => { history.push(`/nft/${nft.token_address}/${nft.token_id}`) } }>
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+    <div className={styles.wrapper} onClick={() => onClickCard()}>
       <Card className={styles.card}>
         <CardContent className={styles.cardContent}>
           <Grid container alignItems="center" style={{ flex: 1 }}>
@@ -63,6 +71,7 @@ export const NFTItem = ({ nft}: NFTItemProps) => {
               nft.metadata.image.indexOf('<svg') === 0 ? (
                 <div
                   style={{ flex: 1 }}
+                  // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{ __html: nft.metadata.image }}
                   className={styles.image}
                 />
@@ -97,7 +106,7 @@ export const NFTItem = ({ nft}: NFTItemProps) => {
                   </div>
                 ) : (
                   <Typography className={styles.notAvailableText}>
-                    The NFT doesn't have image
+                    The NFT doesn not have an image
                   </Typography>
                 )}
               </Grid>
@@ -146,7 +155,7 @@ export const NFTItem = ({ nft}: NFTItemProps) => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   wrapper: {
     height: '100%',
     borderRadius: 12,
@@ -165,32 +174,32 @@ const useStyles = makeStyles(theme => ({
           'linear-gradient(-45deg, rgba(63,199,203,1) 0%, rgba(63,199,203,1) 30%, rgba(80,92,176,1) 50%, rgba(148,64,161,1) 80%, rgba(226,69,162,1) 100%)',
         borderRadius: 'inherit',
         margin: -3,
-        zIndex: -1
-      }
-    }
+        zIndex: -1,
+      },
+    },
   },
   card: {
     height: '100%',
     borderRadius: 12,
     display: 'flex',
     flexDirection: 'column',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   cardContent: {
     padding: 6,
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    minHeight: 200
+    minHeight: 200,
   },
   cardActions: {
     justifyContent: 'space-between',
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
   },
   nftName: {
     fontWeight: 'bold',
     marginLeft: 8,
-    color: 'black'
+    color: 'black',
   },
   image: {
     borderTopRightRadius: 12,
@@ -199,29 +208,31 @@ const useStyles = makeStyles(theme => ({
     minHeight: 200,
     '& > svg': {
       width: '100%',
-      height: 'auto'
-    }
+      height: 'auto',
+    },
   },
   networkIcon: {
     width: 10,
     marginLeft: 8,
-    marginBottom: 8
+    marginBottom: 8,
   },
   shareIcon: {
-    width: 20
+    width: 20,
   },
   shareItem: {
     '&:hover': {
       background: theme.palette.primary.main,
-      color: 'white'
+      color: 'white',
     },
     '& > img': {
       width: 24,
-      marginRight: 12
-    }
+      marginRight: 12,
+    },
   },
   notAvailableText: {
     color: '#b3b3b3',
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 }));
+
+export default NFTItem;
