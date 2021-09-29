@@ -1,6 +1,5 @@
 import { Drawer } from '@material-ui/core';
 import { createContext, PropsWithChildren, useState } from 'react';
-import { Intro } from '../modules/core/Intro';
 
 interface DrawerContextValue {
   open: boolean;
@@ -9,16 +8,16 @@ interface DrawerContextValue {
 
 export const DrawerContext = createContext<DrawerContextValue>({
   open: false,
-  toggle: () => null
+  toggle: () => null,
 });
 
-export const DrawerContextProvider = ({ children }: PropsWithChildren<any>) => {
+export const DrawerContextProvider = ({ children, intro }: PropsWithChildren<any>) => {
   const [open, setOpen] = useState(false);
 
   return (
     <DrawerContext.Provider value={{ toggle: () => setOpen(!open), open }}>
       <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
-        <Intro drawer={true} />
+        {intro}
       </Drawer>
       {children}
     </DrawerContext.Provider>

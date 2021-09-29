@@ -22,8 +22,8 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
             style={{ minWidth: 300 }}
             placeholder="Search by Address"
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            onKeyDown={e => search && e.key === 'Enter' && history.push(`/collections/${search}`)}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => search && e.key === 'Enter' && history.push(`/address/${search}`)}
             startAdornment={
               <InputAdornment position="start">
                 <SearchIcon color="action" fontSize="small" />
@@ -55,3 +55,5 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
     </Grid>
   );
 };
+
+export default LargeScreen;

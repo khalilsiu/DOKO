@@ -5,7 +5,14 @@ export class BaseQueue {
   protected readonly logger: Logger;
   public readonly queue: Queue;
 
-  constructor(queueName: string, config: Queue.QueueSettings) {
+  constructor(
+    queueName: string,
+    config: Queue.QueueSettings = {
+      prefix: 'doko',
+      removeOnSuccess: true,
+      removeOnFailure: true,
+    },
+  ) {
     this.logger = new Logger(queueName);
     this.queue = new Queue(queueName, config);
   }

@@ -41,6 +41,9 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'react/jsx-wrap-multilines': ['error', { declaration: false, assignment: false }],
     'object-curly-newline': 'off',
+    'react/jsx-one-expression-per-line': 'off',
+    'react/require-default-props': 'off',
+    'no-unused-vars': [1],
   },
   settings: {
     'import/resolver': {

@@ -13,8 +13,7 @@ export class NftsController {
   @Get()
   async filterNFTs(@Query() queryParam: any) {
     this.logger.log(queryParam);
-    const { offset, address, token_address, chain, term, direction } =
-      queryParam;
+    const { offset, address, token_address, chain, term, direction } = queryParam;
     const collection = new NFTS();
     const query: any = {};
 

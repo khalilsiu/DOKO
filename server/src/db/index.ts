@@ -25,7 +25,8 @@ export const connectDB = () =>
         },
       );
       db.collection('address').createIndex({ address: 1 });
-      db.collection('collections').createIndex({ 'eth.address': 1 });
+      db.collection('collections').createIndex({ token_address: 1 });
+      db.collection('collection_transactions').createIndex({ transaction_hash: 1 });
       /*******************************/
       resolve(client);
     });

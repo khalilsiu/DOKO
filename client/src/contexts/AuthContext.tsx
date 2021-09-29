@@ -11,7 +11,7 @@ interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue>({
   address: null,
   loading: false,
-  login: () => null
+  login: () => null,
 });
 
 export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
@@ -34,14 +34,13 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   useEffect(() => {
     setAddress(account);
 
-    if (account && !firstTime.current) {
-      history && history.push(`/collections/${account}`);
+    if (account && !firstTime.current && history) {
+      history.push(`/address/${account}`);
     }
 
     if (account) {
       firstTime.current = false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, history]);
 
   return (

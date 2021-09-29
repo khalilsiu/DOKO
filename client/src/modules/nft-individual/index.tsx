@@ -140,7 +140,7 @@ export const NftIndividual = () => {
   const [txs, setTxs] = useState<any[]>([]);
   const [collection, setCollection] = useState<string>('');
   const [traits, setTraits] = useState<any[]>([]);
-  const [totalSupply, setTotalSupply] = useState<number>();
+  const [, setTotalSupply] = useState<number>();
 
   // table
 
@@ -385,7 +385,7 @@ export const NftIndividual = () => {
           <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
             Traits
           </Typography>
-          <NftTraits traits={traits} totalSupply={totalSupply} />
+          <NftTraits traits={traits} />
         </Grid>
         <Grid container item direction="column">
           <Grid item>

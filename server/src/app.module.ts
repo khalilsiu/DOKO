@@ -15,13 +15,15 @@ import { MoralisHookController } from './controllers/moralis-hook.controller';
 import { NftsController } from './controllers/nfts.controller';
 import { AddressController } from './controllers/address.controller';
 import { NftController } from './controllers/nft.controller';
+import { CollectionsController } from './controllers/collections.controller';
+import { CollectionsTransactionQueue } from './queue/collections-transaction.queue';
 
 @Module({
   imports: [ConfigModule.forRoot(), ScheduleModule.forRoot()],
   controllers: [
     AppController,
     MoralisHookController,
-    CollectionService,
+    CollectionsController,
     NftsController,
     NftController,
     AddressController,
@@ -35,6 +37,7 @@ import { NftController } from './controllers/nft.controller';
     CollectionService,
     NftService,
     TasksService,
+    CollectionsTransactionQueue,
   ],
 })
 export class AppModule {}

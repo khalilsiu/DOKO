@@ -47,9 +47,7 @@ export const fetchNFTMetadata = async (nft: any) => {
     }
   } else if (nft.token_uri.includes('data:application/json;utf8,')) {
     try {
-      metadata = JSON.parse(
-        nft.token_uri.replace('data:application/json;utf8,', ''),
-      );
+      metadata = JSON.parse(nft.token_uri.replace('data:application/json;utf8,', ''));
       metadata_updated = true;
     } catch (err) {
       metadata = { error: true, reason: 'JSON' };

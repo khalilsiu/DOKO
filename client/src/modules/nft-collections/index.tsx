@@ -15,11 +15,11 @@ import {
 import { useParams } from 'react-router-dom';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
-import { NFTItem } from './NFTItem';
+import { NFTItem } from '../../components/NFTItem';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
-import { Intro } from '../core/Intro';
+import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
 
@@ -178,7 +178,7 @@ export const NftCollections = () => {
       <Hidden smDown>
         <Grid item>
           <Card className={styles.introCard}>
-            <Intro />
+            <Intro drawer={false} />
           </Card>
         </Grid>
       </Hidden>

@@ -13,5 +13,7 @@ export const config: AppConfig = {
   moralisApplicationId: process.env.REACT_APP_MORALIS_APPLICATION_ID || '',
   moralisApiKey: process.env.REACT_APP_MORALIS_API_KEY || '',
   testAccount: '0x4ec741b83ec1f0b491152904b1b8383c2975031a',
-  apiUrl: process.env.REACT_APP_API_URL || ''
+  apiUrl: process.env.REACT_APP_API_URL || '',
 };
+
+export default config;

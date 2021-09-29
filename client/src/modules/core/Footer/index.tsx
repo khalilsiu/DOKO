@@ -3,27 +3,42 @@ import { Grid, makeStyles, Typography, withStyles } from '@material-ui/core';
 const socialLinks = [
   {
     image: '/social/Twitter.png',
-    link: 'https://twitter.com/doko_nft'
+    link: 'https://twitter.com/doko_nft',
   },
   {
     image: '/social/Discord.png',
-    link: 'https://discord.gg/cNvKMpbU5C'
+    link: 'https://discord.gg/cNvKMpbU5C',
   },
   {
     image: '/social/Medium.png',
-    link: 'https://medium.com/doko-one'
-  }
+    link: 'https://medium.com/doko-one',
+  },
 ];
 
-const FooterContainer = withStyles(theme => ({
+const FooterContainer = withStyles((theme) => ({
   root: {
     background: '#ffffff',
     padding: '24px 60px',
     [theme.breakpoints.down('sm')]: {
-      padding: '12px 24px'
-    }
-  }
+      padding: '12px 24px',
+    },
+  },
 }))(Grid);
+
+const useStyles = makeStyles((theme) => ({
+  socialImageItem: {
+    paddingLeft: theme.spacing(3),
+    '& img': {
+      width: 28,
+      [theme.breakpoints.down('sm')]: {
+        width: 20,
+      },
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: theme.spacing(1),
+    },
+  },
+}));
 
 export const Footer = () => {
   const styles = useStyles();
@@ -38,7 +53,7 @@ export const Footer = () => {
       <img height={24} src="/DOKO_LOGO_LOCKUP.png" alt="DOKO" />
       <Grid item xs={4}>
         <Grid container alignItems="center" justifyContent="flex-end">
-          {socialLinks.map(s => (
+          {socialLinks.map((s) => (
             <Grid className={styles.socialImageItem} item key={s.image}>
               <a
                 rel="noreferrer"
@@ -56,17 +71,4 @@ export const Footer = () => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  socialImageItem: {
-    paddingLeft: theme.spacing(3),
-    '& img': {
-      width: 28,
-      [theme.breakpoints.down('sm')]: {
-        width: 20
-      }
-    },
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: theme.spacing(1)
-    }
-  }
-}));
+export default Footer;

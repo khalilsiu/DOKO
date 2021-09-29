@@ -64,11 +64,7 @@ export class NftService {
   }
 
   async processSyncNFTsJob(address: string) {
-    await this.accountSyncQueue.queue
-      .createJob({ address })
-      .setId(address)
-      .retries(2)
-      .save();
+    await this.accountSyncQueue.queue.createJob({ address }).setId(address).retries(2).save();
   }
 
   async syncNFTs(address: string, address_status: any) {

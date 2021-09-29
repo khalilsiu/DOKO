@@ -1,3 +1,3 @@
 export * from './RadiusInput';
-export * from './Popover';
+export { default } from './Popover';
 export * from './TabPanel';

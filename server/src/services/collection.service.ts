@@ -1,5 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
-import InputDataDecoder from 'ethereum-input-data-decoder';
+import { CollectionsTransactionQueue } from 'src/queue/collections-transaction.queue';
+// import InputDataDecoder from 'ethereum-input-data-decoder';
 import { COLLECTIONS } from '../constants';
 import Collections from '../db/Collections';
 import { Moralis } from '../libs/moralis';
@@ -14,6 +15,7 @@ export class CollectionService {
   constructor(
     private nftMetadata: NftMetadataService,
     private nftService: NftService,
+    private collectionTransactionQueue: CollectionsTransactionQueue,
   ) {}
 
   async indexCollections() {
@@ -39,47 +41,42 @@ export class CollectionService {
             sort: 'asc',
           },
         });
-        return transactions.data.result;
         // console.log(transactions.data.result);
-        const abiRes = await apis[chain].get('', {
-          params: {
-            module: 'contract',
-            action: 'getabi',
-            address: collection.address,
-          },
-        });
-        const abi = JSON.parse(abiRes.data.result);
-        this.logger.log(abi);
-        const input = new InputDataDecoder(abi).decodeData(
-          transactions.data.result[0].input,
-        );
-        console.log(input);
+        // const abiRes = await apis[chain].get('', {
+        //   params: {
+        //     module: 'contract',
+        //     action: 'getabi',
+        //     address: collection.address,
+        //   },
+        // });
+        // const abi = JSON.parse(abiRes.data.result);
+        // this.logger.log(abi);
+        // const input = new InputDataDecoder(abi).decodeData(transactions.data.result[0].input);
+        // console.log(input);
         await coll.instance.updateOne(
           {
-            name: collection.name,
+            token_address: collection.address,
           },
           {
             $set: {
-              [chain]: {
-                ...metadata,
-                ...collection,
-                start_ts: transactions.data.result[0].timeStamp,
-              },
-              abi,
+              ...metadata,
+              ...collection,
+              start_ts: transactions.data.result[0].timeStamp,
+              chain,
+              // abi,
             },
           },
           {
             upsert: true,
           },
         );
-        const items = await this.nftService.fetchCollectionNFTs(
-          collection.address,
-        );
+        // await this.collectionTransactionQueue.createJob(collection, chain as any);
+        // const items = await this.nftService.fetchCollectionNFTs(collection.address);
 
-        for (const item of items) {
-          await this.nftMetadata.queueNFTMetadata(item);
-          break;
-        }
+        // for (const item of items) {
+        //   await this.nftMetadata.queueNFTMetadata(item);
+        //   break;
+        // }
       } catch (err) {
         console.error(err);
       }

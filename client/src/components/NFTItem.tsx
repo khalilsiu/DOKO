@@ -16,6 +16,7 @@ import {
 } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
+import Popover from './Popover';
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
@@ -25,7 +26,6 @@ import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
-import Popover from '../../components/Popover';
 
 interface NFTItemProps {
   nft: any;
@@ -47,7 +47,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const share = (type: 'facebook' | 'twitter') => {
-    const url = `${window.origin}/collections/${nft.owner_of}`;
+    const url = `${window.origin}/address/${nft.owner_of}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT collection on DOKO at now!`,
       twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT collection on @doko_nft now!`,

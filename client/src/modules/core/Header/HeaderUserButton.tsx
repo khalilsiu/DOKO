@@ -8,6 +8,17 @@ interface Props {
   loading: boolean;
 }
 
+const useStyles = makeStyles(() => ({
+  loggedInBtn: {
+    borderRadius: 8,
+    color: 'white',
+    borderColor: 'white !important',
+    '& img': {
+      marginLeft: 8,
+    },
+  },
+}));
+
 export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Props) => {
   const styles = useStyles();
   const [copied, setCopied] = useState(false);
@@ -41,13 +52,4 @@ export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Pro
   );
 };
 
-const useStyles = makeStyles(() => ({
-  loggedInBtn: {
-    borderRadius: 8,
-    color: 'white',
-    borderColor: 'white !important',
-    '& img': {
-      marginLeft: 8
-    }
-  }
-}));
+export default HeaderUserButton;
