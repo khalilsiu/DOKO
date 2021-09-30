@@ -1,13 +1,7 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Logger,
-  Post,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Logger, Post } from '@nestjs/common';
 import { NftMetadataService } from 'src/services/nft-metadata.service';
 import NFTS from '../db/Nfts';
-import { Moralis } from '../libs/moralis';
+import Moralis from '../libs/moralis';
 
 @Controller('webhooks')
 export class MoralisHookController {

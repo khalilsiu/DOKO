@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import * as Queue from 'bee-queue';
 
-export class BaseQueue {
+export abstract class BaseQueue {
   protected readonly logger: Logger;
   public readonly queue: Queue;
 

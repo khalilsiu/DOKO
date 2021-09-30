@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Moralis } from '../libs/moralis';
+import Moralis from '../libs/moralis';
 import { CHAINS } from '../constants';
 import NFTS from 'src/db/Nfts';
 import { NftMetadataService } from './nft-metadata.service';

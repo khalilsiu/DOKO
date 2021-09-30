@@ -22,6 +22,7 @@ import { Filter } from './Filter';
 import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
+import CopyAddress from '../../components/CopyAddress';
 
 const CustomTabs = withStyles({
   root: {
@@ -91,7 +92,6 @@ export const NftCollections = () => {
   const [tabValue, setTabValue] = useState(0);
   const [allLoaded, setAllLoaded] = useState(false);
   const [filter, setFilter] = useState<any>({});
-  const [copied, setCopied] = useState(false);
   const [syncStatus, setSyncStatus] = useState<any>(null);
 
   const fetchNfts = async (offset: number, reset = false) => {
@@ -156,15 +156,6 @@ export const NftCollections = () => {
     fetchNfts(0);
   }, [address, filter]);
 
-  const copy = () => {
-    if (copied) {
-      return;
-    }
-    navigator.clipboard.writeText(address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const reIndex = () => {
     indexAddress(address, true);
     setSyncStatus(null);
@@ -201,16 +192,7 @@ export const NftCollections = () => {
                 </CustomIconButton>
               </Tooltip>
             </Typography>
-            <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
-              <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
-                <Typography variant="h6" style={{ lineHeight: 2 }}>
-                  {minimizeAddress(address)}
-                </Typography>
-                <IconButton>
-                  <img height={13} src="/copy.png" alt="" />
-                </IconButton>
-              </Grid>
-            </Tooltip>
+            <CopyAddress address={address} />
           </Grid>
           <Grid item xs={6}>
             <Hidden xsDown>

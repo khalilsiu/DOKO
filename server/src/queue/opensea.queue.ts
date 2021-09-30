@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { setMetadata } from 'src/helpers/nfts';
-import { BaseQueue } from './base.queue';
+import { NftBaseQueue } from './nft-base.queue';
 
 @Injectable()
-export class OpenseaQueue extends BaseQueue {
+export class OpenseaQueue extends NftBaseQueue {
   constructor() {
-    super('OpenseaQueue', {
-      prefix: 'doko',
-      removeOnSuccess: true,
-      removeOnFailure: true,
-    });
+    super('OpenseaQueue');
     this.setupQueue();
   }
 
@@ -20,8 +16,18 @@ export class OpenseaQueue extends BaseQueue {
       this.logger.log(`ready`);
 
       this.queue.process(1, async (job) => {
-        this.logger.log(`${job.id}: Start`, job.data);
-        await setMetadata(job.data);
+        const { index, total, ...nft } = job.data;
+        this.logger.log(job.data, `${job.id} [start]`);
+
+        try {
+          await setMetadata(job.data);
+        } catch (err) {
+          this.logger.error(err, `${job.id} [error]`);
+        }
+
+        if (index && total) {
+          this.updateProgress(index, total, nft.owner_of);
+        }
       });
     });
   }

@@ -2,7 +2,7 @@ import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
 import { NftService } from 'src/services/nfts.service';
 import Address from '../db/Address';
 import NFTS from '../db/Nfts';
-import { Moralis } from '../libs/moralis';
+import Moralis from '../libs/moralis';
 
 @Controller('nfts')
 export class NftsController {

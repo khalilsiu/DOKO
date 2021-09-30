@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { components } from 'moralis/types/generated/web3Api';
+import { fromWei } from 'web3-utils';
+
 import Transaction from 'src/db/Transaction';
-import { Moralis } from 'src/libs/moralis';
+import Moralis from 'src/libs/moralis';
 import { BaseQueue } from './base.queue';
+import Collections from 'src/db/Collections';
 
 @Injectable()
 export class CollectionsTransactionQueue extends BaseQueue {
@@ -42,7 +45,7 @@ export class CollectionsTransactionQueue extends BaseQueue {
     while (1) {
       const res = await Moralis.Web3API.token.getContractNFTTransfers({
         chain,
-        address: collection.address,
+        address: collection.token_address,
         offset: allTransactions.length,
         limit: 1000,
         order: 'block_timestamp.ASC',
@@ -56,12 +59,30 @@ export class CollectionsTransactionQueue extends BaseQueue {
         break;
       }
     }
+    const totalVolume = allTransactions.reduce((sum, t) => +fromWei(t.value, 'ether') + sum, 0);
+    const coll = new Collections();
+
+    await coll.instance.updateOne(
+      {
+        token_address: collection.token_address,
+      },
+      {
+        $set: {
+          total_volume: totalVolume,
+        },
+      },
+    );
   }
 
   private process() {
     this.queue.process(2, async (job) => {
-      this.logger.log(`${job.id}: Start`, job.data);
-      await this.indexTransactions(job.data.collection, job.data.chain);
+      this.logger.log(job.data, `${job.id} [start]`);
+
+      try {
+        await this.indexTransactions(job.data.collection, job.data.chain);
+      } catch (err) {
+        this.logger.error(err, `${job.id} [error]`);
+      }
     });
   }
 }
