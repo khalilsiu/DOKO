@@ -77,7 +77,7 @@ export class CollectionService {
         const owners = {};
 
         items.forEach(async (item) => {
-          // await this.nftMetadata.queueNFTMetadata(item);
+          await this.nftMetadata.queueNFTMetadata(item);
 
           if (!owners[item.owner_of]) {
             owners[item.owner_of] = 0;
