@@ -62,7 +62,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const Popover = ({
+export const Popover = ({
   children,
   reference,
   placement = 'bottom-start',

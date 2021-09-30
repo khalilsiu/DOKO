@@ -7,11 +7,7 @@ import { BaseQueue } from './base.queue';
 @Injectable()
 export class AccountSyncQueue extends BaseQueue {
   constructor(private nftMetadata: NftMetadataService) {
-    super('AccountSync', {
-      prefix: 'doko',
-      removeOnSuccess: true,
-      removeOnFailure: true,
-    });
+    super('AccountSync');
     this.setupQueue();
   }
 
@@ -72,28 +68,9 @@ export class AccountSyncQueue extends BaseQueue {
           return;
         }
 
-        for (const nft of nfts) {
-          await this.nftMetadata.queueNFTMetadata(nft);
-          await addressCollection.updateOne(
-            { address },
-            {
-              sync_status: 'progress',
-              sync_progress: Math.floor(
-                (nfts.indexOf(nft) / nfts.length) * 100,
-              ),
-              timestamp: Date.now() / 1000,
-            },
-          );
-        }
-
-        await addressCollection.updateOne(
-          { address },
-          {
-            sync_status: 'done',
-            sync_progress: 0,
-            timestamp: Date.now() / 1000,
-          },
-        );
+        nfts.forEach((nft, index) => {
+          this.nftMetadata.queueNFTMetadata(nft, index, nfts.length);
+        });
       });
     });
   }

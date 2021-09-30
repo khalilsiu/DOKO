@@ -1,3 +1,4 @@
 export * from './RadiusInput';
-export { default } from './Popover';
 export * from './TabPanel';
+// eslint-disable-next-line import/export
+export * from './Popover';

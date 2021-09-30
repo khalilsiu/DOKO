@@ -20,8 +20,6 @@ import Popover from './Popover';
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
-import activeShare from './assets/active-share.png';
-import inactiveShare from './assets/inactive-share.png';
 import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
@@ -130,9 +128,9 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
                 onMouseLeave={() => setShareActive(false)}
               >
                 {shareActive ? (
-                  <img className={styles.shareIcon} src={activeShare} alt="share" />
+                  <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
                 ) : (
-                  <img className={styles.shareIcon} src={inactiveShare} alt="share" />
+                  <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
                 )}
               </IconButton>
             }

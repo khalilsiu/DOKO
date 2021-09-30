@@ -1,9 +1,9 @@
+import { Logger } from '@nestjs/common';
 import { default as axios } from 'axios';
 import { isValidHttpUrl, wait, isOpenseaNFT } from '../libs/utils';
 import NFTS from '../db/Nfts';
 import { CHAINS } from 'src/constants';
-import { Moralis } from 'src/libs/moralis';
-import { Logger } from '@nestjs/common';
+import Moralis from 'src/libs/moralis';
 
 const logger = new Logger('NftHelper');
 
@@ -134,7 +134,7 @@ export async function fetchAccountNFTs(address: string, chain?: string) {
         nfts = nfts.concat(result);
 
         if (nfts.length >= total) {
-          nfts = nfts.map((nft) => ({ ...nft, chain }));
+          nfts = nfts.map((nft) => ({ ...nft, chain, owner_of: address }));
           break;
         }
       }

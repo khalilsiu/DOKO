@@ -1,7 +1,6 @@
 import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import Collections from 'src/db/Collections';
 import NFTS from 'src/db/Nfts';
-import Transactions from 'src/db/Transaction';
 import { CollectionService } from 'src/services/collection.service';
 
 @Controller('collections')
@@ -23,11 +22,17 @@ export class CollectionsController {
   @Get(':address/nfts')
   async getNfts(@Param('address') address: string, @Query() query: any) {
     const coll = new NFTS();
-    const { offset, direction } = query;
+    const { offset, direction, term } = query;
+    const filter: any = { token_address: address.toLowerCase() };
+
+    if (term) {
+      filter.$text = {
+        $search: term,
+      };
+    }
+
     const nfts = await coll.instance
-      .find({
-        token_address: address.toLowerCase(),
-      })
+      .find(filter)
       .sort({ 'metadata.name': +direction || 1, name: +direction || 1, _id: 1 } as any)
       .skip(+offset || 0)
       .limit(12)

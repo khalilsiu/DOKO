@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, PropsWithChildren, Suspense } from 'react';
 import './App.css';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core';
@@ -11,48 +11,51 @@ import { AuthContextProvider } from './contexts/AuthContext';
 import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
 
-const NftCollections = lazy(() => import('./modules/nft-collections'));
-const NftIndividual = lazy(() => import('./modules/nft-individual'));
-const Collection = lazy(() => import('./modules/collection'));
+const NftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-collections'));
+const NftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-individual'));
+const Collection = lazy(() => import(/* webpackPrefetch: true */ './modules/collection'));
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
 }));
 
-function App() {
+const RouteContainer = ({ children }: PropsWithChildren<any>) => {
   const styles = useStyles();
+  return <div className={styles.offset}>{children}</div>;
+};
 
+function App() {
   return (
-    <BrowserRouter>
-      <AuthContextProvider>
-        <DrawerContextProvider intro={<Intro drawer />}>
-          <Header />
-          <Switch>
-            <Suspense fallback={<Loading />}>
+    <Suspense fallback={<Loading />}>
+      <BrowserRouter>
+        <AuthContextProvider>
+          <DrawerContextProvider intro={<Intro drawer />}>
+            <Header />
+            <Switch>
               <Route path="/" exact>
                 <Landing />
               </Route>
               <Route path="/address/:address" exact>
-                <div className={styles.offset}>
+                <RouteContainer>
                   <NftCollections />
-                </div>
+                </RouteContainer>
               </Route>
               <Route path="/nft/:address/:id" exact>
-                <div className={styles.offset}>
+                <RouteContainer>
                   <NftIndividual />
-                </div>
+                </RouteContainer>
               </Route>
               <Route path="/collections/:address" exact>
-                <div className={styles.offset}>
+                <RouteContainer>
                   <Collection />
-                </div>
+                </RouteContainer>
               </Route>
-            </Suspense>
-          </Switch>
-          <Footer />
-        </DrawerContextProvider>
-      </AuthContextProvider>
-    </BrowserRouter>
+            </Switch>
+            <Footer />
+          </DrawerContextProvider>
+        </AuthContextProvider>
+      </BrowserRouter>
+    </Suspense>
   );
 }
 
