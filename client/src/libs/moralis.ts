@@ -1,5 +1,5 @@
-import Moralis from "moralis";
-import { config } from "../config";
+import Moralis from 'moralis';
+import { config } from '../config';
 
 Moralis.initialize(config.moralisApplicationId);
 Moralis.serverURL = config.moralisServerUrl;

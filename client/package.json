@@ -10,6 +10,7 @@
     "@reduxjs/toolkit": "^1.6.1",
     "axios": "^0.21.1",
     "dateformat": "^5.0.1",
+    "cryptocurrency-icons": "^0.18.0",
     "isomorphic-fetch": "^3.0.0",
     "metamask-react": "^2.0.2",
     "moralis": "^0.0.39",
