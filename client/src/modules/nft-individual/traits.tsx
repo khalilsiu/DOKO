@@ -1,11 +1,32 @@
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-
 import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
 
 interface NFtTraitsProps {
   traits: any;
+  totalSupply: any;
 }
+
+const useStyles = makeStyles((theme) => ({
+  traits: {},
+  traitFooter: {
+    marginTop: '1em',
+    textAlign: 'center',
+  },
+  traitCard: {
+    padding: '1.5em',
+    background: 'inherit',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    minHeight: '200px',
+    width: '100%',
+    borderRadius: '20px',
+    border: '1px solid white',
+    alignItems: 'center',
+    color: 'inherit',
+  },
+}));
 
 export const GradientSVG = () => {
   const color0 = '#ff06d7';
@@ -30,18 +51,20 @@ export const GradientSVG = () => {
     </svg>
   );
 };
-
-export const NftTraits = ({ traits }: NFtTraitsProps) => {
-  // eslint-disable-next-line no-use-before-define
+export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
   const styles = useStyles();
-
   return (
     <Grid container justifyContent="flex-start" spacing={3} className="traits">
       <GradientSVG />
       {traits.map((trait: any) => {
-        const traitPercentage = Math.round((trait.trait_count / 7000) * 100);
+        const traitPercentage =
+          trait.trait_count && totalSupply
+            ? Math.round((trait.trait_count / totalSupply) * 100)
+            : 0;
+        const traitPercentageAvailable = !!traitPercentage;
+        const traitPercentageText = traitPercentageAvailable ? `${traitPercentage} %` : 'N/A';
         return (
-          <Grid item container lg={2} xl={2} md={4} sm={3} xs={3}>
+          <Grid item container lg={2} xl={2} md={3} sm={3} xs={6} key={trait.trait_type}>
             <Card className={styles.traitCard}>
               <div style={{ marginBottom: '1em' }}>
                 <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
@@ -50,7 +73,7 @@ export const NftTraits = ({ traits }: NFtTraitsProps) => {
               </div>
               <CircularProgressbar
                 value={traitPercentage}
-                text={`${traitPercentage}%`}
+                text={`${traitPercentageText}`}
                 styles={{
                   path: {
                     stroke: 'url(#lingrad)',
@@ -64,12 +87,12 @@ export const NftTraits = ({ traits }: NFtTraitsProps) => {
                   },
                 }}
               />
-              <div style={{ textAlign: 'center', marginTop: '1em' }}>
+              <div className={styles.traitFooter}>
                 <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
                   {trait.value}
                 </Typography>
                 <Typography variant="body1" style={{ fontStyle: 'italic' }}>
-                  {traitPercentage} % have this trait
+                  {traitPercentage ? `${traitPercentage} %` : 'N/A'} have this trait
                 </Typography>
               </div>
             </Card>
@@ -79,18 +102,3 @@ export const NftTraits = ({ traits }: NFtTraitsProps) => {
     </Grid>
   );
 };
-
-const useStyles = makeStyles(() => ({
-  traits: {},
-  traitCard: {
-    padding: '1.5em',
-    background: 'inherit',
-    display: 'flex',
-    minHeight: '250px',
-    width: '100%',
-    flexDirection: 'column',
-    borderRadius: '20px',
-    border: '1px solid white',
-    alignItems: 'center',
-  },
-}));

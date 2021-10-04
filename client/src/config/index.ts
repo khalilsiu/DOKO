@@ -1,5 +1,6 @@
 interface AppConfig {
   provider: string;
+  polygon_provider: string,
   moralisServerUrl: string;
   moralisApplicationId: string;
   moralisApiKey: string;
@@ -9,6 +10,7 @@ interface AppConfig {
 
 export const config: AppConfig = {
   provider: process.env.REACT_APP_DEFAULT_WEB3_PROVIDER || '',
+  polygon_provider: process.env.REACT_APP_POLYGON_PROVIDER || '',
   moralisServerUrl: process.env.REACT_APP_MORALIS_SERVER_URL || '',
   moralisApplicationId: process.env.REACT_APP_MORALIS_APPLICATION_ID || '',
   moralisApiKey: process.env.REACT_APP_MORALIS_API_KEY || '',
