@@ -18,6 +18,9 @@ import {
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
+import eth from 'cryptocurrency-icons/32/white/eth.png';
+import bsc from 'cryptocurrency-icons/32/white/bnb.png';
+
 import Moralis from '../../libs/moralis';
 import { NftTraits } from './traits';
 import { Rarity } from './rarity';
@@ -27,8 +30,6 @@ import { web3 } from '../../libs/web3';
 import { normalizeImageURL, chainMapping, formatTx, getTotalSupply } from '../../libs/utils';
 import { getNFT, fetchOpenseaEvents, fetchOpenseaLastSale } from '../api';
 import backbutton from '../../assets/back-button.png';
-import eth from '../../../node_modules/cryptocurrency-icons/32/white/eth.png';
-import bsc from '../../../node_modules/cryptocurrency-icons/32/white/bnb.png';
 import opensea_icon from '../../assets/opensea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 
@@ -190,7 +191,7 @@ export const NftIndividual = () => {
     let formatted;
     if (_chain === 'polygon' || _chain === 'bsc') {
       const options: any = { address, token_id: id, chain };
-      const transfers = await Moralis.Web3API.token.getWalletTokenIdTransfers(options);
+      const transfers = await (Moralis.Web3API as any).token.getWalletTokenIdTransfers(options);
       formatted = transfers.result.map((transfer: any) => formatTx(transfer, _chain));
       setTxs(formatted);
     } else {
