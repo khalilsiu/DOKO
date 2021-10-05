@@ -9,6 +9,9 @@ const darkTheme = createTheme({
     secondary: {
       main: '#00ffef',
     },
+    action: {
+      disabled: '#666',
+    },
   },
   typography: {
     fontFamily: 'OpenSans',

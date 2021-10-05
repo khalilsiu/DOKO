@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Logger,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException, Logger, Param } from '@nestjs/common';
 import axios from 'axios';
 import NFTS from 'src/db/Nfts';
 import { NftsController } from './nfts.controller';
@@ -32,14 +26,9 @@ export class NftController {
   }
 
   @Get('eth/lastsale/:address/:id')
-  async fetchLastSale(
-    @Param('address') address: string,
-    @Param('id') id: string,
-  ) {
+  async fetchLastSale(@Param('address') address: string, @Param('id') id: string) {
     try {
-      const res = await axios.get(
-        `https://api.opensea.io/api/v1/asset/${address}/${id}`,
-      );
+      const res = await axios.get(`https://api.opensea.io/api/v1/asset/${address}/${id}`);
       return res.data;
     } catch (err) {
       this.logger.error(err, 'fetchLastSale');

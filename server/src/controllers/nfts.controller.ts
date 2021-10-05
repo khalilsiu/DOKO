@@ -20,11 +20,9 @@ export class NftsController {
     address && (query.owner_of = address.toLowerCase());
     token_address && (query.token_address = token_address);
 
-    if (chain) {
-      query.chain = {
-        $in: chain,
-      };
-    }
+    query.chain = {
+      $in: chain || ['bsc', 'polygon'],
+    };
 
     if (term) {
       query.$text = {
@@ -32,18 +30,20 @@ export class NftsController {
       };
     }
 
-    const items = await collection.instance
-      .find(query)
-      .sort({
-        'metadata.name': +direction || 1,
-        name: +direction || 1,
-        _id: 1,
-      } as any)
+    const cursor = collection.instance.find(query).sort({
+      'metadata.name': +direction || 1,
+      name: +direction || 1,
+      _id: 1,
+    } as any);
+
+    const total = await cursor.count();
+
+    const items = await cursor
       .skip(+offset || 0)
       .limit(12)
       .toArray();
 
-    return items;
+    return { items, total: Math.ceil(total / 12) };
   }
 
   @Post('index')
@@ -52,7 +52,10 @@ export class NftsController {
 
     this.logger.log(`indexCollections: ${address}`);
 
-    for (const chain of ['Eth', 'Bsc', 'Polygon']) {
+    /**
+     * @todo check the eth
+     */
+    for (const chain of ['Bsc', 'Polygon']) {
       Moralis.Cloud.run(`watch${chain}Address`, {
         address,
       });

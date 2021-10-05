@@ -118,7 +118,10 @@ export async function fetchAccountNFTs(address: string, chain?: string) {
   if (chain && !CHAINS.includes(chain)) {
     return [];
   }
-  const chains = chain ? [chain] : CHAINS;
+  /**
+   * @todo check eth
+   */
+  const chains = chain ? [chain] : ['bsc', 'polygon'];
 
   try {
     let all = [];

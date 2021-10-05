@@ -15,14 +15,15 @@ import {
 import { useParams } from 'react-router-dom';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
-import { NFTItem } from '../../components/NFTItem';
+import { TabPanel, NftPagination } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
-import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
 import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
 import CopyAddress from '../../components/CopyAddress';
+import EthNfts from './EthNfts';
+import SectionLabel from '../../components/SectionLabel';
 
 const CustomTabs = withStyles({
   root: {
@@ -90,29 +91,30 @@ export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
-  const [allLoaded, setAllLoaded] = useState(false);
   const [filter, setFilter] = useState<any>({});
   const [syncStatus, setSyncStatus] = useState<any>(null);
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
 
-  const fetchNfts = async (offset: number, reset = false) => {
+  const fetchNfts = async () => {
+    setNFTs([]);
+
     if (!address) {
       return;
     }
     setLoading(true);
 
     try {
-      const res = await getNFTs(address, offset, filter);
-      setNFTs((items) => (reset ? res.data : [...items, ...res.data]));
-      setAllLoaded(res.data.length < 12);
+      const res = await getNFTs(address, (page - 1) * 12, filter);
+      const { items, total: resTotal } = res.data;
+      setTotal(resTotal);
+      setNFTs(items);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
+      setNFTs([]);
     }
     setLoading(false);
-  };
-
-  const loadMore = () => {
-    fetchNfts(nfts.length);
   };
 
   const checkSyncStatus = async () => {
@@ -124,7 +126,7 @@ export const NftCollections = () => {
         clearInterval(syncInterval);
 
         if (Date.now() / 1000 - sync.timestamp < 5000 && sync.sync_status === 'done') {
-          fetchNfts(0, true);
+          setPage(1);
         }
       }
       setSyncStatus(sync);
@@ -151,10 +153,17 @@ export const NftCollections = () => {
   }, [address]);
 
   useEffect(() => {
-    setNFTs([]);
-    setAllLoaded(false);
-    fetchNfts(0);
+    if (page === 1) {
+      fetchNfts();
+    } else {
+      setPage(1);
+    }
   }, [address, filter]);
+
+  useEffect(() => {
+    // eslint-disable-next-line no-unused-expressions
+    page && fetchNfts();
+  }, [page]);
 
   const reIndex = () => {
     indexAddress(address, true);
@@ -217,13 +226,22 @@ export const NftCollections = () => {
               <AddressStatus status={syncStatus} loader={false} />
             </Grid>
           </Hidden>
+
+          <EthNfts address={address} />
+
+          <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
+            BSC & Polygon NFTs(Beta)
+          </SectionLabel>
           <Filter onChange={setFilter} />
-          <div className={styles.nftsContainer}>
-            {nfts.map((nft) => (
-              <NFTItem key={nft._id} nft={nft} />
-            ))}
-          </div>
-          {nfts.length ? (
+          <NftPagination
+            nfts={nfts}
+            page={page}
+            total={total}
+            onNext={() => setPage(page + 1)}
+            onPrev={() => setPage(page - 1)}
+            loading={loading}
+          />
+          {/* {nfts.length ? (
             allLoaded ? (
               <></>
             ) : (
@@ -239,7 +257,7 @@ export const NftCollections = () => {
             )
           ) : (
             <AddressStatus status={syncStatus} loader />
-          )}
+          )} */}
         </TabPanel>
       </Grid>
     </Grid>

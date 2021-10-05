@@ -10,8 +10,6 @@ interface Props {
   style?: any;
 }
 
-let toggleTimeout: any;
-
 const Arrow = styled.div`
   width: 0.6rem;
   height: 0.6rem;
@@ -83,6 +81,8 @@ export const Popover = ({
     ],
   });
   const [show, setShow] = useState(false);
+
+  let toggleTimeout: any;
 
   const toggleShow = (shown: boolean) => {
     if (shown) {
