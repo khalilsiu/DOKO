@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import { Placement } from '@popperjs/core';
 import { PropsWithChildren, useState } from 'react';
 import { usePopper } from 'react-popper';
@@ -6,6 +7,7 @@ import styled from 'styled-components';
 interface Props {
   reference: any;
   placement?: Placement;
+  style?: any;
 }
 
 let toggleTimeout: any;
@@ -60,7 +62,12 @@ const Wrapper = styled.div`
   }
 `;
 
-const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithChildren<Props>) => {
+export const Popover = ({
+  children,
+  reference,
+  placement = 'bottom-start',
+  style,
+}: PropsWithChildren<Props>) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
@@ -71,9 +78,9 @@ const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithC
       { name: 'offset', options: { offset: [0, 24] } },
       {
         name: 'arrow',
-        options: { element: arrowElement }
-      }
-    ]
+        options: { element: arrowElement },
+      },
+    ],
   });
   const [show, setShow] = useState(false);
 
@@ -88,7 +95,7 @@ const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithC
   };
 
   return (
-    <div>
+    <div style={style}>
       <span
         ref={setReferenceElement}
         onMouseEnter={() => toggleShow(true)}
@@ -101,6 +108,7 @@ const Popover = ({ children, reference, placement = 'bottom-start' }: PropsWithC
         onMouseLeave={() => toggleShow(false)}
         ref={setPopperElement}
         style={{ ...styles.popper, visibility: show ? 'visible' : 'hidden', opacity: +show }}
+        // eslint-disable-next-line react/jsx-props-no-spreading
         {...attributes.popper}
       >
         {children}
