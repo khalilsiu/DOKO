@@ -126,3 +126,18 @@ export const formatTx = (tx: any, chain: string) => {
 
   return formatted;
 };
+
+export const shortenAddress = (address: string) =>
+  `${address.slice(0, 2)}...${address.slice(address.length - 4)}`;
+
+export function isValidHttpUrl(str: string) {
+  let url;
+
+  try {
+    url = new URL(str);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === 'http:' || url.protocol === 'https:';
+}
