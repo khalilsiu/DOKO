@@ -1,11 +1,12 @@
 import { makeStyles, Theme, Modal, Box, Divider } from '@material-ui/core';
+import { ReactNode } from 'react';
 
 interface UIModalProps {
   klasses?: string;
   modalOpen: boolean;
-  renderHeader: () => React.ReactNode;
-  renderBody: () => React.ReactNode;
-  renderFooter: () => React.ReactNode;
+  renderHeader: () => ReactNode;
+  renderBody: () => ReactNode;
+  renderFooter: () => ReactNode;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -17,15 +18,15 @@ const useStyles = makeStyles((theme: Theme) => ({
     minWidth: '500px',
     border: '1px solid white',
     borderRadius: '10px',
-    backgroundColor: 'black'
+    backgroundColor: 'black',
   },
   divider: {
     backgroundColor: 'white',
-    height: '1px'
-  }
+    height: '1px',
+  },
 }));
 
-export const UIModal = ({ klasses, modalOpen, renderHeader, renderBody, renderFooter }: UIModalProps) => {
+const UIModal = ({ klasses, modalOpen, renderHeader, renderBody, renderFooter }: UIModalProps) => {
   const classes = useStyles();
 
   return (
@@ -40,3 +41,5 @@ export const UIModal = ({ klasses, modalOpen, renderHeader, renderBody, renderFo
     </Modal>
   );
 };
+
+export default UIModal;

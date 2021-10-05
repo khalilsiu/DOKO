@@ -6,17 +6,17 @@ import {
   makeStyles,
   Theme,
   Button,
-  IconButton
+  IconButton,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 
+import CloseIcon from '@material-ui/icons/Close';
 import { RadiusInput } from '../../../components';
 import { HeaderUserButton } from './HeaderUserButton';
 import { ToolbarItemsProps } from './types';
-import CloseIcon from '@material-ui/icons/Close';
-import { UIModal } from '../../../components/modal';
+import UIModal from '../../../components/modal';
 
 const useStyles = makeStyles((theme: Theme) => ({
   modalHeader: {
@@ -24,11 +24,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     alignItems: 'center',
     color: 'white',
     padding: '1.5rem',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   modalContent: {
     display: 'flex',
-    padding: '1.5rem'
+    padding: '1.5rem',
   },
   walletContainer: {
     width: '8rem',
@@ -40,10 +40,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: '1rem',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   walletSelected: {
-    borderColor: theme.palette.primary.main
+    borderColor: theme.palette.primary.main,
   },
   walletImage: { height: '3rem', width: '3rem', marginBottom: '1rem' },
   walletName: {
@@ -51,30 +51,30 @@ const useStyles = makeStyles((theme: Theme) => ({
     textAlign: 'center',
     width: '5rem',
     fontSize: '0.7rem',
-    lineHeight: '1.2'
+    lineHeight: '1.2',
   },
   modalFooter: {
     display: 'flex',
     justifyContent: 'flex-end',
-    padding: '1.5rem'
+    padding: '1.5rem',
   },
   modalButton: {
     backgroundColor: theme.palette.primary.main,
     color: 'white',
     width: '13rem',
-    height: '3rem'
-  }
+    height: '3rem',
+  },
 }));
 
 const wallets = [
   {
     icon: '/DOKO_Metamasklogo_asset.png',
-    label: 'MetaMask Wallet'
+    label: 'MetaMask Wallet',
   },
   {
     icon: '/DOKO_Phantomlogo_asset.png',
-    label: 'Phantom Wallet'
-  }
+    label: 'Phantom Wallet',
+  },
 ];
 
 export const LargeScreen = ({ setSearch, search, loading, address, login }: ToolbarItemsProps) => {
@@ -101,8 +101,8 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
               style={{ minWidth: 300 }}
               placeholder="Search by Address"
               value={search}
-              onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => search && e.key === 'Enter' && history.push(`/collections/${search}`)}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => search && e.key === 'Enter' && history.push(`/collections/${search}`)}
               startAdornment={
                 <InputAdornment position="start">
                   <SearchIcon color="action" fontSize="small" />
@@ -152,12 +152,14 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
         renderBody={() => (
           <div className={classes.modalContent}>
             {wallets.map((wallet, i) => (
+              // eslint-disable-next-line jsx-a11y/no-static-element-interactions
               <div
-                className={`${classes.walletContainer} ${
-                  walletSelected === i && classes.walletSelected
-                }`}
+                className={`${classes.walletContainer} 
+                ${walletSelected === i && classes.walletSelected
+                  }`}
                 key={wallet.label}
                 onClick={() => handleWalletClick(i)}
+                onKeyDown={() => handleWalletClick(i)}
               >
                 <img src={wallet.icon} alt="" className={classes.walletImage} />
                 <Typography variant="subtitle2" className={classes.walletName}>
