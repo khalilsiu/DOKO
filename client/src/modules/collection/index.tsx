@@ -20,11 +20,10 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 
 import openseaApi from '../../libs/opensea-api';
 import { getCollection, getNFTs } from './api';
-import { NFTItem } from '../../components/NFTItem';
 import CollectionHeader from './components/CollectionHeader';
 import { ICollection } from './types';
 import TweetField from './components/TweetField';
-import { RadiusInput, Popover } from '../../components';
+import { RadiusInput, Popover, NFTItem } from '../../components';
 
 const useStyles = makeStyles((theme) => ({
   collectionContainer: {

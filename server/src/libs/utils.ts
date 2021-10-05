@@ -10,8 +10,6 @@ export const isValidHttpUrl = (string: string) => {
   return url.protocol === 'http:' || url.protocol === 'https:';
 };
 
-export const wait = (time: number) =>
-  new Promise((resolve) => setTimeout(resolve, time));
+export const wait = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
 
-export const isOpenseaNFT = (nft: any) =>
-  nft.token_uri && nft.token_uri.includes('api.opensea.io');
+export const isOpenseaNFT = (nft: any) => nft.token_uri && nft.token_uri.includes('api.opensea.io');

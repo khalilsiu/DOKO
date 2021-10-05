@@ -18,15 +18,19 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import Popover from '../../components/Popover';
 import { RadiusInput } from '../../components';
 
+/**
+ * @todo check eth
+ */
+
 const chains = [
   {
     name: 'all',
     label: 'All',
   },
-  {
-    name: 'eth',
-    label: 'Ethereum',
-  },
+  // {
+  //   name: 'eth',
+  //   label: 'Ethereum',
+  // },
   {
     name: 'bsc',
     label: 'BSC',
@@ -50,7 +54,11 @@ const sorts = [
   },
 ];
 
-type ChainKey = 'all' | 'eth' | 'bsc' | 'polygon';
+/**
+ * @todo check eth
+ */
+// type ChainKey = 'all' | 'eth' | 'bsc' | 'polygon';
+type ChainKey = 'all' | 'bsc' | 'polygon';
 
 interface FilterProps {
   // eslint-disable-next-line no-unused-vars
@@ -82,7 +90,7 @@ export function Filter({ onChange }: FilterProps) {
     term: '',
     chain: {
       all: true,
-      eth: false,
+      // eth: false,
       bsc: false,
       polygon: false,
     },
@@ -98,7 +106,7 @@ export function Filter({ onChange }: FilterProps) {
         ...state,
         chain: {
           all: checked,
-          eth: checked,
+          // eth: checked,
           bsc: checked,
           polygon: checked,
         },
@@ -107,7 +115,8 @@ export function Filter({ onChange }: FilterProps) {
       const chain = { ...filter.chain };
       chain[name as ChainKey] = checked;
 
-      if (chain.eth && chain.bsc && chain.polygon) {
+      // if (chain.eth && chain.bsc && chain.polygon) {
+      if (chain.bsc && chain.polygon) {
         chain.all = true;
       } else {
         chain.all = false;
@@ -132,7 +141,8 @@ export function Filter({ onChange }: FilterProps) {
     onChange({
       term: data.term,
       chain: data.chain.all
-        ? ['eth', 'bsc', 'polygon']
+        ? // ? ['eth', 'bsc', 'polygon']
+          ['bsc', 'polygon']
         : Object.entries(data.chain)
             .map(([key, value]) => (key === 'all' || !value ? null : key))
             .filter(Boolean),
@@ -163,7 +173,7 @@ export function Filter({ onChange }: FilterProps) {
 
   return (
     <Grid container spacing={2} direction="column" style={{ paddingTop: 24, paddingBottom: 36 }}>
-      <Grid item>
+      {/* <Grid item>
         <FormControl className={styles.searchInput}>
           <RadiusInput
             value={filter.term}
@@ -176,7 +186,7 @@ export function Filter({ onChange }: FilterProps) {
             onChange={(e) => updateTerm(e.target.value)}
           />
         </FormControl>
-      </Grid>
+      </Grid> */}
       <Grid item>
         <Grid container justifyContent="space-between">
           <Popover
