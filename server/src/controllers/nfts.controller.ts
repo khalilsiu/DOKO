@@ -84,6 +84,8 @@ export class NftsController {
           last_error: null,
         };
         await collection.insertOne(status);
+      } else {
+        return { message: 'Indexed already' };
       }
     } catch (err) {
       this.logger.error('Address Status get Error:', err);
