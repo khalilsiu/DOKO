@@ -1,15 +1,32 @@
 import { useContext, useState } from 'react';
-import { FormControl, Grid, IconButton, InputAdornment, Theme } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import {
+  FormControl,
+  Grid,
+  IconButton,
+  InputAdornment,
+  makeStyles,
+  Theme,
+} from '@material-ui/core';
+import { Link, useHistory } from 'react-router-dom';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
-import { makeStyles } from '@material-ui/styles';
-import { useHistory } from 'react-router-dom';
 
 import { ToolbarItemsProps } from './types';
 import { DrawerContext } from '../../../contexts/DrawerContext';
 import { RadiusInput } from '../../../components';
+
+const useStyles = makeStyles((theme: Theme) => ({
+  flexAnimationItem: {
+    opacity: 1,
+    overflow: 'hidden',
+    transition: theme.transitions.create('all'),
+  },
+  hideItem: {
+    opacity: 0,
+    maxWidth: '0 !important',
+  },
+}));
 
 export const SmallScreen = ({ search, setSearch }: ToolbarItemsProps) => {
   const { toggle } = useContext(DrawerContext);
@@ -18,13 +35,13 @@ export const SmallScreen = ({ search, setSearch }: ToolbarItemsProps) => {
   const styles = useStyles();
   const handleSearch = () => {
     setShowSearch(false);
-    history.push(`/collections/${search}`);
+    history.push(`/address/${search}`);
   };
 
   return (
     <Grid container justifyContent="space-between" alignItems="center">
       <Grid
-        className={styles.flexAnimationItem + ' ' + (showSearch ? styles.hideItem : '')}
+        className={`${styles.flexAnimationItem} ${showSearch ? styles.hideItem : ''}`}
         xs={4}
         item
       >
@@ -47,8 +64,8 @@ export const SmallScreen = ({ search, setSearch }: ToolbarItemsProps) => {
                     style={{ minWidth: 200 }}
                     placeholder="Search by Address"
                     value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    onKeyDown={e => search && e.key === 'Enter' && handleSearch()}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => search && e.key === 'Enter' && handleSearch()}
                     startAdornment={
                       <InputAdornment position="start">
                         <SearchIcon color="action" fontSize="small" />
@@ -77,14 +94,4 @@ export const SmallScreen = ({ search, setSearch }: ToolbarItemsProps) => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
-  flexAnimationItem: {
-    opacity: 1,
-    overflow: 'hidden',
-    transition: theme.transitions.create('all')
-  },
-  hideItem: {
-    opacity: 0,
-    maxWidth: '0 !important'
-  }
-}));
+export default SmallScreen;

@@ -9,7 +9,20 @@ interface Props {
   setModalOpen: (modalState: boolean) => void;
 }
 
+
 export const HeaderUserButton = ({ onLogin = () => null, address, loading, setModalOpen }: Props) => {
+const useStyles = makeStyles(() => ({
+  loggedInBtn: {
+    borderRadius: 8,
+    color: 'white',
+    borderColor: 'white !important',
+    '& img': {
+      marginLeft: 8,
+    },
+  },
+}));
+
+export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Props) => {
   const styles = useStyles();
   const [copied, setCopied] = useState(false);
 
@@ -43,13 +56,4 @@ export const HeaderUserButton = ({ onLogin = () => null, address, loading, setMo
   );
 };
 
-const useStyles = makeStyles(() => ({
-  loggedInBtn: {
-    borderRadius: 8,
-    color: 'white',
-    borderColor: 'white !important',
-    '& img': {
-      marginLeft: 8
-    }
-  }
-}));
+export default HeaderUserButton;

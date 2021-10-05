@@ -1,7 +1,8 @@
 import { Box } from '@material-ui/core';
+import { ReactNode } from 'react';
 
 interface TabPanelProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   dir?: string;
   index: any;
   value: any;
@@ -16,6 +17,7 @@ export function TabPanel(props: TabPanelProps) {
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
+      // eslint-disable-next-line react/jsx-props-no-spreading
       {...other}
       style={{ width: '100%' }}
     >
@@ -23,3 +25,5 @@ export function TabPanel(props: TabPanelProps) {
     </div>
   );
 }
+
+export default TabPanel;

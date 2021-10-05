@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import {
   Button,
   Divider,
@@ -8,54 +9,72 @@ import {
   InputAdornment,
   makeStyles,
   MenuItem,
-  MenuList
+  MenuList,
 } from '@material-ui/core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { ArrowDropDown, ArrowDropUp, Search } from '@material-ui/icons';
-import { useEffect, useRef, useState } from 'react';
-import { RadiusInput } from '../../components';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import Popover from '../../components/Popover';
+import { RadiusInput } from '../../components';
 
 const chains = [
   {
     name: 'all',
-    label: 'All'
+    label: 'All',
   },
   {
     name: 'eth',
-    label: 'Ethereum'
+    label: 'Ethereum',
   },
   {
     name: 'bsc',
-    label: 'BSC'
+    label: 'BSC',
   },
   {
     name: 'polygon',
-    label: 'Polygon'
-  }
+    label: 'Polygon',
+  },
 ];
 
 const sorts = [
   {
     name: 'name',
     order: 1,
-    label: 'A to Z'
+    label: 'A to Z',
   },
   {
     name: 'name',
     order: -1,
-    label: 'Z to A'
-  }
+    label: 'Z to A',
+  },
 ];
 
 type ChainKey = 'all' | 'eth' | 'bsc' | 'polygon';
 
 interface FilterProps {
+  // eslint-disable-next-line no-unused-vars
   onChange: (filter: any) => void;
 }
 
 let termTimeout: any;
+
+const useStyles = makeStyles((theme) => ({
+  controlLabel: {
+    marginBottom: theme.spacing(1),
+    color: 'black',
+    fontSize: 12,
+    '& > span:last-child': {
+      color: 'black',
+    },
+  },
+  searchInput: {
+    width: 300,
+    [theme.breakpoints.down('xs')]: {
+      width: '100%',
+    },
+  },
+}));
 
 export function Filter({ onChange }: FilterProps) {
   const styles = useStyles();
@@ -65,24 +84,24 @@ export function Filter({ onChange }: FilterProps) {
       all: true,
       eth: false,
       bsc: false,
-      polygon: false
+      polygon: false,
     },
-    sort: sorts[0]
+    sort: sorts[0],
   });
   const firstRun = useRef(true);
 
-  const updateChain = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateChain = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
 
     if (name === 'all') {
-      setFilter(state => ({
+      setFilter((state) => ({
         ...state,
         chain: {
           all: checked,
           eth: checked,
           bsc: checked,
-          polygon: checked
-        }
+          polygon: checked,
+        },
       }));
     } else {
       const chain = { ...filter.chain };
@@ -93,29 +112,18 @@ export function Filter({ onChange }: FilterProps) {
       } else {
         chain.all = false;
       }
-      setFilter(state => ({
+      setFilter((state) => ({
         ...state,
-        chain
+        chain,
       }));
     }
   };
 
   const updateTerm = (term: string) => {
-    setFilter(state => ({
+    setFilter((state) => ({
       ...state,
-      term
+      term,
     }));
-  };
-
-  const updateSort = (sort: any) => {
-    setFilter(state => ({
-      ...state,
-      sort
-    }));
-    applyFilter({
-      ...filter,
-      sort
-    });
   };
 
   const applyFilter = (options?: any) => {
@@ -129,7 +137,18 @@ export function Filter({ onChange }: FilterProps) {
             .map(([key, value]) => (key === 'all' || !value ? null : key))
             .filter(Boolean),
       orderBy: data.sort.name,
-      direction: data.sort.order
+      direction: data.sort.order,
+    });
+  };
+
+  const updateSort = (sort: any) => {
+    setFilter((state) => ({
+      ...state,
+      sort,
+    }));
+    applyFilter({
+      ...filter,
+      sort,
     });
   };
 
@@ -140,7 +159,6 @@ export function Filter({ onChange }: FilterProps) {
     }
     clearTimeout(termTimeout);
     termTimeout = setTimeout(() => applyFilter(), 800);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter.term]);
 
   return (
@@ -155,7 +173,7 @@ export function Filter({ onChange }: FilterProps) {
                 <Search fontSize="small" />
               </InputAdornment>
             }
-            onChange={e => updateTerm(e.target.value)}
+            onChange={(e) => updateTerm(e.target.value)}
           />
         </FormControl>
       </Grid>
@@ -171,7 +189,7 @@ export function Filter({ onChange }: FilterProps) {
             <Grid container direction="column" style={{ minWidth: 200 }}>
               <FormControl style={{ paddingLeft: 16, paddingTop: 12 }} component="fieldset">
                 <FormGroup>
-                  {chains.map(chain => (
+                  {chains.map((chain) => (
                     <FormControlLabel
                       key={chain.name}
                       className={styles.controlLabel}
@@ -180,7 +198,7 @@ export function Filter({ onChange }: FilterProps) {
                           color="primary"
                           checked={filter.chain[chain.name as ChainKey]}
                           name={chain.name}
-                          onChange={e => updateChain(e)}
+                          onChange={(e) => updateChain(e)}
                         />
                       }
                       label={chain.label}
@@ -215,7 +233,7 @@ export function Filter({ onChange }: FilterProps) {
             placement="bottom-end"
           >
             <MenuList>
-              {sorts.map(sort => (
+              {sorts.map((sort) => (
                 <MenuItem
                   className={sort.label === filter.sort.label ? 'selected' : ''}
                   key={sort.label}
@@ -233,19 +251,4 @@ export function Filter({ onChange }: FilterProps) {
   );
 }
 
-const useStyles = makeStyles(theme => ({
-  controlLabel: {
-    marginBottom: theme.spacing(1),
-    color: 'black',
-    fontSize: 12,
-    '& > span:last-child': {
-      color: 'black'
-    }
-  },
-  searchInput: {
-    width: 300,
-    [theme.breakpoints.down('xs')]: {
-      width: '100%'
-    }
-  }
-}));
+export default Filter;

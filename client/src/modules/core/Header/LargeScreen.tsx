@@ -184,3 +184,5 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
     </>
   );
 };
+
+export default LargeScreen;

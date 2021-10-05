@@ -1,11 +1,11 @@
-import { cloneElement, useContext, useState } from 'react';
+import { ReactElement, cloneElement, useContext, useState } from 'react';
 import {
   AppBar,
   Hidden,
   makeStyles,
   Toolbar,
   useScrollTrigger,
-  withStyles
+  withStyles,
 } from '@material-ui/core';
 
 import { AuthContext } from '../../../contexts/AuthContext';
@@ -18,7 +18,7 @@ interface Props {
    * You won't need it on your project.
    */
   window?: () => Window;
-  children: React.ReactElement;
+  children: ReactElement;
 }
 
 function ElevationScroll(props: Props) {
@@ -29,27 +29,33 @@ function ElevationScroll(props: Props) {
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 0,
-    target: window ? window() : undefined
+    target: window ? window() : undefined,
   });
 
   return cloneElement(children, {
     elevation: trigger ? 2 : 0,
     style: {
-      background: trigger ? 'black' : 'transparent'
-    }
+      background: trigger ? 'black' : 'transparent',
+    },
   });
 }
 
-const ResponsiveToolbar = withStyles(theme => ({
+const ResponsiveToolbar = withStyles((theme) => ({
   root: {
     paddingTop: 24,
     paddingBottom: 24,
     [theme.breakpoints.down('sm')]: {
       paddingTop: 8,
-      paddingBottom: 8
-    }
-  }
+      paddingBottom: 8,
+    },
+  },
 }))(Toolbar);
+
+const useStyles = makeStyles(() => ({
+  headerContainer: {
+    transition: 'background linear 0.1s',
+  },
+}));
 
 export const Header = () => {
   const { login, loading, address } = useContext(AuthContext);
@@ -72,8 +78,4 @@ export const Header = () => {
   );
 };
 
-const useStyles = makeStyles(() => ({
-  headerContainer: {
-    transition: 'background linear 0.1s'
-  }
-}));
+export default Header;
