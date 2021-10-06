@@ -24,6 +24,7 @@ import CollectionHeader from './components/CollectionHeader';
 import { ICollection } from './types';
 import TweetField from './components/TweetField';
 import { RadiusInput, Popover, NFTItem } from '../../components';
+import NftData from './components/NftData';
 
 const useStyles = makeStyles((theme) => ({
   collectionContainer: {
@@ -322,6 +323,7 @@ export default function Collection() {
             )}
           </div>
         )}
+        {tab === 1 && <NftData />}
       </div>
     </div>
   );
