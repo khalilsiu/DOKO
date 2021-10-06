@@ -9,14 +9,13 @@ interface Props {
 
 export default function EthNfts({ address }: Props) {
   const [nfts, setNfts] = useState([]);
-  const [direction, setDirection] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const fetchNfts = () => {
     setLoading(true);
     setNfts([]);
-    getEthAssets(address, (page - 1) * 12, direction).then((res) => {
+    getEthAssets(address, (page - 1) * 12).then((res) => {
       if (res.assets) {
         setNfts(res.assets);
       }

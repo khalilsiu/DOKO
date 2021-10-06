@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  Button,
   Card,
   Grid,
   Hidden,
@@ -24,6 +23,7 @@ import { AddressStatus } from './AddressStatus';
 import CopyAddress from '../../components/CopyAddress';
 import EthNfts from './EthNfts';
 import SectionLabel from '../../components/SectionLabel';
+import { Summary } from './Summary';
 
 const CustomTabs = withStyles({
   root: {
@@ -226,6 +226,8 @@ export const NftCollections = () => {
               <AddressStatus status={syncStatus} loader={false} />
             </Grid>
           </Hidden>
+
+          <Summary address={address} />
 
           <EthNfts address={address} />
 

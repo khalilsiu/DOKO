@@ -69,7 +69,7 @@ export class AccountSyncQueue extends BaseQueue {
         }
 
         nfts.forEach((nft, index) => {
-          this.nftMetadata.queueNFTMetadata(nft, index, nfts.length);
+          this.nftMetadata.queueNFTMetadata(nft, index, nfts.length - 1);
         });
       });
     });

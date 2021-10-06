@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
-import Popover from './Popover';
+import { Popover } from './Popover';
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';

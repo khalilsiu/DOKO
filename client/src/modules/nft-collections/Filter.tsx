@@ -15,7 +15,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { ArrowDropDown, ArrowDropUp, Search } from '@material-ui/icons';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-import Popover from '../../components/Popover';
+import { Popover } from '../../components/Popover';
 import { RadiusInput } from '../../components';
 
 /**

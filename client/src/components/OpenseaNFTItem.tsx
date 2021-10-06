@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
-import Popover from './Popover';
+import { Popover } from './Popover';
 import eth from './assets/eth.png';
 import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
@@ -45,7 +45,7 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
   const [error, setError] = useState(false);
 
   const onClickCard = () => {
-    history.push(`/nft/${nft.asset_contract.address}/${nft.asset_contract.token_id}`);
+    history.push(`/nft/${nft.asset_contract.address}/${nft.token_id}`);
   };
 
   return (

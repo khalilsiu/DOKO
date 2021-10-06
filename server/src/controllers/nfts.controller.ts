@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Query } from '@nestjs/common';
 import { NftService } from 'src/services/nfts.service';
 import Address from '../db/Address';
 import NFTS from '../db/Nfts';
@@ -94,5 +94,10 @@ export class NftsController {
     await this.nftService.syncNFTs(address, status);
     // await
     return { success: true, message: 'Successfully indexed' };
+  }
+
+  @Get(':address/count')
+  getNftsCount(@Param('address') address: string) {
+    return this.nftService.getNftsCount(address);
   }
 }

@@ -91,4 +91,11 @@ export class NftService {
       this.logger.error('syncNFTs:', err);
     }
   }
+
+  async getNftsCount(address: string) {
+    const collection = new NFTS();
+    const bsc = await collection.instance.find({ owner_of: address, chain: 'bsc' }).count();
+    const polygon = await collection.instance.find({ owner_of: address, chain: 'polygon' }).count();
+    return { bsc, polygon };
+  }
 }

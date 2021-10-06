@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { IconButton, MenuList, MenuItem, makeStyles, withStyles } from '@material-ui/core';
 
-import Popover from './Popover';
+import { Popover } from './Popover';
 import activeShare from '../assets/active-share.png';
 import inactiveShare from '../assets/inactive-share-white.png';
 import facebook from '../assets/facebook.png';
