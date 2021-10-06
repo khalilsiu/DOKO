@@ -43,4 +43,16 @@ export const getAllEthAssets = async (owner: string) => {
   return nfts;
 };
 
+export const getFloorPrice = async (asset_owner: string) => {
+  const { data: collections } = await OpenSeaAPI.get('/collections', {
+    params: {
+      limit: 300,
+      asset_owner,
+    },
+  });
+
+  const floorPrice = collections.reduce((sum: number, c: any) => sum + c.stats.floor_price, 0);
+  return floorPrice;
+};
+
 export default getEthAssets;

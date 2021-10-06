@@ -246,10 +246,10 @@ export const NftIndividual = () => {
 
   const fetchTraits = async () => {
     if (chain === 'matic' || chain === 'bsc') {
-      setTraits(nft[0].metadata.attributes);
+      setTraits(nft[0].metadata.attributes || []);
     } else if (chain === 'eth') {
       const res = await axios.get(`https://api.opensea.io/api/v1/asset/${address}/${id}/`);
-      setTraits(res.data.traits);
+      setTraits(res.data.traits || []);
     }
   };
 
@@ -486,7 +486,7 @@ export const NftIndividual = () => {
           <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
             Traits
           </Typography>
-          {traits.length ? (
+          {traits?.length ? (
             <NftTraits traits={traits} totalSupply={totalSupply} />
           ) : (
             <Typography variant="body1">N/A</Typography>

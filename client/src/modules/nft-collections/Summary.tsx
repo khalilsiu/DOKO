@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Grid, Typography, withStyles } from '@material-ui/core';
-import Web3 from 'web3';
 
 import ethIcon from './assets/eth.png';
 import bscIcon from './assets/bsc.png';
 import polygonIcon from './assets/polygon.png';
 import solanaIcon from './assets/solana.png';
-import { getAllEthAssets, getNFTsCount } from './api';
+import { getAllEthAssets, getFloorPrice, getNFTsCount } from './api';
 import SectionLabel from '../../components/SectionLabel';
 
 const ChainContainer = withStyles({
@@ -59,30 +58,7 @@ export const Summary = ({ address }: Props) => {
     chainData[1].count = data.bsc;
     chainData[2].count = data.polygon;
 
-    const collections: { [key: string]: string } = ethNFTs.reduce((col, nft) => {
-      if (!nft.last_sale || nft.last_sale.payment_token.name !== 'Ether') {
-        return col;
-      }
-      if (!col[nft.collection.name]) {
-        // eslint-disable-next-line no-param-reassign
-        col[nft.collection.name] = nft.last_sale.total_price;
-        return col;
-      }
-      const prev = col[nft.collection.name];
-
-      if (Web3.utils.toBN(prev).gte(Web3.utils.toBN(nft.last_sale.total_price))) {
-        // eslint-disable-next-line no-param-reassign
-        col[nft.collection.name] = nft.last_sale.total_price;
-      }
-      return col;
-    }, {});
-
-    const sumETH = Object.values(collections).reduce(
-      (sum, price: string) => Web3.utils.toBN(price).add(sum),
-      Web3.utils.toBN(0),
-    );
-
-    chainData[0].price = Web3.utils.fromWei(sumETH, 'ether');
+    chainData[0].price = await getFloorPrice(address);
 
     setChains(chainData);
   };
