@@ -1,7 +1,7 @@
 import { Grid, IconButton, makeStyles, Tab, Tabs, Typography, withStyles } from '@material-ui/core';
+
 import CopyAddress from '../../../components/CopyAddress';
 import PriceField from '../../../components/PriceField';
-import { ICollection } from '../types';
 
 const useStyles = makeStyles((theme) => ({
   headerContainer: {
@@ -11,8 +11,8 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '50%',
     border: '4px solid white',
     background: theme.palette.primary.light,
-    minWidth: 200,
-    minHeight: 200,
+    width: 200,
+    height: 200,
     overflow: 'hidden',
   },
   detailContainer: {
@@ -52,7 +52,7 @@ const CustomTab = withStyles({
 })(Tab);
 
 interface Props {
-  collection: ICollection;
+  collection: any;
   tab: number;
   setTab: any;
 }
@@ -64,21 +64,29 @@ export default function CollectionHeader({ collection, tab, setTab }: Props) {
     <Grid className={styles.headerContainer}>
       <Grid container justifyContent="flex-end" spacing={1}>
         <Grid item>
-          <a href={`https://opensea.io/collection/${collection.collection.slug}`}>
+          <a
+            href={`https://opensea.io/collection/${collection.slug}`}
+            target="_blank"
+            rel="noreferrer"
+          >
             <IconButton>
               <img width={36} src="/collection/DOKOasset_OpenSea.png" alt="" />
             </IconButton>
           </a>
         </Grid>
         <Grid item>
-          <a href={`https://etherscan.io/address/${collection.address}`}>
+          <a
+            href={`https://etherscan.io/address/${collection.primary_asset_contracts[0].address}`}
+            target="_blank"
+            rel="noreferrer"
+          >
             <IconButton>
               <img width={36} src="/collection/DOKOasset_EtherScan.png" alt="" />
             </IconButton>
           </a>
         </Grid>
         <Grid item>
-          <IconButton>
+          <IconButton onClick={() => window.location.reload()}>
             <img width={36} src="/collection/DOKOasset_RefreshData.png" alt="" />
           </IconButton>
         </Grid>
@@ -91,16 +99,20 @@ export default function CollectionHeader({ collection, tab, setTab }: Props) {
 
       <Grid container spacing={2}>
         <Grid item>
-          <div className={styles.collectionAvatar}>
-            {/* <img src={collection.collection.image_url} alt="" width="100%" height="100%" /> */}
-          </div>
+          <img
+            className={styles.collectionAvatar}
+            src={collection.image_url}
+            alt=""
+            width="100%"
+            height="100%"
+          />
         </Grid>
         <Grid item style={{ flex: 1 }}>
           <CustomTypography variant="h3" style={{ fontWeight: 700 }}>
             {collection.name}
           </CustomTypography>
           <span style={{ display: 'inline-flex' }}>
-            <CopyAddress address={collection.address} />
+            <CopyAddress address={collection.primary_asset_contracts[0].address} />
           </span>
           <Grid className={styles.detailContainer}>
             <CustomTabs
@@ -116,20 +128,20 @@ export default function CollectionHeader({ collection, tab, setTab }: Props) {
               <Grid item>
                 <Typography variant="subtitle2">Items</Typography>
                 <Typography variant="h5" style={{ fontWeight: 700 }}>
-                  {collection.items || 0}
+                  {collection.stats.total_supply || 0}
                 </Typography>
               </Grid>
               <Grid item>
                 <Typography variant="subtitle2">Owners</Typography>
                 <Typography variant="h5" style={{ fontWeight: 700 }}>
-                  {collection.owners || 0}
+                  {collection.stats.num_owners || 0}
                 </Typography>
               </Grid>
               <Grid item>
-                <PriceField title="Floor Price" value={0} />
+                <PriceField title="Floor Price" value={collection.stats.floor_price} />
               </Grid>
               <Grid item>
-                <PriceField title="All-time volume" value={collection.total_volume} />
+                <PriceField title="All-time volume" value={collection.stats.total_volume} />
               </Grid>
             </Grid>
           </Grid>

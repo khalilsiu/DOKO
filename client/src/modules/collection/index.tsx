@@ -1,29 +1,19 @@
 import {
-  Button,
   CircularProgress,
   Divider,
-  FormControl,
   Grid,
   IconButton,
-  InputAdornment,
   makeStyles,
-  MenuItem,
-  MenuList,
   Typography,
 } from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import dateFormat from 'dateformat';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 
-import openseaApi from '../../libs/opensea-api';
-import { getCollection, getNFTs } from './api';
+import { getEthNFTs, getCollectionDetail } from './api';
 import CollectionHeader from './components/CollectionHeader';
-import { ICollection } from './types';
 import TweetField from './components/TweetField';
-import { RadiusInput, Popover, NFTItem } from '../../components';
+import { NftPagination } from '../../components';
 import NftData from './components/NftData';
 
 const useStyles = makeStyles((theme) => ({
@@ -72,89 +62,53 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const sorts = [
-  {
-    name: 'name',
-    order: 1,
-    label: 'A to Z',
-  },
-  {
-    name: 'name',
-    order: -1,
-    label: 'Z to A',
-  },
-];
-
 export default function Collection() {
-  const [collection, setCollection] = useState<ICollection>();
+  const [collection, setCollection] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
-  const [allLoaded, setAllLoaded] = useState(false);
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tab, setTab] = useState(0);
-  const [filter, setFilter] = useState<any>({ term: '', sort: sorts[0] });
-  const [params, setParams] = useState<any>({
-    term: '',
-    orderBy: 'name',
-    direction: 1,
-  });
+  const [page, setPage] = useState(0);
 
-  const applyFilter = (options?: any) => {
-    const data = options || filter;
-    setParams({
-      term: data.term,
-      orderBy: data.sort.name,
-      direction: data.sort.order,
-    });
-  };
+  const fetchNfts = async () => {
+    setNFTs([]);
 
-  const updateSort = (sort: any) => {
-    setFilter((state: any) => ({
-      ...state,
-      sort,
-    }));
-    applyFilter({
-      ...filter,
-      sort,
-    });
-  };
-
-  const fetchNfts = async (offset: number) => {
     if (!address) {
       return;
     }
     setLoading(true);
 
     try {
-      const res = await getNFTs(address, offset, params);
-      setNFTs((items) => [...items, ...res.data]);
-      setAllLoaded(res.data.length < 12);
+      const {
+        data: { assets },
+      } = await getEthNFTs(address, (page - 1) * 12);
+      setNFTs(assets);
+
+      if (page === 1) {
+        const res = await getCollectionDetail(address, assets[0].token_id);
+        setCollection(res);
+      }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
+      setNFTs([]);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    Promise.all([
-      openseaApi.get(`/asset_contract/${address}`).then(({ data }) => data),
-      getCollection(address).then(({ data }) => data),
-    ]).then(([d1, d2]) => {
-      setCollection({ ...d1, ...d2 });
-    });
-  }, []);
+    if (page === 1) {
+      fetchNfts();
+    } else {
+      setPage(1);
+    }
+  }, [address]);
 
   useEffect(() => {
-    setNFTs([]);
-    setAllLoaded(false);
-    fetchNfts(0);
-  }, [params]);
-
-  const loadMore = () => {
-    fetchNfts(nfts.length);
-  };
+    // eslint-disable-next-line no-unused-expressions
+    page && fetchNfts();
+  }, [page]);
 
   return (
     <div>
@@ -174,18 +128,18 @@ export default function Collection() {
                   <Typography variant="h5" gutterBottom style={{ fontWeight: 700 }}>
                     Description
                   </Typography>
-                  {collection.collection.description && (
+                  {collection.description && (
                     <Typography
                       style={{ color: 'white' }}
                       // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{ __html: collection.collection.description }}
+                      dangerouslySetInnerHTML={{ __html: collection.description }}
                     />
                   )}
                   <Grid container spacing={4} style={{ marginTop: 24 }}>
                     <Grid item>
                       <Typography variant="subtitle2">Total Items in Circulation</Typography>
                       <Typography variant="h5" style={{ fontWeight: 700 }}>
-                        {collection.items || 0}
+                        {collection.stats.total_supply || 0}
                       </Typography>
                     </Grid>
                     <Grid item>
@@ -215,35 +169,45 @@ export default function Collection() {
                     </Grid>
                     <Divider style={{ backgroundColor: 'white' }} />
                     <Grid container className={styles.socialCollectionDetailTier} spacing={2}>
-                      <Grid item>
-                        <a href={collection.twitter_link}>
-                          <IconButton>
-                            <img
-                              src="/collection/DOKOasset_TwitterWhiteCircle.png"
-                              alt="src"
-                              width={24}
-                            />
-                          </IconButton>
-                        </a>
-                      </Grid>
-                      <Grid item>
-                        <a href={collection.discord_link}>
-                          <IconButton>
-                            <img
-                              src="/collection/DOKOasset_DiscrodWhiteCircle.png"
-                              alt="src"
-                              width={24}
-                            />
-                          </IconButton>
-                        </a>
-                      </Grid>
-                      <Grid item>
-                        <a href={`https://${collection.website_link}`}>
-                          <IconButton>
-                            <img src="/collection/DOKOasset_NewWindow.png" alt="src" width={24} />
-                          </IconButton>
-                        </a>
-                      </Grid>
+                      {collection.twitter_username && (
+                        <Grid item>
+                          <a
+                            href={`https://twitter.com/${collection.twitter_username}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <IconButton>
+                              <img
+                                src="/collection/DOKOasset_TwitterWhiteCircle.png"
+                                alt="src"
+                                width={24}
+                              />
+                            </IconButton>
+                          </a>
+                        </Grid>
+                      )}
+                      {collection.discord_url && (
+                        <Grid item>
+                          <a href={collection.discord_url} target="_blank" rel="noreferrer">
+                            <IconButton>
+                              <img
+                                src="/collection/DOKOasset_DiscrodWhiteCircle.png"
+                                alt="src"
+                                width={24}
+                              />
+                            </IconButton>
+                          </a>
+                        </Grid>
+                      )}
+                      {collection.external_url && (
+                        <Grid item>
+                          <a href={collection.external_url} target="_blank" rel="noreferrer">
+                            <IconButton>
+                              <img src="/collection/DOKOasset_NewWindow.png" alt="src" width={24} />
+                            </IconButton>
+                          </a>
+                        </Grid>
+                      )}
                     </Grid>
                   </Grid>
                 </Grid>
@@ -252,78 +216,18 @@ export default function Collection() {
             <Typography variant="h5" gutterBottom style={{ fontWeight: 700, marginTop: 64 }}>
               Collection
             </Typography>
-            <Grid
-              container
-              spacing={2}
-              justifyContent="space-between"
-              style={{ paddingTop: 24, paddingBottom: 36 }}
-            >
-              <Grid item>
-                <FormControl className={styles.searchInput}>
-                  <RadiusInput
-                    value={filter.term}
-                    placeholder="Search your collection"
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <SearchIcon fontSize="small" />
-                      </InputAdornment>
-                    }
-                    onChange={(e) => setFilter({ term: e.target.value })}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <Popover
-                  reference={
-                    <Button className="gradient-button" variant="outlined" color="primary">
-                      Sort By: {filter.sort.label}
-                      {filter.sort.order === 1 ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-                    </Button>
-                  }
-                  placement="bottom-end"
-                >
-                  <MenuList>
-                    {sorts.map((sort) => (
-                      <MenuItem
-                        className={sort.label === filter.sort.label ? 'selected' : ''}
-                        key={sort.label}
-                        style={{ minWidth: 180 }}
-                        onClick={() => updateSort(sort)}
-                      >
-                        {sort.label}
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                </Popover>
-              </Grid>
-            </Grid>
-            <div className={styles.nftsContainer}>
-              {nfts.map((nft) => (
-                <NFTItem key={nft._id} nft={nft} />
-              ))}
-            </div>
-            {loading ? (
-              <CircularProgress />
-            ) : nfts.length ? (
-              allLoaded ? (
-                <></>
-              ) : (
-                <Button
-                  style={{ margin: '24px 0' }}
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => loadMore()}
-                  disabled={loading || allLoaded}
-                >
-                  Show More
-                </Button>
-              )
-            ) : (
-              <Typography>No Items</Typography>
-            )}
+            {loading && <CircularProgress />}
+            <NftPagination
+              isOpenSea
+              nfts={nfts}
+              page={page}
+              onNext={() => setPage(page + 1)}
+              onPrev={() => setPage(page - 1)}
+              loading={loading}
+            />
           </div>
         )}
-        {tab === 1 && <NftData />}
+        {tab === 1 && <NftData collection={collection} />}
       </div>
     </div>
   );

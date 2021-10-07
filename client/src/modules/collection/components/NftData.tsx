@@ -278,7 +278,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: 'center',
   },
 }));
-const NftData = () => {
+
+interface Props {
+  collection: any;
+}
+
+const NftData = ({ collection }: Props) => {
   const classes = useStyles();
 
   return (
@@ -294,7 +299,7 @@ const NftData = () => {
                     Transactions in last 24h
                   </Typography>
                   <Typography variant="h5" className={classes.dataContainerData}>
-                    9472
+                    {collection.stats.one_day_sales}
                   </Typography>
                 </div>
               </Grid>
@@ -305,7 +310,7 @@ const NftData = () => {
                   </Typography>
                   <div>
                     <Typography display="inline" variant="h5" className={classes.dataContainerData}>
-                      89.2
+                      {collection.stats.one_day_volume}
                     </Typography>
                     <Typography display="inline" variant="body1" className={classes.dataEthPrice}>
                       ($USD 100.00)
@@ -320,7 +325,7 @@ const NftData = () => {
                   </Typography>
                   <div>
                     <Typography display="inline" variant="h5" className={classes.dataContainerData}>
-                      89.2
+                      {collection.stats.one_day_average_price}
                     </Typography>
                     <Typography display="inline" variant="body1" className={classes.dataEthPrice}>
                       ($USD 100.00)
@@ -335,7 +340,7 @@ const NftData = () => {
                   </Typography>
                   <div>
                     <Typography display="inline" variant="h5" className={classes.dataContainerData}>
-                      89.2
+                      {collection.stats.one_day_change}
                     </Typography>
                     <Typography display="inline" variant="body1" className={classes.dataEthPrice}>
                       ($USD 100.00)
