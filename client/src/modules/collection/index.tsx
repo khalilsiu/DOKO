@@ -12,8 +12,8 @@ import dateFormat from 'dateformat';
 
 import { getEthNFTs, getCollectionDetail } from './api';
 import CollectionHeader from './components/CollectionHeader';
-import TweetField from './components/TweetField';
-import { NftPagination } from '../../components';
+// import TweetField from './components/TweetField';
+import { Meta, NftPagination } from '../../components';
 import NftData from './components/NftData';
 
 const useStyles = makeStyles((theme) => ({
@@ -112,6 +112,14 @@ export default function Collection() {
 
   return (
     <div>
+      {collection && (
+        <Meta
+          title={`${collection.name} | DOKO`}
+          description={collection.description}
+          image={collection.large_image_url}
+          url="https://doko.one"
+        />
+      )}
       {collection ? (
         <CollectionHeader tab={tab} setTab={setTab} collection={collection} />
       ) : (
@@ -145,7 +153,7 @@ export default function Collection() {
                     <Grid item>
                       <Typography variant="subtitle2">Contract Deployment</Typography>
                       <Typography variant="h5" style={{ fontWeight: 700 }}>
-                        {dateFormat(collection.created_date, 'yy/mm/dd')}
+                        {dateFormat(collection.created_date, 'yyyy/mm/dd')}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -155,9 +163,10 @@ export default function Collection() {
                     <Grid
                       container
                       className={styles.socialCollectionDetailTier}
-                      justifyContent="space-between"
+                      justifyContent="center"
                     >
-                      <Grid item>
+                      <Typography variant="h6">Social Media Data Coming Soon!</Typography>
+                      {/* <Grid item>
                         <TweetField title="Followers" value={156} />
                       </Grid>
                       <Grid item>
@@ -165,10 +174,15 @@ export default function Collection() {
                       </Grid>
                       <Grid item>
                         <TweetField title="Re-tweets" value={184} />
-                      </Grid>
+                      </Grid> */}
                     </Grid>
                     <Divider style={{ backgroundColor: 'white' }} />
-                    <Grid container className={styles.socialCollectionDetailTier} spacing={2}>
+                    <Grid
+                      container
+                      justifyContent="center"
+                      className={styles.socialCollectionDetailTier}
+                      spacing={2}
+                    >
                       {collection.twitter_username && (
                         <Grid item>
                           <a

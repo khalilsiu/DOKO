@@ -1,6 +1,7 @@
 import { Button, Container, Grid, Typography, makeStyles } from '@material-ui/core';
 import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import { Meta } from '../../components';
 import { AuthContext } from '../../contexts/AuthContext';
 
 export const Landing = () => {
@@ -19,6 +20,12 @@ export const Landing = () => {
 
   return (
     <div>
+      <Meta
+        title="DOKO, The Multi-Chain NFT Portfolio Manager"
+        description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
+        url="https://doko.one"
+        image="/DOKO_LOGO.png"
+      />
       <Container maxWidth="lg" className={styles.landingTopSection}>
         <h1 className={styles.landingTopTitle}>All Your NFTs in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>

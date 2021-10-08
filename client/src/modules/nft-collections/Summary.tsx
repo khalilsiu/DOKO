@@ -76,7 +76,7 @@ export const Summary = ({ address }: Props) => {
         {chains.map((item) => (
           <Grid item key={item.name} xs={12} sm={6} xl={3}>
             <Grid container alignItems="center">
-              <img width={30} src={item.icon} alt={item.name} />
+              <img width={30} src={item.icon} alt={item.name} style={{ borderRadius: '50%' }} />
               <Typography
                 style={{ marginLeft: 12, fontWeight: 700, fontSize: 14 }}
                 component="strong"
@@ -103,7 +103,7 @@ export const Summary = ({ address }: Props) => {
                         width={10}
                         alt="ETH"
                       />
-                      {item.price}
+                      {parseFloat(`${item.price}`).toFixed(3)}
                     </Grid>
                   ) : (
                     'Coming Soon'

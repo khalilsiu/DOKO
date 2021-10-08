@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const PopoverShare = () => {
+export const PopoverShare = ({ name }: any) => {
   const styles = useStyles();
   const { address, id } = useParams<{ address: string; id: string }>();
   const [shareActive, setShareActive] = useState(false);
@@ -46,8 +46,8 @@ export const PopoverShare = () => {
   const share = (type: 'facebook' | 'twitter') => {
     const url = `${window.origin}/nft/${address}/${id}`;
     const link = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT collection on DOKO at now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT collection on @doko_nft now!`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now! ${url}`,
       instagram: '',
     };
     window.open(link[type], '_blank');

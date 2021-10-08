@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { MetaMaskProvider } from 'metamask-react';
 import { MoralisProvider } from 'react-moralis';
+import { HelmetProvider } from 'react-helmet-async';
 
 import './index.scss';
 import App from './App';
@@ -15,16 +16,21 @@ import { config } from './config';
 
 ReactDOM.render(
   <React.StrictMode>
-    <MetaMaskProvider>
-      <Provider store={store}>
-        <ThemeProvider>
-          <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
-            <CssBaseline />
-            <App />
-          </MoralisProvider>
-        </ThemeProvider>
-      </Provider>
-    </MetaMaskProvider>
+    <HelmetProvider>
+      <MetaMaskProvider>
+        <Provider store={store}>
+          <ThemeProvider>
+            <MoralisProvider
+              appId={config.moralisApplicationId}
+              serverUrl={config.moralisServerUrl}
+            >
+              <CssBaseline />
+              <App />
+            </MoralisProvider>
+          </ThemeProvider>
+        </Provider>
+      </MetaMaskProvider>
+    </HelmetProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 );

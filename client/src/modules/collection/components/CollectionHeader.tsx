@@ -1,7 +1,20 @@
-import { Grid, IconButton, makeStyles, Tab, Tabs, Typography, withStyles } from '@material-ui/core';
+import {
+  Grid,
+  IconButton,
+  makeStyles,
+  MenuItem,
+  MenuList,
+  Tab,
+  Tabs,
+  Typography,
+  withStyles,
+} from '@material-ui/core';
+import { Popover } from '../../../components';
 
 import CopyAddress from '../../../components/CopyAddress';
 import PriceField from '../../../components/PriceField';
+import facebook from '../../../components/assets/facebook.png';
+import twitter from '../../../components/assets/twitter.png';
 
 const useStyles = makeStyles((theme) => ({
   headerContainer: {
@@ -23,6 +36,16 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     bottom: 16,
     width: 'unset',
+  },
+  shareItem: {
+    '&:hover': {
+      background: theme.palette.primary.main,
+      color: 'white',
+    },
+    '& > img': {
+      width: 24,
+      marginRight: 12,
+    },
   },
 }));
 
@@ -59,6 +82,15 @@ interface Props {
 
 export default function CollectionHeader({ collection, tab, setTab }: Props) {
   const styles = useStyles();
+  const share = (type: 'facebook' | 'twitter') => {
+    const url = `${window.origin}/collections/${collection.primary_asset_contracts[0].address}`;
+    const link = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${collection.name} collection on DOKO at now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${collection.name} collection on @doko_nft now! ${url}`,
+      instagram: '',
+    };
+    window.open(link[type], '_blank');
+  };
 
   return (
     <Grid className={styles.headerContainer}>
@@ -91,9 +123,25 @@ export default function CollectionHeader({ collection, tab, setTab }: Props) {
           </IconButton>
         </Grid>
         <Grid item>
-          <IconButton>
-            <img width={36} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
-          </IconButton>
+          <Popover
+            reference={
+              <IconButton>
+                <img width={36} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
+              </IconButton>
+            }
+            placement="bottom-end"
+          >
+            <MenuList>
+              <MenuItem className={styles.shareItem} onClick={() => share('facebook')}>
+                <img src={facebook} alt="facebook" />
+                Share on Facebook
+              </MenuItem>
+              <MenuItem className={styles.shareItem} onClick={() => share('twitter')}>
+                <img src={twitter} alt="twitter" />
+                Share on Twitter
+              </MenuItem>
+            </MenuList>
+          </Popover>
         </Grid>
       </Grid>
 
@@ -141,7 +189,7 @@ export default function CollectionHeader({ collection, tab, setTab }: Props) {
                 <PriceField title="Floor Price" value={collection.stats.floor_price} />
               </Grid>
               <Grid item>
-                <PriceField title="All-time volume" value={collection.stats.total_volume} />
+                <PriceField title="All-Time volume" value={collection.stats.total_volume} />
               </Grid>
             </Grid>
           </Grid>

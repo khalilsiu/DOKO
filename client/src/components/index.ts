@@ -7,3 +7,4 @@ export * from './NFTItem';
 export * from './OpenseaNFTItem';
 export * from './NftPagination';
 export * from './SectionLabel';
+export * from './Meta';

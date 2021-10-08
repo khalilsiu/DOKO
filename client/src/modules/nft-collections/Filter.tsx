@@ -188,8 +188,8 @@ export function Filter({ onChange }: FilterProps) {
         </FormControl>
       </Grid> */}
       <Grid item>
-        <Grid container justifyContent="space-between">
-          <Popover
+        <Grid container justifyContent="flex-end">
+          {/* <Popover
             reference={
               <Button className="gradient-button" variant="outlined" color="primary">
                 Blockchain
@@ -232,7 +232,7 @@ export function Filter({ onChange }: FilterProps) {
                 </Button>
               </Grid>
             </Grid>
-          </Popover>
+          </Popover> */}
           <Popover
             reference={
               <Button className="gradient-button" variant="outlined" color="primary">

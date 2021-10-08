@@ -34,10 +34,10 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const share = (type: 'facebook' | 'twitter') => {
-    const url = `${window.origin}/address/${nft.owner.address}`;
+    const url = `${window.origin}/nft/${nft.asset_contract.address}/${nft.token_id}`;
     const link = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT collection on DOKO at now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT collection on @doko_nft now!`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT portfolio on DOKO at now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT portfolio on @doko_nft now! ${url}`,
       instagram: '',
     };
     window.open(link[type], '_blank');
@@ -159,7 +159,7 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
   },
   cardContent: {
-    padding: 6,
+    padding: 3,
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
@@ -175,8 +175,7 @@ const useStyles = makeStyles((theme) => ({
     color: 'black',
   },
   image: {
-    borderTopRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderRadius: 12,
     maxHeight: 400,
     minHeight: 200,
     '& > svg': {

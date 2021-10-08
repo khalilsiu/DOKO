@@ -32,6 +32,7 @@ import { getNFT, fetchOpenseaEvents, fetchOpenseaLastSale } from '../api';
 import backbutton from '../../assets/back-button.png';
 import opensea_icon from '../../assets/opensea-transparent.png';
 import loading_image from '../../assets/loading.gif';
+import { Meta } from '../../components';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -293,62 +294,28 @@ export const NftIndividual = () => {
   }, [address, id, chain]);
 
   return (
-    <Grid
-      className={styles.collectionContainer}
-      container
-      direction="row"
-      justifyContent="flex-start"
-      spacing={4}
-    >
+    <>
+      {nft.length && (
+        <Meta
+          title={`${nftName} | DOKO`}
+          description={nft[0].metadata.description || ''}
+          url="https://doko.one"
+          image={normalizeImageURL(nft[0].metadata.image) || ''}
+        />
+      )}
       <Grid
-        item
+        className={styles.collectionContainer}
         container
         direction="row"
-        justifyContent="space-between"
-        className={styles.nftNameMobile}
-      >
-        <Grid item>
-          <Typography variant="h4" style={{ fontWeight: 'bolder' }}>
-            {nftName}
-          </Typography>
-        </Grid>
-        <Grid item>
-          <CustomIconButton>
-            <img className={styles.shareIcon} src={backbutton} alt="back" />
-          </CustomIconButton>
-          <PopoverShare />
-        </Grid>
-      </Grid>
-      <Grid item container xs={12} sm={12} md={4} lg={3} xl={3} justifyContent="flex-start">
-        {nft.map((_nft) => (
-          <LazyLoadImage
-            key={_nft.token_id}
-            className={styles.image}
-            alt=""
-            src={normalizeImageURL(_nft).metadata.image}
-            placeholder={<img src={loading_image} alt="Loading" />}
-            effect="opacity"
-          />
-        ))}
-      </Grid>
-      <Grid
-        item
-        container
-        direction="column"
-        alignItems="flex-start"
-        xs={12}
-        sm={12}
-        md={8}
-        lg={9}
-        xl={9}
-        spacing={5}
+        justifyContent="flex-start"
+        spacing={4}
       >
         <Grid
           item
           container
           direction="row"
           justifyContent="space-between"
-          className={styles.nftNameGeneral}
+          className={styles.nftNameMobile}
         >
           <Grid item>
             <Typography variant="h4" style={{ fontWeight: 'bolder' }}>
@@ -356,202 +323,248 @@ export const NftIndividual = () => {
             </Typography>
           </Grid>
           <Grid item>
-            <CustomIconButton onClick={history.goBack}>
+            <CustomIconButton>
               <img className={styles.shareIcon} src={backbutton} alt="back" />
             </CustomIconButton>
             <PopoverShare />
           </Grid>
         </Grid>
+        <Grid item container xs={12} sm={12} md={4} lg={3} xl={3} justifyContent="flex-start">
+          {nft.map((_nft) => (
+            <LazyLoadImage
+              key={_nft.token_id}
+              className={styles.image}
+              alt=""
+              src={normalizeImageURL(_nft).metadata.image}
+              placeholder={<img src={loading_image} alt="Loading" />}
+              effect="opacity"
+            />
+          ))}
+        </Grid>
         <Grid
           item
           container
-          direction="row"
-          spacing={3}
-          justifyContent="flex-start"
-          style={{ paddingTop: '1px' }}
+          direction="column"
+          alignItems="flex-start"
+          xs={12}
+          sm={12}
+          md={8}
+          lg={9}
+          xl={9}
+          spacing={5}
         >
-          <Grid item className={styles.separator} style={{ paddingBottom: 0, paddingTop: 0 }}>
-            <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
-              Creator
+          <Grid
+            item
+            container
+            direction="row"
+            justifyContent="space-between"
+            className={styles.nftNameGeneral}
+          >
+            <Grid item>
+              <Typography variant="h4" style={{ fontWeight: 'bolder' }}>
+                {nftName}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <CustomIconButton onClick={history.goBack}>
+                <img className={styles.shareIcon} src={backbutton} alt="back" />
+              </CustomIconButton>
+              <PopoverShare name={nftName} />
+            </Grid>
+          </Grid>
+          <Grid
+            item
+            container
+            direction="row"
+            spacing={3}
+            justifyContent="flex-start"
+            style={{ paddingTop: '1px' }}
+          >
+            <Grid item className={styles.separator} style={{ paddingBottom: 0, paddingTop: 0 }}>
+              <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
+                Creator
+              </Typography>
+              {creator ? (
+                <CopyAddress address={creator} />
+              ) : (
+                <Typography variant="body1">N/A</Typography>
+              )}
+            </Grid>
+            <Grid item style={{ paddingBottom: 0, paddingTop: 0 }}>
+              <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
+                Owner
+              </Typography>
+              <CopyAddress address={owner} />
+            </Grid>
+          </Grid>
+          <Grid item container direction="column" spacing={0}>
+            <Grid item>
+              <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                Latest Price
+              </Typography>
+            </Grid>
+            {lastSale ? (
+              <Grid item>
+                <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
+                  <img className={styles.networkIconMedium} src={eth} alt="eth" />
+                </IconButton>
+                <Typography
+                  variant="h5"
+                  display="inline"
+                  className="bolder"
+                  style={{ marginRight: '4px' }}
+                >
+                  {lastSale}
+                </Typography>
+                <Typography variant="body1" display="inline">
+                  {`(US ${lastSaleUSD})`}
+                </Typography>
+              </Grid>
+            ) : (
+              <Grid item>
+                <Typography variant="body1">N/A</Typography>
+              </Grid>
+            )}
+            {chain === 'eth' ? (
+              <Grid item style={{ marginTop: '7px' }}>
+                <Link
+                  style={{ textDecoration: 'none' }}
+                  target="_blank"
+                  href={`https://opensea.io/assets/${address}/${id}`}
+                >
+                  <Button className={styles.profileButton}>
+                    <img width={16} src={opensea_icon} alt="" />
+                    <span style={{ marginLeft: 12, color: 'white' }}>View on Opensea</span>
+                  </Button>
+                </Link>
+              </Grid>
+            ) : (
+              ''
+            )}
+          </Grid>
+
+          <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
+            <Grid item container xs={6} direction="column" spacing={1}>
+              <Grid item>
+                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                  Description
+                </Typography>
+                <Typography variant="body1">{nftDesc || <span>N/A</span>}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                  Collection
+                </Typography>
+                {chain === 'eth' ? (
+                  <Link
+                    style={{ textDecoration: 'none', color: '#61dafb' }}
+                    target="_blank"
+                    href={`https://opensea.io/collections/${address}`}
+                  >
+                    {collection}
+                  </Link>
+                ) : (
+                  <Typography variant="body1">{collection}</Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item container direction="column" xs={6} spacing={1}>
+              <Grid item>
+                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                  Contract Address
+                </Typography>
+                <Typography variant="body1">{address}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                  Blockchain
+                </Typography>
+                <Typography variant="body1">{chainMapping(chain)}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                  Token ID
+                </Typography>
+                <Typography variant="body1">{id}</Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item container style={{ flexGrow: 1 }}>
+            <Rarity traits={traits} totalSupply={totalSupply} />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
+              Traits
             </Typography>
-            {creator ? (
-              <CopyAddress address={creator} />
+            {traits?.length ? (
+              <NftTraits traits={traits} totalSupply={totalSupply} />
             ) : (
               <Typography variant="body1">N/A</Typography>
             )}
           </Grid>
-          <Grid item style={{ paddingBottom: 0, paddingTop: 0 }}>
-            <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
-              Owner
-            </Typography>
-            <CopyAddress address={owner} />
-          </Grid>
-        </Grid>
-        <Grid item container direction="column" spacing={0}>
-          <Grid item>
-            <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
-              Latest Price
-            </Typography>
-          </Grid>
-          {lastSale ? (
+          <Grid container item direction="column">
             <Grid item>
-              <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                <img className={styles.networkIconMedium} src={eth} alt="eth" />
-              </IconButton>
-              <Typography
-                variant="h5"
-                display="inline"
-                className="bolder"
-                style={{ marginRight: '4px' }}
-              >
-                {lastSale}
-              </Typography>
-              <Typography variant="body1" display="inline">
-                {`(US ${lastSaleUSD})`}
+              <Typography variant="h5" className={styles.bolder} style={{ marginBottom: '0.6em' }}>
+                Transaction History
               </Typography>
             </Grid>
-          ) : (
             <Grid item>
-              <Typography variant="body1">N/A</Typography>
+              <TableContainer>
+                <Table aria-label="customized table">
+                  <TableHead style={{ backgroundColor: '#333333' }}>
+                    <TableRow>
+                      <StyledTableCell>Event</StyledTableCell>
+                      <StyledTableCell>Price</StyledTableCell>
+                      <StyledTableCell>From</StyledTableCell>
+                      <StyledTableCell>To</StyledTableCell>
+                      <StyledTableCell>Date</StyledTableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {txs
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((tx, i) => {
+                        const icon = getCurrencyIcon(chain);
+                        return (
+                          // eslint-disable-next-line react/no-array-index-key
+                          <TableRow key={i}>
+                            <StyledTableCell>{tx.event}</StyledTableCell>
+                            <StyledTableCell>
+                              {tx.price ? (
+                                <div>
+                                  <img className={styles.networkIcon} src={icon} alt={chain} />
+                                  <span>{tx.price}</span>
+                                </div>
+                              ) : (
+                                <div>
+                                  <span>{tx.price}</span>
+                                </div>
+                              )}
+                            </StyledTableCell>
+                            <StyledTableCell>{tx.from}</StyledTableCell>
+                            <StyledTableCell>{tx.to}</StyledTableCell>
+                            <StyledTableCell>{tx.date}</StyledTableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={txs.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                style={{ color: 'white' }}
+              />
             </Grid>
-          )}
-          {chain === 'eth' ? (
-            <Grid item style={{ marginTop: '7px' }}>
-              <Link
-                style={{ textDecoration: 'none' }}
-                target="_blank"
-                href={`https://opensea.io/assets/${address}/${id}`}
-              >
-                <Button className={styles.profileButton}>
-                  <img width={16} src={opensea_icon} alt="" />
-                  <span style={{ marginLeft: 12, color: 'white' }}>View on Opensea</span>
-                </Button>
-              </Link>
-            </Grid>
-          ) : (
-            ''
-          )}
-        </Grid>
-
-        <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
-          <Grid item container xs={6} direction="column" spacing={1}>
-            <Grid item>
-              <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                Description
-              </Typography>
-              <Typography variant="body1">{nftDesc || <span>N/A</span>}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                Collection
-              </Typography>
-              {chain === 'eth' ? (
-                <Link
-                  style={{ textDecoration: 'none', color: '#61dafb' }}
-                  target="_blank"
-                  href={`https://opensea.io/collections/${address}`}
-                >
-                  {collection}
-                </Link>
-              ) : (
-                <Typography variant="body1">{collection}</Typography>
-              )}
-            </Grid>
-          </Grid>
-          <Grid item container direction="column" xs={6} spacing={1}>
-            <Grid item>
-              <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                Contract Address
-              </Typography>
-              <Typography variant="body1">{address}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                Blockchain
-              </Typography>
-              <Typography variant="body1">{chainMapping(chain)}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                Token ID
-              </Typography>
-              <Typography variant="body1">{id}</Typography>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item container style={{ flexGrow: 1 }}>
-          <Rarity traits={traits} totalSupply={totalSupply} />
-        </Grid>
-        <Grid item>
-          <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
-            Traits
-          </Typography>
-          {traits?.length ? (
-            <NftTraits traits={traits} totalSupply={totalSupply} />
-          ) : (
-            <Typography variant="body1">N/A</Typography>
-          )}
-        </Grid>
-        <Grid container item direction="column">
-          <Grid item>
-            <Typography variant="h5" className={styles.bolder} style={{ marginBottom: '0.6em' }}>
-              Transaction History
-            </Typography>
-          </Grid>
-          <Grid item>
-            <TableContainer>
-              <Table aria-label="customized table">
-                <TableHead style={{ backgroundColor: '#333333' }}>
-                  <TableRow>
-                    <StyledTableCell>Event</StyledTableCell>
-                    <StyledTableCell>Price</StyledTableCell>
-                    <StyledTableCell>From</StyledTableCell>
-                    <StyledTableCell>To</StyledTableCell>
-                    <StyledTableCell>Date</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {txs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((tx, i) => {
-                    const icon = getCurrencyIcon(chain);
-                    return (
-                      // eslint-disable-next-line react/no-array-index-key
-                      <TableRow key={i}>
-                        <StyledTableCell>{tx.event}</StyledTableCell>
-                        <StyledTableCell>
-                          {tx.price ? (
-                            <div>
-                              <img className={styles.networkIcon} src={icon} alt={chain} />
-                              <span>{tx.price}</span>
-                            </div>
-                          ) : (
-                            <div>
-                              <span>{tx.price}</span>
-                            </div>
-                          )}
-                        </StyledTableCell>
-                        <StyledTableCell>{tx.from}</StyledTableCell>
-                        <StyledTableCell>{tx.to}</StyledTableCell>
-                        <StyledTableCell>{tx.date}</StyledTableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={txs.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              style={{ color: 'white' }}
-            />
           </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </>
   );
 };
 
