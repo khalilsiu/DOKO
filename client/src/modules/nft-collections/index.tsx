@@ -18,10 +18,11 @@ import { TabPanel, NftPagination, Meta } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { Filter } from './Filter';
 import Intro from '../core/Intro';
-import { minimizeAddress } from '../../libs/utils';
+import { isSolAddress, minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
 import CopyAddress from '../../components/CopyAddress';
 import EthNfts from './EthNfts';
+import SolNfts from './SolNfts';
 import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 
@@ -240,6 +241,8 @@ export const NftCollections = () => {
             <Summary address={address} />
 
             <EthNfts address={address} />
+
+            <SolNfts address={address} />
 
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               BSC & Polygon NFTs (Beta)

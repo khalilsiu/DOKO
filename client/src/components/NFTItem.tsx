@@ -20,6 +20,7 @@ import { Popover } from './Popover';
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
+import solana from './assets/solana.png';
 import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
@@ -118,7 +119,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
           <img
             className={styles.networkIcon}
             width="12px"
-            src={{ eth, bsc, polygon }[nft.chain as string]}
+            src={{ eth, bsc, polygon, solana }[nft.chain as string]}
             alt={nft.chain}
           />
           <Popover
