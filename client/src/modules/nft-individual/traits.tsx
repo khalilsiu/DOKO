@@ -7,19 +7,20 @@ interface NFtTraitsProps {
   totalSupply: any;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   traits: {},
   traitFooter: {
     marginTop: '1em',
     textAlign: 'center',
   },
   traitCard: {
-    padding: '1.5em',
+    padding: '1em',
     background: 'inherit',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    minHeight: '200px',
+    height: '250px',
+    maxHeight: '250px',
     width: '100%',
     borderRadius: '20px',
     border: '1px solid white',
@@ -56,7 +57,7 @@ export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
   return (
     <Grid container justifyContent="flex-start" spacing={3} className="traits">
       <GradientSVG />
-      {traits.map((trait: any) => {
+      {traits.map((trait: any, i: any) => {
         const traitPercentage =
           trait.trait_count && totalSupply
             ? Math.round((trait.trait_count / totalSupply) * 100)
@@ -64,7 +65,8 @@ export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
         const traitPercentageAvailable = !!traitPercentage;
         const traitPercentageText = traitPercentageAvailable ? `${traitPercentage} %` : 'N/A';
         return (
-          <Grid item container lg={2} xl={2} md={3} sm={3} xs={6} key={trait.trait_type}>
+          // eslint-disable-next-line react/no-array-index-key
+          <Grid item container lg={2} xl={2} md={3} sm={4} xs={6} key={trait.trait_type + i}>
             <Card className={styles.traitCard}>
               <div style={{ marginBottom: '1em' }}>
                 <Typography variant="body1" style={{ fontWeight: 'bolder' }}>

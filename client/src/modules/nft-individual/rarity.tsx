@@ -51,8 +51,8 @@ export const Rarity = ({ traits, totalSupply }: NFtRarityProps) => {
               value={progress}
             />
             <Typography variant="body1" style={{ marginTop: '7px' }}>
-              This NFT is ranked <i>{rarityRank}</i> out of <i>{totalSupply}</i> within this
-              collection
+              This NFT is ranked <i>{rarityRank || 'N/A'}</i> out of <i>{totalSupply}</i> within
+              this collection
             </Typography>
           </div>
         ) : (

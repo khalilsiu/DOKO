@@ -1,13 +1,14 @@
-import { Grid, Tooltip, Typography, IconButton } from '@material-ui/core';
+import { Grid, Tooltip, Typography, IconButton, Link } from '@material-ui/core';
 import { useState } from 'react';
 import { minimizeAddress } from '../../libs/utils';
 
 interface CopyAddressProps {
   address: string;
+  hasLink: boolean;
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export const CopyAddress = ({ address }: CopyAddressProps) => {
+export const CopyAddress = ({ address, hasLink }: CopyAddressProps) => {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
@@ -19,15 +20,26 @@ export const CopyAddress = ({ address }: CopyAddressProps) => {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
-      <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
+    <Grid container alignItems="center">
+      {hasLink ? (
+        <Typography variant="body1" style={{ lineHeight: 2 }}>
+          <Link
+            style={{ textDecoration: 'none', color: '#61dafb' }}
+            href={`${window.origin}/address/${address}`}
+          >
+            {minimizeAddress(address)}
+          </Link>
+        </Typography>
+      ) : (
         <Typography variant="body1" style={{ lineHeight: 2 }}>
           {minimizeAddress(address)}
         </Typography>
-        <IconButton>
+      )}
+      <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
+        <IconButton className="hover-button" onClick={() => copy()}>
           <img height={13} src="/copy.png" alt="" />
         </IconButton>
-      </Grid>
-    </Tooltip>
+      </Tooltip>
+    </Grid>
   );
 };
