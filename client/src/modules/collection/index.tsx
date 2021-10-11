@@ -11,6 +11,9 @@ import { useParams } from 'react-router-dom';
 import dateFormat from 'dateformat';
 
 import { getEthNFTs, getCollectionDetail } from './api';
+import getSolNfts from '../../libs/solana';
+
+import { isSolAddress } from '../../libs/utils';
 import CollectionHeader from './components/CollectionHeader';
 // import TweetField from './components/TweetField';
 import { Meta, NftPagination } from '../../components';
@@ -86,7 +89,8 @@ export default function Collection() {
     try {
       const {
         data: { assets },
-      } = await getEthNFTs(address, (page - 1) * 12);
+      } = await (isSolAddress(address) ? getSolNfts(address, (page - 1) * 12) :
+        getEthNFTs(address, (page - 1) * 12));
       setNFTs(assets);
 
       if (page === 1) {

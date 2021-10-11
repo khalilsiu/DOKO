@@ -141,3 +141,7 @@ export function isValidHttpUrl(str: string) {
 
   return url.protocol === 'http:' || url.protocol === 'https:';
 }
+
+export function isSolAddress(address: string) {
+  return !address.startsWith('0x') && address.length >= 32 && address.length <= 44;
+}
