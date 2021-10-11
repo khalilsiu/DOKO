@@ -49,7 +49,7 @@ const CustomIconButton = withStyles({
 let syncInterval: any;
 
 const useStyles = makeStyles((theme) => ({
-  collectionContainer: {
+  collectionPageContainer: {
     padding: 24,
     marginTop: 36,
     [theme.breakpoints.down('sm')]: {
@@ -81,6 +81,19 @@ const useStyles = makeStyles((theme) => ({
     },
     [theme.breakpoints.down('xs')]: {
       gridTemplateColumns: 'repeat(1, 1fr)',
+    },
+  },
+  addressContainer: {
+    marginBottom: 24,
+    [theme.breakpoints.down('xs')]: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  },
+  addressText: {
+    fontWeight: 'bolder',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 30,
     },
   },
 }));
@@ -179,7 +192,7 @@ export const NftCollections = () => {
         url="https://doko.one"
         image="/DOKO_LOGO.png"
       />
-      <Grid container wrap="nowrap" className={styles.collectionContainer}>
+      <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>
           <Grid item>
             <Card className={styles.introCard}>
@@ -193,25 +206,38 @@ export const NftCollections = () => {
           direction="column"
           alignItems="flex-start"
         >
-          <Grid container justifyContent="space-between" alignItems="center">
-            <Grid item>
-              <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                {minimizeAddress(address)}
-                <Tooltip title="Refetch all of your nfts">
-                  <CustomIconButton
-                    disabled={
-                      !syncStatus ||
-                      syncStatus.sync_status === 'progress' ||
-                      syncStatus.sync_status === 'new'
-                    }
-                    onClick={() => reIndex()}
-                    color="secondary"
-                  >
-                    <RefreshOutlinedIcon />
-                  </CustomIconButton>
-                </Tooltip>
-              </Typography>
-              <CopyAddress address={address} />
+          <Grid
+            container
+            justifyContent="space-between"
+            alignItems="center"
+            className={styles.addressContainer}
+          >
+            <Grid item xs={12} md="auto">
+              <Grid container direction="column" className={styles.addressContainer}>
+                <Typography
+                  className={styles.addressText}
+                  variant="h5"
+                  style={{ fontWeight: 'bolder' }}
+                >
+                  {minimizeAddress(address)}
+                  <Tooltip title="Refetch all of your nfts">
+                    <CustomIconButton
+                      disabled={
+                        !syncStatus ||
+                        syncStatus.sync_status === 'progress' ||
+                        syncStatus.sync_status === 'new'
+                      }
+                      onClick={() => reIndex()}
+                      color="secondary"
+                    >
+                      <RefreshOutlinedIcon />
+                    </CustomIconButton>
+                  </Tooltip>
+                </Typography>
+                <Grid item>
+                  <CopyAddress address={address} />
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item xs={6}>
               <Hidden xsDown>

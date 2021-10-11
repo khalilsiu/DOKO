@@ -30,20 +30,18 @@ export class NftsController {
       };
     }
 
-    const cursor = collection.instance.find(query).sort({
-      'metadata.name': +direction || 1,
-      name: +direction || 1,
-      _id: 1,
-    } as any);
-
-    const total = await cursor.count();
-
-    const items = await cursor
+    const items = await collection.instance
+      .find(query)
+      .sort({
+        'metadata.name': +direction || 1,
+        name: +direction || 1,
+        _id: 1,
+      } as any)
       .skip(+offset || 0)
       .limit(12)
       .toArray();
 
-    return { items, total: Math.ceil(total / 12) };
+    return items;
   }
 
   @Post('index')

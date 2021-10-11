@@ -48,7 +48,7 @@ export const NftPagination = ({
   return (
     <div>
       <div className={styles.nftsContainer}>
-        {!isOpenSea
+        {!isOpenSea && nfts?.length
           ? nfts.map((nft) => <NFTItem key={nft._id} nft={nft} />)
           : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />)}
       </div>
@@ -68,7 +68,7 @@ export const NftPagination = ({
         <Grid item>
           <LightButton
             onClick={onNext}
-            disabled={loading || !page || (total != null ? page >= total : nfts.length < 12)}
+            disabled={loading || !page || (total != null ? page >= total : nfts?.length < 12)}
           >
             Next
             <ArrowRight color="secondary" />

@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   chartContainer: {
     border: 'white solid 1px',
     padding: '2rem 1rem',
-    borderRadius: '10px'
+    borderRadius: '10px',
   },
   daysFilter: {
     padding: '0.4rem 0.7rem',
@@ -17,8 +17,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginLeft: '0.5rem',
     borderColor: theme.palette.grey[700],
     display: 'flex',
-    justifyContent: 'center'
-  }
+    justifyContent: 'center',
+  },
 }));
 
 interface IProps {
@@ -30,24 +30,24 @@ interface IProps {
 const daysFilter = [
   {
     label: '1D',
-    value: 1
+    value: 1,
   },
   {
     label: '7D',
-    value: 7
+    value: 7,
   },
   {
     label: '30D',
-    value: 30
+    value: 30,
   },
   {
     label: '90D',
-    value: 90
+    value: 90,
   },
   {
     label: 'All',
-    value: 'all'
-  }
+    value: 'all',
+  },
 ];
 
 const LineChart = ({ data, title, height }: IProps) => {
@@ -59,16 +59,16 @@ const LineChart = ({ data, title, height }: IProps) => {
     colors: [theme.palette.primary.main, theme.palette.secondary.main],
     chart: {
       height: 350,
-      type: 'area'
+      type: 'area',
     },
     dataLabels: {
-      enabled: false
+      enabled: false,
     },
     legend: {
-      show: false
+      show: false,
     },
     stroke: {
-      curve: 'smooth'
+      curve: 'smooth',
     },
     xaxis: {
       type: 'datetime',
@@ -79,14 +79,14 @@ const LineChart = ({ data, title, height }: IProps) => {
         '2021-10-01 23:00:00',
         '2021-10-02 00:00:00',
         '2021-10-02 01:00:00',
-        '2021-10-01 02:00:00'
+        '2021-10-01 02:00:00',
       ],
       labels: {
         style: {
           colors: 'white',
-          fontSize: '12px'
-        }
-      }
+          fontSize: '12px',
+        },
+      },
     },
     grid: {
       borderColor: 'grey',
@@ -95,15 +95,15 @@ const LineChart = ({ data, title, height }: IProps) => {
       labels: {
         style: {
           colors: 'white',
-          fontSize: '12px'
-        }
-      }
+          fontSize: '12px',
+        },
+      },
     },
     tooltip: {
       x: {
-        format: 'dd/MM/yy HH:mm'
-      }
-    }
+        format: 'dd/MM/yy HH:mm',
+      },
+    },
   };
   return (
     <div className={classes.chartContainer}>
@@ -118,11 +118,14 @@ const LineChart = ({ data, title, height }: IProps) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: '2rem'
+          marginBottom: '2rem',
         }}
       >
-        {daysFilter.map(days => (
+        {daysFilter.map((days) => (
+          // eslint-disable-next-line max-len
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
           <div
+            key={days.label}
             className={classes.daysFilter}
             onClick={() => setDaysToFilter(days.value)}
             style={{ ...(days.value === daysToFilter && { borderColor: 'white' }) }}

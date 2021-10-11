@@ -19,7 +19,11 @@ import NftData from './components/NftData';
 const useStyles = makeStyles((theme) => ({
   collectionContainer: {
     padding: '24px 96px',
+    // [theme.breakpoints.down('md')]: {
+    //   padding: 24,
+    // },
     [theme.breakpoints.down('sm')]: {
+      padding: 24,
       flexDirection: 'column',
     },
     minHeight: 'calc(100vh)',
@@ -131,8 +135,8 @@ export default function Collection() {
         {tab === 0 && (
           <div className={styles.tabContainer}>
             {collection && (
-              <Grid container wrap="nowrap" spacing={3}>
-                <Grid item xs={8}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={8}>
                   <Typography variant="h5" gutterBottom style={{ fontWeight: 700 }}>
                     Description
                   </Typography>
@@ -158,7 +162,7 @@ export default function Collection() {
                     </Grid>
                   </Grid>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={12} md={8}>
                   <Grid className={styles.socialCollectionDetailContainer}>
                     <Grid
                       container

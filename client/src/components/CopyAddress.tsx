@@ -4,9 +4,10 @@ import { minimizeAddress } from '../libs/utils';
 
 interface Props {
   address: string;
+  minimize?: boolean;
 }
 
-export default function CopyAddress({ address }: Props) {
+export default function CopyAddress({ address, minimize = true }: Props) {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
@@ -22,7 +23,7 @@ export default function CopyAddress({ address }: Props) {
     <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
       <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
         <Typography variant="h6" style={{ lineHeight: 2 }}>
-          {minimizeAddress(address)}
+          {minimize ? minimizeAddress(address) : address}
         </Typography>
         <IconButton>
           <img height={13} src="/copy.png" alt="" />

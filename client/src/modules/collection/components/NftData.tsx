@@ -244,6 +244,13 @@ const headCells: readonly HeadCell[] = [
 ];
 
 const useStyles = makeStyles((theme: Theme) => ({
+  container: {
+    padding: '3rem',
+    paddingRight: 0,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 0,
+    },
+  },
   headerBanner: {
     height: '30vh',
     backgroundColor: 'white',
@@ -288,78 +295,77 @@ const NftData = ({ collection }: Props) => {
   const toFixed = (value: string) => parseFloat(`${value}`).toFixed(3);
 
   return (
-    <div>
-      <div style={{ padding: '3rem', paddingRight: 0 }}>
-        {/* data */}
-        <div className={classes.section}>
-          <Grid container spacing={4} style={{ marginBottom: '2rem' }} alignItems="stretch">
-            <Grid item xs={12} md={6} lg={3}>
-              <div className={classes.dataContainer}>
-                <Typography variant="body1" className={classes.dataContainerTitle}>
-                  Transactions in last 24h
-                </Typography>
-                <Typography variant="h5" className={classes.dataContainerData}>
-                  {collection.stats.one_day_sales}
-                </Typography>
-              </div>
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-              <div className={classes.dataContainer}>
-                <Typography variant="body1" className={classes.dataContainerTitle}>
-                  Volume in last 24h
-                </Typography>
-                <Grid container alignItems="center">
-                  <img
-                    style={{ marginRight: 8 }}
-                    height={24}
-                    src="/collection/DOKOasset_EthereumBlue.png"
-                    alt=""
-                  />
-                  <Typography display="inline" variant="h5" className={classes.dataContainerData}>
-                    {toFixed(collection.stats.one_day_volume)}
-                  </Typography>
-                </Grid>
-              </div>
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-              <div className={classes.dataContainer}>
-                <Typography variant="body1" className={classes.dataContainerTitle}>
-                  Average price in last 24h
-                </Typography>
-                <Grid container alignItems="center">
-                  <img
-                    style={{ marginRight: 8 }}
-                    height={24}
-                    src="/collection/DOKOasset_EthereumBlue.png"
-                    alt=""
-                  />
-                  <Typography display="inline" variant="h5" className={classes.dataContainerData}>
-                    {toFixed(collection.stats.one_day_average_price)}
-                  </Typography>
-                </Grid>
-              </div>
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-              <div className={classes.dataContainer}>
-                <Typography variant="body1" className={classes.dataContainerTitle}>
-                  Price change in last 24h
-                </Typography>
-                <Grid container alignItems="center">
-                  <img
-                    style={{ marginRight: 8 }}
-                    height={24}
-                    src="/collection/DOKOasset_EthereumBlue.png"
-                    alt=""
-                  />
-                  <Typography display="inline" variant="h5" className={classes.dataContainerData}>
-                    {toFixed(collection.stats.one_day_change)}
-                  </Typography>
-                </Grid>
-              </div>
-            </Grid>
+    <div className={classes.container}>
+      {/* data */}
+      <div className={classes.section}>
+        <Grid container spacing={4} style={{ marginBottom: '2rem' }} alignItems="stretch">
+          <Grid item xs={12} md={6} lg={3}>
+            <div className={classes.dataContainer}>
+              <Typography variant="body1" className={classes.dataContainerTitle}>
+                Transactions in last 24h
+              </Typography>
+              <Typography variant="h5" className={classes.dataContainerData}>
+                {collection.stats.one_day_sales}
+              </Typography>
+            </div>
           </Grid>
-          {/* charts */}
-          {/* <div className={classes.section}>
+          <Grid item xs={12} md={6} lg={3}>
+            <div className={classes.dataContainer}>
+              <Typography variant="body1" className={classes.dataContainerTitle}>
+                Volume in last 24h
+              </Typography>
+              <Grid container alignItems="center">
+                <img
+                  style={{ marginRight: 8 }}
+                  height={24}
+                  src="/collection/DOKOasset_EthereumBlue.png"
+                  alt=""
+                />
+                <Typography display="inline" variant="h5" className={classes.dataContainerData}>
+                  {toFixed(collection.stats.one_day_volume)}
+                </Typography>
+              </Grid>
+            </div>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <div className={classes.dataContainer}>
+              <Typography variant="body1" className={classes.dataContainerTitle}>
+                Average price in last 24h
+              </Typography>
+              <Grid container alignItems="center">
+                <img
+                  style={{ marginRight: 8 }}
+                  height={24}
+                  src="/collection/DOKOasset_EthereumBlue.png"
+                  alt=""
+                />
+                <Typography display="inline" variant="h5" className={classes.dataContainerData}>
+                  {toFixed(collection.stats.one_day_average_price)}
+                </Typography>
+              </Grid>
+            </div>
+          </Grid>
+          <Grid item xs={12} md={6} lg={3}>
+            <div className={classes.dataContainer}>
+              <Typography variant="body1" className={classes.dataContainerTitle}>
+                Price change in last 24h
+              </Typography>
+              <Grid container alignItems="center">
+                <img
+                  style={{ marginRight: 8 }}
+                  height={24}
+                  src="/collection/DOKOasset_EthereumBlue.png"
+                  alt=""
+                />
+                <Typography display="inline" variant="h5" className={classes.dataContainerData}>
+                  {toFixed(collection.stats.one_day_change)}
+                </Typography>
+              </Grid>
+            </div>
+          </Grid>
+        </Grid>
+        {/* charts */}
+        {/* <div className={classes.section}>
               <Grid container spacing={4}>
                 {charts.map(chart => (
                   <Grid key={chart.title} item xs={4}>
@@ -368,23 +374,23 @@ const NftData = ({ collection }: Props) => {
                 ))}
               </Grid>
             </div> */}
-        </div>
-        <div style={{ margin: 36 }}>
-          <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-            <div>
-              <img src="/DOKO_Lockup.png" height={40} alt="" style={{ marginBottom: '2rem' }} />
-            </div>
-
-            <Typography variant="h4" style={{ marginTop: 64 }}>
-              MORE FEATURES ARE
-            </Typography>
-            <Typography variant="h3" style={{ marginTop: 24, fontWeight: 600 }}>
-              COMING SOON
-            </Typography>
+      </div>
+      <div style={{ margin: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+          <div>
+            <img src="/DOKO_Lockup.png" height={40} alt="" style={{ marginBottom: '2rem' }} />
           </div>
-        </div>
 
-        {/* <div className={classes.section}>
+          <Typography variant="h4" style={{ marginTop: 64 }}>
+            MORE FEATURES ARE
+          </Typography>
+          <Typography variant="h3" style={{ marginTop: 24, fontWeight: 600 }}>
+            COMING SOON
+          </Typography>
+        </div>
+      </div>
+
+      {/* <div className={classes.section}>
             <Typography variant="h5" className={classes.sectionTitle}>
               OG Following
             </Typography>
@@ -416,7 +422,6 @@ const NftData = ({ collection }: Props) => {
               dateFilterHeaderId="datetime"
             />
           </div> */}
-      </div>
     </div>
   );
 };
