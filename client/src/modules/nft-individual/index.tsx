@@ -17,18 +17,18 @@ import {
 } from '@material-ui/core';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useParams, useHistory } from 'react-router-dom';
-import axios from 'axios';
 import eth from 'cryptocurrency-icons/32/white/eth.png';
 import bsc from 'cryptocurrency-icons/32/white/bnb.png';
 
 import Moralis from '../../libs/moralis';
+import { fetchOpenSeaEvents, fetchNFTOpensea } from './api';
 import { NftTraits } from './traits';
 import { Rarity } from './rarity';
 import { CopyAddress } from './CopyAddress';
 import { PopoverShare } from '../../components/PopoverShare';
 import { web3 } from '../../libs/web3';
 import { normalizeImageURL, chainMapping, formatTx, getTotalSupply } from '../../libs/utils';
-import { getNFT, fetchOpenseaEvents, fetchOpenseaLastSale } from '../api';
+import { getNFT, fetchOpenseaLastSale } from '../api';
 import backbutton from '../../assets/back-button.png';
 import opensea_icon from '../../assets/opensea-transparent.png';
 import loading_image from '../../assets/loading.gif';
@@ -63,11 +63,6 @@ const useStyles = makeStyles((theme) => ({
     },
     minHeight: 'calc(100vh)',
   },
-  nftData: {
-    [theme.breakpoints.down('sm')]: {
-      alignItems: 'center',
-    },
-  },
   nftNameMobile: {
     [theme.breakpoints.down('sm')]: {
       display: 'flex',
@@ -82,12 +77,21 @@ const useStyles = makeStyles((theme) => ({
     },
     display: 'flex',
   },
+  lazyloadwrapper: {
+    [theme.breakpoints.up('md')]: {
+      position: 'fixed',
+      left: 0,
+    },
+    textAlign: 'center',
+    width: 'inherit',
+    maxWidth: 'inherit',
+  },
   image: {
-    borderTopRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderRadius: 12,
+    border: '3px solid white',
     maxHeight: 400,
     minHeight: 200,
-    width: '100%',
+    maxWidth: '80%',
     '& > svg': {
       width: '100%',
       height: 'auto',
@@ -99,16 +103,6 @@ const useStyles = makeStyles((theme) => ({
   },
   bolder: {
     fontWeight: 'bolder',
-  },
-  shareItem: {
-    '&:hover': {
-      background: theme.palette.primary.main,
-      color: 'white',
-    },
-    '& > img': {
-      width: 24,
-      marginRight: 12,
-    },
   },
   shareIcon: {
     width: 30,
@@ -142,16 +136,15 @@ const useStyles = makeStyles((theme) => ({
 export const NftIndividual = () => {
   const styles = useStyles();
   const history = useHistory();
-
   const { address, id } = useParams<{ address: string; id: string }>();
-  const [, setLoading] = useState(false);
-  const [, setAllLoaded] = useState(false);
-  const [nft, setNFT] = useState<any[]>([]);
-  const [lastSale, setLastSale] = useState<number>(0);
-  const [lastSaleUSD, setLastSaleUSD] = useState<string>();
+  const [nft, setNFT] = useState<any>();
+  const [lastSale, setLastSale] = useState<number>();
+  const [lastSaleUSD, setLastSaleUSD] = useState<number>();
+  const [floorPrice, setFloorPrice] = useState<number>();
   const [owner, setOwner] = useState<string>('');
   const [creator, setCreator] = useState<string>('');
   const [nftName, setNftName] = useState<string>('');
+  const [nftImage, setNftImage] = useState<string>('');
   const [chain, setChain] = useState<string>('');
   const [nftDesc, setNftDesc] = useState<string>('');
   const [txs, setTxs] = useState<any[]>([]);
@@ -182,6 +175,43 @@ export const NftIndividual = () => {
     return icon;
   };
 
+  const fetchNFT = async () => {
+    if (!address || !id) {
+      return;
+    }
+
+    try {
+      let _nft;
+      if (chain !== 'eth') {
+        const res = await getNFT(address, id);
+        _nft = res.data;
+        setNFT(_nft);
+        setOwner(_nft.owner_of);
+        setNftName(_nft.metadata.name ? _nft.metadata.name : `${_nft.name} # ${_nft.token_id}`);
+        setNftImage(normalizeImageURL(_nft).metadata.image);
+        setNftDesc(_nft.metadata.description);
+        setChain(_nft.chain);
+        setCollection(_nft.name);
+        const _traits =
+          'metadata' in _nft && 'attributes' in _nft.metadata ? _nft.metadata.attributes : [];
+        setTraits(_traits);
+      } else {
+        const res = await fetchNFTOpensea(address, id);
+        _nft = res.data;
+        setNFT(_nft);
+        setOwner(_nft.owner.address);
+        setNftName(_nft.name ? _nft.name : 'N/A');
+        setNftImage(_nft.image_url);
+        setNftDesc(_nft.description);
+        setChain('eth');
+        setCollection(_nft.asset_contract.name);
+        const _traits = res.data.traits && res.data.traits.length ? res.data.traits : [];
+        setTraits(_traits);
+      }
+      // eslint-disable-next-line no-empty
+    } catch (err) {}
+  };
+
   const fetchTxs = async (
     _chain: string,
     _address: string,
@@ -189,25 +219,28 @@ export const NftIndividual = () => {
     offset: number,
     limit: number,
   ) => {
-    let formatted;
-    if (_chain === 'polygon' || _chain === 'bsc') {
-      const options: any = { address, token_id: id, chain };
-      const transfers = await (Moralis.Web3API as any).token.getWalletTokenIdTransfers(options);
-      formatted = transfers.result.map((transfer: any) => formatTx(transfer, _chain));
-      setTxs(formatted);
-    } else {
-      try {
-        const res = await fetchOpenseaEvents(address, id, offset, limit);
-        formatted = res.data.asset_events.map((transfer: any) => formatTx(transfer, chain));
-        setTxs(formatted);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
+    let formatted_txs: Array<any> = [];
+    try {
+      if (_chain !== 'eth') {
+        const options: any = { address, token_id: id, chain };
+        const transfers = await (Moralis.Web3API as any).token.getWalletTokenIdTransfers(options);
+        formatted_txs = transfers.result.map((transfer: any) => formatTx(transfer, _chain));
+      } else {
+        formatted_txs = await fetchOpenSeaEvents(address, id, offset, limit, [
+          'created',
+          'successful',
+          'transfer',
+        ]);
       }
+      setTxs(formatted_txs);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+      setTxs([]);
     }
-    if (formatted.length) {
-      if (formatted[formatted.length - 1].event === 'Mint') {
-        setCreator(formatted.at(-1).to);
+    if (formatted_txs.length) {
+      if (formatted_txs[formatted_txs.length - 1].event === 'Mint') {
+        setCreator(formatted_txs[formatted_txs.length - 1].to);
       }
     } else {
       setCreator('');
@@ -226,31 +259,26 @@ export const NftIndividual = () => {
   const fetchPrice = async (addr: string, tokenId: string) => {
     if (chain !== 'eth') {
       setLastSale(0);
-      setLastSaleUSD('0');
+      setLastSaleUSD(0);
+      setFloorPrice(0);
       return;
     }
     try {
       const res = await fetchOpenseaLastSale(addr, tokenId);
-      const lastsale = res.data.last_sale.total_price
+      const isLastSale = res.data.last_sale && res.data.last_sale.total_price;
+      const lastsale = isLastSale
         ? +web3.utils.fromWei(res.data.last_sale.total_price, 'ether')
         : 0;
-      const usdRate = +res.data.last_sale.payment_token.usd_price;
-      let usdAmount = (lastsale * usdRate).toString();
-      usdAmount = Number.parseFloat(usdAmount).toFixed(2);
+      const usdRate = isLastSale ? +res.data.last_sale.payment_token.usd_price : 0;
+      let usdAmount = lastsale * usdRate;
+      usdAmount = +Number.parseFloat(usdAmount.toString()).toFixed(2);
+      const _floorPrice = +res.data.collection.stats.floor_price;
       setLastSale(lastsale);
       setLastSaleUSD(usdAmount);
+      setFloorPrice(_floorPrice);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-    }
-  };
-
-  const fetchTraits = async () => {
-    if (chain === 'matic' || chain === 'bsc') {
-      setTraits(nft[0].metadata.attributes || []);
-    } else if (chain === 'eth') {
-      const res = await axios.get(`https://api.opensea.io/api/v1/asset/${address}/${id}/`);
-      setTraits(res.data.traits || []);
     }
   };
 
@@ -259,48 +287,30 @@ export const NftIndividual = () => {
       setTotalSupply(0);
       return;
     }
-    const tsupply = await getTotalSupply(addr);
-    setTotalSupply(tsupply);
-  };
-
-  const fetchNFT = async () => {
-    if (!address || !id) {
-      return;
-    }
-    setLoading(true);
     try {
-      const res = await getNFT(address, id);
-      const _nft = res.data;
-      setNFT([_nft]);
-      setOwner(_nft.owner_of);
-      setNftName(_nft.metadata.name ? _nft.metadata.name : `${_nft.name} # ${_nft.token_id}`);
-      setNftDesc(_nft.metadata.description);
-      setChain(_nft.chain);
-      setCollection(_nft.name);
-      setAllLoaded(nft.length > 0);
-    } catch (err) {
-      setLoading(false);
+      const tsupply = await getTotalSupply(addr);
+      setTotalSupply(tsupply);
+    } catch (e) {
+      setTotalSupply(0);
     }
   };
 
   useEffect(() => {
     setNFT([]);
-    setAllLoaded(false);
     fetchNFT();
-    fetchTxs(chain, address, id, 0, 50);
+    fetchTxs(chain, address, id, 0, 100);
     fetchPrice(address, id);
-    fetchTraits();
     _getTotalSupply(address);
   }, [address, id, chain]);
 
   return (
     <>
-      {nft.length && (
+      {nft && (
         <Meta
           title={`${nftName} | DOKO`}
-          description={nft[0].metadata.description || ''}
+          description={nftDesc || ''}
           url="https://doko.one"
-          image={normalizeImageURL(nft[0].metadata.image) || ''}
+          image={nftImage || ''}
         />
       )}
       <Grid
@@ -329,17 +339,29 @@ export const NftIndividual = () => {
             <PopoverShare />
           </Grid>
         </Grid>
-        <Grid item container xs={12} sm={12} md={4} lg={3} xl={3} justifyContent="flex-start">
-          {nft.map((_nft) => (
+        <Grid
+          item
+          container
+          xs={12}
+          sm={12}
+          md={4}
+          lg={3}
+          xl={3}
+          justifyContent="flex-start"
+          style={{ position: 'relative' }}
+        >
+          {nft && (
             <LazyLoadImage
-              key={_nft.token_id}
+              style={{ textAlign: 'center' }}
+              key={nft.token_id}
               className={styles.image}
+              wrapperClassName={styles.lazyloadwrapper}
               alt=""
-              src={normalizeImageURL(_nft).metadata.image}
+              src={nftImage}
               placeholder={<img src={loading_image} alt="Loading" />}
               effect="opacity"
             />
-          ))}
+          )}
         </Grid>
         <Grid
           item
@@ -369,7 +391,7 @@ export const NftIndividual = () => {
               <CustomIconButton onClick={history.goBack}>
                 <img className={styles.shareIcon} src={backbutton} alt="back" />
               </CustomIconButton>
-              <PopoverShare name={nftName} />
+              <PopoverShare />
             </Grid>
           </Grid>
           <Grid
@@ -385,7 +407,7 @@ export const NftIndividual = () => {
                 Creator
               </Typography>
               {creator ? (
-                <CopyAddress address={creator} />
+                <CopyAddress address={creator} hasLink={false} />
               ) : (
                 <Typography variant="body1">N/A</Typography>
               )}
@@ -394,7 +416,7 @@ export const NftIndividual = () => {
               <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
                 Owner
               </Typography>
-              <CopyAddress address={owner} />
+              <CopyAddress address={owner} hasLink />
             </Grid>
           </Grid>
           <Grid item container direction="column" spacing={0}>
@@ -425,8 +447,32 @@ export const NftIndividual = () => {
                 <Typography variant="body1">N/A</Typography>
               </Grid>
             )}
+            <Grid item style={{ marginTop: '.5em' }}>
+              <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                Floor Price
+              </Typography>
+            </Grid>
+            {floorPrice ? (
+              <Grid item>
+                <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
+                  <img className={styles.networkIconMedium} src={eth} alt="eth" />
+                </IconButton>
+                <Typography
+                  variant="h5"
+                  display="inline"
+                  className="bolder"
+                  style={{ marginRight: '4px' }}
+                >
+                  {floorPrice}
+                </Typography>
+              </Grid>
+            ) : (
+              <Grid item>
+                <Typography variant="body1">N/A</Typography>
+              </Grid>
+            )}
             {chain === 'eth' ? (
-              <Grid item style={{ marginTop: '7px' }}>
+              <Grid item style={{ marginTop: '.9em' }}>
                 <Link
                   style={{ textDecoration: 'none' }}
                   target="_blank"
@@ -458,8 +504,7 @@ export const NftIndividual = () => {
                 {chain === 'eth' ? (
                   <Link
                     style={{ textDecoration: 'none', color: '#61dafb' }}
-                    target="_blank"
-                    href={`https://opensea.io/collections/${address}`}
+                    href={`${window.origin}/collections/${address}`}
                   >
                     {collection}
                   </Link>
@@ -496,7 +541,7 @@ export const NftIndividual = () => {
             <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
               Traits
             </Typography>
-            {traits?.length ? (
+            {traits && traits.length ? (
               <NftTraits traits={traits} totalSupply={totalSupply} />
             ) : (
               <Typography variant="body1">N/A</Typography>
