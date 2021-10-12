@@ -1,8 +1,11 @@
 import { getTokenInfo, getSolanaNFTMetadata, getTokenAccountsByOwner } from './metaplex/utils';
 import { Metadata } from './metaplex/classes';
+import { isSolAddress } from './utils';
 
 const getSolNfts = async (address: string, offset: number, params: any = {}) => {
-  if (params.chain && params.chain.indexOf.solana === -1) return { data: [] };
+  if (!isSolAddress(address) || (params.chain && params.chain.indexOf.solana === -1)) {
+    return { data: [] };
+  }
   const tokenListRes = await getTokenAccountsByOwner(address);
   const tokenInfoList =
     tokenListRes.data?.result?.value?.map((token: any) => token.account.data.parsed.info) || [];
