@@ -72,28 +72,10 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   };
 
   useEffect(() => {
-    switch (walletName) {
-      case WalletName.METAMASK:
-        setAddress(account);
-        break;
-      case WalletName.PHANTOM:
-        setAddress(solAccount);
-        break;
-      default:
-        break;
-    }
+    setAddress(account || solAccount || '');
 
     if ((account || solAccount) && !firstTime.current && history) {
-      switch (walletName) {
-        case WalletName.METAMASK:
-          history.push(`/address/${account}`);
-          break;
-        case WalletName.PHANTOM:
-          history.push(`/address/${solAccount}`);
-          break;
-        default:
-          break;
-      }
+      history.push(`/address/${account || solAccount}`);
     }
 
     if (account || solAccount) {

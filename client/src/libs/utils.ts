@@ -5,8 +5,9 @@ import { web3 } from './web3';
 
 const abi = require('./abis/erc721.json');
 
+// eslint-disable-next-line no-confusing-arrow
 export const minimizeAddress = (address: string) =>
-  `${address.substr(0, 6)}...${address.substr(-4)}`;
+  address ? `${address.substr(0, 6)}...${address.substr(-4)}` : '';
 
 export const normalizeImageURL = (nft: any) => {
   if (nft.metadata && !nft.metadata.image && nft.metadata.image_data) {
@@ -53,14 +54,14 @@ export const getTotalSupply = async (address: string) => {
   }
 };
 
-export const sortTxsByDates = (txs:any[]) => {
+export const sortTxsByDates = (txs: any[]) => {
   const _txs = txs.map((tx) => {
     tx.date = moment(tx.date, 'DD/MM/YYYY').unix();
     return tx;
   });
-  const sorted = _txs.sort((tx1:any, tx2:any) => tx2.date - tx1.date);
+  const sorted = _txs.sort((tx1: any, tx2: any) => tx2.date - tx1.date);
   // convert back to string
-  const result = sorted.map((tx:any) => {
+  const result = sorted.map((tx: any) => {
     tx.date = moment(tx.date * 1000).format('DD/MM/YYYY');
     return tx;
   });
