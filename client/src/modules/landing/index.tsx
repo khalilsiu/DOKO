@@ -37,7 +37,7 @@ export const Landing = () => {
           className="gradient-button"
           variant="outlined"
           disabled={loading}
-          onClick={() => (address ? history.push(`/address/${address}`) : login())}
+          onClick={() => (address ? history.push(`/address/${address}`) : login(0))}
         >
           {address ? 'Your Profile' : 'Connect Metamask'}
         </Button>

@@ -3,5 +3,5 @@ export interface ToolbarItemsProps {
   search: string;
   loading: boolean;
   address: string | null;
-  login: () => void;
+  login: (walletSelected: number) => void;
 }

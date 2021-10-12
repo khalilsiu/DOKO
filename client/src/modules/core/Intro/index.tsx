@@ -62,7 +62,7 @@ const Intro = ({ drawer = false }: Props) => {
                 disabled={loading}
                 variant="outlined"
                 className={`gradient-button ${styles.aboutDokoButton}`}
-                onClick={() => login()}
+                onClick={() => login(0)}
               >
                 Connect Metamask
               </Button>
