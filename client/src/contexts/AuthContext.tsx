@@ -58,12 +58,12 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
 
     switch (wallet) {
       case WalletName.METAMASK:
-        await connectMetaMask();
         setWalletName(WalletName.METAMASK);
+        await connectMetaMask();
         break;
       case WalletName.PHANTOM:
-        await connectPhantom();
         setWalletName(WalletName.PHANTOM);
+        await connectPhantom();
         break;
       default:
         break;
@@ -83,11 +83,20 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
         break;
     }
 
-    if (account && !firstTime.current && history) {
-      history.push(`/address/${account}`);
+    if ((account || solAccount) && !firstTime.current && history) {
+      switch (walletName) {
+        case WalletName.METAMASK:
+          history.push(`/address/${account}`);
+          break;
+        case WalletName.PHANTOM:
+          history.push(`/address/${solAccount}`);
+          break;
+        default:
+          break;
+      }
     }
 
-    if (account) {
+    if (account || solAccount) {
       firstTime.current = false;
     }
   }, [account, solAccount, history]);
