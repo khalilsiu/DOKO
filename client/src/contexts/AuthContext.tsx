@@ -5,6 +5,8 @@ import { WalletName } from '../types';
 
 declare let window: any;
 
+declare let window: any;
+
 interface AuthContextValue {
   address: string | null;
   loading: boolean;
@@ -27,6 +29,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
 
   const history = useHistory();
   const [address, setAddress] = useState<string | null>('');
+  const [walletType, setWalletType] = useState(0);
   const firstTime = useRef(true);
   const [walletName, setWalletName] = useState<WalletName>();
 
