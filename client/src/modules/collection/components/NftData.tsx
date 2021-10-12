@@ -381,10 +381,10 @@ const NftData = ({ collection }: Props) => {
             <img src="/DOKO_Lockup.png" height={40} alt="" style={{ marginBottom: '2rem' }} />
           </div>
 
-          <Typography variant="h4" style={{ marginTop: 64 }}>
+          <Typography variant="h4" style={{ textAlign: 'center', marginTop: 64 }}>
             MORE FEATURES ARE
           </Typography>
-          <Typography variant="h3" style={{ marginTop: 24, fontWeight: 600 }}>
+          <Typography variant="h3" style={{ textAlign: 'center', marginTop: 24, fontWeight: 600 }}>
             COMING SOON
           </Typography>
         </div>

@@ -116,9 +116,9 @@ export default function CollectionHeader({ collection, tab, setTab }: Props) {
             <CustomTypography variant="h3" style={{ fontWeight: 700 }}>
               {collection.name}
             </CustomTypography>
-            <span style={{ display: 'inline-flex' }}>
+            <Grid item>
               <CopyAddress address={collection.primary_asset_contracts[0].address} />
-            </span>
+            </Grid>
             <Hidden lgUp>
               <Grid item style={{ marginTop: 24 }}>
                 <CollectionActions collection={collection} onShare={share} />

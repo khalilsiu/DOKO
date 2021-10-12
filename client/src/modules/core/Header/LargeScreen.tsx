@@ -18,6 +18,8 @@ import { HeaderUserButton } from './HeaderUserButton';
 import { ToolbarItemsProps } from './types';
 import UIModal from '../../../components/modal';
 
+import { Wallet, WalletName } from '../../../types';
+
 const useStyles = makeStyles((theme: Theme) => ({
   modalHeader: {
     display: 'flex',
@@ -66,14 +68,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const wallets = [
+const wallets: Wallet[] = [
   {
     icon: '/DOKO_Metamasklogo_asset.png',
     label: 'MetaMask Wallet',
+    name: WalletName.METAMASK,
   },
   {
     icon: '/DOKO_Phantomlogo_asset.png',
     label: 'Phantom Wallet',
+    name: WalletName.PHANTOM,
   },
 ];
 
@@ -81,10 +85,15 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
   const history = useHistory();
   const [modalOpen, setModalOpen] = useState(false);
   const classes = useStyles();
-  const [walletSelected, setWalletSelected] = useState(0);
+  const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
 
-  const handleWalletClick = (index: number) => {
-    setWalletSelected(index);
+  const handleWalletClick = (wallet: Wallet) => {
+    setWalletSelected(wallet);
+  };
+
+  const connectWallet = () => {
+    setModalOpen(false);
+    login(walletSelected.name);
   };
 
   return (
@@ -102,7 +111,12 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
               placeholder="Search by Address"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => search && e.key === 'Enter' && history.push(`/collections/${search}`)}
+              onKeyDown={
+                (e) =>
+                  // eslint-disable-next-line implicit-arrow-linebreak
+                  search && e.key === 'Enter' && history.push(`/collections/${search}`)
+                // eslint-disable-next-line react/jsx-curly-newline
+              }
               startAdornment={
                 <InputAdornment position="start">
                   <SearchIcon color="action" fontSize="small" />
@@ -127,12 +141,7 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
               </a>
             </Grid>
             <Grid item style={{ marginLeft: 36 }}>
-              <HeaderUserButton
-                loading={loading}
-                address={address}
-                onLogin={login}
-                setModalOpen={setModalOpen}
-              />
+              <HeaderUserButton loading={loading} address={address} setModalOpen={setModalOpen} />
             </Grid>
           </Grid>
         </Grid>
@@ -151,15 +160,14 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
         )}
         renderBody={() => (
           <div className={classes.modalContent}>
-            {wallets.map((wallet, i) => (
+            {wallets.map((wallet) => (
               // eslint-disable-next-line jsx-a11y/no-static-element-interactions
               <div
                 className={`${classes.walletContainer} 
-                ${walletSelected === i && classes.walletSelected
-                  }`}
+                ${walletSelected.name === wallet.name && classes.walletSelected}`}
                 key={wallet.label}
-                onClick={() => handleWalletClick(i)}
-                onKeyDown={() => handleWalletClick(i)}
+                onClick={() => handleWalletClick(wallet)}
+                onKeyDown={() => handleWalletClick(wallet)}
               >
                 <img src={wallet.icon} alt="" className={classes.walletImage} />
                 <Typography variant="subtitle2" className={classes.walletName}>
@@ -174,7 +182,7 @@ export const LargeScreen = ({ setSearch, search, loading, address, login }: Tool
             <Button
               className={classes.modalButton}
               variant="outlined"
-              onClick={() => setModalOpen(false)}
+              onClick={() => connectWallet()}
             >
               <Typography variant="body1" style={{ fontWeight: 'bold' }}>
                 Connect Wallet

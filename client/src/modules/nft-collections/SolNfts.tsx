@@ -37,7 +37,7 @@ export default function SolNfts({ address }: Props) {
   }, [address]);
 
   return (
-    <div>
+    <div style={{ marginTop: 36 }}>
       <SectionLabel variant="h5" style={{ marginBottom: 36 }}>
         Solana NFTs
       </SectionLabel>

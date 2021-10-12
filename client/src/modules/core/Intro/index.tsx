@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { DrawerContext } from '../../../contexts/DrawerContext';
+import { WalletName } from '../../../types';
 
 const socialLinks = [
   {
@@ -62,7 +63,7 @@ const Intro = ({ drawer = false }: Props) => {
                 disabled={loading}
                 variant="outlined"
                 className={`gradient-button ${styles.aboutDokoButton}`}
-                onClick={() => login()}
+                onClick={() => login(WalletName.METAMASK)}
               >
                 Connect Metamask
               </Button>

@@ -1,7 +1,11 @@
+import { Dispatch, SetStateAction } from 'react';
+import { WalletName } from '../../../types';
+
 export interface ToolbarItemsProps {
-  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  setSearch: Dispatch<SetStateAction<string>>;
   search: string;
   loading: boolean;
   address: string | null;
-  login: () => void;
+  // eslint-disable-next-line no-unused-vars
+  login: (wallet: WalletName) => void;
 }

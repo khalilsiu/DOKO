@@ -21,14 +21,16 @@ export default function CopyAddress({ address, minimize = true }: Props) {
 
   return (
     <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
-      <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
-        <Typography variant="h6" style={{ lineHeight: 2 }}>
-          {minimize ? minimizeAddress(address) : address}
-        </Typography>
-        <IconButton>
-          <img height={13} src="/copy.png" alt="" />
-        </IconButton>
-      </Grid>
+      <span style={{ display: 'inline-block' }}>
+        <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
+          <Typography variant="h6" style={{ lineHeight: 2 }}>
+            {minimize ? minimizeAddress(address) : address}
+          </Typography>
+          <IconButton>
+            <img height={13} src="/copy.png" alt="" />
+          </IconButton>
+        </Grid>
+      </span>
     </Tooltip>
   );
 }

@@ -1,5 +1,5 @@
 import { createSlice, SliceCaseReducers } from '@reduxjs/toolkit';
-import { User } from '../../interfaces';
+import { User } from '../../types/interfaces';
 
 export interface AuthState {
   user: User;

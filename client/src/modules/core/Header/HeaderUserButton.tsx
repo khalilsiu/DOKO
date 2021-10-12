@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { minimizeAddress } from '../../../libs/utils';
 
 interface Props {
-  onLogin: () => void;
   address: string | null;
   loading: boolean;
+  // eslint-disable-next-line no-unused-vars
   setModalOpen: (modalState: boolean) => void;
 }
 
@@ -20,12 +20,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export const HeaderUserButton = ({
-  onLogin = () => null,
-  address,
-  loading,
-  setModalOpen,
-}: Props) => {
+export const HeaderUserButton = ({ address, loading, setModalOpen }: Props) => {
   const styles = useStyles();
   const [copied, setCopied] = useState(false);
 
@@ -51,10 +46,9 @@ export const HeaderUserButton = ({
       className="gradient-button"
       disabled={loading}
       variant="outlined"
-      // onClick={() => onLogin()}
       onClick={() => setModalOpen(true)}
     >
-      Connect Metamask
+      Connect Wallet
     </Button>
   );
 };

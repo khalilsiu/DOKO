@@ -1,4 +1,4 @@
-import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
 
 import { OpenseaNFTItem } from './OpenseaNFTItem';
@@ -53,28 +53,32 @@ export const NftPagination = ({
           : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />)}
       </div>
       {loading && <CircularProgress />}
-      <Grid container justifyContent="space-between" style={{ marginTop: 20 }}>
-        <Grid item>
-          <LightButton onClick={onPrev} disabled={loading || !page || page <= 1}>
-            <ArrowLeft color="secondary" />
-            Previous
-          </LightButton>
-        </Grid>
+      {!loading && (!page || page <= 1) && (!nfts || nfts.length === 0) ? (
+        <Typography style={{ marginLeft: 24 }}>No Items</Typography>
+      ) : (
+        <Grid container justifyContent="space-between" style={{ marginTop: 20 }}>
+          <Grid item>
+            <LightButton onClick={onPrev} disabled={loading || !page || page <= 1}>
+              <ArrowLeft color="secondary" />
+              Previous
+            </LightButton>
+          </Grid>
 
-        <Grid item style={{ color: 'white' }}>
-          {total != null ? `${page} of ${total}` : page}
-        </Grid>
+          <Grid item style={{ color: 'white' }}>
+            {total != null ? `${page} of ${total}` : page}
+          </Grid>
 
-        <Grid item>
-          <LightButton
-            onClick={onNext}
-            disabled={loading || !page || (total != null ? page >= total : nfts?.length < 12)}
-          >
-            Next
-            <ArrowRight color="secondary" />
-          </LightButton>
+          <Grid item>
+            <LightButton
+              onClick={onNext}
+              disabled={loading || !page || (total != null ? page >= total : nfts?.length < 12)}
+            >
+              Next
+              <ArrowRight color="secondary" />
+            </LightButton>
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </div>
   );
 };
