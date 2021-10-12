@@ -3,6 +3,8 @@ import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'r
 import { useHistory } from 'react-router-dom';
 import { WalletName } from '../types';
 
+declare let window: any;
+
 interface AuthContextValue {
   address: string | null;
   loading: boolean;
@@ -21,6 +23,8 @@ export const AuthContext = createContext<AuthContextValue>({
 export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [loading, setLoading] = useState(false);
   const { account, connect } = useMetaMask();
+  const [solAccount, setSolAccount] = useState('');
+
   const history = useHistory();
   const [address, setAddress] = useState<string | null>('');
   const firstTime = useRef(true);
@@ -35,12 +39,31 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
     }
   };
 
+  const connectPhantom = async () => {
+    if (!window.solana || !window.solana.isPhantom) {
+      window.open('https://phantom.app/', '_blank');
+      return;
+    }
+    try {
+      await window.solana.connect();
+      setSolAccount(window.solana.publicKey.toString());
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('phantom connection', err);
+    }
+  };
+
   const login = async (wallet: WalletName) => {
     setLoading(true);
 
     switch (wallet) {
       case WalletName.METAMASK:
+        setWalletName(WalletName.METAMASK);
         await connectMetaMask();
+        break;
+      case WalletName.PHANTOM:
+        setWalletName(WalletName.PHANTOM);
+        await connectPhantom();
         break;
       default:
         break;
@@ -49,17 +72,34 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   };
 
   useEffect(() => {
-    setAddress(account);
-    setWalletName(WalletName.METAMASK);
-
-    if (account && !firstTime.current && history) {
-      history.push(`/address/${account}`);
+    switch (walletName) {
+      case WalletName.METAMASK:
+        setAddress(account);
+        break;
+      case WalletName.PHANTOM:
+        setAddress(solAccount);
+        break;
+      default:
+        break;
     }
 
-    if (account) {
+    if ((account || solAccount) && !firstTime.current && history) {
+      switch (walletName) {
+        case WalletName.METAMASK:
+          history.push(`/address/${account}`);
+          break;
+        case WalletName.PHANTOM:
+          history.push(`/address/${solAccount}`);
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (account || solAccount) {
       firstTime.current = false;
     }
-  }, [account, history]);
+  }, [account, solAccount, history]);
 
   return (
     <AuthContext.Provider value={{ address, walletName, loading, login }}>
