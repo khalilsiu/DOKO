@@ -136,7 +136,7 @@ const useStyles = makeStyles((theme) => ({
 export const NftIndividual = () => {
   const styles = useStyles();
   const history = useHistory();
-  const { address, id } = useParams<{ address: string; id: string }>();
+  const { address, id, chain } = useParams<{ address: string; id: string; chain: string }>();
   const [nft, setNFT] = useState<any>();
   const [lastSale, setLastSale] = useState<number>();
   const [lastSaleUSD, setLastSaleUSD] = useState<number>();
@@ -145,7 +145,6 @@ export const NftIndividual = () => {
   const [creator, setCreator] = useState<string>('');
   const [nftName, setNftName] = useState<string>('');
   const [nftImage, setNftImage] = useState<string>('');
-  const [chain, setChain] = useState<string>('');
   const [nftDesc, setNftDesc] = useState<string>('');
   const [txs, setTxs] = useState<any[]>([]);
   const [collection, setCollection] = useState<string>('');
@@ -190,7 +189,6 @@ export const NftIndividual = () => {
         setNftName(_nft.metadata.name ? _nft.metadata.name : `${_nft.name} # ${_nft.token_id}`);
         setNftImage(normalizeImageURL(_nft).metadata.image);
         setNftDesc(_nft.metadata.description);
-        setChain(_nft.chain);
         setCollection(_nft.name);
         const _traits =
           'metadata' in _nft && 'attributes' in _nft.metadata ? _nft.metadata.attributes : [];
@@ -203,7 +201,6 @@ export const NftIndividual = () => {
         setNftName(_nft.name ? _nft.name : 'N/A');
         setNftImage(_nft.image_url);
         setNftDesc(_nft.description);
-        setChain('eth');
         setCollection(_nft.asset_contract.name);
         const _traits = res.data.traits && res.data.traits.length ? res.data.traits : [];
         setTraits(_traits);

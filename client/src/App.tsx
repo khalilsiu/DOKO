@@ -40,7 +40,7 @@ function App() {
                   <NftCollections />
                 </RouteContainer>
               </Route>
-              <Route path="/nft/:address/:id" exact>
+              <Route path="/nft/:chain/:address/:id" exact>
                 <RouteContainer>
                   <NftIndividual />
                 </RouteContainer>

@@ -57,7 +57,9 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   const [error, setError] = useState(false);
 
   const onClickCard = () => {
-    history.push(`/nft/${nft.token_address}/${nft.token_id}`);
+    // eslint-disable-next-line no-console
+    console.log(nft.chain);
+    history.push(`/nft/${nft.chain}/${nft.token_address}/${nft.token_id}`);
   };
 
   return (
