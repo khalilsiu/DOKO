@@ -45,7 +45,7 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
   const [error, setError] = useState(false);
 
   const onClickCard = () => {
-    history.push(`/nft/${nft.asset_contract.address}/${nft.token_id}`);
+    history.push(`/nft/eth/${nft.asset_contract.address}/${nft.token_id}`);
   };
 
   return (
