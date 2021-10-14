@@ -5,8 +5,7 @@ import { minimizeAddress } from '../../../libs/utils';
 interface Props {
   address: string | null;
   loading: boolean;
-  // eslint-disable-next-line no-unused-vars
-  setModalOpen: (modalState: boolean) => void;
+  connect: () => void;
 }
 
 const useStyles = makeStyles(() => ({
@@ -20,7 +19,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export const HeaderUserButton = ({ address, loading, setModalOpen }: Props) => {
+export const HeaderUserButton = ({ address, loading, connect }: Props) => {
   const styles = useStyles();
   const [copied, setCopied] = useState(false);
 
@@ -46,7 +45,7 @@ export const HeaderUserButton = ({ address, loading, setModalOpen }: Props) => {
       className="gradient-button"
       disabled={loading}
       variant="outlined"
-      onClick={() => setModalOpen(true)}
+      onClick={() => connect()}
     >
       Connect Wallet
     </Button>

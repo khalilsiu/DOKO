@@ -1,4 +1,4 @@
-import { makeStyles, Theme, Modal, Box, Divider } from '@material-ui/core';
+import { makeStyles, Modal, Box, Divider } from '@material-ui/core';
 import { ReactNode } from 'react';
 
 interface UIModalProps {
@@ -9,7 +9,7 @@ interface UIModalProps {
   renderFooter: () => ReactNode;
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   modalBox: {
     position: 'absolute',
     top: '50%',

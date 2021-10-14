@@ -81,8 +81,7 @@ export const Popover = ({
     ],
   });
   const [show, setShow] = useState(false);
-
-  let toggleTimeout: any;
+  const [toggleTimeout, setToggleTimeout] = useState<any>();
 
   const toggleShow = (shown: boolean) => {
     if (shown) {
@@ -90,7 +89,7 @@ export const Popover = ({
       setShow(true);
     } else {
       clearTimeout(toggleTimeout);
-      toggleTimeout = setTimeout(() => setShow(false), 100);
+      setToggleTimeout(setTimeout(() => setShow(false), 200));
     }
   };
 

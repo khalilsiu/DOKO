@@ -1,9 +1,13 @@
-import { Button, Container, Grid, Typography, makeStyles } from '@material-ui/core';
 import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Meta } from '../../components';
+import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+
+import Meta from '../../components/Meta';
 import { AuthContext } from '../../contexts/AuthContext';
-import { WalletName } from '../../types';
 
 export const Landing = () => {
   const images = [
@@ -16,11 +20,11 @@ export const Landing = () => {
   ];
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
-  const { login, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext);
   const history = useHistory();
 
   return (
-    <div>
+    <>
       <Meta
         title="DOKO, The Multi-Chain NFT Portfolio Manager"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
@@ -30,7 +34,7 @@ export const Landing = () => {
       <Container maxWidth="lg" className={styles.landingTopSection}>
         <h1 className={styles.landingTopTitle}>All Your NFTs in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
-          View your NFT collection for any Ethereum, BSC and Polygon address under one single
+          View your NFT collection for any Ethereum, BSC, Polygon & Solana address under one single
           dashboard
         </h3>
         <Button
@@ -38,9 +42,9 @@ export const Landing = () => {
           className="gradient-button"
           variant="outlined"
           disabled={loading}
-          onClick={() => (address ? history.push(`/address/${address}`) : login(WalletName.METAMASK))}
+          onClick={() => (address ? history.push(`/address/${address}`) : connect())}
         >
-          {address ? 'Your Profile' : 'Connect Metamask'}
+          {address ? 'Your Profile' : 'Connect Wallet'}
         </Button>
       </Container>
 
@@ -156,7 +160,7 @@ export const Landing = () => {
           <div className={styles.highlightText}>to Come!</div>
         </div>
       </section>
-    </div>
+    </>
   );
 };
 

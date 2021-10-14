@@ -1,7 +1,7 @@
 import { lazy, PropsWithChildren, Suspense } from 'react';
 import './App.css';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 
 import Intro from './modules/core/Intro';
 import { Header } from './modules/core/Header';

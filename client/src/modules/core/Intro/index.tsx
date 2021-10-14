@@ -4,7 +4,6 @@ import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { DrawerContext } from '../../../contexts/DrawerContext';
-import { WalletName } from '../../../types';
 
 const socialLinks = [
   {
@@ -26,7 +25,7 @@ interface Props {
 }
 
 const Intro = ({ drawer = false }: Props) => {
-  const { login, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext);
   const { toggle } = useContext(DrawerContext);
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
@@ -63,9 +62,9 @@ const Intro = ({ drawer = false }: Props) => {
                 disabled={loading}
                 variant="outlined"
                 className={`gradient-button ${styles.aboutDokoButton}`}
-                onClick={() => login(WalletName.METAMASK)}
+                onClick={() => connect()}
               >
-                Connect Metamask
+                Connect Wallet
               </Button>
             )}
           </Grid>

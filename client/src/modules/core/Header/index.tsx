@@ -58,7 +58,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export const Header = () => {
-  const { login, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext);
   const styles = useStyles();
   const [search, setSearch] = useState('');
 
@@ -67,10 +67,10 @@ export const Header = () => {
       <AppBar position="sticky" color="transparent" className={styles.headerContainer}>
         <ResponsiveToolbar>
           <Hidden smDown>
-            <LargeScreen {...{ login, loading, address, search, setSearch }} />
+            <LargeScreen {...{ connect, loading, address, search, setSearch }} />
           </Hidden>
           <Hidden mdUp>
-            <SmallScreen {...{ login, loading, address, search, setSearch }} />
+            <SmallScreen {...{ connect, loading, address, search, setSearch }} />
           </Hidden>
         </ResponsiveToolbar>
       </AppBar>
