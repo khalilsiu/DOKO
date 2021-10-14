@@ -23,7 +23,6 @@ import bsc from 'cryptocurrency-icons/32/white/bnb.png';
 import Moralis from '../../libs/moralis';
 import { fetchOpenSeaEvents, fetchNFTOpensea } from './api';
 import { NftTraits } from './traits';
-import { Rarity } from './rarity';
 import { CopyAddress } from './CopyAddress';
 import { PopoverShare } from '../../components/PopoverShare';
 import { web3 } from '../../libs/web3';
@@ -419,7 +418,7 @@ export const NftIndividual = () => {
           <Grid item container direction="column" spacing={0}>
             <Grid item>
               <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
-                Latest Price
+                Last Purchase Price
               </Typography>
             </Grid>
             {lastSale ? (
@@ -531,10 +530,7 @@ export const NftIndividual = () => {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item container style={{ flexGrow: 1 }}>
-            <Rarity traits={traits} totalSupply={totalSupply} />
-          </Grid>
-          <Grid item>
+          <Grid item container direction="column">
             <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
               Traits
             </Typography>

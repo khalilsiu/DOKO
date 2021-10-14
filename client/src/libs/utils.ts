@@ -28,7 +28,7 @@ export const humanizeDate = (date: string) => {
   const year = _date.getFullYear();
   const day = _date.getDate();
   const month = _date.getMonth() + 1;
-  return `${day}/${month}/${year}`;
+  return `${year}/${month}/${day}`;
 };
 
 export const chainMapping = (chain: string) => {
@@ -56,13 +56,13 @@ export const getTotalSupply = async (address: string) => {
 
 export const sortTxsByDates = (txs: any[]) => {
   const _txs = txs.map((tx) => {
-    tx.date = moment(tx.date, 'DD/MM/YYYY').unix();
+    tx.date = moment(tx.date, 'YYYY/MM/DD').unix();
     return tx;
   });
   const sorted = _txs.sort((tx1: any, tx2: any) => tx2.date - tx1.date);
   // convert back to string
   const result = sorted.map((tx: any) => {
-    tx.date = moment(tx.date * 1000).format('DD/MM/YYYY');
+    tx.date = moment(tx.date * 1000).format('YYYY/MM/DD');
     return tx;
   });
   return result;

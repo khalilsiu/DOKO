@@ -8,7 +8,6 @@ interface NFtTraitsProps {
 }
 
 const useStyles = makeStyles(() => ({
-  traits: {},
   traitFooter: {
     marginTop: '1em',
     textAlign: 'center',
@@ -55,7 +54,7 @@ export const GradientSVG = () => {
 export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
   const styles = useStyles();
   return (
-    <Grid container justifyContent="flex-start" spacing={3} className="traits">
+    <Grid item container justifyContent="flex-start" spacing={3}>
       <GradientSVG />
       {traits.map((trait: any, i: any) => {
         const traitPercentage =
@@ -63,7 +62,7 @@ export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
             ? Math.round((trait.trait_count / totalSupply) * 100)
             : 0;
         const traitPercentageAvailable = !!traitPercentage;
-        const traitPercentageText = traitPercentageAvailable ? `${traitPercentage} %` : 'N/A';
+        const traitPercentageText = traitPercentageAvailable ? `${traitPercentage} %` : '';
         return (
           // eslint-disable-next-line react/no-array-index-key
           <Grid item container lg={2} xl={2} md={3} sm={4} xs={6} key={trait.trait_type + i}>
@@ -93,9 +92,11 @@ export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
                 <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
                   {trait.value}
                 </Typography>
-                <Typography variant="body1" style={{ fontStyle: 'italic' }}>
-                  {traitPercentage ? `${traitPercentage} %` : 'N/A'} have this trait
-                </Typography>
+                {traitPercentage !== 0 && (
+                  <Typography variant="body1" style={{ fontStyle: 'italic' }}>
+                    {traitPercentage !== 0 ? `${traitPercentage} %` : 'N/A'} have this trait
+                  </Typography>
+                )}
               </div>
             </Card>
           </Grid>
