@@ -7,6 +7,7 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 import { useMetaMask } from 'metamask-react';
 import CloseIcon from '@material-ui/icons/Close';
 
+import { useMediaQuery, useTheme } from '@material-ui/core';
 import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
 
@@ -98,10 +99,15 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [walletName, setWalletName] = useState<WalletName>();
   const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
   const [showWalletModal, setShowWalletModal] = useState(false);
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const connectMetaMask = async () => {
     try {
-      await connect();
+      if (isMobile) {
+        window.location.href = 'https://metamask.app.link/dapp/doko.one';
+      } else {
+        await connect();
+      }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('metamask connection', err);
@@ -168,7 +174,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
           renderHeader={() => (
             <div className={classes.modalHeader}>
               <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-                Connect Wallet
+                Connect Wallets
               </Typography>
               <IconButton style={{ color: 'white' }} onClick={() => setShowWalletModal(false)}>
                 <CloseIcon fontSize="medium" />
@@ -202,7 +208,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                 onClick={() => connectWallet()}
               >
                 <Typography variant="body1" style={{ fontWeight: 'bold' }}>
-                  Connect Wallet
+                  Connect Wallets
                 </Typography>
               </Button>
             </div>

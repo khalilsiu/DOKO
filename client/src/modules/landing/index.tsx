@@ -44,7 +44,7 @@ export const Landing = () => {
           disabled={loading}
           onClick={() => (address ? history.push(`/address/${address}`) : connect())}
         >
-          {address ? 'Your Profile' : 'Connect Wallet'}
+          {address ? 'Your Profile' : 'Connect Wallets'}
         </Button>
       </Container>
 
