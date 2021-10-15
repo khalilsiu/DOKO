@@ -1,7 +1,9 @@
+import { Dispatch, SetStateAction } from 'react';
+
 export interface ToolbarItemsProps {
-  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  setSearch: Dispatch<SetStateAction<string>>;
   search: string;
   loading: boolean;
   address: string | null;
-  login: () => void;
+  connect: () => void;
 }

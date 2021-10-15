@@ -3,12 +3,23 @@ import { useState } from 'react';
 import { minimizeAddress } from '../../../libs/utils';
 
 interface Props {
-  onLogin: () => void;
   address: string | null;
   loading: boolean;
+  connect: () => void;
 }
 
-export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Props) => {
+const useStyles = makeStyles(() => ({
+  loggedInBtn: {
+    borderRadius: 8,
+    color: 'white',
+    borderColor: 'white !important',
+    '& img': {
+      marginLeft: 8,
+    },
+  },
+}));
+
+export const HeaderUserButton = ({ address, loading, connect }: Props) => {
   const styles = useStyles();
   const [copied, setCopied] = useState(false);
 
@@ -34,20 +45,11 @@ export const HeaderUserButton = ({ onLogin = () => null, address, loading }: Pro
       className="gradient-button"
       disabled={loading}
       variant="outlined"
-      onClick={() => onLogin()}
+      onClick={() => connect()}
     >
-      Connect Metamask
+      Connect Wallets
     </Button>
   );
 };
 
-const useStyles = makeStyles(() => ({
-  loggedInBtn: {
-    borderRadius: 8,
-    color: 'white',
-    borderColor: 'white !important',
-    '& img': {
-      marginLeft: 8
-    }
-  }
-}));
+export default HeaderUserButton;

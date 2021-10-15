@@ -1,5 +1,5 @@
-import { configureStore } from "@reduxjs/toolkit";
-import auth, { AuthState } from "./reducers/auth";
+import { configureStore } from '@reduxjs/toolkit';
+import auth, { AuthState } from './reducers/auth';
 
 export interface State {
   auth: AuthState;

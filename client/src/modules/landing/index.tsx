@@ -1,6 +1,12 @@
-import { Button, Container, Grid, Typography, makeStyles } from '@material-ui/core';
 import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+
+import Meta from '../../components/Meta';
 import { AuthContext } from '../../contexts/AuthContext';
 
 export const Landing = () => {
@@ -10,18 +16,25 @@ export const Landing = () => {
     'landing/Polygon.png',
     'landing/Solana.png',
     'landing/Ronin.png',
-    'landing/Flow.png'
+    'landing/Flow.png',
   ];
+  // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
-  const { login, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext);
   const history = useHistory();
 
   return (
-    <div>
+    <>
+      <Meta
+        title="DOKO, The Multi-Chain NFT Portfolio Manager"
+        description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
+        url="https://doko.one"
+        image="/DOKO_LOGO.png"
+      />
       <Container maxWidth="lg" className={styles.landingTopSection}>
         <h1 className={styles.landingTopTitle}>All Your NFTs in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
-          View your NFT collection for any Ethereum, BSC and Polygon address under one single
+          View your NFT collection for any Ethereum, BSC, Polygon & Solana address under one single
           dashboard
         </h3>
         <Button
@@ -29,16 +42,16 @@ export const Landing = () => {
           className="gradient-button"
           variant="outlined"
           disabled={loading}
-          onClick={() => (address ? history.push(`/collections/${address}`) : login())}
+          onClick={() => (address ? history.push(`/address/${address}`) : connect())}
         >
-          {address ? 'Your Profile' : 'Connect Metamask'}
+          {address ? 'Your Profile' : 'Connect Wallets'}
         </Button>
       </Container>
 
       <section className={styles.betaSection}>
         <Container maxWidth="md">
           <Grid wrap="wrap" container alignItems="center" justifyContent="space-evenly">
-            {images.map(image => (
+            {images.map((image) => (
               <Grid item key={image} className={styles.betaSectionImage} sm={2} xs={4}>
                 <img height={42} src={image} alt="" />
               </Grid>
@@ -147,11 +160,11 @@ export const Landing = () => {
           <div className={styles.highlightText}>to Come!</div>
         </div>
       </section>
-    </div>
+    </>
   );
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   landingTopSection: {
     textAlign: 'center',
     color: 'white',
@@ -159,19 +172,19 @@ const useStyles = makeStyles(theme => ({
     display: 'flex !important',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   landingTopTitle: {
     fontSize: 64,
     fontFamily: 'Exo2',
-    marginTop: 0
+    marginTop: 0,
   },
   landingTopMiddleText: {
     maxWidth: '50%',
     margin: '0 auto',
     [theme.breakpoints.down('sm')]: {
-      maxWidth: '100%'
-    }
+      maxWidth: '100%',
+    },
   },
   highlightText: {
     fontWeight: 800,
@@ -179,14 +192,14 @@ const useStyles = makeStyles(theme => ({
     color: 'white',
     fontFamily: 'Exo2',
     [theme.breakpoints.down('sm')]: {
-      fontSize: 32
-    }
+      fontSize: 32,
+    },
   },
   numberText: {
     fontWeight: 600,
     fontSize: 78,
     color: 'white',
-    fontFamily: 'Exo2'
+    fontFamily: 'Exo2',
   },
   description: {
     fontWeight: 600,
@@ -194,29 +207,29 @@ const useStyles = makeStyles(theme => ({
     width: 240,
     fontFamily: 'Exo2',
     [theme.breakpoints.down('xs')]: {
-      width: 'unset'
-    }
+      width: 'unset',
+    },
   },
   betaSection: {
     background: '#ffffff',
     padding: '64px 0',
     position: 'relative',
     [theme.breakpoints.down('xs')]: {
-      padding: theme.spacing(1)
-    }
+      padding: theme.spacing(1),
+    },
   },
   betaSectionImage: {
     textAlign: 'center',
     [theme.breakpoints.down('xs')]: {
-      padding: theme.spacing(3)
-    }
+      padding: theme.spacing(3),
+    },
   },
   whatCanYouDoSection: {
     padding: 48,
     fontFamily: 'Exo2',
     [theme.breakpoints.down('sm')]: {
-      padding: 24
-    }
+      padding: 24,
+    },
   },
   whatYouCanDoItem: {
     padding: '0 84px 36px',
@@ -224,8 +237,8 @@ const useStyles = makeStyles(theme => ({
     '& > img': {
       width: '25%',
       [theme.breakpoints.down('sm')]: {
-        width: '300px'
-      }
+        width: '300px',
+      },
     },
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
@@ -235,17 +248,19 @@ const useStyles = makeStyles(theme => ({
       paddingBottom: 48,
       alignItems: 'start',
       '& > div': {
-        marginLeft: 0
-      }
-    }
+        marginLeft: 0,
+      },
+    },
   },
   whatCanYouDoTextContainer: {
     marginBottom: 84,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: 48
-    }
+      marginBottom: 48,
+    },
   },
   wereHereImage: {
-    width: '80px !important'
-  }
+    width: '80px !important',
+  },
 }));
+
+export default Landing;

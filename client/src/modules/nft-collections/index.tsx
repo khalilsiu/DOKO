@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  Button,
   Card,
   Grid,
   Hidden,
@@ -10,70 +9,124 @@ import {
   Tabs,
   Tooltip,
   Typography,
-  withStyles
+  withStyles,
 } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
-import { NFTItem } from './NFTItem';
+import { TabPanel, NftPagination, Meta } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
-import { TabPanel } from '../../components/TabPanel';
 import { Filter } from './Filter';
-import { Intro } from '../core/Intro';
-import { minimizeAddress } from '../../libs/utils';
+import Intro from '../core/Intro';
+import { isSolAddress, minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
+import CopyAddress from '../../components/CopyAddress';
+import EthNfts from './EthNfts';
+import SolNfts from './SolNfts';
+import SectionLabel from '../../components/SectionLabel';
+import { Summary } from './Summary';
 
 const CustomTabs = withStyles({
   root: {
-    width: '100%'
+    width: '100%',
   },
   flexContainer: {
-    borderBottom: '2px solid #46324a'
-  }
+    borderBottom: '2px solid #46324a',
+  },
 })(Tabs);
 
 const CustomTab = withStyles({
   wrapper: {
-    textTransform: 'none'
-  }
+    textTransform: 'none',
+  },
 })(Tab);
 
 const CustomIconButton = withStyles({
   disabled: {
-    color: '#333 !important'
-  }
+    color: '#333 !important',
+  },
 })(IconButton);
 
 let syncInterval: any;
 
-export const NftCollections = (): JSX.Element => {
+const useStyles = makeStyles((theme) => ({
+  collectionPageContainer: {
+    padding: 24,
+    marginTop: 36,
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    minHeight: 'calc(100vh)',
+  },
+  introCard: {
+    position: 'sticky',
+    top: 120,
+  },
+  itemsContainer: {
+    paddingLeft: 36,
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 0,
+    },
+  },
+  nftsContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridAutoRows: '1fr',
+    columnGap: 12,
+    rowGap: 12,
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: 'repeat(3, 1fr)',
+    },
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+    [theme.breakpoints.down('xs')]: {
+      gridTemplateColumns: 'repeat(1, 1fr)',
+    },
+  },
+  addressContainer: {
+    marginBottom: 24,
+    [theme.breakpoints.down('xs')]: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  },
+  addressText: {
+    fontWeight: 'bolder',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 30,
+    },
+  },
+}));
+
+export const NftCollections = () => {
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
-  const [allLoaded, setAllLoaded] = useState(false);
   const [filter, setFilter] = useState<any>({});
-  const [copied, setCopied] = useState(false);
   const [syncStatus, setSyncStatus] = useState<any>(null);
+  const [page, setPage] = useState(0);
 
-  const fetchNfts = async (offset: number, reset = false) => {
+  const fetchNfts = async () => {
+    setNFTs([]);
+
     if (!address) {
       return;
     }
     setLoading(true);
 
     try {
-      console.log(offset);
-      const res = await getNFTs(address, offset, filter);
-      setNFTs(nfts => (reset ? res.data : [...nfts, ...res.data]));
-      setAllLoaded(res.data.length < 12);
-    } catch (err) {}
+      const res = await getNFTs(address, (page - 1) * 12, filter);
+      const items = res.data;
+      setNFTs(items);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setNFTs([]);
+    }
     setLoading(false);
-  };
-
-  const loadMore = () => {
-    fetchNfts(nfts.length);
   };
 
   const checkSyncStatus = async () => {
@@ -85,18 +138,18 @@ export const NftCollections = (): JSX.Element => {
         clearInterval(syncInterval);
 
         if (Date.now() / 1000 - sync.timestamp < 5000 && sync.sync_status === 'done') {
-          fetchNfts(0, true);
+          setPage(1);
         }
       }
       setSyncStatus(sync);
     } catch (err) {
-      syncStatus || setSyncStatus({});
+      if (!syncStatus) {
+        setSyncStatus({});
+      }
     }
   };
 
-  useEffect(() => {
-    return () => clearInterval(syncInterval);
-  }, []);
+  useEffect(() => () => clearInterval(syncInterval), []);
 
   useEffect(() => {
     clearInterval(syncInterval);
@@ -109,24 +162,20 @@ export const NftCollections = (): JSX.Element => {
 
     syncInterval = setInterval(() => checkSyncStatus(), 3000);
     checkSyncStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   useEffect(() => {
-    setNFTs([]);
-    setAllLoaded(false);
-    fetchNfts(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (page === 1) {
+      fetchNfts();
+    } else {
+      setPage(1);
+    }
   }, [address, filter]);
 
-  const copy = () => {
-    if (copied) {
-      return;
-    }
-    navigator.clipboard.writeText(address);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  useEffect(() => {
+    // eslint-disable-next-line no-unused-expressions
+    page && fetchNfts();
+  }, [page]);
 
   const reIndex = () => {
     indexAddress(address, true);
@@ -137,131 +186,123 @@ export const NftCollections = (): JSX.Element => {
   };
 
   return (
-    <Grid container wrap="nowrap" className={styles.collectionContainer}>
-      {
+    <>
+      <Meta
+        title={`${address} - Profile | DOKO`}
+        description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
+        url="https://doko.one"
+        image="/DOKO_LOGO.png"
+      />
+      <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>
           <Grid item>
             <Card className={styles.introCard}>
-              <Intro />
+              <Intro drawer={false} />
             </Card>
           </Grid>
         </Hidden>
-      }
-      <Grid className={styles.itemsContainer} container direction="column" alignItems="flex-start">
-        <Grid container justifyContent="space-between" alignItems="center">
-          <Grid item>
-            <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-              {minimizeAddress(address)}
-              <Tooltip title="Refetch all of your nfts">
-                <CustomIconButton
-                  disabled={
-                    !syncStatus ||
-                    syncStatus.sync_status === 'progress' ||
-                    syncStatus.sync_status === 'new'
-                  }
-                  onClick={() => reIndex()}
-                  color="secondary"
+        <Grid
+          className={styles.itemsContainer}
+          container
+          direction="column"
+          alignItems="flex-start"
+        >
+          <Grid
+            container
+            justifyContent="space-between"
+            alignItems="center"
+            className={styles.addressContainer}
+          >
+            <Grid item xs={12} md="auto">
+              <Grid container direction="column" className={styles.addressContainer}>
+                <Typography
+                  className={styles.addressText}
+                  variant="h5"
+                  style={{ fontWeight: 'bolder' }}
                 >
-                  <RefreshOutlinedIcon />
-                </CustomIconButton>
-              </Tooltip>
-            </Typography>
-            <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
-              <Grid className="hover-button" container alignItems="center" onClick={() => copy()}>
-                <Typography variant="h6" style={{ lineHeight: 2 }}>
                   {minimizeAddress(address)}
+                  <Tooltip title="Refetch all of your nfts">
+                    <CustomIconButton
+                      disabled={
+                        !syncStatus ||
+                        syncStatus.sync_status === 'progress' ||
+                        syncStatus.sync_status === 'new'
+                      }
+                      onClick={() => reIndex()}
+                      color="secondary"
+                    >
+                      <RefreshOutlinedIcon />
+                    </CustomIconButton>
+                  </Tooltip>
                 </Typography>
-                <IconButton>
-                  <img height={13} src="/copy.png" alt="" />
-                </IconButton>
+                <Grid item>
+                  <CopyAddress address={address} />
+                </Grid>
               </Grid>
-            </Tooltip>
+            </Grid>
+            <Grid item xs={6}>
+              <Hidden xsDown>
+                <Grid container justifyContent="flex-end">
+                  <AddressStatus status={syncStatus} loader={false} />
+                </Grid>
+              </Hidden>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <Hidden xsDown>
+          <CustomTabs
+            indicatorColor="primary"
+            textColor="primary"
+            value={tabValue}
+            onChange={(event, newValue) => setTabValue(newValue)}
+          >
+            <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
+          </CustomTabs>
+
+          <TabPanel index={0} value={tabValue}>
+            <Hidden smUp>
               <Grid container justifyContent="flex-end">
                 <AddressStatus status={syncStatus} loader={false} />
               </Grid>
             </Hidden>
-          </Grid>
-        </Grid>
-        <CustomTabs
-          indicatorColor="primary"
-          textColor="primary"
-          value={tabValue}
-          onChange={(event, newValue) => setTabValue(newValue)}
-        >
-          <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
-        </CustomTabs>
 
-        <TabPanel index={0} value={tabValue}>
-          <Hidden smUp>
-            <Grid container justifyContent="flex-end">
-              <AddressStatus status={syncStatus} loader={false} />
-            </Grid>
-          </Hidden>
-          <Filter onChange={setFilter} />
-          <div className={styles.nftsContainer}>
-            {nfts.map(nft => (
-              <NFTItem key={nft._id} nft={nft} />
-            ))}
-          </div>
-          {nfts.length ? (
-            allLoaded ? (
-              <></>
+            <Summary address={address} />
+
+            <EthNfts address={address} />
+
+            <SolNfts address={address} />
+
+            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
+              BSC & Polygon NFTs (Beta)
+            </SectionLabel>
+            <Filter onChange={setFilter} />
+            <NftPagination
+              nfts={nfts}
+              page={page}
+              onNext={() => setPage(page + 1)}
+              onPrev={() => setPage(page - 1)}
+              loading={loading}
+            />
+            {/* {nfts.length ? (
+              allLoaded ? (
+                <></>
+              ) : (
+                <Button
+                  style={{ margin: '24px 0' }}
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => loadMore()}
+                  disabled={loading || allLoaded}
+                >
+                  Show More
+                </Button>
+              )
             ) : (
-              <Button
-                style={{ margin: '24px 0' }}
-                variant="outlined"
-                color="primary"
-                onClick={() => loadMore()}
-                disabled={loading || allLoaded}
-              >
-                Show More
-              </Button>
-            )
-          ) : (
-            <AddressStatus status={syncStatus} loader />
-          )}
-        </TabPanel>
+              <AddressStatus status={syncStatus} loader />
+            )} */}
+          </TabPanel>
+        </Grid>
       </Grid>
-    </Grid>
+    </>
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  collectionContainer: {
-    padding: 24,
-    marginTop: 36,
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column'
-    },
-    minHeight: 'calc(100vh)'
-  },
-  introCard: {
-    position: 'sticky',
-    top: 120
-  },
-  itemsContainer: {
-    paddingLeft: 36,
-    [theme.breakpoints.down('sm')]: {
-      paddingLeft: 0
-    }
-  },
-  nftsContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gridAutoRows: '1fr',
-    columnGap: 12,
-    rowGap: 12,
-    [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(3, 1fr)'
-    },
-    [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: 'repeat(2, 1fr)'
-    },
-    [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: 'repeat(1, 1fr)'
-    }
-  }
-}));
+export default NftCollections;

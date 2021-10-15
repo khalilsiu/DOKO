@@ -2,7 +2,7 @@ import { CircularProgress, Grid, Typography } from '@material-ui/core';
 
 interface Props {
   status: any;
-  loader?: boolean;
+  loader: boolean;
 }
 
 export const AddressStatus = ({ status, loader = true }: Props) => {
@@ -35,3 +35,5 @@ export const AddressStatus = ({ status, loader = true }: Props) => {
       return <></>;
   }
 };
+
+export default AddressStatus;

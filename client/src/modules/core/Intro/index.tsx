@@ -8,25 +8,26 @@ import { DrawerContext } from '../../../contexts/DrawerContext';
 const socialLinks = [
   {
     image: '/social/Twitter.png',
-    link: 'https://twitter.com/doko_nft'
+    link: 'https://twitter.com/doko_nft',
   },
   {
     image: '/social/Discord.png',
-    link: 'https://discord.gg/cNvKMpbU5C'
+    link: 'https://discord.gg/cNvKMpbU5C',
   },
   {
     image: '/social/Medium.png',
-    link: 'https://medium.com/doko-one'
-  }
+    link: 'https://medium.com/doko-one',
+  },
 ];
 
 interface Props {
-  drawer?: boolean;
+  drawer: boolean;
 }
 
-export const Intro = ({ drawer = false }: Props) => {
-  const { login, loading, address } = useContext(AuthContext);
+const Intro = ({ drawer = false }: Props) => {
+  const { connect, loading, address } = useContext(AuthContext);
   const { toggle } = useContext(DrawerContext);
+  // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
 
   return (
@@ -44,13 +45,13 @@ export const Intro = ({ drawer = false }: Props) => {
           <CloseIcon />
         </IconButton>
       )}
-      <Grid item className={styles.robotIcon}></Grid>
+      <Grid item className={styles.robotIcon} />
 
       <Grid item style={{ paddingLeft: 36, paddingRight: 36 }}>
         <Grid container direction="column" alignItems="center" spacing={2}>
           <Grid item>
             {address ? (
-              <Link style={{ textDecoration: 'none' }} to={`/collections/${address}`}>
+              <Link style={{ textDecoration: 'none' }} to={`/address/${address}`}>
                 <Button className={styles.profileButton}>
                   <img width={16} src="/CollectionsIcon.png" alt="" />
                   <span style={{ marginLeft: 12, color: 'white' }}>Your Profile</span>
@@ -60,10 +61,10 @@ export const Intro = ({ drawer = false }: Props) => {
               <Button
                 disabled={loading}
                 variant="outlined"
-                className={'gradient-button ' + styles.aboutDokoButton}
-                onClick={() => login()}
+                className={`gradient-button ${styles.aboutDokoButton}`}
+                onClick={() => connect()}
               >
-                Connect Metamask
+                Connect Wallets
               </Button>
             )}
           </Grid>
@@ -85,7 +86,7 @@ export const Intro = ({ drawer = false }: Props) => {
 
       <Grid item style={{ width: '100%' }}>
         <Grid className={styles.socialLinks} container spacing={3} justifyContent="center">
-          {socialLinks.map(s => (
+          {socialLinks.map((s) => (
             <Grid item key={s.image}>
               <a rel="noreferrer" href={s.link} target="_blank">
                 <img width={28} src={s.image} alt="" />
@@ -98,10 +99,10 @@ export const Intro = ({ drawer = false }: Props) => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   introContainer: {
     padding: '36px 0 0',
-    position: 'relative'
+    position: 'relative',
   },
   robotIcon: {
     borderRadius: '50%',
@@ -113,7 +114,7 @@ const useStyles = makeStyles(theme => ({
     background: 'url(/Robot.png)',
     backgroundPosition: 'center',
     backgroundSize: 'cover',
-    marginBottom: 24
+    marginBottom: 24,
   },
   profileButton: {
     background: `linear-gradient(
@@ -126,22 +127,24 @@ const useStyles = makeStyles(theme => ({
     )`,
     padding: '8px 20px',
     width: 200,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   aboutDokoButton: {
     padding: '8px 20px',
     width: 200,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   socialLinks: {
     marginTop: 80,
     padding: '16px 0',
     background: '#efefef',
-    borderTop: '1px solid #ccc'
+    borderTop: '1px solid #ccc',
   },
   closeButton: {
     position: 'absolute',
     right: 12,
-    top: 12
-  }
+    top: 12,
+  },
 }));
+
+export default Intro;
