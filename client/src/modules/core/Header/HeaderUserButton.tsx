@@ -47,7 +47,7 @@ export const HeaderUserButton = ({ address, loading, connect }: Props) => {
       variant="outlined"
       onClick={() => connect()}
     >
-      Connect Wallets
+      Connect Wallet
     </Button>
   );
 };
