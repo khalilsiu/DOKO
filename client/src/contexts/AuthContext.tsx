@@ -174,7 +174,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
           renderHeader={() => (
             <div className={classes.modalHeader}>
               <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-                Connect Wallets
+                Connect Wallet
               </Typography>
               <IconButton style={{ color: 'white' }} onClick={() => setShowWalletModal(false)}>
                 <CloseIcon fontSize="medium" />
@@ -192,7 +192,10 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                   onClick={() => setWalletSelected(wallet)}
                   onKeyDown={() => setWalletSelected(wallet)}
                 >
-                  <img src={wallet.icon} alt="" className={classes.walletImage} />
+                  <div className={classes.walletImage}>
+                    <img src={wallet.icon} alt="" style={{ width: '3rem', height: '3rem' }} />
+
+                  </div>
                   <Typography variant="subtitle2" className={classes.walletName}>
                     {wallet.label}
                   </Typography>
@@ -208,7 +211,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                 onClick={() => connectWallet()}
               >
                 <Typography variant="body1" style={{ fontWeight: 'bold' }}>
-                  Connect Wallets
+                  Connect Wallet
                 </Typography>
               </Button>
             </div>
