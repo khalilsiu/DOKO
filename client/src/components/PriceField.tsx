@@ -1,4 +1,5 @@
 import { Grid, Typography } from '@material-ui/core';
+import { formatPrice } from '../libs/utils';
 
 interface Props {
   title: string;
@@ -6,7 +7,7 @@ interface Props {
 }
 
 export default function PriceField({ title, value }: Props) {
-  const disp = value && value > 1000 ? `${parseFloat(`${value / 1000}`).toFixed(1)}K` : value;
+  const disp = formatPrice(+value, 2);
 
   return (
     <>

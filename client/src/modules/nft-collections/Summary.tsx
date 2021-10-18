@@ -10,13 +10,16 @@ import SectionLabel from '../../components/SectionLabel';
 
 const ChainContainer = withStyles((theme) => ({
   root: {
-    padding: '28px 30px',
+    padding: '28px 30px 24px',
     borderRadius: 15,
     border: '2px solid white',
     marginTop: 10,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
     },
+    // [theme.breakpoints.between('md', 'lg')]: {
+    //   flexDirection: 'column',
+    // },
   },
 }))(Grid);
 
@@ -27,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: 0,
       marginTop: 12,
     },
+    // [theme.breakpoints.between('md', 'lg')]: {
+    //   marginLeft: 0,
+    //   marginTop: 12,
+    // },
   },
 }));
 
@@ -89,42 +96,44 @@ export const Summary = ({ address }: Props) => {
       <Grid style={{ marginTop: 32, marginBottom: 64 }} container spacing={2}>
         {chains.map((item) => (
           <Grid item key={item.name} xs={12} sm={6} lg={3}>
-            <Grid container alignItems="center">
-              <img width={30} src={item.icon} alt={item.name} style={{ borderRadius: '50%' }} />
-              <Typography
-                style={{ marginLeft: 12, fontWeight: 700, fontSize: 14 }}
-                component="strong"
-              >
-                {item.name}
-              </Typography>
-            </Grid>
-            <ChainContainer container wrap="nowrap">
-              <Grid item>
-                <Typography style={{ fontSize: 14 }}>Total NFTs</Typography>
-                <Typography style={{ fontSize: 18, fontWeight: 700 }}>{item.count}</Typography>
-              </Grid>
-              <Grid item className={classes.chainInfo}>
-                <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
+            <Grid container direction="column" style={{ height: '100%' }}>
+              <Grid container alignItems="center">
+                <img width={30} src={item.icon} alt={item.name} style={{ borderRadius: '50%' }} />
                 <Typography
-                  component="div"
-                  style={{ fontSize: 18, fontWeight: 700, opacity: item.available ? 1 : 0.5 }}
+                  style={{ marginLeft: 12, fontWeight: 700, fontSize: 14 }}
+                  component="strong"
                 >
-                  {item.available ? (
-                    <Grid container alignItems="center">
-                      <img
-                        style={{ marginRight: 8 }}
-                        src="/collection/DOKOasset_EthereumBlue.png"
-                        width={10}
-                        alt="ETH"
-                      />
-                      {parseFloat(`${item.price}`).toFixed(3)}
-                    </Grid>
-                  ) : (
-                    'Coming Soon'
-                  )}
+                  {item.name}
                 </Typography>
               </Grid>
-            </ChainContainer>
+              <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
+                <Grid item>
+                  <Typography style={{ fontSize: 14 }}>Total NFTs</Typography>
+                  <Typography style={{ fontSize: 18, fontWeight: 700 }}>{item.count}</Typography>
+                </Grid>
+                <Grid item className={classes.chainInfo}>
+                  <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
+                  <Typography
+                    component="div"
+                    style={{ fontSize: 18, fontWeight: 700, opacity: item.available ? 1 : 0.5 }}
+                  >
+                    {item.available ? (
+                      <Grid container alignItems="center">
+                        <img
+                          style={{ marginRight: 8 }}
+                          src="/collection/DOKOasset_EthereumBlue.png"
+                          width={10}
+                          alt="ETH"
+                        />
+                        {parseFloat(`${item.price}`).toFixed(3)}
+                      </Grid>
+                    ) : (
+                      'Coming Soon'
+                    )}
+                  </Typography>
+                </Grid>
+              </ChainContainer>
+            </Grid>
           </Grid>
         ))}
       </Grid>

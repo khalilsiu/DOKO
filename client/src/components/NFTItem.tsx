@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable no-param-reassign */
-import { useState } from 'react';
+import { memo, MouseEvent, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -30,7 +30,7 @@ interface NFTItemProps {
   nft: any;
 }
 
-export const NFTItem = ({ nft }: NFTItemProps) => {
+export const NFTItem = memo(({ nft }: NFTItemProps) => {
   const history = useHistory();
 
   if (nft.metadata && !nft.metadata.image && nft.metadata.image_data) {
@@ -45,8 +45,12 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
-  const share = (type: 'facebook' | 'twitter') => {
-    const url = `${window.origin}/nft/${nft.token_address}/${nft.token_id}`;
+  const nftPath = `/nft/${nft.chain}/${nft.token_address}/${nft.token_id}`;
+
+  const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
+    e.stopPropagation();
+
+    const url = `${window.origin}${nftPath}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT portfolio on DOKO at now!`,
       twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT portfolio on @doko_nft now! ${url}`,
@@ -57,9 +61,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   const [error, setError] = useState(false);
 
   const onClickCard = () => {
-    // eslint-disable-next-line no-console
-    console.log(nft.chain);
-    history.push(`/nft/${nft.chain}/${nft.token_address}/${nft.token_id}`);
+    history.push(nftPath);
   };
 
   return (
@@ -140,11 +142,11 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
             placement="bottom-end"
           >
             <MenuList>
-              <MenuItem className={styles.shareItem} onClick={() => share('facebook')}>
+              <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>
                 <img src={facebook} alt="facebook" />
                 Share on Facebook
               </MenuItem>
-              <MenuItem className={styles.shareItem} onClick={() => share('twitter')}>
+              <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'twitter')}>
                 <img src={twitter} alt="twitter" />
                 Share on Twitter
               </MenuItem>
@@ -154,7 +156,7 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
       </Card>
     </div>
   );
-};
+});
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {

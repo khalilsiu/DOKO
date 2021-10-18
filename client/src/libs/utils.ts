@@ -159,3 +159,21 @@ export function isValidHttpUrl(str: string) {
 export function isSolAddress(address: string) {
   return !address.startsWith('0x') && address.length >= 32 && address.length <= 44;
 }
+
+export function formatPrice(label: number, decimals: number = 1) {
+  const lookup = [
+    { value: 1, symbol: '' },
+    { value: 1e3, symbol: 'K' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e9, symbol: 'G' },
+    { value: 1e12, symbol: 'T' },
+    { value: 1e15, symbol: 'P' },
+    { value: 1e18, symbol: 'E' },
+  ];
+  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+  const item = lookup
+    .slice()
+    .reverse()
+    .find((i) => label >= i.value);
+  return item ? (label / item.value).toFixed(decimals).replace(rx, '$1') + item.symbol : '0';
+}

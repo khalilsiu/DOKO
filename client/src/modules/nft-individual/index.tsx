@@ -332,7 +332,7 @@ export const NftIndividual = () => {
             <CustomIconButton>
               <img className={styles.shareIcon} src={backbutton} alt="back" />
             </CustomIconButton>
-            <PopoverShare />
+            <PopoverShare address={address} tokenId={id} chain={chain} name={nftName} />
           </Grid>
         </Grid>
         <Grid
@@ -387,7 +387,7 @@ export const NftIndividual = () => {
               <CustomIconButton onClick={history.goBack}>
                 <img className={styles.shareIcon} src={backbutton} alt="back" />
               </CustomIconButton>
-              <PopoverShare />
+              <PopoverShare address={address} tokenId={id} chain={chain} name={nftName} />
             </Grid>
           </Grid>
           <Grid

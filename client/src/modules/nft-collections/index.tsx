@@ -18,7 +18,7 @@ import { TabPanel, NftPagination, Meta } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { Filter } from './Filter';
 import Intro from '../core/Intro';
-import { isSolAddress, minimizeAddress } from '../../libs/utils';
+import { minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
 import CopyAddress from '../../components/CopyAddress';
 import EthNfts from './EthNfts';
@@ -281,23 +281,6 @@ export const NftCollections = () => {
               onPrev={() => setPage(page - 1)}
               loading={loading}
             />
-            {/* {nfts.length ? (
-              allLoaded ? (
-                <></>
-              ) : (
-                <Button
-                  style={{ margin: '24px 0' }}
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => loadMore()}
-                  disabled={loading || allLoaded}
-                >
-                  Show More
-                </Button>
-              )
-            ) : (
-              <AddressStatus status={syncStatus} loader />
-            )} */}
           </TabPanel>
         </Grid>
       </Grid>

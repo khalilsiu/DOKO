@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, memo } from 'react';
 import { IconButton, MenuList, MenuItem, makeStyles, withStyles } from '@material-ui/core';
 
 import { Popover } from './Popover';
@@ -38,17 +37,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const PopoverShare = ({ name }: any) => {
+interface Props {
+  name: string;
+  chain: string;
+  address: string;
+  tokenId: string;
+}
+
+export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
   const styles = useStyles();
-  const { address, id } = useParams<{ address: string; id: string }>();
   const [shareActive, setShareActive] = useState(false);
 
   const share = (type: 'facebook' | 'twitter') => {
-    const url = `${window.origin}/nft/${address}/${id}`;
+    const url = `${window.origin}/nft/${chain}/${address}/${tokenId}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now! ${url}`,
-      instagram: '',
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now!`,
     };
     window.open(link[type], '_blank');
   };
@@ -82,6 +86,6 @@ export const PopoverShare = ({ name }: any) => {
       </MenuList>
     </Popover>
   );
-};
+});
 
 export default PopoverShare;
