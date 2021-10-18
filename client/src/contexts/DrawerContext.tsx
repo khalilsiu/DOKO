@@ -1,4 +1,4 @@
-import { Drawer } from '@material-ui/core';
+import Drawer from '@material-ui/core/Drawer';
 import { createContext, PropsWithChildren, useState } from 'react';
 
 interface DrawerContextValue {

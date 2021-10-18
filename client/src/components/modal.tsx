@@ -1,5 +1,8 @@
-import { makeStyles, Modal, Box, Divider } from '@material-ui/core';
 import { ReactNode } from 'react';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import Modal from '@material-ui/core/Modal';
+import Box from '@material-ui/core/Box';
+import Divider from '@material-ui/core/Divider';
 
 interface UIModalProps {
   klasses?: string;

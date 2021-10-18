@@ -1,13 +1,14 @@
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useMetaMask } from 'metamask-react';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import { useMetaMask } from 'metamask-react';
 import CloseIcon from '@material-ui/icons/Close';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useTheme from '@material-ui/core/styles/useTheme';
 
-import { useMediaQuery, useTheme } from '@material-ui/core';
 import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
 
@@ -194,7 +195,6 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                 >
                   <div className={classes.walletImage}>
                     <img src={wallet.icon} alt="" style={{ width: '3rem', height: '3rem' }} />
-
                   </div>
                   <Typography variant="subtitle2" className={classes.walletName}>
                     {wallet.label}

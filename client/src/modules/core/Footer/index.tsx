@@ -1,4 +1,8 @@
-import { Grid, makeStyles, Typography, withStyles } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import withStyles from '@material-ui/core/styles/withStyles';
+import { memo } from 'react';
 
 const socialLinks = [
   {
@@ -40,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Footer = () => {
+export const Footer = memo(() => {
   const styles = useStyles();
 
   return (
@@ -69,6 +73,6 @@ export const Footer = () => {
       </Grid>
     </FooterContainer>
   );
-};
+});
 
 export default Footer;

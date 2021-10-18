@@ -53,7 +53,7 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
     const url = `${window.origin}${nftPath}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT portfolio on DOKO at now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT portfolio on @doko_nft now! ${url}`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT portfolio on @doko_nft now!`,
       instagram: '',
     };
     window.open(link[type], '_blank');
