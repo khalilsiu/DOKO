@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable no-param-reassign */
-import { memo, MouseEvent, useState } from 'react';
+import { memo, MouseEvent, SyntheticEvent, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -10,13 +10,12 @@ import {
   Grid,
   IconButton,
   makeStyles,
+  Menu,
   MenuItem,
-  MenuList,
   Typography,
 } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
-import { Popover } from './Popover';
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
@@ -49,11 +48,12 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
 
   const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
     e.stopPropagation();
+    const name = nft.metadata.name ? nft.metadata.name : `${nft.name} # ${nft.token_id}`;
 
     const url = `${window.origin}${nftPath}`;
     const link = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT portfolio on DOKO at now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT portfolio on @doko_nft now!`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO at now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now!`,
       instagram: '',
     };
     window.open(link[type], '_blank');
@@ -62,6 +62,19 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
 
   const onClickCard = () => {
     history.push(nftPath);
+  };
+
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (e: SyntheticEvent) => {
+    e.stopPropagation();
+    setAnchorEl(null);
   };
 
   return (
@@ -126,22 +139,19 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
             src={{ eth, bsc, polygon, solana }[nft.chain as string]}
             alt={nft.chain}
           />
-          <Popover
-            reference={
-              <IconButton
-                onMouseEnter={() => setShareActive(true)}
-                onMouseLeave={() => setShareActive(false)}
-              >
-                {shareActive ? (
-                  <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
-                ) : (
-                  <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
-                )}
-              </IconButton>
-            }
-            placement="bottom-end"
-          >
-            <MenuList>
+          <div>
+            <IconButton
+              onMouseEnter={() => setShareActive(true)}
+              onMouseLeave={() => setShareActive(false)}
+              onClick={handleClick}
+            >
+              {shareActive ? (
+                <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
+              ) : (
+                <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
+              )}
+            </IconButton>
+            <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
               <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>
                 <img src={facebook} alt="facebook" />
                 Share on Facebook
@@ -150,8 +160,8 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
                 <img src={twitter} alt="twitter" />
                 Share on Twitter
               </MenuItem>
-            </MenuList>
-          </Popover>
+            </Menu>
+          </div>
         </CardActions>
       </Card>
     </div>

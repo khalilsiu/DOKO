@@ -1,9 +1,6 @@
-import { useState, memo } from 'react';
-import { IconButton, MenuList, MenuItem, makeStyles, withStyles } from '@material-ui/core';
+import { useState, memo, SyntheticEvent, MouseEvent } from 'react';
+import { IconButton, MenuItem, makeStyles, withStyles, Menu } from '@material-ui/core';
 
-import { Popover } from './Popover';
-import activeShare from '../assets/active-share.png';
-import inactiveShare from '../assets/inactive-share-white.png';
 import facebook from '../assets/facebook.png';
 import twitter from '../assets/twitter.png';
 
@@ -48,7 +45,9 @@ export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
 
-  const share = (type: 'facebook' | 'twitter') => {
+  const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
+    e.stopPropagation();
+
     const url = `${window.origin}/nft/${chain}/${address}/${tokenId}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
@@ -57,34 +56,43 @@ export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
     window.open(link[type], '_blank');
   };
 
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (e: SyntheticEvent) => {
+    e.stopPropagation();
+    setAnchorEl(null);
+  };
+
   return (
-    <Popover
-      style={{ display: 'inline-block' }}
-      reference={
-        <CustomIconButton
-          onMouseEnter={() => setShareActive(true)}
-          onMouseLeave={() => setShareActive(false)}
-        >
-          {shareActive ? (
-            <img className={styles.shareIcon} src={activeShare} alt="share" />
-          ) : (
-            <img className={styles.shareIcon} src={inactiveShare} alt="share" />
-          )}
-        </CustomIconButton>
-      }
-      placement="bottom-end"
-    >
-      <MenuList>
-        <MenuItem className={styles.shareItem} onClick={() => share('facebook')}>
+    <>
+      <CustomIconButton
+        onMouseEnter={() => setShareActive(true)}
+        onMouseLeave={() => setShareActive(false)}
+        onClick={handleClick}
+      >
+        {shareActive ? (
+          <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
+        ) : (
+          <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
+        )}
+      </CustomIconButton>
+      <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+        <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>
           <img src={facebook} alt="facebook" />
           Share on Facebook
         </MenuItem>
-        <MenuItem className={styles.shareItem} onClick={() => share('twitter')}>
+        <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'twitter')}>
           <img src={twitter} alt="twitter" />
           Share on Twitter
         </MenuItem>
-      </MenuList>
-    </Popover>
+      </Menu>
+    </>
   );
 });
 

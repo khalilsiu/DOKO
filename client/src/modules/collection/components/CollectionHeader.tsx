@@ -87,10 +87,10 @@ interface Props {
 export default function CollectionHeader({ collection, tab, setTab }: Props) {
   const styles = useStyles();
   const share = (type: 'facebook' | 'twitter') => {
-    const url = `${window.origin}/collections/${collection.primary_asset_contracts[0].address}`;
+    const url = `${window.origin}/collections/${collection.contractAddress}`;
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${collection.name} collection on DOKO at now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${collection.name} collection on @doko_nft now! ${url}`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${collection.name} collection on @doko_nft now!`,
       instagram: '',
     };
     window.open(link[type], '_blank');
@@ -117,7 +117,7 @@ export default function CollectionHeader({ collection, tab, setTab }: Props) {
               {collection.name}
             </CustomTypography>
             <Grid item>
-              <CopyAddress address={collection.primary_asset_contracts[0].address} />
+              <CopyAddress address={collection.contractAddress} />
             </Grid>
             <Hidden lgUp>
               <Grid item style={{ marginTop: 24 }}>

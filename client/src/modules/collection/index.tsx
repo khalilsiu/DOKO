@@ -62,7 +62,7 @@ export default function Collection() {
 
       if (page === 1) {
         const res = await getCollectionDetail(address, assets[0].token_id);
-        setCollection(res);
+        setCollection({ ...res, contractAddress: address });
       }
     } catch (err) {
       // eslint-disable-next-line no-console
