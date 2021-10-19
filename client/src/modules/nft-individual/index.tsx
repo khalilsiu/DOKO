@@ -19,15 +19,18 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useParams, useHistory } from 'react-router-dom';
 import eth from 'cryptocurrency-icons/32/white/eth.png';
 import bsc from 'cryptocurrency-icons/32/white/bnb.png';
+import solana from 'cryptocurrency-icons/32/white/sol.png';
 
 import Moralis from '../../libs/moralis';
 import { fetchOpenSeaEvents, fetchNFTOpensea } from './api';
 import { NftTraits } from './traits';
+import { SolanaNftTraits } from './solanaTraits';
 import { CopyAddress } from './CopyAddress';
 import { PopoverShare } from '../../components/PopoverShare';
 import { web3 } from '../../libs/web3';
 import { normalizeImageURL, chainMapping, formatTx, getTotalSupply } from '../../libs/utils';
 import { getNFT, fetchOpenseaLastSale } from '../api';
+import { getTokenInfo, getSolanaNFTMetadata, getTokenOwner } from '../../libs/metaplex/utils';
 import backbutton from '../../assets/back-button.png';
 import opensea_icon from '../../assets/opensea-transparent.png';
 import loading_image from '../../assets/loading.gif';
@@ -167,6 +170,10 @@ export const NftIndividual = () => {
         icon = bsc;
         break;
       }
+      case 'solana': {
+        icon = solana;
+        break;
+      }
       default:
         break;
     }
@@ -180,7 +187,24 @@ export const NftIndividual = () => {
 
     try {
       let _nft;
-      if (chain !== 'eth') {
+      let _metadata;
+      if (chain === 'solana') {
+        const res: any = await getTokenInfo(id);
+        const metadataRes: any = await getSolanaNFTMetadata(res);
+        const tokenOwner: any = await getTokenOwner(id);
+        _nft = res.data;
+        _metadata = metadataRes.metadata.data;
+        setCreator(_nft.creators[0].address);
+        setNFT(_nft);
+        setOwner(tokenOwner);
+        setNftName(_nft.name);
+        setNftImage(_metadata.image);
+        setNftDesc(_metadata.description);
+        setCollection(_metadata.symbol);
+        const _traits =
+          'attributes' in _metadata ? _metadata.attributes : [];
+        setTraits(_traits);
+      } else if (chain !== 'eth') {
         const res = await getNFT(address, id);
         _nft = res.data;
         setNFT(_nft);
@@ -217,6 +241,9 @@ export const NftIndividual = () => {
   ) => {
     let formatted_txs: Array<any> = [];
     try {
+      if (_chain === 'solana') {
+        return;
+      }
       if (_chain !== 'eth') {
         const options: any = { address, token_id: id, chain };
         const transfers = await (Moralis.Web3API as any).token.getWalletTokenIdTransfers(options);
@@ -481,7 +508,22 @@ export const NftIndividual = () => {
                 </Link>
               </Grid>
             ) : (
-              ''
+              chain === 'solana' ? (
+                <Grid item style={{ marginTop: '.9em' }}>
+                  <Link
+                    style={{ textDecoration: 'none' }}
+                    target="_blank"
+                    href={`https://solsea.io/nft/${id}`}
+                  >
+                    <Button className={styles.profileButton}>
+                      <img width={16} src={opensea_icon} alt="" />
+                      <span style={{ marginLeft: 12, color: 'white' }}>View on Solsea</span>
+                    </Button>
+                  </Link>
+                </Grid>
+              ) : (
+                ''
+              )
             )}
           </Grid>
 
@@ -535,7 +577,9 @@ export const NftIndividual = () => {
               Traits
             </Typography>
             {traits && traits.length ? (
-              <NftTraits traits={traits} totalSupply={totalSupply} />
+              chain === 'solana' ? (
+                <SolanaNftTraits traits={traits} />
+              ) : <NftTraits traits={traits} totalSupply={totalSupply} />
             ) : (
               <Typography variant="body1">N/A</Typography>
             )}

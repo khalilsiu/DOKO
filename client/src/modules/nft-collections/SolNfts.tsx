@@ -42,6 +42,7 @@ export default function SolNfts({ address }: Props) {
         Solana NFTs
       </SectionLabel>
       <NftPagination
+        isSolana
         loading={loading}
         nfts={nfts}
         page={page}
