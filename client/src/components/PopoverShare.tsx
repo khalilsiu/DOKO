@@ -49,8 +49,14 @@ export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
 
     const url = `${window.origin}/nft/${chain}/${address}/${tokenId}`;
     const link = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now!`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name.replace(
+        '#',
+        '',
+      )} on DOKO now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name.replace(
+        '#',
+        '',
+      )} on @doko_nft now!`,
     };
     window.open(link[type], '_blank');
   };

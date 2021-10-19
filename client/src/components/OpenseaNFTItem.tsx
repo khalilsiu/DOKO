@@ -38,9 +38,10 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
   const share = (event: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
     event.stopPropagation();
     const url = `${window.origin}${nftPath}`;
+    const name = nft.name.replace('#', '');
     const link = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${nft.name} on DOKO at now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${nft.name} on @doko_nft now! ${url}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now! ${url}`,
       instagram: '',
     };
     window.open(link[type], '_blank');
