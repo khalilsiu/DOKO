@@ -43,7 +43,6 @@ interface Props {
 
 export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
   const styles = useStyles();
-  const [shareActive, setShareActive] = useState(false);
 
   const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
     e.stopPropagation();
@@ -71,16 +70,8 @@ export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
 
   return (
     <>
-      <CustomIconButton
-        onMouseEnter={() => setShareActive(true)}
-        onMouseLeave={() => setShareActive(false)}
-        onClick={handleClick}
-      >
-        {shareActive ? (
-          <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
-        ) : (
-          <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
-        )}
+      <CustomIconButton onClick={handleClick}>
+        <img width={28} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
       </CustomIconButton>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>

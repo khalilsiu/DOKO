@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function PriceField({ title, value }: Props) {
-  const disp = formatPrice(+value, 2);
+  const disp = value > 1 ? formatPrice(+value, 2) : parseFloat(`${value}`).toFixed(2);
 
   return (
     <>
