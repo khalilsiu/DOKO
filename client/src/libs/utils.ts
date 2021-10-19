@@ -39,7 +39,7 @@ export const chainMapping = (chain: string) => {
     eth: 'Ethereum',
     bsc: 'BSC',
     polygon: 'Polygon',
-    sol: 'Solana',
+    solana: 'Solana',
   };
 
   return ChainMap[chain];

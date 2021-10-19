@@ -1,5 +1,6 @@
 /* eslint-disable implicit-arrow-linebreak */
 import api from '../libs/api';
+import { getTokenInfo } from '../libs/metaplex/utils';
 
 export const getNFTs = (address: string, offset: number, params: any = {}) =>
   api.get('/nfts', {
