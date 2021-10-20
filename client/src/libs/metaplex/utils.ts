@@ -83,7 +83,18 @@ export const getTokenOwner = async (address: string) => {
       add = data.address;
     }
   });
-  return add;
+  const accountInfo = await axios.post(solanaRpcUrl, {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getAccountInfo',
+    params: [
+      add,
+      {
+        encoding: 'jsonParsed',
+      },
+    ],
+  });
+  return accountInfo.data.result.value.data.parsed.info.owner;
 };
 
 export const getSolanaNFTMetadata = async (NFTMetadata: Metadata) => {

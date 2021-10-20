@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { getEthNFTs, getCollectionDetail } from './api';
-import getSolNfts from '../../libs/solana';
+import { getSolNfts } from '../../libs/solana';
 
 import { isSolAddress } from '../../libs/utils';
 import CollectionHeader from './components/CollectionHeader';

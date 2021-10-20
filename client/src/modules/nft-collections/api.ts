@@ -1,5 +1,6 @@
 import OpenSeaAPI from '../../libs/opensea-api';
 import api from '../../libs/api';
+import { getSolanaNFTMetadata } from '../../libs/metaplex/utils';
 
 export const getEthAssets = (owner: string, offset: number) =>
   // eslint-disable-next-line implicit-arrow-linebreak

@@ -14,7 +14,7 @@ export const getSolNftsCount = async (address: string) => {
   }).length;
 };
 
-const getSolNfts = async (address: string, offset: number, params: any = {}) => {
+export const getSolNfts = async (address: string, offset: number, params: any = {}) => {
   if (!isSolAddress(address) || (params.chain && params.chain.indexOf.solana === -1)) {
     return { data: [] };
   }
@@ -49,8 +49,7 @@ const getSolNfts = async (address: string, offset: number, params: any = {}) => 
       owner_of: address,
       chain: 'solana',
       metadata: value.metadata.data,
+      updateAuthority: value.metadata.updateAuthority,
     }));
   return { data };
 };
-
-export default getSolNfts;
