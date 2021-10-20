@@ -48,7 +48,7 @@ export const SolanaNFTItem = memo(({ nft }: NFTItemProps) => {
 
   const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
     e.stopPropagation();
-    const name = nft.metadata.name ? nft.metadata.name : `${nft.name} ${nft.token_id}`;
+    const name = (nft.metadata.name || `${nft.name} ${nft.token_id}`).replace('#', '');
 
     const url = `${window.origin}${nftPath}`;
     const link = {

@@ -41,7 +41,7 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
     const name = nft.name.replace('#', '');
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now! ${url}`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now!`,
       instagram: '',
     };
     window.open(link[type], '_blank');

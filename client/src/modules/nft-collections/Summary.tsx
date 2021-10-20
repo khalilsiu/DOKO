@@ -7,6 +7,8 @@ import polygonIcon from './assets/polygon.png';
 import solanaIcon from './assets/solana.png';
 import { getAllEthAssets, getFloorPrice, getNFTsCount } from './api';
 import SectionLabel from '../../components/SectionLabel';
+import { isSolAddress } from '../../libs/utils';
+import { getSolNftsCount } from '../../libs/solana';
 
 const ChainContainer = withStyles((theme) => ({
   root: {
@@ -17,9 +19,6 @@ const ChainContainer = withStyles((theme) => ({
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
     },
-    // [theme.breakpoints.between('md', 'lg')]: {
-    //   flexDirection: 'column',
-    // },
   },
 }))(Grid);
 
@@ -30,10 +29,6 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: 0,
       marginTop: 12,
     },
-    // [theme.breakpoints.between('md', 'lg')]: {
-    //   marginLeft: 0,
-    //   marginTop: 12,
-    // },
   },
 }));
 
@@ -72,15 +67,20 @@ export const Summary = ({ address }: Props) => {
   const classes = useStyles();
 
   const fetchNFTsCount = async () => {
-    const { data } = await getNFTsCount(address);
-    const ethNFTs = await getAllEthAssets(address);
     const chainData = JSON.parse(JSON.stringify(chains));
-    chainData[0].count = ethNFTs.length;
-    chainData[1].count = data.bsc;
-    chainData[2].count = data.polygon;
 
-    chainData[0].price = await getFloorPrice(address);
+    if (isSolAddress(address)) {
+      chainData[3].count = await getSolNftsCount(address);
+    } else {
+      const { data } = await getNFTsCount(address);
+      const ethNFTs = await getAllEthAssets(address);
 
+      chainData[0].count = ethNFTs.length;
+      chainData[1].count = data.bsc;
+      chainData[2].count = data.polygon;
+
+      chainData[0].price = await getFloorPrice(address);
+    }
     setChains(chainData);
   };
 

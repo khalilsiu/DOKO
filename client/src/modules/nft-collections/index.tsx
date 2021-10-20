@@ -18,7 +18,7 @@ import { TabPanel, NftPagination, Meta } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { Filter } from './Filter';
 import Intro from '../core/Intro';
-import { minimizeAddress } from '../../libs/utils';
+import { isSolAddress, minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
 import CopyAddress from '../../components/CopyAddress';
 import EthNfts from './EthNfts';
@@ -108,11 +108,12 @@ export const NftCollections = () => {
   const [filter, setFilter] = useState<any>({});
   const [syncStatus, setSyncStatus] = useState<any>(null);
   const [page, setPage] = useState(0);
+  const isSolana = isSolAddress(address);
 
   const fetchNfts = async () => {
     setNFTs([]);
 
-    if (!address) {
+    if (!address || isSolana) {
       return;
     }
     setLoading(true);
@@ -155,7 +156,7 @@ export const NftCollections = () => {
     clearInterval(syncInterval);
     setSyncStatus(null);
 
-    if (!address) {
+    if (!address || isSolana) {
       return;
     }
     indexAddress(address);
@@ -178,6 +179,9 @@ export const NftCollections = () => {
   }, [page]);
 
   const reIndex = () => {
+    if (isSolAddress(address)) {
+      return;
+    }
     indexAddress(address, true);
     setSyncStatus(null);
     setNFTs([]);
@@ -221,32 +225,36 @@ export const NftCollections = () => {
                   style={{ fontWeight: 'bolder' }}
                 >
                   {minimizeAddress(address)}
-                  <Tooltip title="Refetch all of your nfts">
-                    <CustomIconButton
-                      disabled={
-                        !syncStatus ||
-                        syncStatus.sync_status === 'progress' ||
-                        syncStatus.sync_status === 'new'
-                      }
-                      onClick={() => reIndex()}
-                      color="secondary"
-                    >
-                      <RefreshOutlinedIcon />
-                    </CustomIconButton>
-                  </Tooltip>
+                  {!isSolana && (
+                    <Tooltip title="Refetch all of your nfts">
+                      <CustomIconButton
+                        disabled={
+                          !syncStatus ||
+                          syncStatus.sync_status === 'progress' ||
+                          syncStatus.sync_status === 'new'
+                        }
+                        onClick={() => reIndex()}
+                        color="secondary"
+                      >
+                        <RefreshOutlinedIcon />
+                      </CustomIconButton>
+                    </Tooltip>
+                  )}
                 </Typography>
                 <Grid item>
                   <CopyAddress address={address} />
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={6}>
-              <Hidden xsDown>
-                <Grid container justifyContent="flex-end">
-                  <AddressStatus status={syncStatus} loader={false} />
-                </Grid>
-              </Hidden>
-            </Grid>
+            {!isSolana && (
+              <Grid item xs={6}>
+                <Hidden xsDown>
+                  <Grid container justifyContent="flex-end">
+                    <AddressStatus status={syncStatus} loader={false} />
+                  </Grid>
+                </Hidden>
+              </Grid>
+            )}
           </Grid>
           <CustomTabs
             indicatorColor="primary"
@@ -258,11 +266,13 @@ export const NftCollections = () => {
           </CustomTabs>
 
           <TabPanel index={0} value={tabValue}>
-            <Hidden smUp>
-              <Grid container justifyContent="flex-end">
-                <AddressStatus status={syncStatus} loader={false} />
-              </Grid>
-            </Hidden>
+            {!isSolana && (
+              <Hidden smUp>
+                <Grid container justifyContent="flex-end">
+                  <AddressStatus status={syncStatus} loader={false} />
+                </Grid>
+              </Hidden>
+            )}
 
             <Summary address={address} />
 

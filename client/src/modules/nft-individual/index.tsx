@@ -194,6 +194,7 @@ export const NftIndividual = () => {
         const tokenOwner: any = await getTokenOwner(id);
         _nft = res.data;
         _metadata = metadataRes.metadata.data;
+        console.log(_nft);
         setCreator(_nft.creators[0].address);
         setNFT(_nft);
         setOwner(tokenOwner);
@@ -201,8 +202,7 @@ export const NftIndividual = () => {
         setNftImage(_metadata.image);
         setNftDesc(_metadata.description);
         setCollection(_metadata.symbol);
-        const _traits =
-          'attributes' in _metadata ? _metadata.attributes : [];
+        const _traits = 'attributes' in _metadata ? _metadata.attributes : [];
         setTraits(_traits);
       } else if (chain !== 'eth') {
         const res = await getNFT(address, id);
@@ -507,23 +507,21 @@ export const NftIndividual = () => {
                   </Button>
                 </Link>
               </Grid>
+            ) : chain === 'solana' ? (
+              <Grid item style={{ marginTop: '.9em' }}>
+                <Link
+                  style={{ textDecoration: 'none' }}
+                  target="_blank"
+                  href={`https://solsea.io/nft/${id}`}
+                >
+                  <Button className={styles.profileButton}>
+                    <img width={16} src={opensea_icon} alt="" />
+                    <span style={{ marginLeft: 12, color: 'white' }}>View on Solsea</span>
+                  </Button>
+                </Link>
+              </Grid>
             ) : (
-              chain === 'solana' ? (
-                <Grid item style={{ marginTop: '.9em' }}>
-                  <Link
-                    style={{ textDecoration: 'none' }}
-                    target="_blank"
-                    href={`https://solsea.io/nft/${id}`}
-                  >
-                    <Button className={styles.profileButton}>
-                      <img width={16} src={opensea_icon} alt="" />
-                      <span style={{ marginLeft: 12, color: 'white' }}>View on Solsea</span>
-                    </Button>
-                  </Link>
-                </Grid>
-              ) : (
-                ''
-              )
+              ''
             )}
           </Grid>
 
@@ -579,7 +577,9 @@ export const NftIndividual = () => {
             {traits && traits.length ? (
               chain === 'solana' ? (
                 <SolanaNftTraits traits={traits} />
-              ) : <NftTraits traits={traits} totalSupply={totalSupply} />
+              ) : (
+                <NftTraits traits={traits} totalSupply={totalSupply} />
+              )
             ) : (
               <Typography variant="body1">N/A</Typography>
             )}

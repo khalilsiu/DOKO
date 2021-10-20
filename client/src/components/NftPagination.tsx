@@ -50,10 +50,11 @@ export const NftPagination = ({
   return (
     <div>
       <div className={styles.nftsContainer}>
-        { isSolana ? nfts.map((nft) => <SolanaNFTItem key={nft.id} nft={nft} />)
-          : (!isOpenSea && nfts?.length
+        {isSolana
+          ? nfts.map((nft) => <SolanaNFTItem key={nft._id} nft={nft} />)
+          : !isOpenSea && nfts?.length
             ? nfts.map((nft) => <NFTItem key={nft._id} nft={nft} />)
-            : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />))}
+            : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />)}
       </div>
       {loading && <CircularProgress />}
       {!loading && (!page || page <= 1) && (!nfts || nfts.length === 0) ? (
