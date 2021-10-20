@@ -33,6 +33,7 @@ import { getNFT, fetchOpenseaLastSale } from '../api';
 import { getTokenInfo, getSolanaNFTMetadata, getTokenOwner } from '../../libs/metaplex/utils';
 import backbutton from '../../assets/back-button.png';
 import opensea_icon from '../../assets/opensea-transparent.png';
+import solsea_icon from '../../assets/solsea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 import { Meta } from '../../components';
 
@@ -194,8 +195,9 @@ export const NftIndividual = () => {
         const tokenOwner: any = await getTokenOwner(id);
         _nft = res.data;
         _metadata = metadataRes.metadata.data;
-        console.log(_nft);
-        setCreator(_nft.creators[0].address);
+        if (_nft.creators) {
+          setCreator(_nft.creators[0].address);
+        }
         setNFT(_nft);
         setOwner(tokenOwner);
         setNftName(_nft.name);
@@ -229,7 +231,7 @@ export const NftIndividual = () => {
         setTraits(_traits);
       }
       // eslint-disable-next-line no-empty
-    } catch (err) {}
+    } catch (err) { if (err) console.log(err); }
   };
 
   const fetchTxs = async (
@@ -515,7 +517,7 @@ export const NftIndividual = () => {
                   href={`https://solsea.io/nft/${id}`}
                 >
                   <Button className={styles.profileButton}>
-                    <img width={16} src={opensea_icon} alt="" />
+                    <img width={16} src={solsea_icon} alt="" />
                     <span style={{ marginLeft: 12, color: 'white' }}>View on Solsea</span>
                   </Button>
                 </Link>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
-import getSolNfts from '../../libs/solana';
+import { getSolNfts } from '../../libs/solana';
 
 interface Props {
   address: string;
