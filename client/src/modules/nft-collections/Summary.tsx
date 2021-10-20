@@ -9,7 +9,6 @@ import { getAllEthAssets, getFloorPrice, getNFTsCount } from './api';
 import { getSolNftsCount } from '../../libs/solana';
 import { isSolAddress } from '../../libs/utils';
 import SectionLabel from '../../components/SectionLabel';
-import { isSolAddress } from '../../libs/utils';
 import { getSolNftsCount } from '../../libs/solana';
 
 const ChainContainer = withStyles((theme) => ({
