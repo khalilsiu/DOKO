@@ -16,15 +16,12 @@ export abstract class NftBaseQueue extends BaseQueue {
 
   protected async updateProgress(index: number, total: number, address: string) {
     const addressCollection = new Address();
+    console.log(index, total);
 
     const status = await addressCollection.findOne({
       address,
     });
-    const sync_progress = Math.floor((index / total) * 100);
-
-    if (status.sync_progress > sync_progress) {
-      return;
-    }
+    const sync_progress = Math.ceil((index / total) * 100);
 
     if (index === total) {
       await addressCollection.updateOne(
@@ -36,6 +33,9 @@ export abstract class NftBaseQueue extends BaseQueue {
         },
       );
     } else {
+      if (status.sync_progress > sync_progress) {
+        return;
+      }
       await addressCollection.updateOne(
         { address },
         {
