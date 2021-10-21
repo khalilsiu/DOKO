@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
 import { getEthAssets } from './api';
+import { isSolAddress } from '../../libs/utils';
 
 interface Props {
   address: string;
@@ -13,8 +14,12 @@ export default function EthNfts({ address }: Props) {
   const [loading, setLoading] = useState(false);
 
   const fetchNfts = () => {
-    setLoading(true);
     setNfts([]);
+
+    if (isSolAddress(address)) {
+      return;
+    }
+    setLoading(true);
     getEthAssets(address, (page - 1) * 12).then((res) => {
       if (res.assets) {
         setNfts(res.assets);

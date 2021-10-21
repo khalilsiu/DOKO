@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable no-param-reassign */
-import { useState } from 'react';
+import { memo, MouseEvent, SyntheticEvent, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -10,13 +10,12 @@ import {
   Grid,
   IconButton,
   makeStyles,
+  Menu,
   MenuItem,
-  MenuList,
   Typography,
 } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
-import { Popover } from './Popover';
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
@@ -30,7 +29,7 @@ interface NFTItemProps {
   nft: any;
 }
 
-export const NFTItem = ({ nft }: NFTItemProps) => {
+export const NFTItem = memo(({ nft }: NFTItemProps) => {
   const history = useHistory();
 
   if (nft.metadata && !nft.metadata.image && nft.metadata.image_data) {
@@ -45,11 +44,16 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
-  const share = (type: 'facebook' | 'twitter') => {
-    const url = `${window.origin}/nft/${nft.token_address}/${nft.token_id}`;
+  const nftPath = `/nft/${nft.chain}/${nft.token_address}/${nft.token_id}`;
+
+  const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
+    e.stopPropagation();
+    const name = (nft.metadata.name || `${nft.name} ${nft.token_id}`).replace('#', '');
+
+    const url = `${window.origin}${nftPath}`;
     const link = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out my multi-chain NFT portfolio on DOKO at now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out my multi-chain NFT portfolio on @doko_nft now! ${url}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now!`,
       instagram: '',
     };
     window.open(link[type], '_blank');
@@ -57,9 +61,20 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
   const [error, setError] = useState(false);
 
   const onClickCard = () => {
-    // eslint-disable-next-line no-console
-    console.log(nft.chain);
-    history.push(`/nft/${nft.chain}/${nft.token_address}/${nft.token_id}`);
+    history.push(nftPath);
+  };
+
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (e: SyntheticEvent) => {
+    e.stopPropagation();
+    setAnchorEl(null);
   };
 
   return (
@@ -124,37 +139,34 @@ export const NFTItem = ({ nft }: NFTItemProps) => {
             src={{ eth, bsc, polygon, solana }[nft.chain as string]}
             alt={nft.chain}
           />
-          <Popover
-            reference={
-              <IconButton
-                onMouseEnter={() => setShareActive(true)}
-                onMouseLeave={() => setShareActive(false)}
-              >
-                {shareActive ? (
-                  <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
-                ) : (
-                  <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
-                )}
-              </IconButton>
-            }
-            placement="bottom-end"
-          >
-            <MenuList>
-              <MenuItem className={styles.shareItem} onClick={() => share('facebook')}>
+          <div>
+            <IconButton
+              onMouseEnter={() => setShareActive(true)}
+              onMouseLeave={() => setShareActive(false)}
+              onClick={handleClick}
+            >
+              {shareActive ? (
+                <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
+              ) : (
+                <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
+              )}
+            </IconButton>
+            <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+              <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>
                 <img src={facebook} alt="facebook" />
                 Share on Facebook
               </MenuItem>
-              <MenuItem className={styles.shareItem} onClick={() => share('twitter')}>
+              <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'twitter')}>
                 <img src={twitter} alt="twitter" />
                 Share on Twitter
               </MenuItem>
-            </MenuList>
-          </Popover>
+            </Menu>
+          </div>
         </CardActions>
       </Card>
     </div>
   );
-};
+});
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {

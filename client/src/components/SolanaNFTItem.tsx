@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable no-param-reassign */
-import { useState, MouseEvent, SyntheticEvent } from 'react';
+import { memo, MouseEvent, SyntheticEvent, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -17,6 +17,9 @@ import {
 import { useHistory } from 'react-router-dom';
 
 import eth from './assets/eth.png';
+import bsc from './assets/bsc.png';
+import polygon from './assets/polygon.png';
+import solana from './assets/solana.png';
 import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
@@ -26,19 +29,28 @@ interface NFTItemProps {
   nft: any;
 }
 
-export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
+export const SolanaNFTItem = memo(({ nft }: NFTItemProps) => {
   const history = useHistory();
 
+  if (nft.metadata && !nft.metadata.image && nft.metadata.image_data) {
+    nft.metadata.image = nft.metadata.image_data;
+  }
+
+  if (nft.metadata?.image?.indexOf('ipfs') === 0) {
+    nft.metadata.image = `https://ipfs.io/${nft.metadata.image
+      .replace('ipfs/', '')
+      .replace('ipfs://', 'ipfs/')}`;
+  }
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
-  const [error, setError] = useState(false);
-  const nftPath = `/nft/eth/${nft.asset_contract.address}/${nft.token_id}`;
+  const nftPath = `/nft/${nft.chain}/None/${nft._id}`;
 
-  const share = (event: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
-    event.stopPropagation();
+  const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
+    e.stopPropagation();
+    const name = (nft.metadata.name || `${nft.name} ${nft.token_id}`).replace('#', '');
+
     const url = `${window.origin}${nftPath}`;
-    const name = nft.name.replace('#', '');
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
       twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now!`,
@@ -46,6 +58,7 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
     };
     window.open(link[type], '_blank');
   };
+  const [error, setError] = useState(false);
 
   const onClickCard = () => {
     history.push(nftPath);
@@ -70,16 +83,25 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
       <Card className={styles.card}>
         <CardContent className={styles.cardContent}>
           <Grid container alignItems="center" style={{ flex: 1 }}>
-            {nft.image_url && !error ? (
-              <LazyLoadImage
-                className={styles.image}
-                alt=""
-                width="100%"
-                src={nft.image_preview_url}
-                placeholder={<img src={loading} alt="" />}
-                effect="opacity"
-                onError={() => setError(true)}
-              />
+            {nft.metadata.image && !error ? (
+              nft.metadata.image.indexOf('<svg') === 0 ? (
+                <div
+                  style={{ flex: 1 }}
+                  // eslint-disable-next-line react/no-danger
+                  dangerouslySetInnerHTML={{ __html: nft.metadata.image }}
+                  className={styles.image}
+                />
+              ) : (
+                <LazyLoadImage
+                  className={styles.image}
+                  alt=""
+                  width="100%"
+                  src={nft.metadata.image}
+                  placeholder={<img src={loading} alt="" />}
+                  effect="opacity"
+                  onError={() => setError(true)}
+                />
+              )
             ) : (
               <Grid
                 container
@@ -107,11 +129,16 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
             )}
           </Grid>
           <Typography className={styles.nftName} variant="caption">
-            {nft.name || '-'}
+            {nft.metadata?.name || nft.name || '-'}
           </Typography>
         </CardContent>
         <CardActions className={styles.cardActions}>
-          <img className={styles.networkIcon} width="12px" src={eth} alt="ETH" />
+          <img
+            className={styles.networkIcon}
+            width="12px"
+            src={{ eth, bsc, polygon, solana }[nft.chain as string]}
+            alt={nft.chain}
+          />
           <div>
             <IconButton
               onMouseEnter={() => setShareActive(true)}
@@ -139,7 +166,7 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
       </Card>
     </div>
   );
-};
+});
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -220,4 +247,4 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default OpenseaNFTItem;
+export default SolanaNFTItem;

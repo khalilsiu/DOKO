@@ -1,5 +1,5 @@
-import { Grid, IconButton, makeStyles, MenuItem, MenuList } from '@material-ui/core';
-import { Popover } from '../../../components';
+import { Grid, IconButton, makeStyles, Menu, MenuItem } from '@material-ui/core';
+import { MouseEvent, SyntheticEvent, useState } from 'react';
 import facebook from '../../../components/assets/facebook.png';
 import twitter from '../../../components/assets/twitter.png';
 
@@ -24,6 +24,18 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CollectionActions({ collection, onShare }: Props) {
   const styles = useStyles();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (e: SyntheticEvent) => {
+    e.stopPropagation();
+    setAnchorEl(null);
+  };
 
   return (
     <Grid container justifyContent="flex-end" spacing={1}>
@@ -40,7 +52,7 @@ export default function CollectionActions({ collection, onShare }: Props) {
       </Grid>
       <Grid item>
         <a
-          href={`https://etherscan.io/address/${collection.primary_asset_contracts[0].address}`}
+          href={`https://etherscan.io/address/${collection.contractAddress}`}
           target="_blank"
           rel="noreferrer"
         >
@@ -55,25 +67,19 @@ export default function CollectionActions({ collection, onShare }: Props) {
         </IconButton>
       </Grid>
       <Grid item>
-        <Popover
-          reference={
-            <IconButton>
-              <img width={36} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
-            </IconButton>
-          }
-          placement="bottom-end"
-        >
-          <MenuList>
-            <MenuItem className={styles.shareItem} onClick={() => onShare('facebook')}>
-              <img src={facebook} alt="facebook" />
-              Share on Facebook
-            </MenuItem>
-            <MenuItem className={styles.shareItem} onClick={() => onShare('twitter')}>
-              <img src={twitter} alt="twitter" />
-              Share on Twitter
-            </MenuItem>
-          </MenuList>
-        </Popover>
+        <IconButton onClick={handleClick}>
+          <img width={36} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
+        </IconButton>
+        <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+          <MenuItem className={styles.shareItem} onClick={() => onShare('facebook')}>
+            <img src={facebook} alt="facebook" />
+            Share on Facebook
+          </MenuItem>
+          <MenuItem className={styles.shareItem} onClick={() => onShare('twitter')}>
+            <img src={twitter} alt="twitter" />
+            Share on Twitter
+          </MenuItem>
+        </Menu>
       </Grid>
     </Grid>
   );

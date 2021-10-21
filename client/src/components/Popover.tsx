@@ -111,7 +111,7 @@ export const Popover = ({
         {...attributes.popper}
       >
         {children}
-        <Arrow ref={setArrowElement} style={styles.arrow} />
+        {/* <Arrow ref={setArrowElement} style={styles.arrow} /> */}
       </Wrapper>
     </div>
   );

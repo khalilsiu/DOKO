@@ -1,4 +1,5 @@
-import { OutlinedInput, withStyles } from '@material-ui/core';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import withStyles from '@material-ui/core/styles/withStyles';
 
 export const RadiusInput = withStyles({
   root: {

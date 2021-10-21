@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { getEthNFTs, getCollectionDetail } from './api';
-import getSolNfts from '../../libs/solana';
+import { getSolNfts } from '../../libs/solana';
 
 import { isSolAddress } from '../../libs/utils';
 import CollectionHeader from './components/CollectionHeader';
@@ -62,7 +62,7 @@ export default function Collection() {
 
       if (page === 1) {
         const res = await getCollectionDetail(address, assets[0].token_id);
-        setCollection(res);
+        setCollection({ ...res, contractAddress: address });
       }
     } catch (err) {
       // eslint-disable-next-line no-console

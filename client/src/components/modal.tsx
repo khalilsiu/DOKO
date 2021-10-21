@@ -1,5 +1,8 @@
-import { makeStyles, Modal, Box, Divider } from '@material-ui/core';
 import { ReactNode } from 'react';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import Modal from '@material-ui/core/Modal';
+import Box from '@material-ui/core/Box';
+import Divider from '@material-ui/core/Divider';
 
 interface UIModalProps {
   klasses?: string;
@@ -9,12 +12,15 @@ interface UIModalProps {
   renderFooter: () => ReactNode;
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   modalBox: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
+    [theme.breakpoints.down('sm')]: {
+      minWidth: '90vw',
+    },
     minWidth: '500px',
     border: '1px solid white',
     borderRadius: '10px',

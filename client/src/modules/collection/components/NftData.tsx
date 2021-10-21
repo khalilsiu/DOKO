@@ -298,8 +298,14 @@ const NftData = ({ collection }: Props) => {
     <div className={classes.container}>
       {/* data */}
       <div className={classes.section}>
-        <Grid container spacing={4} style={{ marginBottom: '2rem' }} alignItems="stretch">
-          <Grid item xs={12} md={6} lg={3}>
+        <Grid
+          container
+          spacing={4}
+          style={{ marginBottom: '2rem' }}
+          justifyContent="center"
+          alignItems="stretch"
+        >
+          <Grid item xs={12} md={6} lg={4} xl={3}>
             <div className={classes.dataContainer}>
               <Typography variant="body1" className={classes.dataContainerTitle}>
                 Transactions in last 24h
@@ -309,7 +315,7 @@ const NftData = ({ collection }: Props) => {
               </Typography>
             </div>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4} xl={3}>
             <div className={classes.dataContainer}>
               <Typography variant="body1" className={classes.dataContainerTitle}>
                 Volume in last 24h
@@ -327,7 +333,7 @@ const NftData = ({ collection }: Props) => {
               </Grid>
             </div>
           </Grid>
-          <Grid item xs={12} md={6} lg={3}>
+          <Grid item xs={12} md={6} lg={4} xl={3}>
             <div className={classes.dataContainer}>
               <Typography variant="body1" className={classes.dataContainerTitle}>
                 Average price in last 24h
@@ -341,24 +347,6 @@ const NftData = ({ collection }: Props) => {
                 />
                 <Typography display="inline" variant="h5" className={classes.dataContainerData}>
                   {toFixed(collection.stats.one_day_average_price)}
-                </Typography>
-              </Grid>
-            </div>
-          </Grid>
-          <Grid item xs={12} md={6} lg={3}>
-            <div className={classes.dataContainer}>
-              <Typography variant="body1" className={classes.dataContainerTitle}>
-                Price change in last 24h
-              </Typography>
-              <Grid container alignItems="center">
-                <img
-                  style={{ marginRight: 8 }}
-                  height={24}
-                  src="/collection/DOKOasset_EthereumBlue.png"
-                  alt=""
-                />
-                <Typography display="inline" variant="h5" className={classes.dataContainerData}>
-                  {toFixed(collection.stats.one_day_change)}
                 </Typography>
               </Grid>
             </div>

@@ -1,13 +1,10 @@
 import { ReactElement, cloneElement, useContext, useState } from 'react';
-import {
-  AppBar,
-  Hidden,
-  makeStyles,
-  Toolbar,
-  useScrollTrigger,
-  withStyles,
-} from '@material-ui/core';
-
+import AppBar from '@material-ui/core/AppBar';
+import Hidden from '@material-ui/core/Hidden';
+import Toolbar from '@material-ui/core/Toolbar';
+import useScrollTrigger from '@material-ui/core/useScrollTrigger';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import withStyles from '@material-ui/core/styles/withStyles';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { LargeScreen } from './LargeScreen';
 import { SmallScreen } from './SmallScreen';

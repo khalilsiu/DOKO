@@ -68,6 +68,35 @@ export const getTokenAccountsByOwner = (address: string) =>
     ],
   });
 
+export const getTokenOwner = async (address: string) => {
+  const res = await axios.post(solanaRpcUrl, {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getTokenLargestAccounts',
+    params: [
+      address,
+    ],
+  });
+  let add = '';
+  res.data.result.value.forEach((data: any) => {
+    if (data.uiAmount > 0) {
+      add = data.address;
+    }
+  });
+  const accountInfo = await axios.post(solanaRpcUrl, {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getAccountInfo',
+    params: [
+      add,
+      {
+        encoding: 'jsonParsed',
+      },
+    ],
+  });
+  return accountInfo.data.result.value.data.parsed.info.owner;
+};
+
 export const getSolanaNFTMetadata = async (NFTMetadata: Metadata) => {
   try {
     const metadata: any = await axios.get(NFTMetadata.data.uri);

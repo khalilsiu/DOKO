@@ -44,7 +44,7 @@ export const Landing = () => {
           disabled={loading}
           onClick={() => (address ? history.push(`/address/${address}`) : connect())}
         >
-          {address ? 'Your Profile' : 'Connect Wallets'}
+          {address ? 'Your Profile' : 'Connect Wallet'}
         </Button>
       </Container>
 
@@ -53,7 +53,7 @@ export const Landing = () => {
           <Grid wrap="wrap" container alignItems="center" justifyContent="space-evenly">
             {images.map((image) => (
               <Grid item key={image} className={styles.betaSectionImage} sm={2} xs={4}>
-                <img height={42} src={image} alt="" />
+                <img src={image} alt="" />
               </Grid>
             ))}
           </Grid>
@@ -235,7 +235,6 @@ const useStyles = makeStyles((theme) => ({
     padding: '0 84px 36px',
     position: 'relative',
     '& > img': {
-      width: '25%',
       [theme.breakpoints.down('sm')]: {
         width: '300px',
       },

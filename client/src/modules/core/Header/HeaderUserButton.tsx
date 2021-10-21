@@ -1,5 +1,8 @@
-import { Button, makeStyles, Tooltip } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 import { useState } from 'react';
+
 import { minimizeAddress } from '../../../libs/utils';
 
 interface Props {
@@ -47,7 +50,7 @@ export const HeaderUserButton = ({ address, loading, connect }: Props) => {
       variant="outlined"
       onClick={() => connect()}
     >
-      Connect Wallets
+      Connect Wallet
     </Button>
   );
 };

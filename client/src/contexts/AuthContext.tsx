@@ -1,13 +1,14 @@
 import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useMetaMask } from 'metamask-react';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import { useMetaMask } from 'metamask-react';
 import CloseIcon from '@material-ui/icons/Close';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useTheme from '@material-ui/core/styles/useTheme';
 
-import { useMediaQuery, useTheme } from '@material-ui/core';
 import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
 
@@ -17,6 +18,9 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     color: 'white',
     padding: '1.5rem',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0.5rem 1.3rem',
+    },
     justifyContent: 'space-between',
   },
   modalContent: {
@@ -26,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
   walletContainer: {
     width: '8rem',
     height: '8rem',
+    [theme.breakpoints.down('sm')]: {
+      width: '7rem',
+      height: '7rem',
+    },
     padding: '1.5rem',
     border: '0.5px solid',
     borderColor: theme.palette.grey[800],
@@ -38,7 +46,15 @@ const useStyles = makeStyles((theme) => ({
   walletSelected: {
     borderColor: theme.palette.primary.main,
   },
-  walletImage: { height: '3rem', width: '3rem', marginBottom: '1rem' },
+  walletImage: {
+    height: '3rem',
+    width: '3rem',
+    [theme.breakpoints.down('sm')]: {
+      width: '2rem',
+      height: '2rem',
+    },
+    marginBottom: '1rem',
+  },
   walletName: {
     fontWeight: 'bold',
     textAlign: 'center',
@@ -56,6 +72,10 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
     width: '13rem',
     height: '3rem',
+    [theme.breakpoints.down('sm')]: {
+      width: '11rem',
+      height: '2.5rem',
+    },
   },
 }));
 
@@ -90,7 +110,7 @@ export const AuthContext = createContext<AuthContextValue>({
 
 export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [loading, setLoading] = useState(false);
-  const { account, connect } = useMetaMask();
+  const { account, connect, status } = useMetaMask();
   const [solAccount, setSolAccount] = useState('');
   const classes = useStyles();
   const history = useHistory();
@@ -104,12 +124,16 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const connectMetaMask = async () => {
     try {
       if (isMobile) {
-        window.location.href = 'https://metamask.app.link/dapp/doko.one';
+        if (status === 'unavailable') {
+          window.location.href = 'https://metamask.app.link/dapp/doko.one';
+        }
+        await connect();
       } else {
         await connect();
       }
     } catch (err) {
       // eslint-disable-next-line no-console
+      console.log('errrrr', err);
       console.error('metamask connection', err);
     }
   };
@@ -174,7 +198,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
           renderHeader={() => (
             <div className={classes.modalHeader}>
               <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-                Connect Wallets
+                Connect Wallet
               </Typography>
               <IconButton style={{ color: 'white' }} onClick={() => setShowWalletModal(false)}>
                 <CloseIcon fontSize="medium" />
@@ -192,7 +216,9 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                   onClick={() => setWalletSelected(wallet)}
                   onKeyDown={() => setWalletSelected(wallet)}
                 >
+
                   <img src={wallet.icon} alt="" className={classes.walletImage} />
+
                   <Typography variant="subtitle2" className={classes.walletName}>
                     {wallet.label}
                   </Typography>
@@ -208,7 +234,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                 onClick={() => connectWallet()}
               >
                 <Typography variant="body1" style={{ fontWeight: 'bold' }}>
-                  Connect Wallets
+                  Connect Wallet
                 </Typography>
               </Button>
             </div>

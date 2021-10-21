@@ -1,5 +1,5 @@
 import { Grid, Tooltip, Typography, IconButton } from '@material-ui/core';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { minimizeAddress } from '../libs/utils';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
   minimize?: boolean;
 }
 
-export default function CopyAddress({ address, minimize = true }: Props) {
+export default memo(({ address, minimize = true }: Props) => {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
@@ -33,4 +33,4 @@ export default function CopyAddress({ address, minimize = true }: Props) {
       </span>
     </Tooltip>
   );
-}
+});
