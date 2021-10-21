@@ -17,7 +17,7 @@ ReactDOM.render(
     <HelmetProvider>
       <MetaMaskProvider>
         <ThemeProvider>
-          <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
+          <MoralisProvider appId="TKutYOdvRTwfrq59B7pJcKmaS0NF8otbNOcgCHB0" serverUrl="https://jry7dssr3vaf.usemoralis.com:2053/server">
             <CssBaseline />
             <App />
           </MoralisProvider>
