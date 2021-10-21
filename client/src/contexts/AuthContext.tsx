@@ -18,6 +18,9 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     color: 'white',
     padding: '1.5rem',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0.5rem 1.3rem',
+    },
     justifyContent: 'space-between',
   },
   modalContent: {
@@ -27,6 +30,10 @@ const useStyles = makeStyles((theme) => ({
   walletContainer: {
     width: '8rem',
     height: '8rem',
+    [theme.breakpoints.down('sm')]: {
+      width: '7rem',
+      height: '7rem',
+    },
     padding: '1.5rem',
     border: '0.5px solid',
     borderColor: theme.palette.grey[800],
@@ -39,7 +46,15 @@ const useStyles = makeStyles((theme) => ({
   walletSelected: {
     borderColor: theme.palette.primary.main,
   },
-  walletImage: { height: '3rem', width: '3rem', marginBottom: '1rem' },
+  walletImage: {
+    height: '3rem',
+    width: '3rem',
+    [theme.breakpoints.down('sm')]: {
+      width: '2rem',
+      height: '2rem',
+    },
+    marginBottom: '1rem',
+  },
   walletName: {
     fontWeight: 'bold',
     textAlign: 'center',
@@ -57,6 +72,10 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
     width: '13rem',
     height: '3rem',
+    [theme.breakpoints.down('sm')]: {
+      width: '11rem',
+      height: '2.5rem',
+    },
   },
 }));
 
@@ -194,9 +213,9 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                   onClick={() => setWalletSelected(wallet)}
                   onKeyDown={() => setWalletSelected(wallet)}
                 >
-                  <div className={classes.walletImage}>
-                    <img src={wallet.icon} alt="" style={{ width: '3rem', height: '3rem' }} />
-                  </div>
+
+                  <img src={wallet.icon} alt="" className={classes.walletImage} />
+
                   <Typography variant="subtitle2" className={classes.walletName}>
                     {wallet.label}
                   </Typography>

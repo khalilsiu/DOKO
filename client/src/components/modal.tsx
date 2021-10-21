@@ -12,12 +12,15 @@ interface UIModalProps {
   renderFooter: () => ReactNode;
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   modalBox: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
+    [theme.breakpoints.down('sm')]: {
+      minWidth: '90vw',
+    },
     minWidth: '500px',
     border: '1px solid white',
     borderRadius: '10px',
