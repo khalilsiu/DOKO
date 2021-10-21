@@ -36,38 +36,40 @@ interface Props {
   address: string;
 }
 
+const initialData = [
+  {
+    icon: ethIcon,
+    count: 0,
+    price: 0,
+    name: 'Ethereum',
+    available: true,
+  },
+  {
+    icon: bscIcon,
+    count: 0,
+    price: 0,
+    name: 'BSC',
+  },
+  {
+    icon: polygonIcon,
+    count: 0,
+    price: 0,
+    name: 'Polygon',
+  },
+  {
+    icon: solanaIcon,
+    count: 0,
+    price: 0,
+    name: 'Solana',
+  },
+];
+
 export const Summary = ({ address }: Props) => {
-  const [chains, setChains] = useState([
-    {
-      icon: ethIcon,
-      count: 0,
-      price: 0,
-      name: 'Ethereum',
-      available: true,
-    },
-    {
-      icon: bscIcon,
-      count: 0,
-      price: 0,
-      name: 'BSC',
-    },
-    {
-      icon: polygonIcon,
-      count: 0,
-      price: 0,
-      name: 'Polygon',
-    },
-    {
-      icon: solanaIcon,
-      count: 0,
-      price: 0,
-      name: 'Solana',
-    },
-  ]);
+  const [chains, setChains] = useState(initialData);
   const classes = useStyles();
 
   const fetchNFTsCount = async () => {
-    const chainData = JSON.parse(JSON.stringify(chains));
+    const chainData = JSON.parse(JSON.stringify(initialData));
 
     if (isSolAddress(address)) {
       chainData[3].count = await getSolNftsCount(address);

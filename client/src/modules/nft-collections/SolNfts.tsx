@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
 import { getSolNfts } from '../../libs/solana';
+import { isSolAddress } from '../../libs/utils';
 
 interface Props {
   address: string;
@@ -13,8 +14,13 @@ export default function SolNfts({ address }: Props) {
   const [loading, setLoading] = useState(false);
 
   const fetchNfts = () => {
-    setLoading(true);
     setNfts([]);
+
+    if (!isSolAddress(address)) {
+      return;
+    }
+    setLoading(true);
+
     getSolNfts(address, (page - 1) * 12).then((res) => {
       if (res) {
         setNfts(res.data as any);

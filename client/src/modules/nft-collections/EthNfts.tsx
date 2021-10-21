@@ -14,11 +14,12 @@ export default function EthNfts({ address }: Props) {
   const [loading, setLoading] = useState(false);
 
   const fetchNfts = () => {
+    setNfts([]);
+
     if (isSolAddress(address)) {
       return;
     }
     setLoading(true);
-    setNfts([]);
     getEthAssets(address, (page - 1) * 12).then((res) => {
       if (res.assets) {
         setNfts(res.assets);
