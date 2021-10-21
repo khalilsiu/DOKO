@@ -91,7 +91,7 @@ export const AuthContext = createContext<AuthContextValue>({
 
 export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [loading, setLoading] = useState(false);
-  const { account, connect } = useMetaMask();
+  const { account, connect, status } = useMetaMask();
   const [solAccount, setSolAccount] = useState('');
   const classes = useStyles();
   const history = useHistory();
@@ -105,13 +105,16 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const connectMetaMask = async () => {
     try {
       if (isMobile) {
+        if (status === 'unavailable') {
+          window.location.href = 'https://metamask.app.link/dapp/doko.one';
+        }
         await connect();
-        window.location.href = 'https://metamask.app.link/dapp/doko.one';
       } else {
         await connect();
       }
     } catch (err) {
       // eslint-disable-next-line no-console
+      console.log('errrrr', err);
       console.error('metamask connection', err);
     }
   };
