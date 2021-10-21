@@ -105,6 +105,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const connectMetaMask = async () => {
     try {
       if (isMobile) {
+        await connect();
         window.location.href = 'https://metamask.app.link/dapp/doko.one';
       } else {
         await connect();
