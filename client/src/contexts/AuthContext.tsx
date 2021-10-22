@@ -121,6 +121,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [showWalletModal, setShowWalletModal] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const connectMetaMask = async () => {
     try {
       if (isMobile) {
@@ -133,7 +134,6 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
       }
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.log('errrrr', err);
       console.error('metamask connection', err);
     }
   };
@@ -216,7 +216,6 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                   onClick={() => setWalletSelected(wallet)}
                   onKeyDown={() => setWalletSelected(wallet)}
                 >
-
                   <img src={wallet.icon} alt="" className={classes.walletImage} />
 
                   <Typography variant="subtitle2" className={classes.walletName}>

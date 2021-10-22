@@ -4,6 +4,7 @@ import { memo, MouseEvent, SyntheticEvent, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -93,10 +94,10 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
                 />
               ) : (
                 <LazyLoadImage
-                  className={styles.image}
-                  alt=""
                   width="100%"
+                  alt=""
                   src={nft.metadata.image}
+                  className={styles.image}
                   placeholder={<img src={loading} alt="" />}
                   effect="opacity"
                   onError={() => setError(true)}
@@ -128,41 +129,45 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
               </Grid>
             )}
           </Grid>
-          <Typography className={styles.nftName} variant="caption">
-            {nft.metadata?.name || nft.name || '-'}
-          </Typography>
         </CardContent>
-        <CardActions className={styles.cardActions}>
-          <img
-            className={styles.networkIcon}
-            width="12px"
-            src={{ eth, bsc, polygon, solana }[nft.chain as string]}
-            alt={nft.chain}
-          />
-          <div>
-            <IconButton
-              onMouseEnter={() => setShareActive(true)}
-              onMouseLeave={() => setShareActive(false)}
-              onClick={handleClick}
-            >
-              {shareActive ? (
-                <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
-              ) : (
-                <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
-              )}
-            </IconButton>
-            <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-              <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>
-                <img src={facebook} alt="facebook" />
-                Share on Facebook
-              </MenuItem>
-              <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'twitter')}>
-                <img src={twitter} alt="twitter" />
-                Share on Twitter
-              </MenuItem>
-            </Menu>
-          </div>
-        </CardActions>
+        <Grid container direction="column" justifyContent="space-between" style={{ height: 100 }}>
+          <Box px={1}>
+            <Typography className={styles.nftName} variant="caption">
+              {nft.metadata?.name || nft.name || '-'}
+            </Typography>
+          </Box>
+          <CardActions className={styles.cardActions}>
+            <img
+              className={styles.networkIcon}
+              width="12px"
+              src={{ eth, bsc, polygon, solana }[nft.chain as string]}
+              alt={nft.chain}
+            />
+            <div>
+              <IconButton
+                onMouseEnter={() => setShareActive(true)}
+                onMouseLeave={() => setShareActive(false)}
+                onClick={handleClick}
+              >
+                {shareActive ? (
+                  <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
+                ) : (
+                  <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
+                )}
+              </IconButton>
+              <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+                <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>
+                  <img src={facebook} alt="facebook" />
+                  Share on Facebook
+                </MenuItem>
+                <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'twitter')}>
+                  <img src={twitter} alt="twitter" />
+                  Share on Twitter
+                </MenuItem>
+              </Menu>
+            </div>
+          </CardActions>
+        </Grid>
       </Card>
     </div>
   );
@@ -211,15 +216,19 @@ const useStyles = makeStyles((theme) => ({
   },
   nftName: {
     fontWeight: 'bold',
-    marginLeft: 8,
     color: 'black',
+    textOverflow: 'ellipsis',
+    lineHeight: 1,
   },
   image: {
     borderRadius: 12,
-    maxHeight: 400,
     minHeight: 200,
+    maxWidth: '100%',
+    width: '100%',
+    height: 'auto',
+    objectFit: 'contain',
     '& > svg': {
-      width: '100%',
+      width: 'auto',
       height: 'auto',
     },
   },
