@@ -16,7 +16,7 @@ import {
   withStyles,
 } from '@material-ui/core';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import eth from 'cryptocurrency-icons/32/white/eth.png';
 import bsc from 'cryptocurrency-icons/32/white/bnb.png';
 import solana from 'cryptocurrency-icons/32/white/sol.png';
@@ -31,7 +31,6 @@ import { web3 } from '../../libs/web3';
 import { normalizeImageURL, chainMapping, formatTx, getTotalSupply } from '../../libs/utils';
 import { getNFT, fetchOpenseaLastSale } from '../api';
 import { getTokenInfo, getSolanaNFTMetadata, getTokenOwner } from '../../libs/metaplex/utils';
-import backbutton from '../../assets/back-button.png';
 import opensea_icon from '../../assets/opensea-transparent.png';
 import solsea_icon from '../../assets/solsea-transparent.png';
 import loading_image from '../../assets/loading.gif';
@@ -53,6 +52,7 @@ const StyledTableCell = withStyles((theme) => ({
 const CustomIconButton = withStyles({
   root: {
     padding: '1px',
+    marginRight: 24,
   },
 })(IconButton);
 
@@ -108,8 +108,8 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bolder',
   },
   shareIcon: {
-    width: 30,
-    hight: 30,
+    width: 36,
+    hight: 36,
   },
   networkIcon: {
     width: 12,
@@ -138,7 +138,6 @@ const useStyles = makeStyles((theme) => ({
 
 export const NftIndividual = () => {
   const styles = useStyles();
-  const history = useHistory();
   const { address, id, chain } = useParams<{ address: string; id: string; chain: string }>();
   const [nft, setNFT] = useState<any>();
   const [lastSale, setLastSale] = useState<number>();
@@ -231,7 +230,10 @@ export const NftIndividual = () => {
         setTraits(_traits);
       }
       // eslint-disable-next-line no-empty
-    } catch (err) { if (err) console.log(err); }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      if (err) console.log(err);
+    }
   };
 
   const fetchTxs = async (
@@ -358,8 +360,12 @@ export const NftIndividual = () => {
             </Typography>
           </Grid>
           <Grid item>
-            <CustomIconButton>
-              <img className={styles.shareIcon} src={backbutton} alt="back" />
+            <CustomIconButton onClick={() => window.location.reload()}>
+              <img
+                className={styles.shareIcon}
+                src="/collection/DOKOasset_RefreshData.png"
+                alt="back"
+              />
             </CustomIconButton>
             <PopoverShare address={address} tokenId={id} chain={chain} name={nftName} />
           </Grid>
@@ -413,8 +419,12 @@ export const NftIndividual = () => {
               </Typography>
             </Grid>
             <Grid item>
-              <CustomIconButton onClick={history.goBack}>
-                <img className={styles.shareIcon} src={backbutton} alt="back" />
+              <CustomIconButton onClick={() => window.location.reload()}>
+                <img
+                  className={styles.shareIcon}
+                  src="/collection/DOKOasset_RefreshData.png"
+                  alt="back"
+                />
               </CustomIconButton>
               <PopoverShare address={address} tokenId={id} chain={chain} name={nftName} />
             </Grid>
