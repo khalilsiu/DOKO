@@ -130,7 +130,13 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
             )}
           </Grid>
         </CardContent>
-        <Grid container direction="column" justifyContent="space-between" style={{ height: 100 }}>
+        <Grid
+          container
+          direction="column"
+          justifyContent="space-between"
+          wrap="nowrap"
+          style={{ height: 88 }}
+        >
           <Box px={1}>
             <Typography className={styles.nftName} variant="caption">
               {nft.metadata?.name || nft.name || '-'}
@@ -145,6 +151,7 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
             />
             <div>
               <IconButton
+                style={{ padding: 6 }}
                 onMouseEnter={() => setShareActive(true)}
                 onMouseLeave={() => setShareActive(false)}
                 onClick={handleClick}
@@ -216,9 +223,13 @@ const useStyles = makeStyles((theme) => ({
   },
   nftName: {
     fontWeight: 'bold',
-    color: 'black',
+    color: '#333',
     textOverflow: 'ellipsis',
-    lineHeight: 1,
+    lineHeight: '18px',
+    overflow: 'hidden',
+    display: '-webkit-box',
+    '-webkit-line-clamp': 1,
+    '-webkit-box-orient': 'vertical',
   },
   image: {
     borderRadius: 12,

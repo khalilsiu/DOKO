@@ -1,14 +1,15 @@
 import OpenSeaAPI from '../../libs/opensea-api';
 import api from '../../libs/api';
-import { getSolanaNFTMetadata } from '../../libs/metaplex/utils';
+// import { getSolanaNFTMetadata } from '../../libs/metaplex/utils';
 
-export const getEthAssets = (owner: string, offset: number) =>
+export const getEthAssets = (owner: string, offset: number, collection = '') =>
   // eslint-disable-next-line implicit-arrow-linebreak
   OpenSeaAPI.get('/assets', {
     params: {
       owner,
       offset,
       limit: 12,
+      ...(collection ? { collection } : {}),
     },
   })
     .then((res) => res.data)
@@ -44,13 +45,18 @@ export const getAllEthAssets = async (owner: string) => {
   return nfts;
 };
 
-export const getFloorPrice = async (asset_owner: string) => {
+export const getEthCollections = async (asset_owner: string) => {
   const { data: collections } = await OpenSeaAPI.get('/collections', {
     params: {
       limit: 300,
       asset_owner,
     },
   });
+  return collections;
+};
+
+export const getFloorPrice = async (asset_owner: string) => {
+  const collections = await getEthCollections(asset_owner);
 
   const floorPrice = collections.reduce((sum: number, c: any) => sum + c.stats.floor_price, 0);
   return floorPrice;
