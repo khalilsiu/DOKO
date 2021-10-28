@@ -26,6 +26,8 @@ import SolNfts from './SolNfts';
 import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 
+import './select-search.css';
+
 const CustomTabs = withStyles({
   root: {
     width: '100%',

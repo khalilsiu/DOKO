@@ -119,12 +119,15 @@ export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
             <Typography className={styles.nftName} variant="caption">
               {nft.name || '-'}
             </Typography>
-            <Typography style={{ fontWeight: 'bold', color: 'black' }} variant="body2">
-              {nft.floor_price || '0'}
-            </Typography>
           </Box>
           <CardActions className={styles.cardActions}>
-            <img className={styles.networkIcon} width="12px" src={eth} alt="ETH" />
+            <Grid container alignItems="center" style={{ marginBottom: 8 }}>
+              <img className={styles.networkIcon} src={eth} alt="ETH" />
+
+              <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
+                {nft.floor_price || '0'}
+              </Typography>
+            </Grid>
             <div>
               <IconButton
                 style={{ padding: 6 }}
@@ -221,9 +224,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   networkIcon: {
-    width: 10,
+    width: 12,
     marginLeft: 8,
-    marginBottom: 8,
+    marginRight: 8,
   },
   shareIcon: {
     width: 20,

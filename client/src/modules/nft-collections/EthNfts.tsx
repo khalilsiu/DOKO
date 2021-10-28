@@ -8,8 +8,6 @@ import SectionLabel from '../../components/SectionLabel';
 import { getEthAssets, getEthCollections } from './api';
 import { isSolAddress } from '../../libs/utils';
 
-import './select-search.css';
-
 interface Props {
   address: string;
 }
@@ -24,8 +22,9 @@ export default function EthNfts({ address }: Props) {
   const setFloorPrice = (assets: any, cols: any) =>
     assets.map((asset: any) => ({
       ...asset,
-      floor_price:
+      floor_price: parseFloat(
         (cols as any).find((c: any) => asset.collection.slug === c.value)?.floor_price || 0,
+      ).toFixed(3),
     }));
 
   const fetchNfts = (pageNumber: number) => {
@@ -52,12 +51,15 @@ export default function EthNfts({ address }: Props) {
     }
     getEthCollections(address)
       .then((res) => {
-        const options = res.map((r: any) => ({
-          value: r.slug,
-          name: r.name,
-          image: r.image_url,
-          floor_price: r.stats.floor_price,
-        }));
+        const options = res
+          .map((r: any) => ({
+            value: r.slug,
+            name: r.name,
+            image: r.image_url,
+            floor_price: r.stats.floor_price,
+          }))
+          .sort((a: any, b: any) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+
         setCollections(options);
 
         if (nfts?.length) {
@@ -80,21 +82,12 @@ export default function EthNfts({ address }: Props) {
     return collections.filter((c: any) => c.name.toLowerCase().includes(query.toLowerCase()));
   };
 
-  // const renderOption = (domProps: DomProps, option: any) => {
-  //   console.log(domProps, option);
-  //   return (
-  //     <Grid container alignItems="center" wrap="nowrap">
-  //       <img width={24} height={24} src={option.image} alt="" />
-  //       <span>{option.name}</span>
-  //     </Grid>
-  //   );
-  // };
   useEffect(() => {
     fetchNfts(1);
   }, [selectedCollection]);
 
   useEffect(() => {
-    fetchNfts(1);
+    setSelectedCollection('');
     fetchCollections();
   }, [address]);
 
