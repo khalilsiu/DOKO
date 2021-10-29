@@ -55,10 +55,12 @@ export const getEthCollections = async (asset_owner: string) => {
   return collections;
 };
 
-export const getFloorPrice = async (asset_owner: string) => {
+export const getFloorPrice = async (asset_owner: string, nfts: any[]) => {
   const collections = await getEthCollections(asset_owner);
 
-  const floorPrice = collections.reduce((sum: number, c: any) => sum + c.stats.floor_price, 0);
+  const floorPrice = nfts
+    .map((nft) => collections.find((c) => c.slug === nft.collection.slug)?.stats?.floor_price || 0)
+    .reduce((sum: number, c: any) => sum + c, 0);
   return floorPrice;
 };
 

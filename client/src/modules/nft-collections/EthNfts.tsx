@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable consistent-return */
 /* eslint-disable implicit-arrow-linebreak */
 import { useEffect, useState } from 'react';
 import SelectSearch from 'react-select-search';
@@ -16,18 +18,18 @@ export default function EthNfts({ address }: Props) {
   const [nfts, setNfts] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [collections, setCollections] = useState([]);
+  const [collections, setCollections] = useState<any[]>([]);
   const [selectedCollection, setSelectedCollection] = useState('');
 
-  const setFloorPrice = (assets: any, cols: any) =>
+  const setFloorPrice = (assets: any, cols: any[]) =>
     assets.map((asset: any) => ({
       ...asset,
       floor_price: parseFloat(
-        (cols as any).find((c: any) => asset.collection.slug === c.value)?.floor_price || 0,
+        cols.find((c: any) => asset.collection.slug === c.value)?.floor_price || 0,
       ).toFixed(3),
     }));
 
-  const fetchNfts = (pageNumber: number) => {
+  const fetchNfts = (pageNumber: number, cols?: any[]) => {
     setNfts([]);
 
     if (isSolAddress(address)) {
@@ -37,42 +39,43 @@ export default function EthNfts({ address }: Props) {
     setPage(pageNumber);
     getEthAssets(address, (pageNumber - 1) * 12, selectedCollection).then((res) => {
       if (res.assets) {
-        const assets = setFloorPrice(res.assets, collections);
+        const assets = setFloorPrice(res.assets, cols || collections);
         setNfts(assets);
       }
       setLoading(false);
     });
   };
 
-  const fetchCollections = () => {
-    if (isSolAddress(address)) {
-      setCollections([]);
-      return;
-    }
-    getEthCollections(address)
-      .then((res) => {
-        const options = res
-          .map((r: any) => ({
-            value: r.slug,
-            name: r.name,
-            image: r.image_url,
-            floor_price: r.stats.floor_price,
-          }))
-          .sort((a: any, b: any) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
-
-        setCollections(options);
-
-        if (nfts?.length) {
-          setNfts(setFloorPrice(nfts, options));
-        }
-      })
-      .catch(() => {
-        setCollections([]);
-      });
+  const filterCollection = (v: any, cols?: any) => {
+    setSelectedCollection(v);
+    fetchNfts(1, cols || collections);
   };
 
-  const filterCollection = (v: any) => {
-    setSelectedCollection(v);
+  const fetchCollections = async () => {
+    if (isSolAddress(address)) {
+      setCollections([]);
+      setNfts([]);
+      setSelectedCollection('');
+      setPage(0);
+      return;
+    }
+    let options = [];
+
+    try {
+      const res = await getEthCollections(address);
+      options = res
+        .map((r) => ({
+          value: r.slug,
+          name: r.name,
+          image: r.image_url,
+          floor_price: r.stats.floor_price,
+        }))
+        .sort((a: any, b: any) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+    } catch (err) {
+      console.error(err);
+    }
+    setCollections(options);
+    filterCollection('', options);
   };
 
   const filterSearch = () => (query: string) => {
@@ -83,11 +86,6 @@ export default function EthNfts({ address }: Props) {
   };
 
   useEffect(() => {
-    fetchNfts(1);
-  }, [selectedCollection]);
-
-  useEffect(() => {
-    setSelectedCollection('');
     fetchCollections();
   }, [address]);
 
@@ -106,7 +104,7 @@ export default function EthNfts({ address }: Props) {
           search
           options={[{ value: '', name: 'All' }, ...collections]}
           value={selectedCollection}
-          onChange={filterCollection}
+          onChange={(v) => filterCollection(v)}
           filterOptions={filterSearch}
         />
       </Grid>

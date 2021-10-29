@@ -81,7 +81,7 @@ export const Summary = ({ address }: Props) => {
       chainData[1].count = data.bsc;
       chainData[2].count = data.polygon;
 
-      chainData[0].price = await getFloorPrice(address);
+      chainData[0].price = await getFloorPrice(address, ethNFTs);
     }
     setChains(chainData);
   };
