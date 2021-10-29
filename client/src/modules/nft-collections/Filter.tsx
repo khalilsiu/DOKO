@@ -1,45 +1,34 @@
 /* eslint-disable indent */
-import {
-  Button,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  InputAdornment,
-  makeStyles,
-  MenuItem,
-  MenuList,
-} from '@material-ui/core';
-import Checkbox from '@material-ui/core/Checkbox';
-import { ArrowDropDown, ArrowDropUp, Search } from '@material-ui/icons';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { Button, Grid, MenuItem, MenuList } from '@material-ui/core';
+// import Checkbox from '@material-ui/core/Checkbox';
+import { ArrowDropDown, ArrowDropUp } from '@material-ui/icons';
+import { useEffect, useRef, useState } from 'react';
 
 import { Popover } from '../../components/Popover';
-import { RadiusInput } from '../../components';
+// import { RadiusInput } from '../../components';
 
 /**
  * @todo check eth
  */
 
-const chains = [
-  {
-    name: 'all',
-    label: 'All',
-  },
-  // {
-  //   name: 'eth',
-  //   label: 'Ethereum',
-  // },
-  {
-    name: 'bsc',
-    label: 'BSC',
-  },
-  {
-    name: 'polygon',
-    label: 'Polygon',
-  },
-];
+// const chains = [
+//   {
+//     name: 'all',
+//     label: 'All',
+//   },
+//   {
+//     name: 'eth',
+//     label: 'Ethereum',
+//   },
+//   {
+//     name: 'bsc',
+//     label: 'BSC',
+//   },
+//   {
+//     name: 'polygon',
+//     label: 'Polygon',
+//   },
+// ];
 
 const sorts = [
   {
@@ -58,7 +47,7 @@ const sorts = [
  * @todo check eth
  */
 // type ChainKey = 'all' | 'eth' | 'bsc' | 'polygon';
-type ChainKey = 'all' | 'bsc' | 'polygon';
+// type ChainKey = 'all' | 'bsc' | 'polygon';
 
 interface FilterProps {
   // eslint-disable-next-line no-unused-vars
@@ -67,25 +56,25 @@ interface FilterProps {
 
 let termTimeout: any;
 
-const useStyles = makeStyles((theme) => ({
-  controlLabel: {
-    marginBottom: theme.spacing(1),
-    color: 'black',
-    fontSize: 12,
-    '& > span:last-child': {
-      color: 'black',
-    },
-  },
-  searchInput: {
-    width: 300,
-    [theme.breakpoints.down('xs')]: {
-      width: '100%',
-    },
-  },
-}));
+// const useStyles = makeStyles((theme) => ({
+//   controlLabel: {
+//     marginBottom: theme.spacing(1),
+//     color: 'black',
+//     fontSize: 12,
+//     '& > span:last-child': {
+//       color: 'black',
+//     },
+//   },
+//   searchInput: {
+//     width: 300,
+//     [theme.breakpoints.down('xs')]: {
+//       width: '100%',
+//     },
+//   },
+// }));
 
 export function Filter({ onChange }: FilterProps) {
-  const styles = useStyles();
+  // const styles = useStyles();
   const [filter, setFilter] = useState({
     term: '',
     chain: {
@@ -98,42 +87,42 @@ export function Filter({ onChange }: FilterProps) {
   });
   const firstRun = useRef(true);
 
-  const updateChain = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
+  // const updateChain = (event: ChangeEvent<HTMLInputElement>) => {
+  //   const { name, checked } = event.target;
 
-    if (name === 'all') {
-      setFilter((state) => ({
-        ...state,
-        chain: {
-          all: checked,
-          // eth: checked,
-          bsc: checked,
-          polygon: checked,
-        },
-      }));
-    } else {
-      const chain = { ...filter.chain };
-      chain[name as ChainKey] = checked;
+  //   if (name === 'all') {
+  //     setFilter((state) => ({
+  //       ...state,
+  //       chain: {
+  //         all: checked,
+  //         // eth: checked,
+  //         bsc: checked,
+  //         polygon: checked,
+  //       },
+  //     }));
+  //   } else {
+  //     const chain = { ...filter.chain };
+  //     chain[name as ChainKey] = checked;
 
-      // if (chain.eth && chain.bsc && chain.polygon) {
-      if (chain.bsc && chain.polygon) {
-        chain.all = true;
-      } else {
-        chain.all = false;
-      }
-      setFilter((state) => ({
-        ...state,
-        chain,
-      }));
-    }
-  };
+  //     // if (chain.eth && chain.bsc && chain.polygon) {
+  //     if (chain.bsc && chain.polygon) {
+  //       chain.all = true;
+  //     } else {
+  //       chain.all = false;
+  //     }
+  //     setFilter((state) => ({
+  //       ...state,
+  //       chain,
+  //     }));
+  //   }
+  // };
 
-  const updateTerm = (term: string) => {
-    setFilter((state) => ({
-      ...state,
-      term,
-    }));
-  };
+  // const updateTerm = (term: string) => {
+  //   setFilter((state) => ({
+  //     ...state,
+  //     term,
+  //   }));
+  // };
 
   const applyFilter = (options?: any) => {
     const data = options || filter;

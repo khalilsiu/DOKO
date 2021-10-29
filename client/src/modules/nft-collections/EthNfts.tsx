@@ -29,7 +29,7 @@ export default function EthNfts({ address }: Props) {
       ).toFixed(3),
     }));
 
-  const fetchNfts = (pageNumber: number, cols?: any[]) => {
+  const fetchNfts = (pageNumber: number, cols: any[], selectedCol: string) => {
     setNfts([]);
 
     if (isSolAddress(address)) {
@@ -37,7 +37,7 @@ export default function EthNfts({ address }: Props) {
     }
     setLoading(true);
     setPage(pageNumber);
-    getEthAssets(address, (pageNumber - 1) * 12, selectedCollection).then((res) => {
+    getEthAssets(address, (pageNumber - 1) * 12, selectedCol).then((res) => {
       if (res.assets) {
         const assets = setFloorPrice(res.assets, cols || collections);
         setNfts(assets);
@@ -48,7 +48,7 @@ export default function EthNfts({ address }: Props) {
 
   const filterCollection = (v: any, cols?: any) => {
     setSelectedCollection(v);
-    fetchNfts(1, cols || collections);
+    fetchNfts(1, cols || collections, v);
   };
 
   const fetchCollections = async () => {
@@ -113,8 +113,8 @@ export default function EthNfts({ address }: Props) {
         loading={loading}
         nfts={nfts}
         page={page}
-        onNext={() => fetchNfts(page + 1)}
-        onPrev={() => fetchNfts(page - 1)}
+        onNext={() => fetchNfts(page + 1, collections, selectedCollection)}
+        onPrev={() => fetchNfts(page - 1, collections, selectedCollection)}
       />
     </div>
   );
