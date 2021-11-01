@@ -1,6 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable function-paren-newline */
 /* eslint-disable no-confusing-arrow */
+import { makeStyles } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import { useEffect, useState } from 'react';
 import SelectSearch from 'react-select-search';
@@ -14,12 +15,26 @@ interface Props {
   address: string;
 }
 
+const useStyles = makeStyles((theme) => ({
+  labelContainer: {
+    marginBottom: 36,
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      alignItems: 'start',
+      '& > .select-search': {
+        marginTop: 12,
+      },
+    },
+  },
+}));
+
 export default function SolNfts({ address }: Props) {
   const [nfts, setNfts] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [collections, setCollections] = useState<any>([]);
   const [selectedCollection, setSelectedCollection] = useState('');
+  const styles = useStyles();
 
   const fetchNfts = () => {
     setNfts([]);
@@ -77,7 +92,7 @@ export default function SolNfts({ address }: Props) {
         container
         justifyContent="space-between"
         alignItems="center"
-        style={{ marginBottom: 36 }}
+        className={styles.labelContainer}
       >
         <SectionLabel variant="h5">Solana NFTs</SectionLabel>
         <SelectSearch
