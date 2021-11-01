@@ -58,12 +58,20 @@ export default function Collection() {
       } = await (isSolAddress(address)
         ? getSolNfts(address, (page - 1) * 12)
         : getEthNFTs(address, (page - 1) * 12));
-      setNFTs(assets);
 
-      if (page === 1) {
+      let c = collection;
+
+      if (page === 1 && !isSolAddress(address)) {
         const res = await getCollectionDetail(address, assets[0].token_id);
         setCollection({ ...res, contractAddress: address });
+        c = res;
       }
+      setNFTs(
+        assets.map((asset) => ({
+          ...asset,
+          floor_price: parseFloat(c.stats.floor_price || 0).toFixed(2),
+        })),
+      );
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);

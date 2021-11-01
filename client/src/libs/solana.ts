@@ -14,7 +14,7 @@ export const getSolNftsCount = async (address: string) => {
   }).length;
 };
 
-export const getSolNfts = async (address: string, offset: number, params: any = {}) => {
+export const getSolNfts = async (address: string, params: any = {}) => {
   if (!isSolAddress(address) || (params.chain && params.chain.indexOf.solana === -1)) {
     return { data: [] };
   }
@@ -27,14 +27,13 @@ export const getSolNfts = async (address: string, offset: number, params: any = 
       promiseList.push(getTokenInfo(tokenInfo.mint));
     }
   });
-  let NFTsMetadataRes: Metadata[] = await Promise.all(promiseList);
+  const NFTsMetadataRes: Metadata[] = await Promise.all(promiseList);
   NFTsMetadataRes.sort((a: Metadata, b: Metadata): number => {
     if (!('direction' in params) || params.direction === 1) {
       return a.data.name < b.data.name ? -1 : 1;
     }
     return a.data.name > b.data.name ? -1 : 1;
   });
-  NFTsMetadataRes = NFTsMetadataRes.slice(offset, offset + 12);
   promiseList = [];
   NFTsMetadataRes.forEach((metadata: Metadata) => {
     promiseList.push(getSolanaNFTMetadata(metadata));

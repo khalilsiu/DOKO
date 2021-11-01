@@ -498,7 +498,7 @@ export const NftIndividual = () => {
                   className="bolder"
                   style={{ marginRight: '4px' }}
                 >
-                  {floorPrice}
+                  {parseFloat(`${floorPrice}`).toFixed(2)}
                 </Typography>
               </Grid>
             ) : (

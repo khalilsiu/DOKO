@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable no-param-reassign */
-import { useState, MouseEvent, SyntheticEvent } from 'react';
+import { useState, MouseEvent, SyntheticEvent, memo } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -27,7 +27,7 @@ interface NFTItemProps {
   nft: any;
 }
 
-export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
+export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
   const history = useHistory();
 
   // eslint-disable-next-line no-use-before-define
@@ -108,16 +108,29 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
             )}
           </Grid>
         </CardContent>
-        <Grid container direction="column" justifyContent="space-between" style={{ height: 100 }}>
+        <Grid
+          container
+          direction="column"
+          justifyContent="space-between"
+          wrap="nowrap"
+          style={{ height: 88 }}
+        >
           <Box px={1}>
             <Typography className={styles.nftName} variant="caption">
               {nft.name || '-'}
             </Typography>
           </Box>
           <CardActions className={styles.cardActions}>
-            <img className={styles.networkIcon} width="12px" src={eth} alt="ETH" />
+            <Grid container alignItems="center" style={{ marginBottom: 8 }}>
+              <img className={styles.networkIcon} src={eth} alt="ETH" />
+
+              <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
+                {nft.floor_price || '0'}
+              </Typography>
+            </Grid>
             <div>
               <IconButton
+                style={{ padding: 6 }}
                 onMouseEnter={() => setShareActive(true)}
                 onMouseLeave={() => setShareActive(false)}
                 onClick={handleClick}
@@ -144,7 +157,7 @@ export const OpenseaNFTItem = ({ nft }: NFTItemProps) => {
       </Card>
     </div>
   );
-};
+});
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -189,9 +202,13 @@ const useStyles = makeStyles((theme) => ({
   },
   nftName: {
     fontWeight: 'bold',
-    color: 'black',
+    color: '#333',
     textOverflow: 'ellipsis',
-    lineHeight: 1,
+    lineHeight: '18px',
+    overflow: 'hidden',
+    display: '-webkit-box',
+    '-webkit-line-clamp': 1,
+    '-webkit-box-orient': 'vertical',
   },
   image: {
     borderRadius: 12,
@@ -207,9 +224,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   networkIcon: {
-    width: 10,
+    width: 12,
     marginLeft: 8,
-    marginBottom: 8,
+    marginRight: 8,
   },
   shareIcon: {
     width: 20,
