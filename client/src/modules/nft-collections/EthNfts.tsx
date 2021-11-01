@@ -3,7 +3,7 @@
 /* eslint-disable implicit-arrow-linebreak */
 import { useEffect, useState } from 'react';
 import SelectSearch from 'react-select-search';
-import { Grid } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
@@ -14,12 +14,26 @@ interface Props {
   address: string;
 }
 
+const useStyles = makeStyles((theme) => ({
+  labelContainer: {
+    marginBottom: 36,
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      alignItems: 'start',
+      '& > .select-search': {
+        marginTop: 12,
+      },
+    },
+  },
+}));
+
 export default function EthNfts({ address }: Props) {
   const [nfts, setNfts] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [collections, setCollections] = useState<any[]>([]);
   const [selectedCollection, setSelectedCollection] = useState('');
+  const styles = useStyles();
 
   const setFloorPrice = (assets: any, cols: any[]) =>
     assets.map((asset: any) => ({
@@ -95,7 +109,7 @@ export default function EthNfts({ address }: Props) {
         container
         justifyContent="space-between"
         alignItems="center"
-        style={{ marginBottom: 36 }}
+        className={styles.labelContainer}
       >
         <SectionLabel variant="h5">Ethereum NFTs</SectionLabel>
         <SelectSearch
