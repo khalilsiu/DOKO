@@ -56,12 +56,17 @@ export const getEthCollections = async (asset_owner: string) => {
 };
 
 export const getFloorPrice = async (asset_owner: string, nfts: any[]) => {
-  const collections = await getEthCollections(asset_owner);
+  const results = await Promise.all(
+    nfts.map((nft) => (
+      OpenSeaAPI.get(`/collection/${nft.collection.slug}/stats`, {
+        params: {
+          limit: 300,
+          asset_owner,
+        },
+      }))),
+  );
 
-  const floorPrice = nfts
-    .map((nft) => collections.find((c) => c.slug === nft.collection.slug)?.stats?.floor_price || 0)
-    .reduce((sum: number, c: any) => sum + c, 0);
-  return floorPrice;
+  return results.map((res) => res.data.stats.floor_price).reduce((a, b) => a + b);
 };
 
 export default getEthAssets;

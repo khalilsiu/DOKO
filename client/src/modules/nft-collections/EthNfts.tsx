@@ -9,6 +9,7 @@ import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
 import { getEthAssets, getEthCollections } from './api';
 import { isSolAddress } from '../../libs/utils';
+import OpenSeaAPI from '../../libs/opensea-api';
 
 interface Props {
   address: string;
@@ -73,7 +74,7 @@ export default function EthNfts({ address }: Props) {
       setPage(0);
       return;
     }
-    let options = [];
+    let options: any[] = [];
 
     try {
       const res = await getEthCollections(address);
@@ -88,6 +89,15 @@ export default function EthNfts({ address }: Props) {
     } catch (err) {
       console.error(err);
     }
+    const results = await Promise.all(
+      options.map((nft: any) => (
+        OpenSeaAPI.get(`/collection/${nft.value}/stats`, {
+          params: {
+            limit: 300,
+          },
+        }))),
+    );
+    results.forEach((res, index) => { options[index].floor_price = res.data.stats.floor_price; });
     setCollections(options);
     filterCollection('', options);
   };
