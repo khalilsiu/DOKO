@@ -5,6 +5,7 @@ import IconButton from '@material-ui/core/IconButton';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { DrawerContext } from '../../../contexts/DrawerContext';
 
@@ -32,6 +33,7 @@ const Intro = ({ drawer = false }: Props) => {
   const { toggle } = useContext(DrawerContext);
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
+  const history = useHistory();
 
   return (
     <Grid
@@ -70,6 +72,12 @@ const Intro = ({ drawer = false }: Props) => {
                 Connect Wallet
               </Button>
             )}
+          </Grid>
+          <Grid item>
+            <Button className={styles.aboutDokoButton} onClick={() => (history.push('/profiles'))}>
+              <img width={16} src="/manageProfile.png" alt="" />
+              <span style={{ marginLeft: 12 }}>Manage Profile(s)</span>
+            </Button>
           </Grid>
           <Grid item>
             <a
@@ -133,7 +141,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
   },
   aboutDokoButton: {
-    padding: '8px 20px',
+    flex: 'row',
+    justifyContent: 'flex-start',
+    padding: '4px 20px',
     width: 200,
     fontWeight: 'bold',
   },

@@ -14,11 +14,11 @@ import {
   Modal,
   OutlinedInput,
 } from '@material-ui/core';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
-import { TabPanel, NftPagination, Meta } from '../../components';
+import { TabPanel, NftPagination, Meta, RadiusInput } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { Filter } from './Filter';
 import Intro from '../core/Intro';
@@ -29,6 +29,7 @@ import EthNfts from './EthNfts';
 import SolNfts from './SolNfts';
 import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
+import { PopoverShare } from '../../components/PopoverShare';
 
 const CustomTabs = withStyles({
   root: {
@@ -72,6 +73,13 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: 0,
     },
   },
+  titleText: {
+    fontWeight: 'bolder',
+    fontSize: 55,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 26,
+    },
+  },
   nftsContainer: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
@@ -97,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
   },
   addressText: {
     fontWeight: 'bolder',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       fontSize: 30,
     },
   },
@@ -124,10 +132,12 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+const profile = { name: 'DOKO1331111', address: [['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243']], hash: 'abc' };
+
 export const NftCollections = () => {
   const [loading, setLoading] = useState(false);
   const [nfts, setNFTs] = useState<any[]>([]);
-  const { address } = useParams<{ address: string }>();
+  const address = '0x281a6a58e6684ae5fa51c4efe27db8b38065c243';
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
@@ -135,15 +145,13 @@ export const NftCollections = () => {
   const [page, setPage] = useState(0);
   const [createProfile, setCreateProfile] = useState(false);
   const isSolana = isSolAddress(address);
-  const history = useHistory();
 
   const handleClickOpen = () => {
     setCreateProfile(true);
   };
 
-  const handleSubmit = () => {
+  const handleClose = () => {
     setCreateProfile(false);
-    history.push('/profiles');
   };
 
   const fetchNfts = async () => {
@@ -166,41 +174,6 @@ export const NftCollections = () => {
     setLoading(false);
   };
 
-  const checkSyncStatus = async () => {
-    try {
-      const res = await getAddressStatus(address);
-      const sync = res.data;
-
-      if (sync?.sync_status === 'done' || sync?.sync_status === 'empty') {
-        clearInterval(syncInterval);
-
-        if (Date.now() / 1000 - sync.timestamp < 5000 && sync.sync_status === 'done') {
-          setPage(1);
-        }
-      }
-      setSyncStatus(sync);
-    } catch (err) {
-      if (!syncStatus) {
-        setSyncStatus({});
-      }
-    }
-  };
-
-  useEffect(() => () => clearInterval(syncInterval), []);
-
-  useEffect(() => {
-    clearInterval(syncInterval);
-    setSyncStatus(null);
-
-    if (!address || isSolana) {
-      return;
-    }
-    indexAddress(address);
-
-    syncInterval = setInterval(() => checkSyncStatus(), 3000);
-    checkSyncStatus();
-  }, [address]);
-
   useEffect(() => {
     if (page === 1) {
       fetchNfts();
@@ -214,21 +187,10 @@ export const NftCollections = () => {
     page && fetchNfts();
   }, [page]);
 
-  const reIndex = () => {
-    if (isSolAddress(address)) {
-      return;
-    }
-    indexAddress(address, true);
-    setSyncStatus(null);
-    setNFTs([]);
-    clearInterval(syncInterval);
-    syncInterval = setInterval(() => checkSyncStatus(), 3000);
-  };
-
   return (
     <>
       <Meta
-        title={`${address} - Profile | DOKO`}
+        title={`${profile.name} - Profile | DOKO`}
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
         image="/DOKO_LOGO.png"
@@ -253,20 +215,41 @@ export const NftCollections = () => {
             alignItems="center"
             className={styles.addressContainer}
           >
-            <Grid item xs={12} md="auto">
+            <Grid item xs={12} sm="auto">
               <Grid container direction="column" className={styles.addressContainer}>
                 <Typography
-                  className={styles.addressText}
+                  className={styles.titleText}
                   variant="h5"
-                  style={{ fontWeight: 'bolder' }}
                 >
-                  {minimizeAddress(address)}
+                  {profile.name}
                 </Typography>
                 <Grid item>
-                  <CopyAddress address={address} />
+                  <Hidden xsDown>
+                    <Typography
+                      style={{ marginLeft: 5, fontFamily: 'Open Sans', fontSize: 12 }}
+                    >
+                      Addresses
+                    </Typography>
+                  </Hidden>
                 </Grid>
               </Grid>
             </Grid>
+            <Hidden smUp>
+              <Grid item justifyContent="center">
+                <Button
+                  style={{ width: 200 }}
+                  className="gradient-button"
+                  variant="outlined"
+                >
+                  {`View Profile Address ${String.fromCharCode(0x25BC)}`}
+                </Button>
+              </Grid>
+            </Hidden>
+            <Hidden xsDown>
+              <Grid>
+                <PopoverShare address={address} tokenId="test" chain="test" name="test" />
+              </Grid>
+            </Hidden>
           </Grid>
           <Grid item style={{ width: '100%' }}>
             <Hidden xsDown>
@@ -316,7 +299,7 @@ export const NftCollections = () => {
             style={{ height: 84 }}
           >
             <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
-            <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
+            <IconButton style={{ marginRight: 30 }} onClick={handleClose}>
               <CloseIcon style={{ fill: '#FFFFFF' }} />
             </IconButton>
           </Grid>
@@ -344,7 +327,7 @@ export const NftCollections = () => {
               style={{ width: 170, marginRight: 34 }}
               className="gradient-button"
               variant="outlined"
-              onClick={handleSubmit}
+              onClick={handleClose}
             >
               Create Profile
             </Button>
