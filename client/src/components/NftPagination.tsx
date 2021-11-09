@@ -1,5 +1,6 @@
 import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
+import { useEffect } from 'react';
 import { SolanaNFTItem } from './SolanaNFTItem';
 import { OpenseaNFTItem } from './OpenseaNFTItem';
 import { LightButton } from './LightButton';
