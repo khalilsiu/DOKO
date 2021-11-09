@@ -1,119 +1,27 @@
-/* eslint-disable indent */
-/* eslint-disable function-paren-newline */
-/* eslint-disable no-confusing-arrow */
-import { makeStyles } from '@material-ui/core';
-import Grid from '@material-ui/core/Grid';
 import { useEffect, useState } from 'react';
-import SelectSearch from 'react-select-search';
-
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
 import { getSolNfts } from '../../libs/solana';
 import { isSolAddress } from '../../libs/utils';
 
 interface Props {
-  address: string;
+  data: any;
 }
 
-const useStyles = makeStyles((theme) => ({
-  labelContainer: {
-    marginBottom: 36,
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
-      alignItems: 'start',
-      '& > .select-search': {
-        marginTop: 12,
-      },
-    },
-  },
-}));
-
-export default function SolNfts({ address }: Props) {
+export default function SolNfts({ data }: Props) {
   const [nfts, setNfts] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [collections, setCollections] = useState<any>([]);
-  const [selectedCollection, setSelectedCollection] = useState('');
-  const styles = useStyles();
-
-  const fetchNfts = () => {
-    setNfts([]);
-
-    if (!isSolAddress(address)) {
-      return;
-    }
-    setLoading(true);
-
-    getSolNfts(address).then((res) => {
-      if (res) {
-        setNfts(res.data as any);
-        const cols = Object.values(
-          res.data.reduce(
-            (a: any, b: any) => ({
-              ...a,
-              ...(b.metadata?.collection?.name
-                ? {
-                    [b.metadata.collection.name]: {
-                      ...b.metadata.collection,
-                      value: b.metadata.collection.name,
-                    },
-                  }
-                : {}),
-            }),
-            {},
-          ),
-        );
-        setCollections(cols);
-      }
-      setLoading(false);
-    });
-  };
-
-  const filterSearch = () => (query: string) => {
-    if (!query) {
-      return [{ value: '', name: 'All' }, ...collections];
-    }
-    return collections.filter((c: any) => c.name.toLowerCase().includes(query.toLowerCase()));
-  };
-
-  const filterCollection = (v: any) => {
-    setPage(1);
-    setSelectedCollection(v);
-  };
-
-  useEffect(() => {
-    fetchNfts();
-    filterCollection('');
-  }, [address]);
 
   return (
     <div style={{ marginTop: 36 }}>
-      <Grid
-        container
-        justifyContent="space-between"
-        alignItems="center"
-        className={styles.labelContainer}
-      >
-        <SectionLabel variant="h5">Solana NFTs</SectionLabel>
-        <SelectSearch
-          placeholder="Select a collection"
-          closeOnSelect
-          search
-          options={[{ value: '', name: 'All' }, ...collections]}
-          value={selectedCollection}
-          onChange={filterCollection}
-          filterOptions={filterSearch}
-        />
-      </Grid>
+      <SectionLabel variant="h5" style={{ marginBottom: 36 }}>
+        Solana NFTs
+      </SectionLabel>
       <NftPagination
         isSolana
         loading={loading}
-        nfts={nfts
-          .filter((nft: any) =>
-            // eslint-disable-next-line implicit-arrow-linebreak
-            selectedCollection ? nft.metadata?.collection?.name === selectedCollection : true,
-          )
-          .slice((page - 1) * 12, page * 12)}
+        nfts={nfts}
         page={page}
         onNext={() => setPage(page + 1)}
         onPrev={() => setPage(page - 1)}

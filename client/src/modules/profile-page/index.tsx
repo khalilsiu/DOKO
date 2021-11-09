@@ -399,6 +399,7 @@ export const NftCollections = () => {
       initialData[0].count = resNfts.length;
       initialData[0].price =
         resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b);
+      setSummary(initialData);
       setOwnedEthNfts(resNfts);
       setLoading(false);
     };

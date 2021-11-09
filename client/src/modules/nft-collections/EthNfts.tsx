@@ -1,105 +1,27 @@
-/* eslint-disable no-console */
-/* eslint-disable consistent-return */
 /* eslint-disable implicit-arrow-linebreak */
 import { useEffect, useState } from 'react';
 import SelectSearch from 'react-select-search';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
 import { getEthAssets, getEthCollections } from './api';
 import { isSolAddress } from '../../libs/utils';
-import OpenSeaAPI from '../../libs/opensea-api';
+
+import './select-search.css';
 
 interface Props {
-  address: string;
+  data: any;
 }
 
-const useStyles = makeStyles((theme) => ({
-  labelContainer: {
-    marginBottom: 36,
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
-      alignItems: 'start',
-      '& > .select-search': {
-        marginTop: 12,
-      },
-    },
-  },
-}));
-
-export default function EthNfts({ address }: Props) {
+export default function EthNfts({ data }: Props) {
   const [nfts, setNfts] = useState([]);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [collections, setCollections] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState('');
-  const styles = useStyles();
 
-  const setFloorPrice = (assets: any, cols: any[]) =>
-    assets.map((asset: any) => ({
-      ...asset,
-      floor_price: parseFloat(
-        cols.find((c: any) => asset.collection.slug === c.value)?.floor_price || 0,
-      ).toFixed(3),
-    }));
-
-  const fetchNfts = (pageNumber: number, cols: any[], selectedCol: string) => {
-    setNfts([]);
-
-    if (isSolAddress(address)) {
-      return;
-    }
-    setLoading(true);
-    setPage(pageNumber);
-    getEthAssets(address, (pageNumber - 1) * 12, selectedCol).then((res) => {
-      if (res.assets) {
-        const assets = setFloorPrice(res.assets, cols || collections);
-        setNfts(assets);
-      }
-      setLoading(false);
-    });
-  };
-
-  const filterCollection = (v: any, cols?: any) => {
+  const filterCollection = (v: any) => {
     setSelectedCollection(v);
-    fetchNfts(1, cols || collections, v);
-  };
-
-  const fetchCollections = async () => {
-    if (isSolAddress(address)) {
-      setCollections([]);
-      setNfts([]);
-      setSelectedCollection('');
-      setPage(0);
-      return;
-    }
-    let options: any[] = [];
-
-    try {
-      const res = await getEthCollections(address);
-      options = res
-        .map((r) => ({
-          value: r.slug,
-          name: r.name,
-          image: r.image_url,
-          floor_price: r.stats.floor_price,
-        }))
-        .sort((a: any, b: any) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
-    } catch (err) {
-      console.error(err);
-    }
-    const results = await Promise.all(
-      options.map((nft: any) => (
-        OpenSeaAPI.get(`/collection/${nft.value}/stats`, {
-          params: {
-            limit: 300,
-          },
-        }))),
-    );
-    results.forEach((res, index) => { options[index].floor_price = res.data.stats.floor_price; });
-    setCollections(options);
-    filterCollection('', options);
   };
 
   const filterSearch = () => (query: string) => {
@@ -109,17 +31,13 @@ export default function EthNfts({ address }: Props) {
     return collections.filter((c: any) => c.name.toLowerCase().includes(query.toLowerCase()));
   };
 
-  useEffect(() => {
-    fetchCollections();
-  }, [address]);
-
   return (
     <div>
       <Grid
         container
         justifyContent="space-between"
         alignItems="center"
-        className={styles.labelContainer}
+        style={{ marginBottom: 36 }}
       >
         <SectionLabel variant="h5">Ethereum NFTs</SectionLabel>
         <SelectSearch
@@ -128,17 +46,18 @@ export default function EthNfts({ address }: Props) {
           search
           options={[{ value: '', name: 'All' }, ...collections]}
           value={selectedCollection}
-          onChange={(v) => filterCollection(v)}
+          onChange={filterCollection}
           filterOptions={filterSearch}
         />
       </Grid>
       <NftPagination
         isOpenSea
-        loading={loading}
-        nfts={nfts}
+        loading={data.loading}
+        nfts={data.nfts.slice((page - 1) * 12, (page) * 12)}
         page={page}
-        onNext={() => fetchNfts(page + 1, collections, selectedCollection)}
-        onPrev={() => fetchNfts(page - 1, collections, selectedCollection)}
+        maxPage={data.nfts.length / 12 + 1}
+        onNext={() => setPage(page + 1)}
+        onPrev={() => setPage(page - 1)}
       />
     </div>
   );
