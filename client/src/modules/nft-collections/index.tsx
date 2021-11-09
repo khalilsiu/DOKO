@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
 import { useEffect, useState } from 'react';
@@ -16,6 +17,8 @@ import {
   Modal,
   OutlinedInput,
 } from '@material-ui/core';
+
+import { useCookies } from 'react-cookie';
 import { useParams, useHistory } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
@@ -178,6 +181,8 @@ export const NftCollections = () => {
 
   const [summary, setSummary] = useState(initialData);
   const [ownedEthNfts, setOwnedEthNfts] = useState([]);
+  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
+  const [profileName, setProfileName] = useState('');
 
   const collectionFloorPrice: any = {};
   const ownedSolanaNfts = {};
@@ -189,6 +194,9 @@ export const NftCollections = () => {
 
   const handleSubmit = () => {
     setCreateProfile(false);
+    const profiles = cookies.profiles ? cookies.profiles : {};
+    profiles[profileName] = { address: [], hash: btoa(JSON.stringify({ name: profileName, address: [] })) };
+    setCookie('profiles', profiles, { path: '/' });
     history.push('/profiles');
   };
 
@@ -273,6 +281,19 @@ export const NftCollections = () => {
           direction="column"
           alignItems="flex-start"
         >
+          <Hidden smUp>
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-end"
+              wrap="nowrap"
+            >
+              <IconButton onClick={handleClickOpen}>
+                <img src="/createProfileIcon.png" alt="share" />
+              </IconButton>
+            </Grid>
+          </Hidden>
           <Grid
             container
             justifyContent="space-between"
@@ -337,7 +358,7 @@ export const NftCollections = () => {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            style={{ height: 84 }}
+            style={{ height: '24%' }}
           >
             <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
             <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
@@ -350,10 +371,12 @@ export const NftCollections = () => {
             direction="row"
             justifyContent="center"
             alignItems="center"
-            style={{ height: 122 }}
+            style={{ height: '52%' }}
           >
             <OutlinedInput
-              style={{ minWidth: 510, height: 50, fontWeight: 'bold', fontSize: '16px' }}
+              value={profileName}
+              onChange={(e) => { setProfileName(e.target.value); }}
+              style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
             />
           </Grid>
           <hr style={{ width: '100%', margin: 0 }} />
@@ -362,7 +385,7 @@ export const NftCollections = () => {
             direction="row"
             justifyContent="flex-end"
             alignItems="center"
-            style={{ height: 102 }}
+            style={{ height: '24%' }}
           >
             <Button
               style={{ width: 170, marginRight: 34 }}

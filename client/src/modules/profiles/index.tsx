@@ -92,6 +92,8 @@ const useStyles = makeStyles((theme) => ({
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
+    maxHeight: '90vh',
+    maxWidth: '90vw',
     width: 578,
     height: 320,
     border: '1px solid #FFFFFF',
@@ -231,6 +233,19 @@ export const Profiles = () => {
         direction="column"
         alignItems="flex-start"
       >
+        <Hidden smUp>
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-end"
+            wrap="nowrap"
+          >
+            <IconButton onClick={handleClickOpen}>
+              <img src="/createProfileIcon.png" alt="share" />
+            </IconButton>
+          </Grid>
+        </Hidden>
         <Grid
           container
           justifyContent="space-between"
@@ -282,7 +297,7 @@ export const Profiles = () => {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            style={{ height: 84 }}
+            style={{ height: '24%' }}
           >
             <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
             <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
@@ -295,12 +310,12 @@ export const Profiles = () => {
             direction="row"
             justifyContent="center"
             alignItems="center"
-            style={{ height: 122 }}
+            style={{ height: '52%' }}
           >
             <OutlinedInput
               value={profileName}
               onChange={(e) => { setProfileName(e.target.value); }}
-              style={{ minWidth: 510, height: 50, fontWeight: 'bold', fontSize: '16px' }}
+              style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
             />
           </Grid>
           <hr style={{ width: '100%', margin: 0 }} />
@@ -309,7 +324,7 @@ export const Profiles = () => {
             direction="row"
             justifyContent="flex-end"
             alignItems="center"
-            style={{ height: 102 }}
+            style={{ height: '24%' }}
           >
             <Button
               style={{ width: 170, marginRight: 34 }}

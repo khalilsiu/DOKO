@@ -55,7 +55,7 @@ export default function EthNfts({ data }: Props) {
         loading={data.loading}
         nfts={data.nfts.slice((page - 1) * 12, (page) * 12)}
         page={page}
-        maxPage={data.nfts.length / 12 + 1}
+        maxPage={Math.floor(data.nfts.length / 12) + 1}
         onNext={() => setPage(page + 1)}
         onPrev={() => setPage(page - 1)}
       />
