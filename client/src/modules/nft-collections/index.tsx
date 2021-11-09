@@ -180,7 +180,7 @@ export const NftCollections = () => {
   const history = useHistory();
 
   const [summary, setSummary] = useState(initialData);
-  const [ownedEthNfts, setOwnedEthNfts] = useState([]);
+  const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
@@ -238,8 +238,12 @@ export const NftCollections = () => {
               }
             }
             resNfts.push(asset);
+            setOwnedEthNfts([...resNfts]);
+            initialData[0].count = resNfts.length;
+            initialData[0].price =
+              resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b);
+            setSummary(initialData);
           }
-          setOwnedEthNfts(resNfts);
           if (res.data.assets.length < 50) {
             break;
           }
