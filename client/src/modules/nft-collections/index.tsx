@@ -1,3 +1,5 @@
+/* eslint-disable no-continue */
+/* eslint-disable no-await-in-loop */
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -31,6 +33,13 @@ import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 
 import './select-search.css';
+
+import OpenSeaAPI from '../../libs/opensea-api';
+
+import eth from './assets/eth.png';
+import bsc from './assets/bsc.png';
+import polygon from './assets/polygon.png';
+import solana from './assets/solana.png';
 
 const CustomTabs = withStyles({
   root: {
@@ -126,8 +135,36 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+const initialData = [
+  {
+    icon: eth,
+    count: 0,
+    price: 0,
+    name: 'Ethereum',
+    available: true,
+  },
+  {
+    icon: bsc,
+    count: 0,
+    price: 0,
+    name: 'BSC',
+  },
+  {
+    icon: polygon,
+    count: 0,
+    price: 0,
+    name: 'Polygon',
+  },
+  {
+    icon: solana,
+    count: 0,
+    price: 0,
+    name: 'Solana',
+  },
+];
+
 export const NftCollections = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [nfts, setNFTs] = useState<any[]>([]);
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
@@ -139,6 +176,13 @@ export const NftCollections = () => {
   const isSolana = isSolAddress(address);
   const history = useHistory();
 
+  const [summary, setSummary] = useState(initialData);
+  const [ownedEthNfts, setOwnedEthNfts] = useState([]);
+
+  const collectionFloorPrice: any = {};
+  const ownedSolanaNfts = {};
+  const ownedPolygonNfts = {};
+
   const handleClickOpen = () => {
     setCreateProfile(true);
   };
@@ -148,84 +192,64 @@ export const NftCollections = () => {
     history.push('/profiles');
   };
 
-  const fetchNfts = async () => {
-    setNFTs([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const resNfts: any = [];
 
-    if (!address || isSolana) {
-      return;
-    }
-    setLoading(true);
-
-    try {
-      const res = await getNFTs(address, (page - 1) * 12, filter);
-      const items = res.data;
-      setNFTs(items);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
-      setNFTs([]);
-    }
-    setLoading(false);
-  };
-
-  const checkSyncStatus = async () => {
-    try {
-      const res = await getAddressStatus(address);
-      const sync = res.data;
-
-      if (sync?.sync_status === 'done' || sync?.sync_status === 'empty') {
-        clearInterval(syncInterval);
-
-        if (Date.now() / 1000 - sync.timestamp < 5000 && sync.sync_status === 'done') {
-          setPage(1);
+      while (1) {
+        let offset = 0;
+        try {
+          const res: any = await OpenSeaAPI.get('/assets', {
+            params: {
+              limit: 50,
+              owner: address,
+              offset,
+            },
+          });
+          for (let j = 0; j < res.data.assets.length; j += 1) {
+            let asset = {};
+            const { slug } = res.data.assets[j].collection;
+            if (collectionFloorPrice[slug]) {
+              asset = {
+                ...res.data.assets[j],
+                floor_price: collectionFloorPrice[slug],
+              };
+            } else {
+              while (1) {
+                try {
+                  const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
+                  collectionFloorPrice[slug] = price_object.data.stats.floor_price;
+                  asset = {
+                    ...res.data.assets[j],
+                    floor_price: collectionFloorPrice[slug],
+                  };
+                  break;
+                } catch (error) {
+                  continue;
+                }
+              }
+            }
+            resNfts.push(asset);
+          }
+          setOwnedEthNfts(resNfts);
+          if (res.data.assets.length < 50) {
+            break;
+          }
+          offset += 1;
+        } catch (error) {
+          continue;
         }
       }
-      setSyncStatus(sync);
-    } catch (err) {
-      if (!syncStatus) {
-        setSyncStatus({});
-      }
-    }
-  };
 
-  useEffect(() => () => clearInterval(syncInterval), []);
-
-  useEffect(() => {
-    clearInterval(syncInterval);
-    setSyncStatus(null);
-
-    if (!address || isSolana) {
-      return;
-    }
-    indexAddress(address);
-
-    syncInterval = setInterval(() => checkSyncStatus(), 3000);
-    checkSyncStatus();
+      initialData[0].count = resNfts.length;
+      initialData[0].price =
+        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b);
+      setSummary(initialData);
+      setOwnedEthNfts(resNfts);
+      setLoading(false);
+    };
+    fetchData();
   }, [address]);
-
-  useEffect(() => {
-    if (page === 1) {
-      fetchNfts();
-    } else {
-      setPage(1);
-    }
-  }, [address, filter]);
-
-  useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
-    page && fetchNfts();
-  }, [page]);
-
-  const reIndex = () => {
-    if (isSolAddress(address)) {
-      return;
-    }
-    indexAddress(address, true);
-    setSyncStatus(null);
-    setNFTs([]);
-    clearInterval(syncInterval);
-    syncInterval = setInterval(() => checkSyncStatus(), 3000);
-  };
 
   return (
     <>
@@ -288,22 +312,20 @@ export const NftCollections = () => {
           </Grid>
           <TabPanel index={0} value={tabValue}>
 
-            <Summary address={address} />
+            <Summary data={{ summary }} />
 
-            <EthNfts address={address} />
+            <EthNfts data={{ nfts: ownedEthNfts, loading }} />
 
-            <SolNfts address={address} />
-
+            <SolNfts data={{}} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               BSC & Polygon NFTs (Beta)
             </SectionLabel>
             <Filter onChange={setFilter} />
             <NftPagination
-              nfts={nfts}
+              nfts={[]}
               page={page}
               onNext={() => setPage(page + 1)}
               onPrev={() => setPage(page - 1)}
-              loading={loading}
             />
           </TabPanel>
         </Grid>
