@@ -188,7 +188,7 @@ export const NftCollections = () => {
   const [filter, setFilter] = useState<any>({});
   const [page, setPage] = useState(0);
   const [createProfile, setCreateProfile] = useState(false);
-  const [ownedEthNfts, setOwnedEthNfts] = useState([]);
+  const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const history = useHistory();
@@ -414,8 +414,10 @@ export const NftCollections = () => {
                 }
               }
               resNfts.push(asset);
+              setOwnedEthNfts([...resNfts]);
+              initialData[0].count = resNfts.length;
+              setSummary(initialData);
             }
-            setOwnedEthNfts(resNfts);
             if (res.data.assets.length < 50) {
               break;
             }
