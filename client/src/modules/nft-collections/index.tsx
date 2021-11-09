@@ -10,8 +10,12 @@ import {
   Tooltip,
   Typography,
   withStyles,
+  Button,
+  Modal,
+  OutlinedInput,
 } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
+import CloseIcon from '@material-ui/icons/Close';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { TabPanel, NftPagination, Meta } from '../../components';
@@ -87,7 +91,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   addressContainer: {
-    marginBottom: 24,
+    marginBottom: 12,
     [theme.breakpoints.down('xs')]: {
       justifyContent: 'center',
       alignItems: 'center',
@@ -99,6 +103,27 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 30,
     },
   },
+  createProfileButton: {
+    cursor: 'pointer',
+    right: '4%',
+    width: 162,
+    height: 46,
+    zIndex: 999,
+    position: 'absolute',
+  },
+  createProfileDialog: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 578,
+    height: 320,
+    border: '1px solid #FFFFFF',
+    background: '#000000',
+    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.75)',
+    borderRadius: '23px',
+  },
+
 }));
 
 export const NftCollections = () => {
@@ -110,7 +135,18 @@ export const NftCollections = () => {
   const [filter, setFilter] = useState<any>({});
   const [syncStatus, setSyncStatus] = useState<any>(null);
   const [page, setPage] = useState(0);
+  const [createProfile, setCreateProfile] = useState(false);
   const isSolana = isSolAddress(address);
+  const history = useHistory();
+
+  const handleClickOpen = () => {
+    setCreateProfile(true);
+  };
+
+  const handleSubmit = () => {
+    setCreateProfile(false);
+    history.push('/profiles');
+  };
 
   const fetchNfts = async () => {
     setNFTs([]);
@@ -227,54 +263,30 @@ export const NftCollections = () => {
                   style={{ fontWeight: 'bolder' }}
                 >
                   {minimizeAddress(address)}
-                  {!isSolana && (
-                    <Tooltip title="Refetch all of your nfts">
-                      <CustomIconButton
-                        disabled={
-                          !syncStatus ||
-                          syncStatus.sync_status === 'progress' ||
-                          syncStatus.sync_status === 'new'
-                        }
-                        onClick={() => reIndex()}
-                        color="secondary"
-                      >
-                        <RefreshOutlinedIcon />
-                      </CustomIconButton>
-                    </Tooltip>
-                  )}
                 </Typography>
                 <Grid item>
                   <CopyAddress address={address} />
                 </Grid>
               </Grid>
             </Grid>
-            {!isSolana && (
-              <Grid item xs={6}>
-                <Hidden xsDown>
-                  <Grid container justifyContent="flex-end">
-                    <AddressStatus status={syncStatus} loader={false} />
-                  </Grid>
-                </Hidden>
-              </Grid>
-            )}
           </Grid>
-          <CustomTabs
-            indicatorColor="primary"
-            textColor="primary"
-            value={tabValue}
-            onChange={(event, newValue) => setTabValue(newValue)}
-          >
-            <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
-          </CustomTabs>
-
+          <Grid item style={{ width: '100%' }}>
+            <Hidden xsDown>
+              <Button className={styles.createProfileButton} onClick={handleClickOpen}>
+                <img src="/createProfileButton.png" alt="Create Profile" />
+              </Button>
+            </Hidden>
+            <CustomTabs
+              style={{ marginTop: 12 }}
+              indicatorColor="primary"
+              textColor="primary"
+              value={tabValue}
+              onChange={(event, newValue) => setTabValue(newValue)}
+            >
+              <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
+            </CustomTabs>
+          </Grid>
           <TabPanel index={0} value={tabValue}>
-            {!isSolana && (
-              <Hidden smUp>
-                <Grid container justifyContent="flex-end">
-                  <AddressStatus status={syncStatus} loader={false} />
-                </Grid>
-              </Hidden>
-            )}
 
             <Summary address={address} />
 
@@ -296,6 +308,51 @@ export const NftCollections = () => {
           </TabPanel>
         </Grid>
       </Grid>
+      <Modal open={createProfile}>
+        <div className={styles.createProfileDialog}>
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            style={{ height: 84 }}
+          >
+            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
+            <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
+              <CloseIcon style={{ fill: '#FFFFFF' }} />
+            </IconButton>
+          </Grid>
+          <hr style={{ width: '100%', margin: 0 }} />
+          <Grid
+            container
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            style={{ height: 122 }}
+          >
+            <OutlinedInput
+              style={{ minWidth: 510, height: 50, fontWeight: 'bold', fontSize: '16px' }}
+            />
+          </Grid>
+          <hr style={{ width: '100%', margin: 0 }} />
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
+            style={{ height: 102 }}
+          >
+            <Button
+              style={{ width: 170, marginRight: 34 }}
+              className="gradient-button"
+              variant="outlined"
+              onClick={handleSubmit}
+            >
+              Create Profile
+            </Button>
+          </Grid>
+        </div>
+      </Modal>
     </>
   );
 };
