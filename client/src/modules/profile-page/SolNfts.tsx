@@ -5,42 +5,13 @@ import { getSolNfts } from '../../libs/solana';
 import { isSolAddress } from '../../libs/utils';
 
 interface Props {
-  address: string;
+  data: any;
 }
 
-export default function SolNfts({ address }: Props) {
+export default function SolNfts({ data }: Props) {
   const [nfts, setNfts] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-
-  const fetchNfts = () => {
-    setNfts([]);
-
-    if (!isSolAddress(address)) {
-      return;
-    }
-    setLoading(true);
-
-    getSolNfts(address, (page - 1) * 12).then((res) => {
-      if (res) {
-        setNfts(res.data as any);
-      }
-      setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
-    page && fetchNfts();
-  }, [page]);
-
-  useEffect(() => {
-    if (page === 1) {
-      fetchNfts();
-    } else {
-      setPage(1);
-    }
-  }, [address]);
 
   return (
     <div style={{ marginTop: 36 }}>

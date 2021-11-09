@@ -1,3 +1,5 @@
+/* eslint-disable no-continue */
+/* eslint-disable no-await-in-loop */
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -13,6 +15,7 @@ import {
   Button,
   Modal,
   OutlinedInput,
+  Checkbox,
 } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
@@ -31,6 +34,24 @@ import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 import { PopoverShare } from '../../components/PopoverShare';
 
+import OpenSeaAPI from '../../libs/opensea-api';
+
+import eth from './assets/eth.png';
+import bsc from './assets/bsc.png';
+import polygon from './assets/polygon.png';
+import solana from './assets/solana.png';
+
+type Icons = {
+  [key: string]: string
+}
+
+const icon: Icons = {
+  eth,
+  bsc,
+  polygon,
+  solana,
+};
+
 const CustomTabs = withStyles({
   root: {
     width: '100%',
@@ -45,14 +66,6 @@ const CustomTab = withStyles({
     textTransform: 'none',
   },
 })(Tab);
-
-const CustomIconButton = withStyles({
-  disabled: {
-    color: '#333 !important',
-  },
-})(IconButton);
-
-let syncInterval: any;
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -132,19 +145,49 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-const profile = { name: 'DOKO1331111', address: [['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243'], ['solana', '0x281a6a58E6684AE5fA51c4efe27dB8B38065c243']], hash: 'abc' };
+const initialData = [
+  {
+    icon: eth,
+    count: 0,
+    price: 0,
+    name: 'Ethereum',
+    available: true,
+  },
+  {
+    icon: bsc,
+    count: 0,
+    price: 0,
+    name: 'BSC',
+  },
+  {
+    icon: polygon,
+    count: 0,
+    price: 0,
+    name: 'Polygon',
+  },
+  {
+    icon: solana,
+    count: 0,
+    price: 0,
+    name: 'Solana',
+  },
+];
 
 export const NftCollections = () => {
-  const [loading, setLoading] = useState(false);
-  const [nfts, setNFTs] = useState<any[]>([]);
-  const address = '0x281a6a58e6684ae5fa51c4efe27db8b38065c243';
+  const [summary, setSummary] = useState(initialData);
+  const { hash } = useParams<{ hash: string }>();
+  const profile: any = JSON.parse(atob(hash));
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
-  const [syncStatus, setSyncStatus] = useState<any>(null);
   const [page, setPage] = useState(0);
   const [createProfile, setCreateProfile] = useState(false);
-  const isSolana = isSolAddress(address);
+  const [ownedEthNfts, setOwnedEthNfts] = useState([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const collectionFloorPrice: any = {};
+  const ownedSolanaNfts = {};
+  const ownedPolygonNfts = {};
 
   const handleClickOpen = () => {
     setCreateProfile(true);
@@ -154,38 +197,213 @@ export const NftCollections = () => {
     setCreateProfile(false);
   };
 
-  const fetchNfts = async () => {
-    setNFTs([]);
-
-    if (!address || isSolana) {
-      return;
-    }
-    setLoading(true);
-
-    try {
-      const res = await getNFTs(address, (page - 1) * 12, filter);
-      const items = res.data;
-      setNFTs(items);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
-      setNFTs([]);
-    }
-    setLoading(false);
-  };
+  const renderAddressList = () => (
+    <Hidden xsDown>
+      <Grid container direction="row" justifyContent="flex-start">
+        <Grid direction="column">
+          {profile.address[0] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[0][0]]} alt={profile.address[0][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              variant="h3"
+              style={{ fontSize: 22 }}
+            >
+              {`${profile.address[0][1].substr(0, 6)}...${profile.address[0][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
+          {profile.address[1] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[1][0]]} alt={profile.address[1][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              variant="h3"
+              style={{ fontSize: 22 }}
+            >
+              {`${profile.address[1][1].substr(0, 6)}...${profile.address[1][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
+        </Grid>
+        <Grid direction="column">
+          {profile.address[2] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[2][0]]} alt={profile.address[2][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              style={{ fontSize: 22 }}
+            >
+              {`${profile.address[2][1].substr(0, 6)}...${profile.address[2][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
+          {profile.address[3] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[3][0]]} alt={profile.address[3][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              variant="h3"
+              style={{ fontSize: 22 }}
+            >
+              {`${profile.address[3][1].substr(0, 6)}...${profile.address[3][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
+        </Grid>
+        <Grid direction="column">
+          {profile.address[4] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[4][0]]} alt={profile.address[4][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              variant="h3"
+              style={{ fontSize: 22 }}
+            >
+              {`${profile.address[4][1].substr(0, 6)}...${profile.address[4][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
+          {profile.address[5] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[5][0]]} alt={profile.address[5][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              variant="h3"
+              style={{ fontSize: 22 }}
+            >
+              {`${profile.address[5][1].substr(0, 6)}...${profile.address[5][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
+        </Grid>
+      </Grid>
+    </Hidden>
+  );
 
   useEffect(() => {
-    if (page === 1) {
-      fetchNfts();
-    } else {
-      setPage(1);
-    }
-  }, [address, filter]);
-
-  useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
-    page && fetchNfts();
-  }, [page]);
+    const fetchData = async () => {
+      const resNfts: any = [];
+      for (let i = 0; i < profile.address.length; i += 1) {
+        let offset = 0;
+        while (1) {
+          try {
+            const res: any = await OpenSeaAPI.get('/assets', {
+              params: {
+                limit: 50,
+                owner: profile.address[i][1],
+                offset,
+              },
+            });
+            for (let j = 0; j < res.data.assets.length; j += 1) {
+              let asset = {};
+              const { slug } = res.data.assets[j].collection;
+              if (collectionFloorPrice[slug]) {
+                asset = {
+                  ...res.data.assets[j],
+                  floor_price: collectionFloorPrice[slug],
+                };
+              } else {
+                while (1) {
+                  try {
+                    const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
+                    collectionFloorPrice[slug] = price_object.data.stats.floor_price;
+                    asset = {
+                      ...res.data.assets[j],
+                      floor_price: collectionFloorPrice[slug],
+                    };
+                    break;
+                  } catch (error) {
+                    continue;
+                  }
+                }
+              }
+              resNfts.push(asset);
+            }
+            setOwnedEthNfts(resNfts);
+            if (res.data.assets.length < 50) {
+              break;
+            }
+            offset += 1;
+          } catch (error) {
+            continue;
+          }
+        }
+      }
+      initialData[0].count = resNfts.length;
+      initialData[0].price =
+        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b);
+      setOwnedEthNfts(resNfts);
+      setLoading(false);
+    };
+    fetchData();
+  }, [hash]);
 
   return (
     <>
@@ -228,10 +446,11 @@ export const NftCollections = () => {
                     <Typography
                       style={{ marginLeft: 5, fontFamily: 'Open Sans', fontSize: 12 }}
                     >
-                      Addresses
+                      ADDRESSES
                     </Typography>
                   </Hidden>
                 </Grid>
+                {renderAddressList()}
               </Grid>
             </Grid>
             <Hidden smUp>
@@ -247,7 +466,7 @@ export const NftCollections = () => {
             </Hidden>
             <Hidden xsDown>
               <Grid>
-                <PopoverShare address={address} tokenId="test" chain="test" name="test" />
+                <PopoverShare address={hash} tokenId="test" chain="test" name="test" />
               </Grid>
             </Hidden>
           </Grid>
@@ -268,23 +487,20 @@ export const NftCollections = () => {
             </CustomTabs>
           </Grid>
           <TabPanel index={0} value={tabValue}>
+            <Summary data={{ summary }} />
 
-            <Summary address={address} />
+            <EthNfts data={{ nfts: ownedEthNfts, loading }} />
 
-            <EthNfts address={address} />
-
-            <SolNfts address={address} />
-
+            <SolNfts data={{}} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               BSC & Polygon NFTs (Beta)
             </SectionLabel>
             <Filter onChange={setFilter} />
             <NftPagination
-              nfts={nfts}
+              nfts={[]}
               page={page}
               onNext={() => setPage(page + 1)}
               onPrev={() => setPage(page - 1)}
-              loading={loading}
             />
           </TabPanel>
         </Grid>

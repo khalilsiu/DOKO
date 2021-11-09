@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
-  address: string;
+  data: any;
 }
 
 const initialData = [
@@ -64,31 +64,8 @@ const initialData = [
   },
 ];
 
-export const Summary = ({ address }: Props) => {
-  const [chains, setChains] = useState(initialData);
+export const Summary = ({ data }: Props) => {
   const classes = useStyles();
-
-  const fetchNFTsCount = async () => {
-    const chainData = JSON.parse(JSON.stringify(initialData));
-
-    if (isSolAddress(address)) {
-      chainData[3].count = await getSolNftsCount(address);
-    } else {
-      const { data } = await getNFTsCount(address);
-      const ethNFTs = await getAllEthAssets(address);
-
-      chainData[0].count = ethNFTs.length;
-      chainData[1].count = data.bsc;
-      chainData[2].count = data.polygon;
-
-      chainData[0].price = await getFloorPrice(address);
-    }
-    setChains(chainData);
-  };
-
-  useEffect(() => {
-    fetchNFTsCount();
-  }, [address]);
 
   return (
     <>
@@ -96,7 +73,7 @@ export const Summary = ({ address }: Props) => {
         Summary
       </SectionLabel>
       <Grid style={{ marginTop: 32, marginBottom: 64 }} container spacing={2}>
-        {chains.map((item) => (
+        {data.summary.map((item: any) => (
           <Grid item key={item.name} xs={12} sm={6} lg={3}>
             <Grid container direction="column" style={{ height: '100%' }}>
               <Grid container alignItems="center">

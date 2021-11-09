@@ -11,63 +11,14 @@ import { isSolAddress } from '../../libs/utils';
 import './select-search.css';
 
 interface Props {
-  address: string;
+  data: any;
 }
 
-export default function EthNfts({ address }: Props) {
+export default function EthNfts({ data }: Props) {
   const [nfts, setNfts] = useState([]);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState('');
-
-  const setFloorPrice = (assets: any, cols: any) =>
-    assets.map((asset: any) => ({
-      ...asset,
-      floor_price:
-        (cols as any).find((c: any) => asset.collection.slug === c.value)?.floor_price || 0,
-    }));
-
-  const fetchNfts = (pageNumber: number) => {
-    setNfts([]);
-
-    if (isSolAddress(address)) {
-      return;
-    }
-    setLoading(true);
-    setPage(pageNumber);
-    getEthAssets(address, (pageNumber - 1) * 12, selectedCollection).then((res) => {
-      if (res.assets) {
-        const assets = setFloorPrice(res.assets, collections);
-        setNfts(assets);
-      }
-      setLoading(false);
-    });
-  };
-
-  const fetchCollections = () => {
-    if (isSolAddress(address)) {
-      setCollections([]);
-      return;
-    }
-    getEthCollections(address)
-      .then((res) => {
-        const options = res.map((r: any) => ({
-          value: r.slug,
-          name: r.name,
-          image: r.image_url,
-          floor_price: r.stats.floor_price,
-        }));
-        setCollections(options);
-
-        if (nfts?.length) {
-          setNfts(setFloorPrice(nfts, options));
-        }
-      })
-      .catch(() => {
-        setCollections([]);
-      });
-  };
 
   const filterCollection = (v: any) => {
     setSelectedCollection(v);
@@ -79,24 +30,6 @@ export default function EthNfts({ address }: Props) {
     }
     return collections.filter((c: any) => c.name.toLowerCase().includes(query.toLowerCase()));
   };
-
-  // const renderOption = (domProps: DomProps, option: any) => {
-  //   console.log(domProps, option);
-  //   return (
-  //     <Grid container alignItems="center" wrap="nowrap">
-  //       <img width={24} height={24} src={option.image} alt="" />
-  //       <span>{option.name}</span>
-  //     </Grid>
-  //   );
-  // };
-  useEffect(() => {
-    fetchNfts(1);
-  }, [selectedCollection]);
-
-  useEffect(() => {
-    fetchNfts(1);
-    fetchCollections();
-  }, [address]);
 
   return (
     <div>
@@ -119,11 +52,12 @@ export default function EthNfts({ address }: Props) {
       </Grid>
       <NftPagination
         isOpenSea
-        loading={loading}
-        nfts={nfts}
+        loading={data.loading}
+        nfts={data.nfts.slice((page - 1) * 12, (page) * 12)}
         page={page}
-        onNext={() => fetchNfts(page + 1)}
-        onPrev={() => fetchNfts(page - 1)}
+        maxPage={data.nfts.length / 12 + 1}
+        onNext={() => setPage(page + 1)}
+        onPrev={() => setPage(page - 1)}
       />
     </div>
   );

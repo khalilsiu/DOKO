@@ -15,12 +15,14 @@ import {
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/MoreVert';
 import { useHistory } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
 import Address from './Address';
 
 interface ProfileItemProps {
   profile: any;
   onClickEdit: any;
+  onClickDelete: any;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -42,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ProfileItem = memo(({ profile, onClickEdit }: ProfileItemProps) => {
+export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: ProfileItemProps) => {
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const history = useHistory();
@@ -50,6 +52,7 @@ export const ProfileItem = memo(({ profile, onClickEdit }: ProfileItemProps) => 
   const titleRef = useRef<any>(null);
 
   const [titleLength, setTitleLength] = useState(11);
+  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
 
   useEffect(() => {
     function handleResize() {
@@ -93,7 +96,7 @@ export const ProfileItem = memo(({ profile, onClickEdit }: ProfileItemProps) => 
 
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-    <Grid item xs={12} sm={6} lg={4}>
+    <Grid item xs={12} sm={6} lg={4} style={{ minWidth: '25vw' }}>
       <Grid className={styles.card}>
         <Grid
           container
@@ -104,16 +107,16 @@ export const ProfileItem = memo(({ profile, onClickEdit }: ProfileItemProps) => 
           ref={titleRef}
         >
           <Typography variant="h5" style={{ fontWeight: 'bold', fontSize: '20px', lineHeight: '33px' }}>
-            {`${shortenName(profile.name)} (${profile.address.length})`}
+            {`${shortenName(profile)} (${cookies.profiles[profile].address.length})`}
           </Typography>
           <div>
             <Button
               className="gradient-button"
               variant="outlined"
               style={{ fontSize: 12, lineHeight: '16px' }}
-              onClick={() => { history.push(`/profiles/${profile.hash}`); }}
+              onClick={() => { history.push(`/profiles/${cookies.profiles[profile].hash}`); }}
             >
-              Profile
+              View
             </Button>
             <IconButton onClick={handleClick}>
               <MenuIcon style={{ fill: '#FFFFFF' }} />
@@ -126,13 +129,13 @@ export const ProfileItem = memo(({ profile, onClickEdit }: ProfileItemProps) => 
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
               transformOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-              <MenuItem className={styles.options} onClick={() => {}}>
+              <MenuItem className={styles.options} onClick={(e) => { navigator.clipboard.writeText(`https://doko.one/profiles/$${cookies.profiles[profile].hash}`); handleClose(e); }}>
                 Copy Url
               </MenuItem>
-              <MenuItem className={styles.options} onClick={onClickEdit}>
+              <MenuItem className={styles.options} onClick={(e) => { onClickEdit(); handleClose(e); }}>
                 Edit
               </MenuItem>
-              <MenuItem className={styles.options} onClick={() => {}}>
+              <MenuItem className={styles.options} onClick={(e) => { onClickDelete(); handleClose(e); }}>
                 Delete
               </MenuItem>
             </Menu>
@@ -140,7 +143,7 @@ export const ProfileItem = memo(({ profile, onClickEdit }: ProfileItemProps) => 
         </Grid>
         <hr style={{ border: 'none', backgroundColor: 'rgba(255, 255, 255, 0.5)', height: '1px', width: '100%', margin: 0 }} />
 
-        {profile.address.length ? (
+        {cookies.profiles[profile].address.length ? (
           <Grid
             container
             direction="column"
@@ -148,7 +151,7 @@ export const ProfileItem = memo(({ profile, onClickEdit }: ProfileItemProps) => 
             style={{ height: '80%' }}
             wrap="nowrap"
           >
-            {profile.address.map((address: any) => (<Address address={address} />))}
+            {cookies.profiles[profile].address.map((address: any) => (<Address address={address} />))}
           </Grid>)
           :
           (
