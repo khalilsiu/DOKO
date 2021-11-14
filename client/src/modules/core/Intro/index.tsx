@@ -59,7 +59,7 @@ const Intro = ({ drawer = false }: Props) => {
               <Link style={{ textDecoration: 'none' }} to={`/address/${address}`}>
                 <Button className={styles.profileButton}>
                   <img width={16} src="/CollectionsIcon.png" alt="" />
-                  <span style={{ marginLeft: 12, color: 'white' }}>Your Profile</span>
+                  <span style={{ marginLeft: 12, color: 'white' }}>Your Address</span>
                 </Button>
               </Link>
             ) : (

@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 36,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
+      marginTop: 0,
     },
     minHeight: 'calc(100vh)',
   },
@@ -52,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 36,
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 0,
+      marginTop: 0,
     },
   },
   titleContainer: {
@@ -217,6 +219,7 @@ export const Profiles = () => {
 
   const onClickSave = () => {
     setAddAddress(false);
+    setNewAddress('');
     const profiles = cookies.profiles ? cookies.profiles : {};
     if (profiles[editProfile].address.length < 6) {
       profiles[editProfile].address.push([addressType, newAddress]);
@@ -402,14 +405,15 @@ export const Profiles = () => {
           style={{ paddingBottom: 20 }}
         >
           <Typography className={styles.connectedAddress}>
-            {`Addresses Connected (${cookies.profiles?.[editProfile].address.length})`}
+            {`Address Connected (${cookies.profiles?.[editProfile].address.length})`}
           </Typography>
         </Grid>
+        {cookies.profiles?.[editProfile].address.length < 6 &&
         <Grid container>
           <Button className={styles.buttons} onClick={() => setAddAddress(true)}>
             <img src="/addAddress.png" alt="add address" />
           </Button>
-        </Grid>
+        </Grid>}
         {cookies.profiles?.[editProfile].address.map((adrs: any) => (
           <Grid
             container
@@ -456,7 +460,7 @@ export const Profiles = () => {
             style={{ padding: 30, height: '76%' }}
           >
             <Typography style={{ fontSize: 21 }}>Select Blockchain</Typography>
-            <Typography style={{ fontSize: 14 }}>Select the blockchain of the address that you want to create the profile with.</Typography>
+            <Typography style={{ fontSize: 14 }}>Select the type of address that you want to add to the profile.</Typography>
             <Grid
               container
               direction="row"
@@ -483,7 +487,7 @@ export const Profiles = () => {
               </div>
             </Grid>
             <Typography style={{ fontSize: 21, marginTop: 15 }}>Enter your address</Typography>
-            <Typography style={{ fontSize: 14 }}>Enter the addresses of the wallet that you would like to create the profile with.</Typography>
+            <Typography style={{ fontSize: 14 }}>Enter the address that you want to add to the profile</Typography>
             <Grid
               container
               direction="row"

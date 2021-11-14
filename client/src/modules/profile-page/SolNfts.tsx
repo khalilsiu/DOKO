@@ -10,8 +10,14 @@ interface Props {
 
 export default function SolNfts({ data }: Props) {
   const [nfts, setNfts] = useState([]);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
+  const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setNfts(data.nfts);
+    setCollections(data.collections);
+  }, [data]);
 
   return (
     <div style={{ marginTop: 36 }}>
@@ -20,9 +26,10 @@ export default function SolNfts({ data }: Props) {
       </SectionLabel>
       <NftPagination
         isSolana
-        loading={loading}
-        nfts={nfts}
+        loading={data.loading}
+        nfts={nfts.slice((page - 1) * 12, (page) * 12)}
         page={page}
+        maxPage={Math.floor(nfts.length / 12) + 1}
         onNext={() => setPage(page + 1)}
         onPrev={() => setPage(page - 1)}
       />
