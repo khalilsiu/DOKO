@@ -184,6 +184,7 @@ export const NftCollections = () => {
 
   const [summary, setSummary] = useState(initialData);
   const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
+  const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
@@ -263,6 +264,7 @@ export const NftCollections = () => {
         resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
       setSummary(initialData);
       setOwnedEthNfts(resNfts);
+      setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
       setLoading(false);
     };
     fetchData();

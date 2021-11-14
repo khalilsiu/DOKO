@@ -25,6 +25,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { useCookies } from 'react-cookie';
+import { OpenInBrowserRounded } from '@material-ui/icons';
+import { SSL_OP_TLS_D5_BUG } from 'constants';
 import { TabPanel, NftPagination, Meta, RadiusInput } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { Filter } from './Filter';
@@ -194,6 +196,7 @@ export const NftCollections = () => {
   const [page, setPage] = useState(0);
   const [createProfile, setCreateProfile] = useState(false);
   const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
+  const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const history = useHistory();
@@ -401,20 +404,20 @@ export const NftCollections = () => {
             }
             for (let j = 0; j < res.data.assets.length; j += 1) {
               let asset = {};
-              const { slug } = res.data.assets[j].collection;
-              if (collectionFloorPrice[slug]) {
+              const { slug, name } = res.data.assets[j].collection;
+              if (collectionFloorPrice[name]) {
                 asset = {
                   ...res.data.assets[j],
-                  floor_price: collectionFloorPrice[slug],
+                  floor_price: collectionFloorPrice[name],
                 };
               } else {
                 while (1) {
                   try {
                     const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
-                    collectionFloorPrice[slug] = price_object.data.stats.floor_price;
+                    collectionFloorPrice[name] = price_object.data.stats.floor_price;
                     asset = {
                       ...res.data.assets[j],
-                      floor_price: collectionFloorPrice[slug],
+                      floor_price: collectionFloorPrice[name],
                     };
                     break;
                   } catch (error: any) {
@@ -423,6 +426,7 @@ export const NftCollections = () => {
                   }
                 }
               }
+              setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
               resNfts.push(asset);
               setOwnedEthNfts([...resNfts]);
               initialData[0].count = resNfts.length;
@@ -440,12 +444,8 @@ export const NftCollections = () => {
           }
         }
       }
-      initialData[0].count = resNfts.length;
-      initialData[0].price =
-        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
       initialData[0].loading = false;
       setSummary(initialData);
-      setOwnedEthNfts(resNfts);
       setLoading(false);
     };
     fetchData();
@@ -584,7 +584,7 @@ export const NftCollections = () => {
           <TabPanel index={0} value={tabValue}>
             <Summary data={{ summary }} />
 
-            <EthNfts data={{ nfts: ownedEthNfts, loading }} />
+            <EthNfts data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading }} />
 
             <SolNfts data={{}} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
