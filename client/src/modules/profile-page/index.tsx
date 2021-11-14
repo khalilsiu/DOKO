@@ -41,6 +41,7 @@ import { Summary } from './Summary';
 import { PopoverShare } from '../../components/PopoverShare';
 
 import OpenSeaAPI from '../../libs/opensea-api';
+import { getSolNfts } from '../../libs/solana';
 
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
@@ -193,19 +194,22 @@ export const NftCollections = () => {
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [createProfile, setCreateProfile] = useState(false);
   const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
   const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [ownedSolNfts, setOwnedSolNfts] = useState<any>([]);
+  const [ownedSolCollections, setOwnedSolCollections] = useState<any>([]);
+  const [ownedBscNfts, setOwnedBscNfts] = useState<any>([]);
+  const [eth_loading, setEth_Loading] = useState<boolean>(true);
+  const [sol_loading, setSol_Loading] = useState<boolean>(true);
+  const [bsc_loading, setBsc_Loading] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const history = useHistory();
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
   const collectionFloorPrice: any = {};
-  const ownedSolanaNfts = {};
-  const ownedPolygonNfts = {};
 
   const handleClickOpen = () => {
     setCreateProfile(true);
@@ -386,9 +390,45 @@ export const NftCollections = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchBscData = async () => {
+      let bscNfts: any = [];
+      for (let i = 0; i < profile.address.length; i += 1) {
+        if (isSolAddress(profile.address[i][1])) continue;
+        let offset = 1;
+        while (1) {
+          const res = await getNFTs(profile.address[i][1], (offset - 1) * 12);
+          bscNfts = [...bscNfts, ...res.data];
+          if (res.data.length === 0) { break; }
+          offset += 1;
+        }
+      }
+      const sort = bscNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
+      setOwnedBscNfts([...sort]);
+      sort.forEach((i) => {
+        if (i.chain === 'bsc') { initialData[1].count += 1; } else initialData[2].count += 1;
+      });
+      setSummary(initialData);
+      setBsc_Loading(false);
+    };
+    const fetchSolanaData = async () => {
+      let solNfts: any = [];
+      for (let i = 0; i < profile.address.length; i += 1) {
+        if (!isSolAddress(profile.address[i][1])) continue;
+        const res = await getSolNfts(profile.address[i][1]);
+        if (res) {
+          solNfts = [...solNfts, ...res.data];
+        }
+      }
+      const sort = solNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
+      setOwnedSolNfts([...sort]);
+      initialData[3].count = sort.length;
+      setSummary(initialData);
+      setSol_Loading(false);
+    };
+    const fetchEthData = async () => {
       const resNfts: any = [];
       for (let i = 0; i < profile.address.length; i += 1) {
+        if (isSolAddress(profile.address[i][1])) continue;
         let offset = 0;
         while (1) {
           try {
@@ -446,9 +486,11 @@ export const NftCollections = () => {
       }
       initialData[0].loading = false;
       setSummary(initialData);
-      setLoading(false);
+      setEth_Loading(false);
     };
-    fetchData();
+    fetchEthData();
+    fetchSolanaData();
+    fetchBscData();
   }, [hash]);
 
   return (
@@ -584,16 +626,17 @@ export const NftCollections = () => {
           <TabPanel index={0} value={tabValue}>
             <Summary data={{ summary }} />
 
-            <EthNfts data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading }} />
+            <EthNfts data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading: eth_loading }} />
 
-            <SolNfts data={{}} />
+            <SolNfts data={{ nfts: ownedSolNfts, collections: ownedSolCollections, loading: sol_loading }} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               BSC & Polygon NFTs (Beta)
             </SectionLabel>
-            <Filter onChange={setFilter} />
             <NftPagination
-              nfts={[]}
+              loading={bsc_loading}
+              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
               page={page}
+              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
               onNext={() => setPage(page + 1)}
               onPrev={() => setPage(page - 1)}
             />

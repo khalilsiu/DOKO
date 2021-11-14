@@ -38,6 +38,7 @@ import { Summary } from './Summary';
 import './select-search.css';
 
 import OpenSeaAPI from '../../libs/opensea-api';
+import { getSolNfts } from '../../libs/solana';
 
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
@@ -177,7 +178,7 @@ export const NftCollections = () => {
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
   const [syncStatus, setSyncStatus] = useState<any>(null);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [createProfile, setCreateProfile] = useState(false);
   const isSolana = isSolAddress(address);
   const history = useHistory();
@@ -185,12 +186,16 @@ export const NftCollections = () => {
   const [summary, setSummary] = useState(initialData);
   const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
   const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
+  const [ownedSolNfts, setOwnedSolNfts] = useState<any>([]);
+  const [ownedSolCollections, setOwnedSolCollections] = useState<any>([]);
+  const [ownedBscNfts, setOwnedBscNfts] = useState<any>([]);
+  const [eth_loading, setEth_Loading] = useState<boolean>(true);
+  const [sol_loading, setSol_Loading] = useState<boolean>(true);
+  const [bsc_loading, setBsc_Loading] = useState<boolean>(true);
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
   const collectionFloorPrice: any = {};
-  const ownedSolanaNfts = {};
-  const ownedPolygonNfts = {};
 
   const handleClickOpen = () => {
     setCreateProfile(true);
@@ -205,7 +210,40 @@ export const NftCollections = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchBscData = async () => {
+      let bscNfts: any = [];
+      if (isSolAddress(address)) return;
+      let offset = 1;
+      while (1) {
+        const res = await getNFTs(address, (offset - 1) * 12);
+        bscNfts = [...bscNfts, ...res.data];
+        if (res.data.length === 0) { break; }
+        offset += 1;
+      }
+      const sort = bscNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
+      setOwnedBscNfts([...sort]);
+      sort.forEach((i) => {
+        if (i.chain === 'bsc') { initialData[1].count += 1; } else initialData[2].count += 1;
+      });
+      setSummary(initialData);
+      setBsc_Loading(false);
+    };
+    const fetchSolanaData = async () => {
+      let solNfts: any = [];
+
+      if (!isSolAddress(address)) return;
+      const res = await getSolNfts(address);
+      if (res) {
+        solNfts = [...solNfts, ...res.data];
+      }
+
+      const sort = solNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
+      setOwnedSolNfts([...sort]);
+      initialData[3].count = sort.length;
+      setSummary(initialData);
+      setSol_Loading(false);
+    };
+    const fetchEthData = async () => {
       const resNfts: any = [];
 
       while (1) {
@@ -267,7 +305,9 @@ export const NftCollections = () => {
       setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
       setLoading(false);
     };
-    fetchData();
+    fetchEthData();
+    fetchSolanaData();
+    fetchBscData();
   }, [address]);
 
   return (
@@ -344,18 +384,17 @@ export const NftCollections = () => {
           </Grid>
           <TabPanel index={0} value={tabValue}>
 
-            <Summary data={{ summary }} />
+            <EthNfts data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading: eth_loading }} />
 
-            <EthNfts data={{ nfts: ownedEthNfts, loading }} />
-
-            <SolNfts data={{}} />
+            <SolNfts data={{ nfts: ownedSolNfts, collections: ownedSolCollections, loading: sol_loading }} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               BSC & Polygon NFTs (Beta)
             </SectionLabel>
-            <Filter onChange={setFilter} />
             <NftPagination
-              nfts={[]}
+              loading={bsc_loading}
+              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
               page={page}
+              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
               onNext={() => setPage(page + 1)}
               onPrev={() => setPage(page - 1)}
             />
