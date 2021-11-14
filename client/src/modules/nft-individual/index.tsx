@@ -63,6 +63,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 36,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
+      marginTop: 0,
     },
     minHeight: 'calc(100vh)',
   },

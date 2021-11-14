@@ -1,6 +1,7 @@
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
+import { useState, useEffect, useRef } from 'react';
 
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
@@ -44,6 +45,7 @@ const icon: Icons = {
 
 export const Address = ({ address }: AddressProps) => {
   const styles = useStyles();
+
   return (
     <Grid
       container
@@ -54,7 +56,7 @@ export const Address = ({ address }: AddressProps) => {
       style={{ height: '20%', paddingLeft: '5%', paddingRight: '5%' }}
     >
       <img width={20} src={icon[address[0]]} alt={address[0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-      <Typography noWrap style={{ fontSize: '18px', fontFamily: 'Open Sans' }}>{address[1]}</Typography>
+      <Typography noWrap style={{ fontSize: '18px', fontFamily: 'Open Sans' }}>{`${address[1].substr(0, 6)}...${address[1].substr(-4)}`}</Typography>
     </Grid>
   );
 };

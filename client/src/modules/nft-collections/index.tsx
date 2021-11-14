@@ -73,6 +73,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 36,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
+      marginTop: 0,
     },
     minHeight: 'calc(100vh)',
   },
@@ -128,6 +129,8 @@ const useStyles = makeStyles((theme) => ({
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
+    maxHeight: '90vh',
+    maxWidth: '90vw',
     width: 578,
     height: 320,
     border: '1px solid #FFFFFF',
@@ -232,7 +235,8 @@ export const NftCollections = () => {
                     floor_price: collectionFloorPrice[slug],
                   };
                   break;
-                } catch (error) {
+                } catch (error: any) {
+                  if (error.response.status === 400) { break; }
                   continue;
                 }
               }
@@ -241,21 +245,22 @@ export const NftCollections = () => {
             setOwnedEthNfts([...resNfts]);
             initialData[0].count = resNfts.length;
             initialData[0].price =
-              resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b);
+              resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b, 0);
             setSummary(initialData);
           }
           if (res.data.assets.length < 50) {
             break;
           }
           offset += 1;
-        } catch (error) {
+        } catch (error: any) {
+          if (error.response.status === 400) { break; }
           continue;
         }
       }
 
       initialData[0].count = resNfts.length;
       initialData[0].price =
-        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b);
+        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
       setSummary(initialData);
       setOwnedEthNfts(resNfts);
       setLoading(false);

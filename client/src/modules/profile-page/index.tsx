@@ -77,6 +77,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 36,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
+      marginTop: 0,
     },
     minHeight: 'calc(100vh)',
   },
@@ -92,6 +93,7 @@ const useStyles = makeStyles((theme) => ({
   },
   titleText: {
     fontWeight: 'bolder',
+    width: '80%',
     fontSize: 55,
     [theme.breakpoints.down('sm')]: {
       fontSize: 26,
@@ -139,6 +141,8 @@ const useStyles = makeStyles((theme) => ({
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
+    maxHeight: '90vh',
+    maxWidth: '90vw',
     width: 578,
     height: 320,
     border: '1px solid #FFFFFF',
@@ -157,6 +161,7 @@ const initialData = [
     count: 0,
     price: 0,
     name: 'Ethereum',
+    loading: true,
     available: true,
   },
   {
@@ -230,7 +235,7 @@ export const NftCollections = () => {
             <img width={20} src={icon[profile.address[0][0]]} alt={profile.address[0][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22 }}
+              style={{ fontSize: 22, width: 143 }}
             >
               {`${profile.address[0][1].substr(0, 6)}...${profile.address[0][1].substr(-4)}`}
             </Typography>
@@ -253,7 +258,7 @@ export const NftCollections = () => {
             <img width={20} src={icon[profile.address[1][0]]} alt={profile.address[1][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22 }}
+              style={{ fontSize: 22, width: 143 }}
             >
               {`${profile.address[1][1].substr(0, 6)}...${profile.address[1][1].substr(-4)}`}
             </Typography>
@@ -277,7 +282,8 @@ export const NftCollections = () => {
           >
             <img width={20} src={icon[profile.address[2][0]]} alt={profile.address[2][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
-              style={{ fontSize: 22 }}
+              variant="h3"
+              style={{ fontSize: 22, width: 143 }}
             >
               {`${profile.address[2][1].substr(0, 6)}...${profile.address[2][1].substr(-4)}`}
             </Typography>
@@ -300,7 +306,7 @@ export const NftCollections = () => {
             <img width={20} src={icon[profile.address[3][0]]} alt={profile.address[3][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22 }}
+              style={{ fontSize: 22, width: 143 }}
             >
               {`${profile.address[3][1].substr(0, 6)}...${profile.address[3][1].substr(-4)}`}
             </Typography>
@@ -325,7 +331,7 @@ export const NftCollections = () => {
             <img width={20} src={icon[profile.address[4][0]]} alt={profile.address[4][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22 }}
+              style={{ fontSize: 22, width: 143 }}
             >
               {`${profile.address[4][1].substr(0, 6)}...${profile.address[4][1].substr(-4)}`}
             </Typography>
@@ -348,7 +354,7 @@ export const NftCollections = () => {
             <img width={20} src={icon[profile.address[5][0]]} alt={profile.address[5][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22 }}
+              style={{ fontSize: 22, width: 143 }}
             >
               {`${profile.address[5][1].substr(0, 6)}...${profile.address[5][1].substr(-4)}`}
             </Typography>
@@ -390,6 +396,9 @@ export const NftCollections = () => {
                 offset,
               },
             });
+            if (!res.data.assets) {
+              break;
+            }
             for (let j = 0; j < res.data.assets.length; j += 1) {
               let asset = {};
               const { slug } = res.data.assets[j].collection;
@@ -408,7 +417,8 @@ export const NftCollections = () => {
                       floor_price: collectionFloorPrice[slug],
                     };
                     break;
-                  } catch (error) {
+                  } catch (error: any) {
+                    if (error.response.status === 400) { break; }
                     continue;
                   }
                 }
@@ -417,21 +427,23 @@ export const NftCollections = () => {
               setOwnedEthNfts([...resNfts]);
               initialData[0].count = resNfts.length;
               initialData[0].price =
-                resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b);
+                resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b, 0);
               setSummary(initialData);
             }
             if (res.data.assets.length < 50) {
               break;
             }
             offset += 1;
-          } catch (error) {
+          } catch (error: any) {
+            if (error.response.status === 400) { break; }
             continue;
           }
         }
       }
       initialData[0].count = resNfts.length;
       initialData[0].price =
-        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b);
+        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
+      initialData[0].loading = false;
       setSummary(initialData);
       setOwnedEthNfts(resNfts);
       setLoading(false);
@@ -485,6 +497,7 @@ export const NftCollections = () => {
                 <Typography
                   className={styles.titleText}
                   variant="h5"
+                  noWrap
                 >
                   {profile.name}
                 </Typography>
