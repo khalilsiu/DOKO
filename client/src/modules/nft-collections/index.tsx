@@ -212,7 +212,10 @@ export const NftCollections = () => {
   useEffect(() => {
     const fetchBscData = async () => {
       let bscNfts: any = [];
-      if (isSolAddress(address)) return;
+      if (isSolAddress(address)) {
+        setBsc_Loading(false);
+        return;
+      }
       let offset = 1;
       while (1) {
         const res = await getNFTs(address, (offset - 1) * 12);
@@ -231,7 +234,10 @@ export const NftCollections = () => {
     const fetchSolanaData = async () => {
       let solNfts: any = [];
 
-      if (!isSolAddress(address)) return;
+      if (isSolAddress(address)) {
+        setSol_Loading(false);
+        return;
+      }
       const res = await getSolNfts(address);
       if (res) {
         solNfts = [...solNfts, ...res.data];
@@ -303,7 +309,7 @@ export const NftCollections = () => {
       setSummary(initialData);
       setOwnedEthNfts(resNfts);
       setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
-      setLoading(false);
+      setEth_Loading(false);
     };
     fetchEthData();
     fetchSolanaData();
@@ -383,6 +389,7 @@ export const NftCollections = () => {
             </CustomTabs>
           </Grid>
           <TabPanel index={0} value={tabValue}>
+            <Summary data={{ summary }} />
 
             <EthNfts data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading: eth_loading }} />
 
