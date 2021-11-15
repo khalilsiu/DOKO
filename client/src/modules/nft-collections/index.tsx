@@ -264,20 +264,20 @@ export const NftCollections = () => {
           });
           for (let j = 0; j < res.data.assets.length; j += 1) {
             let asset = {};
-            const { slug } = res.data.assets[j].collection;
-            if (collectionFloorPrice[slug]) {
+            const { slug, name } = res.data.assets[j].collection;
+            if (collectionFloorPrice[name]) {
               asset = {
                 ...res.data.assets[j],
-                floor_price: collectionFloorPrice[slug],
+                floor_price: collectionFloorPrice[name],
               };
             } else {
               while (1) {
                 try {
                   const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
-                  collectionFloorPrice[slug] = price_object.data.stats.floor_price;
+                  collectionFloorPrice[name] = price_object.data.stats.floor_price;
                   asset = {
                     ...res.data.assets[j],
-                    floor_price: collectionFloorPrice[slug],
+                    floor_price: collectionFloorPrice[name],
                   };
                   break;
                 } catch (error: any) {
@@ -286,6 +286,7 @@ export const NftCollections = () => {
                 }
               }
             }
+            setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
             resNfts.push(asset);
             setOwnedEthNfts([...resNfts]);
             initialData[0].count = resNfts.length;
