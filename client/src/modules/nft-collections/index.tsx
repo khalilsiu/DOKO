@@ -234,7 +234,7 @@ export const NftCollections = () => {
     const fetchSolanaData = async () => {
       let solNfts: any = [];
 
-      if (isSolAddress(address)) {
+      if (!isSolAddress(address)) {
         setSol_Loading(false);
         return;
       }
@@ -251,7 +251,10 @@ export const NftCollections = () => {
     };
     const fetchEthData = async () => {
       const resNfts: any = [];
-
+      if (isSolAddress(address)) {
+        setEth_Loading(false);
+        return;
+      }
       while (1) {
         let offset = 0;
         try {
@@ -299,7 +302,7 @@ export const NftCollections = () => {
           }
           offset += 1;
         } catch (error: any) {
-          if (error.response.status === 400) { break; }
+          if (error.response.status === 4) { break; }
           continue;
         }
       }
