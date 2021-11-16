@@ -130,7 +130,7 @@ export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: Profil
               transformOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
               <MenuItem className={styles.options} onClick={(e) => { navigator.clipboard.writeText(`https://doko.one/profiles/$${cookies.profiles[profile].hash}`); handleClose(e); }}>
-                Copy Url
+                Copy URL
               </MenuItem>
               <MenuItem className={styles.options} onClick={(e) => { onClickEdit(); handleClose(e); }}>
                 Edit

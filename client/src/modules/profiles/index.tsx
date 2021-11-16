@@ -457,7 +457,7 @@ export const Profiles = () => {
             direction="column"
             justifyContent="flex-start"
             alignItems="flex-start"
-            style={{ padding: 30, height: '76%' }}
+            style={{ padding: 30, height: '74%' }}
           >
             <Typography style={{ fontSize: 21 }}>Select Blockchain</Typography>
             <Typography style={{ fontSize: 14 }}>Select the type of address that you want to add to the profile.</Typography>
