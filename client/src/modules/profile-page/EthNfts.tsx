@@ -9,6 +9,7 @@ import { getEthAssets, getEthCollections } from './api';
 import { isSolAddress } from '../../libs/utils';
 
 import './select-search.css';
+import NftCollections from '../nft-collections';
 
 interface Props {
   data: any;

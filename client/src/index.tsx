@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 // eslint-disable-next-line no-use-before-define
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -7,6 +8,7 @@ import { MoralisProvider } from 'react-moralis';
 import { HelmetProvider } from 'react-helmet-async';
 
 import './index.scss';
+import { CookiesProvider } from 'react-cookie';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ThemeProvider from './core/ThemeProvider';
@@ -17,10 +19,12 @@ ReactDOM.render(
     <HelmetProvider>
       <MetaMaskProvider>
         <ThemeProvider>
-          <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
-            <CssBaseline />
-            <App />
-          </MoralisProvider>
+          <CookiesProvider>
+            <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
+              <CssBaseline />
+              <App />
+            </MoralisProvider>
+          </CookiesProvider>
         </ThemeProvider>
       </MetaMaskProvider>
     </HelmetProvider>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Grid, Typography, withStyles, makeStyles } from '@material-ui/core';
+import { Grid, Typography, withStyles, makeStyles, CircularProgress } from '@material-ui/core';
 
 import ethIcon from './assets/eth.png';
 import bscIcon from './assets/bsc.png';
@@ -35,34 +35,6 @@ const useStyles = makeStyles((theme) => ({
 interface Props {
   data: any;
 }
-
-const initialData = [
-  {
-    icon: ethIcon,
-    count: 0,
-    price: 0,
-    name: 'Ethereum',
-    available: true,
-  },
-  {
-    icon: bscIcon,
-    count: 0,
-    price: 0,
-    name: 'BSC',
-  },
-  {
-    icon: polygonIcon,
-    count: 0,
-    price: 0,
-    name: 'Polygon',
-  },
-  {
-    icon: solanaIcon,
-    count: 0,
-    price: 0,
-    name: 'Solana',
-  },
-];
 
 export const Summary = ({ data }: Props) => {
   const classes = useStyles();
@@ -110,6 +82,7 @@ export const Summary = ({ data }: Props) => {
                       'Coming Soon'
                     )}
                   </Typography>
+                  {item.loading && <CircularProgress />}
                 </Grid>
               </ChainContainer>
             </Grid>

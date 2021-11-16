@@ -1,5 +1,6 @@
 import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
+import { useEffect } from 'react';
 import { SolanaNFTItem } from './SolanaNFTItem';
 import { OpenseaNFTItem } from './OpenseaNFTItem';
 import { LightButton } from './LightButton';
@@ -14,6 +15,7 @@ interface Props {
   isOpenSea?: boolean;
   isSolana?: boolean;
   loading?: boolean;
+  maxPage?: number;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -47,6 +49,7 @@ export const NftPagination = ({
   isOpenSea = false,
   isSolana = false,
   loading = false,
+  maxPage,
 }: Props) => {
   const styles = useStyles();
 
@@ -78,7 +81,7 @@ export const NftPagination = ({
           <Grid item>
             <LightButton
               onClick={onNext}
-              disabled={loading || !page || (total != null ? page >= total : nfts?.length < 12)}
+              disabled={loading || !page || page === maxPage}
             >
               Next
               <ArrowRight color="secondary" />

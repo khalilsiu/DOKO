@@ -1,3 +1,6 @@
+/* eslint-disable max-len */
+/* eslint-disable no-continue */
+/* eslint-disable no-await-in-loop */
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -10,8 +13,14 @@ import {
   Tooltip,
   Typography,
   withStyles,
+  Button,
+  Modal,
+  OutlinedInput,
 } from '@material-ui/core';
-import { useParams } from 'react-router-dom';
+
+import { useCookies } from 'react-cookie';
+import { useParams, useHistory } from 'react-router-dom';
+import CloseIcon from '@material-ui/icons/Close';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { TabPanel, NftPagination, Meta } from '../../components';
@@ -27,6 +36,14 @@ import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 
 import './select-search.css';
+
+import OpenSeaAPI from '../../libs/opensea-api';
+import { getSolNfts } from '../../libs/solana';
+
+import eth from './assets/eth.png';
+import bsc from './assets/bsc.png';
+import polygon from './assets/polygon.png';
+import solana from './assets/solana.png';
 
 const CustomTabs = withStyles({
   root: {
@@ -57,6 +74,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 36,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
+      marginTop: 0,
     },
     minHeight: 'calc(100vh)',
   },
@@ -87,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   addressContainer: {
-    marginBottom: 24,
+    marginBottom: 12,
     [theme.breakpoints.down('xs')]: {
       justifyContent: 'center',
       alignItems: 'center',
@@ -99,97 +117,208 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 30,
     },
   },
+  createProfileButton: {
+    cursor: 'pointer',
+    right: '4%',
+    width: 162,
+    height: 46,
+    zIndex: 999,
+    position: 'absolute',
+  },
+  createProfileDialog: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    maxHeight: '90vh',
+    maxWidth: '90vw',
+    width: 578,
+    height: 320,
+    border: '1px solid #FFFFFF',
+    background: '#000000',
+    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.75)',
+    borderRadius: '23px',
+  },
+
 }));
 
+const initialData = [
+  {
+    icon: eth,
+    count: 0,
+    price: 0,
+    name: 'Ethereum',
+    available: true,
+  },
+  {
+    icon: bsc,
+    count: 0,
+    price: 0,
+    name: 'BSC',
+  },
+  {
+    icon: polygon,
+    count: 0,
+    price: 0,
+    name: 'Polygon',
+  },
+  {
+    icon: solana,
+    count: 0,
+    price: 0,
+    name: 'Solana',
+  },
+];
+
 export const NftCollections = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [nfts, setNFTs] = useState<any[]>([]);
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
   const [syncStatus, setSyncStatus] = useState<any>(null);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
+  const [createProfile, setCreateProfile] = useState(false);
   const isSolana = isSolAddress(address);
+  const history = useHistory();
 
-  const fetchNfts = async () => {
-    setNFTs([]);
+  const [summary, setSummary] = useState(initialData);
+  const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
+  const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
+  const [ownedSolNfts, setOwnedSolNfts] = useState<any>([]);
+  const [ownedSolCollections, setOwnedSolCollections] = useState<any>([]);
+  const [ownedBscNfts, setOwnedBscNfts] = useState<any>([]);
+  const [eth_loading, setEth_Loading] = useState<boolean>(true);
+  const [sol_loading, setSol_Loading] = useState<boolean>(true);
+  const [bsc_loading, setBsc_Loading] = useState<boolean>(true);
+  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
+  const [profileName, setProfileName] = useState('');
 
-    if (!address || isSolana) {
-      return;
-    }
-    setLoading(true);
+  const collectionFloorPrice: any = {};
 
-    try {
-      const res = await getNFTs(address, (page - 1) * 12, filter);
-      const items = res.data;
-      setNFTs(items);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
-      setNFTs([]);
-    }
-    setLoading(false);
+  const handleClickOpen = () => {
+    setCreateProfile(true);
   };
 
-  const checkSyncStatus = async () => {
-    try {
-      const res = await getAddressStatus(address);
-      const sync = res.data;
+  const handleSubmit = () => {
+    setCreateProfile(false);
+    const profiles = cookies.profiles ? cookies.profiles : {};
+    profiles[profileName] = { address: [], hash: btoa(JSON.stringify({ name: profileName, address: [] })) };
+    setCookie('profiles', profiles, { path: '/' });
+    history.push('/profiles');
+  };
 
-      if (sync?.sync_status === 'done' || sync?.sync_status === 'empty') {
-        clearInterval(syncInterval);
+  useEffect(() => {
+    const fetchBscData = async () => {
+      let bscNfts: any = [];
+      if (isSolAddress(address)) {
+        setBsc_Loading(false);
+        return;
+      }
+      let offset = 1;
+      while (1) {
+        const res = await getNFTs(address, (offset - 1) * 12);
+        bscNfts = [...bscNfts, ...res.data];
+        if (res.data.length === 0) { break; }
+        offset += 1;
+      }
+      const sort = bscNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
+      setOwnedBscNfts([...sort]);
+      sort.forEach((i) => {
+        if (i.chain === 'bsc') { initialData[1].count += 1; } else initialData[2].count += 1;
+      });
+      setSummary(initialData);
+      setBsc_Loading(false);
+    };
+    const fetchSolanaData = async () => {
+      let solNfts: any = [];
 
-        if (Date.now() / 1000 - sync.timestamp < 5000 && sync.sync_status === 'done') {
-          setPage(1);
+      if (!isSolAddress(address)) {
+        setSol_Loading(false);
+        return;
+      }
+      const res = await getSolNfts(address);
+      if (res) {
+        solNfts = [...solNfts, ...res.data];
+      }
+
+      const sort = solNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
+      setOwnedSolNfts([...sort]);
+      initialData[3].count = sort.length;
+      setSummary(initialData);
+      setSol_Loading(false);
+    };
+    const fetchEthData = async () => {
+      const resNfts: any = [];
+      if (isSolAddress(address)) {
+        setEth_Loading(false);
+        return;
+      }
+      while (1) {
+        let offset = 0;
+        try {
+          const res: any = await OpenSeaAPI.get('/assets', {
+            params: {
+              limit: 50,
+              owner: address,
+              offset,
+            },
+          });
+          for (let j = 0; j < res.data.assets.length; j += 1) {
+            let asset = {};
+            const { slug, name } = res.data.assets[j].collection;
+            if (collectionFloorPrice[name]) {
+              asset = {
+                ...res.data.assets[j],
+                floor_price: collectionFloorPrice[name],
+              };
+            } else {
+              while (1) {
+                try {
+                  const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
+                  collectionFloorPrice[name] = price_object.data.stats.floor_price;
+                  asset = {
+                    ...res.data.assets[j],
+                    floor_price: collectionFloorPrice[name],
+                  };
+                  break;
+                } catch (error: any) {
+                  if (error.response.status === 400) { break; }
+                  continue;
+                }
+              }
+            }
+            setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
+            resNfts.push(asset);
+            setOwnedEthNfts([...resNfts]);
+            initialData[0].count = resNfts.length;
+            initialData[0].price =
+              resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b, 0);
+            setSummary(initialData);
+          }
+          if (res.data.assets.length < 50) {
+            break;
+          }
+          offset += 1;
+        } catch (error: any) {
+          if (error.response.status === 4) { break; }
+          continue;
         }
       }
-      setSyncStatus(sync);
-    } catch (err) {
-      if (!syncStatus) {
-        setSyncStatus({});
-      }
-    }
-  };
 
-  useEffect(() => () => clearInterval(syncInterval), []);
-
-  useEffect(() => {
-    clearInterval(syncInterval);
-    setSyncStatus(null);
-
-    if (!address || isSolana) {
-      return;
-    }
-    indexAddress(address);
-
-    syncInterval = setInterval(() => checkSyncStatus(), 3000);
-    checkSyncStatus();
+      initialData[0].count = resNfts.length;
+      initialData[0].price =
+        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
+      setSummary(initialData);
+      setOwnedEthNfts(resNfts);
+      setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
+      setEth_Loading(false);
+    };
+    fetchEthData();
+    fetchSolanaData();
+    fetchBscData();
   }, [address]);
-
-  useEffect(() => {
-    if (page === 1) {
-      fetchNfts();
-    } else {
-      setPage(1);
-    }
-  }, [address, filter]);
-
-  useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
-    page && fetchNfts();
-  }, [page]);
-
-  const reIndex = () => {
-    if (isSolAddress(address)) {
-      return;
-    }
-    indexAddress(address, true);
-    setSyncStatus(null);
-    setNFTs([]);
-    clearInterval(syncInterval);
-    syncInterval = setInterval(() => checkSyncStatus(), 3000);
-  };
 
   return (
     <>
@@ -213,6 +342,19 @@ export const NftCollections = () => {
           direction="column"
           alignItems="flex-start"
         >
+          <Hidden smUp>
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-end"
+              wrap="nowrap"
+            >
+              <IconButton onClick={handleClickOpen}>
+                <img src="/createProfileIcon.png" alt="share" />
+              </IconButton>
+            </Grid>
+          </Hidden>
           <Grid
             container
             justifyContent="space-between"
@@ -227,75 +369,96 @@ export const NftCollections = () => {
                   style={{ fontWeight: 'bolder' }}
                 >
                   {minimizeAddress(address)}
-                  {!isSolana && (
-                    <Tooltip title="Refetch all of your nfts">
-                      <CustomIconButton
-                        disabled={
-                          !syncStatus ||
-                          syncStatus.sync_status === 'progress' ||
-                          syncStatus.sync_status === 'new'
-                        }
-                        onClick={() => reIndex()}
-                        color="secondary"
-                      >
-                        <RefreshOutlinedIcon />
-                      </CustomIconButton>
-                    </Tooltip>
-                  )}
                 </Typography>
                 <Grid item>
                   <CopyAddress address={address} />
                 </Grid>
               </Grid>
             </Grid>
-            {!isSolana && (
-              <Grid item xs={6}>
-                <Hidden xsDown>
-                  <Grid container justifyContent="flex-end">
-                    <AddressStatus status={syncStatus} loader={false} />
-                  </Grid>
-                </Hidden>
-              </Grid>
-            )}
           </Grid>
-          <CustomTabs
-            indicatorColor="primary"
-            textColor="primary"
-            value={tabValue}
-            onChange={(event, newValue) => setTabValue(newValue)}
-          >
-            <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
-          </CustomTabs>
-
+          <Grid item style={{ width: '100%' }}>
+            <Hidden xsDown>
+              <Button className={styles.createProfileButton} onClick={handleClickOpen}>
+                <img src="/createProfileButton.png" alt="Create Profile" />
+              </Button>
+            </Hidden>
+            <CustomTabs
+              style={{ marginTop: 12 }}
+              indicatorColor="primary"
+              textColor="primary"
+              value={tabValue}
+              onChange={(event, newValue) => setTabValue(newValue)}
+            >
+              <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
+            </CustomTabs>
+          </Grid>
           <TabPanel index={0} value={tabValue}>
-            {!isSolana && (
-              <Hidden smUp>
-                <Grid container justifyContent="flex-end">
-                  <AddressStatus status={syncStatus} loader={false} />
-                </Grid>
-              </Hidden>
-            )}
+            <Summary data={{ summary }} />
 
-            <Summary address={address} />
+            <EthNfts data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading: eth_loading }} />
 
-            <EthNfts address={address} />
-
-            <SolNfts address={address} />
-
+            <SolNfts data={{ nfts: ownedSolNfts, collections: ownedSolCollections, loading: sol_loading }} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               BSC & Polygon NFTs (Beta)
             </SectionLabel>
-            <Filter onChange={setFilter} />
             <NftPagination
-              nfts={nfts}
+              loading={bsc_loading}
+              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
               page={page}
+              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
               onNext={() => setPage(page + 1)}
               onPrev={() => setPage(page - 1)}
-              loading={loading}
             />
           </TabPanel>
         </Grid>
       </Grid>
+      <Modal open={createProfile}>
+        <div className={styles.createProfileDialog}>
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            style={{ height: '24%' }}
+          >
+            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
+            <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
+              <CloseIcon style={{ fill: '#FFFFFF' }} />
+            </IconButton>
+          </Grid>
+          <hr style={{ width: '100%', margin: 0 }} />
+          <Grid
+            container
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            style={{ height: '52%' }}
+          >
+            <OutlinedInput
+              value={profileName}
+              onChange={(e) => { setProfileName(e.target.value); }}
+              style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
+            />
+          </Grid>
+          <hr style={{ width: '100%', margin: 0 }} />
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
+            style={{ height: '24%' }}
+          >
+            <Button
+              style={{ width: 170, marginRight: 34 }}
+              className="gradient-button"
+              variant="outlined"
+              onClick={handleSubmit}
+            >
+              Create Profile
+            </Button>
+          </Grid>
+        </div>
+      </Modal>
     </>
   );
 };

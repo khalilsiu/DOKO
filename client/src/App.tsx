@@ -14,6 +14,8 @@ import { Landing } from './modules/landing';
 const NftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-collections'));
 const NftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-individual'));
 const Collection = lazy(() => import(/* webpackPrefetch: true */ './modules/collection'));
+const Profiles = lazy(() => import(/* webpackPrefetch: true */ './modules/profiles'));
+const ProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/profile-page'));
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
@@ -48,6 +50,16 @@ function App() {
               <Route path="/collections/:address" exact>
                 <RouteContainer>
                   <Collection />
+                </RouteContainer>
+              </Route>
+              <Route path="/profiles" exact>
+                <RouteContainer>
+                  <Profiles />
+                </RouteContainer>
+              </Route>
+              <Route path="/profiles/:hash" exact>
+                <RouteContainer>
+                  <ProfilePage />
                 </RouteContainer>
               </Route>
             </Switch>
