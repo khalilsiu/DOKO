@@ -427,6 +427,8 @@ export const NftCollections = () => {
     };
     const fetchEthData = async () => {
       const resNfts: any = [];
+      initialData[0].loading = true;
+      setSummary(initialData);
       for (let i = 0; i < profile.address.length; i += 1) {
         if (isSolAddress(profile.address[i][1])) continue;
         let offset = 0;
@@ -477,7 +479,7 @@ export const NftCollections = () => {
             if (res.data.assets.length < 50) {
               break;
             }
-            offset += 1;
+            offset += 50;
           } catch (error: any) {
             if (error.response.status === 400) { break; }
             continue;
