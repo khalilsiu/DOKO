@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Grid, Typography, withStyles, makeStyles } from '@material-ui/core';
+import { Grid, Typography, withStyles, makeStyles, CircularProgress } from '@material-ui/core';
 
 import ethIcon from './assets/eth.png';
 import bscIcon from './assets/bsc.png';
@@ -110,6 +110,7 @@ export const Summary = ({ data }: Props) => {
                       'Coming Soon'
                     )}
                   </Typography>
+                  {item.loading && <CircularProgress />}
                 </Grid>
               </ChainContainer>
             </Grid>

@@ -149,6 +149,7 @@ const initialData = [
     price: 0,
     name: 'Ethereum',
     available: true,
+    loading: true,
   },
   {
     icon: bsc,
@@ -250,13 +251,16 @@ export const NftCollections = () => {
       setSol_Loading(false);
     };
     const fetchEthData = async () => {
+      initialData[0].loading = true;
+      setSummary(initialData);
       const resNfts: any = [];
       if (isSolAddress(address)) {
         setEth_Loading(false);
         return;
       }
+      let offset = 0;
       while (1) {
-        let offset = 0;
+        console.log(offset);
         try {
           const res: any = await OpenSeaAPI.get('/assets', {
             params: {
@@ -284,8 +288,7 @@ export const NftCollections = () => {
                   };
                   break;
                 } catch (error: any) {
-                  if (error.response.status === 400) { break; }
-                  continue;
+                  break;
                 }
               }
             }
@@ -297,16 +300,15 @@ export const NftCollections = () => {
               resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b, 0);
             setSummary(initialData);
           }
+          offset += 50;
           if (res.data.assets.length < 50) {
             break;
           }
-          offset += 1;
         } catch (error: any) {
-          if (error.response.status === 4) { break; }
-          continue;
+          break;
         }
       }
-
+      initialData[0].loading = false;
       initialData[0].count = resNfts.length;
       initialData[0].price =
         resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
