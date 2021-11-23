@@ -39,7 +39,8 @@ function App() {
     const { host } = window.location;
     const arr = host
       .split('.')
-      .slice(0, -1);
+      .slice(0, host.includes('localhost') ? -1 : -2);
+    console.log(arr);
     if (arr.length > 0) setSubDomain(arr[0]);
   }, []);
   return (
