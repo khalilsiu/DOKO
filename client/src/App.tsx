@@ -38,10 +38,9 @@ function App() {
   useEffect(() => {
     const { host } = window.location;
     const arr = host
-      .split('.')
-      .slice(0, host.includes('localhost') ? -1 : -2);
-    console.log(arr);
-    if (arr.length > 0) setSubDomain(arr[0]);
+      .split('.');
+    if (arr.length > 0 && host.includes('staging')) setSubDomain(arr[1]);
+    else if (arr.length > 0) setSubDomain(arr[0]);
   }, []);
   return (
     <Suspense fallback={<Loading />}>
