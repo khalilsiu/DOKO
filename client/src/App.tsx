@@ -1,4 +1,4 @@
-import { lazy, PropsWithChildren, Suspense } from 'react';
+import { useEffect, useState, lazy, PropsWithChildren, Suspense } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 
@@ -10,12 +10,19 @@ import { AuthContextProvider } from './contexts/AuthContext';
 import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
 import { Landing } from './modules/landing';
+import { MetaLanding } from './modules/meta-landing';
 
 const NftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-collections'));
 const NftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-individual'));
 const Collection = lazy(() => import(/* webpackPrefetch: true */ './modules/collection'));
 const Profiles = lazy(() => import(/* webpackPrefetch: true */ './modules/profiles'));
 const ProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/profile-page'));
+
+const MetaNftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-nft-collections'));
+const MetaNftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-nft-individual'));
+const MetaCollection = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-collection'));
+const MetaProfiles = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profiles'));
+const MetaProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profile-page'));
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
@@ -27,42 +34,85 @@ const RouteContainer = ({ children }: PropsWithChildren<any>) => {
 };
 
 function App() {
+  const [subdomain, setSubDomain] = useState('');
+  useEffect(() => {
+    const { host } = window.location;
+    const arr = host
+      .split('.')
+      .slice(0, host.includes('localhost') ? -1 : -2);
+    if (arr.length > 0) setSubDomain(arr[0]);
+  }, []);
   return (
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
         <AuthContextProvider>
           <DrawerContextProvider intro={<Intro drawer />}>
             <Header />
-            <Switch>
-              <Route path="/" exact>
-                <Landing />
-              </Route>
-              <Route path="/address/:address" exact>
-                <RouteContainer>
-                  <NftCollections />
-                </RouteContainer>
-              </Route>
-              <Route path="/nft/:chain/:address/:id" exact>
-                <RouteContainer>
-                  <NftIndividual />
-                </RouteContainer>
-              </Route>
-              <Route path="/collections/:address" exact>
-                <RouteContainer>
-                  <Collection />
-                </RouteContainer>
-              </Route>
-              <Route path="/profiles" exact>
-                <RouteContainer>
-                  <Profiles />
-                </RouteContainer>
-              </Route>
-              <Route path="/profiles/:hash" exact>
-                <RouteContainer>
-                  <ProfilePage />
-                </RouteContainer>
-              </Route>
-            </Switch>
+            {subdomain === 'nft' ?
+              (
+                <Switch>
+                  <Route path="/" exact>
+                    <Landing />
+                  </Route>
+                  <Route path="/address/:address" exact>
+                    <RouteContainer>
+                      <NftCollections />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/nft/:chain/:address/:id" exact>
+                    <RouteContainer>
+                      <NftIndividual />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/collections/:address" exact>
+                    <RouteContainer>
+                      <Collection />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/profiles" exact>
+                    <RouteContainer>
+                      <Profiles />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/profiles/:hash" exact>
+                    <RouteContainer>
+                      <ProfilePage />
+                    </RouteContainer>
+                  </Route>
+                </Switch>
+              ) :
+              (
+                <Switch>
+                  <Route path="/" exact>
+                    <MetaLanding />
+                  </Route>
+                  <Route path="/address/:address" exact>
+                    <RouteContainer>
+                      <MetaNftCollections />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/nft/:chain/:address/:id" exact>
+                    <RouteContainer>
+                      <MetaNftIndividual />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/collections/:address" exact>
+                    <RouteContainer>
+                      <MetaCollection />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/profiles" exact>
+                    <RouteContainer>
+                      <MetaProfiles />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/profiles/:hash" exact>
+                    <RouteContainer>
+                      <MetaProfilePage />
+                    </RouteContainer>
+                  </Route>
+                </Switch>
+              )}
             <Footer />
           </DrawerContextProvider>
         </AuthContextProvider>
