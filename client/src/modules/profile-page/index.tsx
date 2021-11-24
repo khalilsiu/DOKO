@@ -463,8 +463,7 @@ export const NftCollections = () => {
                     };
                     break;
                   } catch (error: any) {
-                    if (error.response.status === 400) { break; }
-                    continue;
+                    break;
                   }
                 }
               }
@@ -481,8 +480,7 @@ export const NftCollections = () => {
             }
             offset += 50;
           } catch (error: any) {
-            if (error.response.status === 400) { break; }
-            continue;
+            break;
           }
         }
       }

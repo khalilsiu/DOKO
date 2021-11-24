@@ -186,20 +186,19 @@ export const NftCollections = () => {
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
   const [syncStatus, setSyncStatus] = useState<any>(null);
-  const [page, setPage] = useState(1);
-  const [createProfile, setCreateProfile] = useState(false);
   const isSolana = isSolAddress(address);
   const history = useHistory();
 
   const [summary, setSummary] = useState(initialData);
-  const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
-  const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
-  const [ownedSolNfts, setOwnedSolNfts] = useState<any>([]);
-  const [ownedSolCollections, setOwnedSolCollections] = useState<any>([]);
-  const [ownedBscNfts, setOwnedBscNfts] = useState<any>([]);
-  const [eth_loading, setEth_Loading] = useState<boolean>(true);
-  const [sol_loading, setSol_Loading] = useState<boolean>(true);
-  const [bsc_loading, setBsc_Loading] = useState<boolean>(true);
+  const [decentralandPage, setDecentralandPage] = useState(1);
+  const [cryptovoxelsPage, setCryptovoxelsPage] = useState(1);
+  const [theSandboxPage, setTheSandboxPage] = useState(1);
+  const [somniumPage, setSomniumPage] = useState(1);
+  const [createProfile, setCreateProfile] = useState(false);
+  const [ownedDecentralandNfts, setOwnedDecentralandNfts] = useState<any>([]);
+  const [ownedCryptovoxelsNfts, setOwnedCryptovoxelsNfts] = useState<any>([]);
+  const [ownedTheSandboxNfts, setOwnedTheSandboxNfts] = useState<any>([]);
+  const [ownedSomniumNfts, setOwnedSomniumNfts] = useState<any>([]);
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
@@ -318,11 +317,12 @@ export const NftCollections = () => {
 
   useEffect(() => {
     const fetchEthData = async () => {
-      initialData[0].loading = true;
-      setSummary(initialData);
-      const resNfts: any = [];
+      const decentralandNfts: any = [];
+      const cryptovoxelsNfts: any = [];
+      const theSandboxNfts: any = [];
+      const somniumNfts: any = [];
       if (isSolAddress(address)) {
-        setEth_Loading(false);
+        setLoading(false);
         return;
       }
       let offset = 0;
@@ -338,7 +338,7 @@ export const NftCollections = () => {
           for (let j = 0; j < res.data.assets.length; j += 1) {
             let asset = {};
             const { slug, name } = res.data.assets[j].collection;
-            if (['decentraland, crytpovoxels, somniumn, thesandbox'].filter((s) => s === slug).length === 0) {
+            if (['decentraland, crytpovoxels, somniumn-space, sandbox'].indexOf(slug) === 0) {
               continue;
             }
             if (collectionFloorPrice[name]) {
@@ -361,13 +361,31 @@ export const NftCollections = () => {
                 }
               }
             }
-            setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
-            resNfts.push(asset);
-            setOwnedEthNfts([...resNfts]);
-            initialData[0].count = resNfts.length;
-            initialData[0].price =
-              resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b, 0);
-            setSummary(initialData);
+            if (slug === 'decentraland') {
+              decentralandNfts.push(asset);
+              setOwnedDecentralandNfts([...decentralandNfts]);
+              initialData[0].count = decentralandNfts.length;
+              initialData[0].price = decentralandNfts.length * collectionFloorPrice[name];
+            }
+            if (slug === 'cryptovoxels') {
+              cryptovoxelsNfts.push(asset);
+              setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
+              initialData[1].count = cryptovoxelsNfts.length;
+              initialData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
+            }
+            if (slug === 'sandbox') {
+              theSandboxNfts.push(asset);
+              setOwnedTheSandboxNfts([...theSandboxNfts]);
+              initialData[2].count = theSandboxNfts.length;
+              initialData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
+            }
+            if (slug === 'somnium-space') {
+              somniumNfts.push(asset);
+              setOwnedSomniumNfts([...somniumNfts]);
+              initialData[3].count = somniumNfts.length;
+              initialData[3].price = somniumNfts.length * collectionFloorPrice[name];
+            }
+            setSummary([...initialData]);
           }
           offset += 50;
           if (res.data.assets.length < 50) {
@@ -377,14 +395,11 @@ export const NftCollections = () => {
           break;
         }
       }
-      initialData[0].loading = false;
-      initialData[0].count = resNfts.length;
-      initialData[0].price =
-        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
-      setSummary(initialData);
-      setOwnedEthNfts(resNfts);
-      setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
-      setBsc_Loading(false);
+      for (let j = 0; j < 4; j += 1) {
+        initialData[j].loading = false;
+      }
+      setSummary([...initialData]);
+      setLoading(false);
     };
     fetchEthData();
   }, [address]);
@@ -442,16 +457,6 @@ export const NftCollections = () => {
                 <Grid item>
                   <CopyAddress address={address} />
                 </Grid>
-                <Grid item>
-                  <Hidden xsDown>
-                    <Typography
-                      style={{ marginLeft: 5, fontFamily: 'Open Sans', fontSize: 12 }}
-                    >
-                      METAVERSES
-                    </Typography>
-                  </Hidden>
-                </Grid>
-                {renderAddressList()}
               </Grid>
             </Grid>
           </Grid>
@@ -468,7 +473,7 @@ export const NftCollections = () => {
               value={tabValue}
               onChange={(event, newValue) => setTabValue(newValue)}
             >
-              <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
+              <CustomTab style={{ fontWeight: 'bolder' }} label="Portfolio" value={0} />
             </CustomTabs>
           </Grid>
           <TabPanel index={0} value={tabValue}>
@@ -477,45 +482,49 @@ export const NftCollections = () => {
               Decentraland
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedDecentralandNfts.slice((decentralandPage - 1) * 4, (decentralandPage) * 4)}
+              page={decentralandPage}
+              maxPage={Math.floor(ownedDecentralandNfts.length / 4) + 1}
+              onNext={() => setDecentralandPage(decentralandPage + 1)}
+              onPrev={() => setDecentralandPage(decentralandPage - 1)}
             />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               Cryptovoxels
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, (cryptovoxelsPage) * 4)}
+              page={cryptovoxelsPage}
+              maxPage={Math.floor(ownedCryptovoxelsNfts.length / 4) + 1}
+              onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
+              onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
             />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               The Sandbox
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedTheSandboxNfts.slice((theSandboxPage - 1) * 4, (theSandboxPage) * 4)}
+              page={theSandboxPage}
+              maxPage={Math.floor(ownedTheSandboxNfts.length / 4) + 1}
+              onNext={() => setTheSandboxPage(theSandboxPage + 1)}
+              onPrev={() => setTheSandboxPage(theSandboxPage - 1)}
             />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               Somnium Space
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedSomniumNfts.slice((somniumPage - 1) * 4, (somniumPage) * 4)}
+              page={somniumPage}
+              maxPage={Math.floor(ownedSomniumNfts.length / 4) + 1}
+              onNext={() => setSomniumPage(somniumPage + 1)}
+              onPrev={() => setSomniumPage(somniumPage - 1)}
             />
           </TabPanel>
         </Grid>

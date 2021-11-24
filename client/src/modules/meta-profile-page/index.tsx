@@ -48,6 +48,22 @@ import cryptovoxels from './assets/cryptovoxels.png';
 import thesandbox from './assets/thesandbox.png';
 import somnium from './assets/somnium.png';
 
+import eth from './assets/eth.png';
+import bsc from './assets/bsc.png';
+import polygon from './assets/polygon.png';
+import solana from './assets/solana.png';
+
+type Icons = {
+  [key: string]: string
+}
+
+const icon: Icons = {
+  eth,
+  bsc,
+  polygon,
+  solana,
+};
+
 const CustomTabs = withStyles({
   root: {
     width: '100%',
@@ -162,7 +178,7 @@ const initialData = [
     price: 0,
     name: 'Cryptovoxels',
     available: true,
-    loading: false,
+    loading: true,
   },
   {
     icon: thesandbox,
@@ -170,7 +186,7 @@ const initialData = [
     price: 0,
     name: 'The Sandbox',
     available: true,
-    loading: false,
+    loading: true,
   },
   {
     icon: somnium,
@@ -178,7 +194,7 @@ const initialData = [
     price: 0,
     name: 'Somnium Space',
     available: true,
-    loading: false,
+    loading: true,
   },
 ];
 
@@ -189,16 +205,16 @@ export const NftCollections = () => {
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
-  const [page, setPage] = useState(1);
+  const [decentralandPage, setDecentralandPage] = useState(1);
+  const [cryptovoxelsPage, setCryptovoxelsPage] = useState(1);
+  const [theSandboxPage, setTheSandboxPage] = useState(1);
+  const [somniumPage, setSomniumPage] = useState(1);
   const [createProfile, setCreateProfile] = useState(false);
-  const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
-  const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
-  const [ownedSolNfts, setOwnedSolNfts] = useState<any>([]);
-  const [ownedSolCollections, setOwnedSolCollections] = useState<any>([]);
-  const [ownedBscNfts, setOwnedBscNfts] = useState<any>([]);
-  const [eth_loading, setEth_Loading] = useState<boolean>(true);
-  const [sol_loading, setSol_Loading] = useState<boolean>(true);
-  const [bsc_loading, setBsc_Loading] = useState<boolean>(true);
+  const [ownedDecentralandNfts, setOwnedDecentralandNfts] = useState<any>([]);
+  const [ownedCryptovoxelsNfts, setOwnedCryptovoxelsNfts] = useState<any>([]);
+  const [ownedTheSandboxNfts, setOwnedTheSandboxNfts] = useState<any>([]);
+  const [ownedSomniumNfts, setOwnedSomniumNfts] = useState<any>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const history = useHistory();
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
@@ -226,6 +242,7 @@ export const NftCollections = () => {
     <Hidden xsDown>
       <Grid container direction="row" justifyContent="flex-start">
         <Grid direction="column">
+          {profile.address[0] &&
           <Grid
             container
             direction="row"
@@ -233,12 +250,12 @@ export const NftCollections = () => {
             justifyContent="flex-start"
             wrap="nowrap"
           >
-            <img width={20} src="/decentraland.png" alt="decentraland" style={{ borderRadius: '50%', marginRight: 10 }} />
+            <img width={20} src={icon[profile.address[0][0]]} alt={profile.address[0][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22, width: 165 }}
+              style={{ fontSize: 22, width: 143 }}
             >
-              Decentraland
+              {`${profile.address[0][1].substr(0, 6)}...${profile.address[0][1].substr(-4)}`}
             </Typography>
             <Checkbox
               checked
@@ -247,7 +264,8 @@ export const NftCollections = () => {
                 color: '#FF06D7',
               }}
             />
-          </Grid>
+          </Grid>}
+          {profile.address[1] &&
           <Grid
             container
             direction="row"
@@ -255,12 +273,12 @@ export const NftCollections = () => {
             justifyContent="flex-start"
             wrap="nowrap"
           >
-            <img width={20} src="/cryptovoxels.png" alt="cryptovoxels" style={{ borderRadius: '50%', marginRight: 10 }} />
+            <img width={20} src={icon[profile.address[1][0]]} alt={profile.address[1][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22, width: 165 }}
+              style={{ fontSize: 22, width: 143 }}
             >
-              Cryptovoxels
+              {`${profile.address[1][1].substr(0, 6)}...${profile.address[1][1].substr(-4)}`}
             </Typography>
             <Checkbox
               checked
@@ -269,9 +287,10 @@ export const NftCollections = () => {
                 color: '#FF06D7',
               }}
             />
-          </Grid>
+          </Grid>}
         </Grid>
         <Grid direction="column">
+          {profile.address[2] &&
           <Grid
             container
             direction="row"
@@ -279,12 +298,12 @@ export const NftCollections = () => {
             justifyContent="flex-start"
             wrap="nowrap"
           >
-            <img width={20} src="/thesandbox.png" alt="thesandbox" style={{ borderRadius: '50%', marginRight: 10 }} />
+            <img width={20} src={icon[profile.address[2][0]]} alt={profile.address[2][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22, width: 165 }}
+              style={{ fontSize: 22, width: 143 }}
             >
-              The Sandbox
+              {`${profile.address[2][1].substr(0, 6)}...${profile.address[2][1].substr(-4)}`}
             </Typography>
             <Checkbox
               checked
@@ -293,7 +312,8 @@ export const NftCollections = () => {
                 color: '#FF06D7',
               }}
             />
-          </Grid>
+          </Grid>}
+          {profile.address[3] &&
           <Grid
             container
             direction="row"
@@ -301,12 +321,12 @@ export const NftCollections = () => {
             justifyContent="flex-start"
             wrap="nowrap"
           >
-            <img width={20} src="/somnium.png" alt="somnium" style={{ borderRadius: '50%', marginRight: 10 }} />
+            <img width={20} src={icon[profile.address[3][0]]} alt={profile.address[3][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
             <Typography
               variant="h3"
-              style={{ fontSize: 22, width: 165 }}
+              style={{ fontSize: 22, width: 143 }}
             >
-              Somnium Space
+              {`${profile.address[3][1].substr(0, 6)}...${profile.address[3][1].substr(-4)}`}
             </Typography>
             <Checkbox
               checked
@@ -315,7 +335,55 @@ export const NftCollections = () => {
                 color: '#FF06D7',
               }}
             />
-          </Grid>
+          </Grid>}
+        </Grid>
+        <Grid direction="column">
+          {profile.address[4] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[4][0]]} alt={profile.address[4][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              variant="h3"
+              style={{ fontSize: 22, width: 143 }}
+            >
+              {`${profile.address[4][1].substr(0, 6)}...${profile.address[4][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
+          {profile.address[5] &&
+          <Grid
+            container
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-start"
+            wrap="nowrap"
+          >
+            <img width={20} src={icon[profile.address[5][0]]} alt={profile.address[5][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
+            <Typography
+              variant="h3"
+              style={{ fontSize: 22, width: 143 }}
+            >
+              {`${profile.address[5][1].substr(0, 6)}...${profile.address[5][1].substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </Grid>}
         </Grid>
       </Grid>
     </Hidden>
@@ -333,45 +401,11 @@ export const NftCollections = () => {
   };
 
   useEffect(() => {
-    const fetchBscData = async () => {
-      let bscNfts: any = [];
-      for (let i = 0; i < profile.address.length; i += 1) {
-        if (isSolAddress(profile.address[i][1])) continue;
-        let offset = 1;
-        while (1) {
-          const res = await getNFTs(profile.address[i][1], (offset - 1) * 12);
-          bscNfts = [...bscNfts, ...res.data];
-          if (res.data.length === 0) { break; }
-          offset += 1;
-        }
-      }
-      const sort = bscNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
-      setOwnedBscNfts([...sort]);
-      sort.forEach((i) => {
-        if (i.chain === 'bsc') { initialData[1].count += 1; } else initialData[2].count += 1;
-      });
-      setSummary(initialData);
-      setBsc_Loading(false);
-    };
-    const fetchSolanaData = async () => {
-      let solNfts: any = [];
-      for (let i = 0; i < profile.address.length; i += 1) {
-        if (!isSolAddress(profile.address[i][1])) continue;
-        const res = await getSolNfts(profile.address[i][1]);
-        if (res) {
-          solNfts = [...solNfts, ...res.data];
-        }
-      }
-      const sort = solNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
-      setOwnedSolNfts([...sort]);
-      initialData[3].count = sort.length;
-      setSummary(initialData);
-      setSol_Loading(false);
-    };
     const fetchEthData = async () => {
-      const resNfts: any = [];
-      initialData[0].loading = true;
-      setSummary(initialData);
+      const decentralandNfts: any = [];
+      const cryptovoxelsNfts: any = [];
+      const theSandboxNfts: any = [];
+      const somniumNfts: any = [];
       for (let i = 0; i < profile.address.length; i += 1) {
         if (isSolAddress(profile.address[i][1])) continue;
         let offset = 0;
@@ -390,7 +424,7 @@ export const NftCollections = () => {
             for (let j = 0; j < res.data.assets.length; j += 1) {
               let asset = {};
               const { slug, name } = res.data.assets[j].collection;
-              if (['decentraland, crytpovoxels, somniumn, thesandbox'].filter((s) => s === slug).length === 0) {
+              if (['decentraland, crytpovoxels, somniumn-space, sandbox'].indexOf(slug) === 0) {
                 continue;
               }
               if (collectionFloorPrice[name]) {
@@ -413,13 +447,31 @@ export const NftCollections = () => {
                   }
                 }
               }
-              setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
-              resNfts.push(asset);
-              setOwnedEthNfts([...resNfts]);
-              initialData[0].count = resNfts.length;
-              initialData[0].price =
-                resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b, 0);
-              setSummary(initialData);
+              if (slug === 'decentraland') {
+                decentralandNfts.push(asset);
+                setOwnedDecentralandNfts([...decentralandNfts]);
+                initialData[0].count = decentralandNfts.length;
+                initialData[0].price = decentralandNfts.length * collectionFloorPrice[name];
+              }
+              if (slug === 'cryptovoxels') {
+                cryptovoxelsNfts.push(asset);
+                setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
+                initialData[1].count = cryptovoxelsNfts.length;
+                initialData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
+              }
+              if (slug === 'sandbox') {
+                theSandboxNfts.push(asset);
+                setOwnedTheSandboxNfts([...theSandboxNfts]);
+                initialData[2].count = theSandboxNfts.length;
+                initialData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
+              }
+              if (slug === 'somnium-space') {
+                somniumNfts.push(asset);
+                setOwnedSomniumNfts([...somniumNfts]);
+                initialData[3].count = somniumNfts.length;
+                initialData[3].price = somniumNfts.length * collectionFloorPrice[name];
+              }
+              setSummary([...initialData]);
             }
             if (res.data.assets.length < 50) {
               break;
@@ -430,11 +482,13 @@ export const NftCollections = () => {
           }
         }
       }
-      initialData[0].loading = false;
-      setSummary(initialData);
-      setBsc_Loading(false);
+      for (let j = 0; j < 4; j += 1) {
+        initialData[j].loading = false;
+      }
+      setSummary([...initialData]);
+      setLoading(false);
     };
-    fetchBscData();
+    fetchEthData();
   }, [hash]);
 
   return (
@@ -492,7 +546,7 @@ export const NftCollections = () => {
                     <Typography
                       style={{ marginLeft: 5, fontFamily: 'Open Sans', fontSize: 12 }}
                     >
-                      METAVERSES
+                      ADDRESSES
                     </Typography>
                   </Hidden>
                 </Grid>
@@ -518,102 +572,31 @@ export const NftCollections = () => {
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'center' }}
               >
-                <MenuItem className={styles.xsAddress}>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    wrap="nowrap"
-                  >
-                    <img width={20} src="/decentraland.png" alt="decentraland" style={{ borderRadius: '50%', marginRight: 10 }} />
-                    <Typography
-                      variant="h3"
-                      style={{ fontSize: 22, color: '#000000' }}
+                {profile.address.map((adrs: any) => (
+                  <MenuItem className={styles.xsAddress}>
+                    <Grid
+                      container
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      wrap="nowrap"
                     >
-                      Decentraland
-                    </Typography>
-                    <Checkbox
-                      checked
-                      disabled
-                      style={{
-                        color: '#FF06D7',
-                      }}
-                    />
-                  </Grid>
-                </MenuItem>
-                <MenuItem className={styles.xsAddress}>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    wrap="nowrap"
-                  >
-                    <img width={20} src="/cryptovoxels.png" alt="cryptovoxels" style={{ borderRadius: '50%', marginRight: 10 }} />
-                    <Typography
-                      variant="h3"
-                      style={{ fontSize: 22, color: '#000000' }}
-                    >
-                      Cryptovoxels
-                    </Typography>
-                    <Checkbox
-                      checked
-                      disabled
-                      style={{
-                        color: '#FF06D7',
-                      }}
-                    />
-                  </Grid>
-                </MenuItem>
-                <MenuItem className={styles.xsAddress}>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    wrap="nowrap"
-                  >
-                    <img width={20} src="/thesandbox.png" alt="thesandbox" style={{ borderRadius: '50%', marginRight: 10 }} />
-                    <Typography
-                      variant="h3"
-                      style={{ fontSize: 22, color: '#000000' }}
-                    >
-                      The Sandbox
-                    </Typography>
-                    <Checkbox
-                      checked
-                      disabled
-                      style={{
-                        color: '#FF06D7',
-                      }}
-                    />
-                  </Grid>
-                </MenuItem>
-                <MenuItem className={styles.xsAddress}>
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="flex-start"
-                    wrap="nowrap"
-                  >
-                    <img width={20} src="/somnium.png" alt="somnium" style={{ borderRadius: '50%', marginRight: 10 }} />
-                    <Typography
-                      variant="h3"
-                      style={{ fontSize: 22, color: '#000000' }}
-                    >
-                      Somnium Space
-                    </Typography>
-                    <Checkbox
-                      checked
-                      disabled
-                      style={{
-                        color: '#FF06D7',
-                      }}
-                    />
-                  </Grid>
-                </MenuItem>
+                      <img width={20} src={icon[adrs[0]]} alt={adrs[1]} style={{ borderRadius: '50%', marginRight: 10 }} />
+                      <Typography
+                        variant="h3"
+                        style={{ fontSize: 22, color: '#000000' }}
+                      >
+                        {`${adrs[1].substr(0, 6)}...${adrs[1].substr(-4)}`}
+                      </Typography>
+                      <Checkbox
+                        checked
+                        disabled
+                        style={{
+                          color: '#FF06D7',
+                        }}
+                      />
+                    </Grid>
+                  </MenuItem>))}
               </Menu>
             </Hidden>
             <Hidden xsDown>
@@ -635,7 +618,7 @@ export const NftCollections = () => {
               value={tabValue}
               onChange={(event, newValue) => setTabValue(newValue)}
             >
-              <CustomTab style={{ fontWeight: 'bolder' }} label="NFT Collection" value={0} />
+              <CustomTab style={{ fontWeight: 'bolder' }} label="Portfolio" value={0} />
             </CustomTabs>
           </Grid>
           <TabPanel index={0} value={tabValue}>
@@ -644,45 +627,49 @@ export const NftCollections = () => {
               Decentraland
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedDecentralandNfts.slice((decentralandPage - 1) * 4, (decentralandPage) * 4)}
+              page={decentralandPage}
+              maxPage={Math.floor(ownedDecentralandNfts.length / 4) + 1}
+              onNext={() => setDecentralandPage(decentralandPage + 1)}
+              onPrev={() => setDecentralandPage(decentralandPage - 1)}
             />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               Cryptovoxels
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, (cryptovoxelsPage) * 4)}
+              page={cryptovoxelsPage}
+              maxPage={Math.floor(ownedCryptovoxelsNfts.length / 4) + 1}
+              onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
+              onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
             />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               The Sandbox
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedTheSandboxNfts.slice((theSandboxPage - 1) * 4, (theSandboxPage) * 4)}
+              page={theSandboxPage}
+              maxPage={Math.floor(ownedTheSandboxNfts.length / 4) + 1}
+              onNext={() => setTheSandboxPage(theSandboxPage + 1)}
+              onPrev={() => setTheSandboxPage(theSandboxPage - 1)}
             />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               Somnium Space
             </SectionLabel>
             <NftPagination
-              loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
-              page={page}
-              maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
-              onNext={() => setPage(page + 1)}
-              onPrev={() => setPage(page - 1)}
+              loading={loading}
+              isOpenSea
+              nfts={ownedSomniumNfts.slice((somniumPage - 1) * 4, (somniumPage) * 4)}
+              page={somniumPage}
+              maxPage={Math.floor(ownedSomniumNfts.length / 4) + 1}
+              onNext={() => setSomniumPage(somniumPage + 1)}
+              onPrev={() => setSomniumPage(somniumPage - 1)}
             />
           </TabPanel>
         </Grid>
