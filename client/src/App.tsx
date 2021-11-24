@@ -39,9 +39,13 @@ function App() {
     const { host } = window.location;
     const arr = host
       .split('.');
-    console.log(arr);
-    if (arr.length > 0 && host.includes('staging')) setSubDomain(arr[1]);
-    else if (arr.length > 0) setSubDomain(arr[0]);
+    if (arr.length > 0 && host.indexOf('staging') !== -1) {
+      console.log(arr[1]);
+      setSubDomain(arr[1]);
+    } else if (arr.length > 0) {
+      setSubDomain(arr[0]);
+      console.log(arr[0]);
+    }
   }, []);
   return (
     <Suspense fallback={<Loading />}>
