@@ -87,7 +87,7 @@ export const Summary = ({ data }: Props) => {
               </Grid>
               <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
                 <Grid item>
-                  <Typography style={{ fontSize: 14 }}>Total NFTs</Typography>
+                  <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
                   <Typography style={{ fontSize: 18, fontWeight: 700 }}>{item.count}</Typography>
                 </Grid>
                 <Grid item className={classes.chainInfo}>
