@@ -53,7 +53,7 @@ export const MetaLanding = () => {
         image="/DOKO_LOGO.png"
       />
       <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={snackBar}
         onClose={handleClose}
       >

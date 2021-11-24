@@ -338,7 +338,7 @@ export const NftCollections = () => {
           for (let j = 0; j < res.data.assets.length; j += 1) {
             let asset = {};
             const { slug, name } = res.data.assets[j].collection;
-            if (['decentraland, crytpovoxels, somniumn-space, sandbox'].indexOf(slug) === 0) {
+            if (['decentraland, crytpovoxels, somniumn-space, sandbox'].indexOf(slug) === -1) {
               continue;
             }
             if (collectionFloorPrice[name]) {
