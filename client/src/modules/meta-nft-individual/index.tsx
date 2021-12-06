@@ -36,6 +36,22 @@ import solsea_icon from '../../assets/solsea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 import { Meta } from '../../components';
 
+import decentraland from './assets/decentraland.png';
+import cryptovoxels from './assets/cryptovoxels.png';
+import somnium from './assets/somnium.png';
+import thesandbox from './assets/thesandbox.png';
+
+type Icons = {
+  [key: string]: string
+}
+
+const metaverseIcon: Icons = {
+  decentraland,
+  cryptovoxels,
+  'somnium-space': somnium,
+  sandbox: thesandbox,
+};
+
 const StyledTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: '#333333',
@@ -132,7 +148,7 @@ const useStyles = makeStyles((theme) => ({
       #00ffef 100%
     )`,
     padding: '8px 20px',
-    width: 200,
+    width: 250,
     fontWeight: 'bold',
   },
 }));
@@ -155,6 +171,8 @@ export const NftIndividual = () => {
   const [totalSupply, setTotalSupply] = useState<number>();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [slug, setSlug] = useState<string>('');
+  const [externalLink, setExternalLink] = useState<string>('');
 
   const getCurrencyIcon = (_chain: string) => {
     let icon;
@@ -228,6 +246,8 @@ export const NftIndividual = () => {
         setNftDesc(_nft.description);
         setCollection(_nft.asset_contract.name);
         const _traits = res.data.traits && res.data.traits.length ? res.data.traits : [];
+        setSlug(_nft.collection.slug);
+        setExternalLink(_nft.external_link);
         setTraits(_traits);
       }
       // eslint-disable-next-line no-empty
@@ -329,6 +349,7 @@ export const NftIndividual = () => {
     fetchTxs(chain, address, id, 0, 100);
     fetchPrice(address, id);
     _getTotalSupply(address);
+    console.log(externalLink);
   }, [address, id, chain]);
 
   return (
@@ -507,39 +528,39 @@ export const NftIndividual = () => {
                 <Typography variant="body1">N/A</Typography>
               </Grid>
             )}
-            {chain === 'eth' ? (
-              <Grid item style={{ marginTop: '.9em' }}>
-                <Link
-                  style={{ textDecoration: 'none' }}
-                  target="_blank"
-                  href={`https://opensea.io/assets/${address}/${id}`}
-                >
-                  <Button className={styles.profileButton}>
-                    <img width={16} src={opensea_icon} alt="" />
-                    <span style={{ marginLeft: 12, color: 'white' }}>View on Opensea</span>
-                  </Button>
-                </Link>
-              </Grid>
-            ) : chain === 'solana' ? (
-              <Grid item style={{ marginTop: '.9em' }}>
-                <Link
-                  style={{ textDecoration: 'none' }}
-                  target="_blank"
-                  href={`https://solsea.io/nft/${id}`}
-                >
-                  <Button className={styles.profileButton}>
-                    <img width={16} src={solsea_icon} alt="" />
-                    <span style={{ marginLeft: 12, color: 'white' }}>View on Solsea</span>
-                  </Button>
-                </Link>
-              </Grid>
-            ) : (
-              ''
-            )}
+            <Grid item style={{ marginTop: '.9em' }}>
+              <Link
+                style={{ textDecoration: 'none' }}
+                target="_blank"
+                href={externalLink}
+              >
+                <Button className={styles.profileButton}>
+                  <img width={16} src={metaverseIcon[slug]} alt="" />
+                  <span style={{ marginLeft: 12, color: 'white' }}>{`View on ${slug}`}</span>
+                </Button>
+              </Link>
+            </Grid>
           </Grid>
 
           <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
             <Grid item container xs={6} direction="column" spacing={1}>
+              <Grid item>
+                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                  MarketPlaces
+                </Typography>
+                <Grid item style={{ marginTop: '.9em' }}>
+                  <Link
+                    style={{ textDecoration: 'none' }}
+                    target="_blank"
+                    href={`https://opensea.io/assets/${address}/${id}`}
+                  >
+                    <Button className="gradient-button" variant="outlined">
+                      <img width={16} src={opensea_icon} alt="" />
+                      <span style={{ marginLeft: 12 }}>Opensea</span>
+                    </Button>
+                  </Link>
+                </Grid>
+              </Grid>
               <Grid item>
                 <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
                   Description

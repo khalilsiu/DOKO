@@ -67,6 +67,13 @@ const CustomIconButton = withStyles({
   },
 })(IconButton);
 
+const ChainContainer = withStyles((theme) => ({
+  root: {
+    padding: '10px 30px 24px',
+    marginTop: 10,
+  },
+}))(Grid);
+
 let syncInterval: any;
 
 const useStyles = makeStyles((theme) => ({
@@ -140,7 +147,27 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.75)',
     borderRadius: '23px',
   },
-
+  totalSummary: {
+    width: '345px',
+    height: '99px',
+    left: '467px',
+    top: '502px',
+    background: 'rgba(255,255,255,0.25)',
+    borderRadius: '15px',
+    marginBottom: '24px',
+  },
+  summaryLeftDiv: {
+    width: '40px',
+    height: '99px',
+    left: '507px',
+    top: '601px',
+    background: '#FF06D7',
+    borderRadius: '0px 15px 15px 0px',
+    transform: 'rotate(-180deg)',
+  },
+  chainInfo: {
+    marginLeft: 48,
+  },
 }));
 
 const initialData = [
@@ -158,7 +185,7 @@ const initialData = [
     price: 0,
     name: 'Cryptovoxels',
     available: true,
-    loading: false,
+    loading: true,
   },
   {
     icon: thesandbox,
@@ -166,7 +193,7 @@ const initialData = [
     price: 0,
     name: 'The Sandbox',
     available: true,
-    loading: false,
+    loading: true,
   },
   {
     icon: somnium,
@@ -174,7 +201,7 @@ const initialData = [
     price: 0,
     name: 'Somnium Space',
     available: true,
-    loading: false,
+    loading: true,
   },
 ];
 
@@ -338,7 +365,7 @@ export const NftCollections = () => {
           for (let j = 0; j < res.data.assets.length; j += 1) {
             let asset = {};
             const { slug, name } = res.data.assets[j].collection;
-            if (['decentraland, crytpovoxels, somniumn-space, sandbox'].indexOf(slug) !== -1) {
+            if (['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1) {
               continue;
             }
             if (collectionFloorPrice[name]) {
@@ -477,6 +504,33 @@ export const NftCollections = () => {
             </CustomTabs>
           </Grid>
           <TabPanel index={0} value={tabValue}>
+            <Grid className={styles.totalSummary} container direction="row">
+              <Grid className={styles.summaryLeftDiv} />
+              <Grid>
+                <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
+                  <Grid item>
+                    <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
+                    <Typography style={{ fontSize: 18, fontWeight: 700 }}>
+                      {summary.reduce((a, b) => (a + b.count), 0)}
+                    </Typography>
+                  </Grid>
+                  <Grid item className={styles.chainInfo}>
+                    <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
+                    <Grid container alignItems="center">
+                      <img
+                        style={{ marginRight: 8 }}
+                        src="/collection/DOKOasset_EthereumBlue.png"
+                        width={10}
+                        alt="ETH"
+                      />
+                      <Typography style={{ fontSize: 18, fontWeight: 700 }}>
+                        {summary.reduce((a, b) => (a + b.price), 0).toFixed(3)}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </ChainContainer>
+              </Grid>
+            </Grid>
             <Summary data={{ summary }} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               Decentraland

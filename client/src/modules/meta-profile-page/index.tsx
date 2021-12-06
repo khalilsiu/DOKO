@@ -27,6 +27,7 @@ import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 import { useCookies } from 'react-cookie';
 import { OpenInBrowserRounded } from '@material-ui/icons';
 import { SSL_OP_TLS_D5_BUG } from 'constants';
+import { accountFromJSON } from 'opensea-js/lib/utils/utils';
 import { TabPanel, NftPagination, Meta, RadiusInput } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { Filter } from './Filter';
@@ -78,6 +79,13 @@ const CustomTab = withStyles({
     textTransform: 'none',
   },
 })(Tab);
+
+const ChainContainer = withStyles((theme) => ({
+  root: {
+    padding: '10px 30px 24px',
+    marginTop: 10,
+  },
+}))(Grid);
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -160,6 +168,27 @@ const useStyles = makeStyles((theme) => ({
   },
   xsAddress: {
 
+  },
+  totalSummary: {
+    width: '345px',
+    height: '99px',
+    left: '467px',
+    top: '502px',
+    background: 'rgba(255,255,255,0.25)',
+    borderRadius: '15px',
+    marginBottom: '24px',
+  },
+  summaryLeftDiv: {
+    width: '40px',
+    height: '99px',
+    left: '507px',
+    top: '601px',
+    background: '#FF06D7',
+    borderRadius: '0px 15px 15px 0px',
+    transform: 'rotate(-180deg)',
+  },
+  chainInfo: {
+    marginLeft: 48,
   },
 }));
 
@@ -402,6 +431,8 @@ export const NftCollections = () => {
 
   useEffect(() => {
     const fetchEthData = async () => {
+      const newData = initialData;
+      setSummary([...newData]);
       const decentralandNfts: any = [];
       const cryptovoxelsNfts: any = [];
       const theSandboxNfts: any = [];
@@ -424,7 +455,7 @@ export const NftCollections = () => {
             for (let j = 0; j < res.data.assets.length; j += 1) {
               let asset = {};
               const { slug, name } = res.data.assets[j].collection;
-              if (['decentraland, crytpovoxels, somniumn-space, sandbox'].indexOf(slug) !== -1) {
+              if (['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1) {
                 continue;
               }
               if (collectionFloorPrice[name]) {
@@ -450,28 +481,28 @@ export const NftCollections = () => {
               if (slug === 'decentraland') {
                 decentralandNfts.push(asset);
                 setOwnedDecentralandNfts([...decentralandNfts]);
-                initialData[0].count = decentralandNfts.length;
-                initialData[0].price = decentralandNfts.length * collectionFloorPrice[name];
+                newData[0].count = decentralandNfts.length;
+                newData[0].price = decentralandNfts.length * collectionFloorPrice[name];
               }
               if (slug === 'cryptovoxels') {
                 cryptovoxelsNfts.push(asset);
                 setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
-                initialData[1].count = cryptovoxelsNfts.length;
-                initialData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
+                newData[1].count = cryptovoxelsNfts.length;
+                newData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
               }
               if (slug === 'sandbox') {
                 theSandboxNfts.push(asset);
                 setOwnedTheSandboxNfts([...theSandboxNfts]);
-                initialData[2].count = theSandboxNfts.length;
-                initialData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
+                newData[2].count = theSandboxNfts.length;
+                newData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
               }
               if (slug === 'somnium-space') {
                 somniumNfts.push(asset);
                 setOwnedSomniumNfts([...somniumNfts]);
-                initialData[3].count = somniumNfts.length;
-                initialData[3].price = somniumNfts.length * collectionFloorPrice[name];
+                newData[3].count = somniumNfts.length;
+                newData[3].price = somniumNfts.length * collectionFloorPrice[name];
               }
-              setSummary([...initialData]);
+              setSummary([...newData]);
             }
             if (res.data.assets.length < 50) {
               break;
@@ -483,9 +514,9 @@ export const NftCollections = () => {
         }
       }
       for (let j = 0; j < 4; j += 1) {
-        initialData[j].loading = false;
+        newData[j].loading = false;
       }
-      setSummary([...initialData]);
+      setSummary([...newData]);
       setLoading(false);
     };
     fetchEthData();
@@ -622,6 +653,33 @@ export const NftCollections = () => {
             </CustomTabs>
           </Grid>
           <TabPanel index={0} value={tabValue}>
+            <Grid className={styles.totalSummary} container direction="row">
+              <Grid className={styles.summaryLeftDiv} />
+              <Grid>
+                <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
+                  <Grid item>
+                    <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
+                    <Typography style={{ fontSize: 18, fontWeight: 700 }}>
+                      {summary.reduce((a, b) => (a + b.count), 0)}
+                    </Typography>
+                  </Grid>
+                  <Grid item className={styles.chainInfo}>
+                    <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
+                    <Grid container alignItems="center">
+                      <img
+                        style={{ marginRight: 8 }}
+                        src="/collection/DOKOasset_EthereumBlue.png"
+                        width={10}
+                        alt="ETH"
+                      />
+                      <Typography style={{ fontSize: 18, fontWeight: 700 }}>
+                        {summary.reduce((a, b) => (a + b.price), 0).toFixed(3)}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </ChainContainer>
+              </Grid>
+            </Grid>
             <Summary data={{ summary }} />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               Decentraland
@@ -631,7 +689,7 @@ export const NftCollections = () => {
               isOpenSea
               nfts={ownedDecentralandNfts.slice((decentralandPage - 1) * 4, (decentralandPage) * 4)}
               page={decentralandPage}
-              maxPage={Math.floor(ownedDecentralandNfts.length / 4) + 1}
+              maxPage={Math.ceil(ownedDecentralandNfts.length / 4)}
               onNext={() => setDecentralandPage(decentralandPage + 1)}
               onPrev={() => setDecentralandPage(decentralandPage - 1)}
             />
@@ -643,7 +701,7 @@ export const NftCollections = () => {
               isOpenSea
               nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, (cryptovoxelsPage) * 4)}
               page={cryptovoxelsPage}
-              maxPage={Math.floor(ownedCryptovoxelsNfts.length / 4) + 1}
+              maxPage={Math.ceil(ownedCryptovoxelsNfts.length / 4)}
               onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
               onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
             />
@@ -655,7 +713,7 @@ export const NftCollections = () => {
               isOpenSea
               nfts={ownedTheSandboxNfts.slice((theSandboxPage - 1) * 4, (theSandboxPage) * 4)}
               page={theSandboxPage}
-              maxPage={Math.floor(ownedTheSandboxNfts.length / 4) + 1}
+              maxPage={Math.ceil(ownedTheSandboxNfts.length / 4)}
               onNext={() => setTheSandboxPage(theSandboxPage + 1)}
               onPrev={() => setTheSandboxPage(theSandboxPage - 1)}
             />
@@ -667,7 +725,7 @@ export const NftCollections = () => {
               isOpenSea
               nfts={ownedSomniumNfts.slice((somniumPage - 1) * 4, (somniumPage) * 4)}
               page={somniumPage}
-              maxPage={Math.floor(ownedSomniumNfts.length / 4) + 1}
+              maxPage={Math.ceil(ownedSomniumNfts.length / 4)}
               onNext={() => setSomniumPage(somniumPage + 1)}
               onPrev={() => setSomniumPage(somniumPage - 1)}
             />
