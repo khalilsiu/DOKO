@@ -371,13 +371,13 @@ export const NftCollections = () => {
             if (collectionFloorPrice[name]) {
               asset = {
                 ...res.data.assets[j],
-                floor_price: collectionFloorPrice[name],
+                floor_price: collectionFloorPrice[name].toFixed(3),
               };
             } else {
               while (1) {
                 try {
                   const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
-                  collectionFloorPrice[name] = price_object.data.stats.floor_price;
+                  collectionFloorPrice[name] = price_object.data.stats.floor_price.toFixed(3);
                   asset = {
                     ...res.data.assets[j],
                     floor_price: collectionFloorPrice[name],

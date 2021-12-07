@@ -18,8 +18,8 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    height: '250px',
-    maxHeight: '250px',
+    height: '125px',
+    maxHeight: '125px',
     width: '100%',
     borderRadius: '20px',
     border: '1px solid white',
@@ -56,52 +56,23 @@ export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
   return (
     <Grid item container justifyContent="flex-start" spacing={3}>
       <GradientSVG />
-      {traits.map((trait: any, i: any) => {
-        const traitPercentage =
-          trait.trait_count && totalSupply
-            ? Math.round((trait.trait_count / totalSupply) * 100)
-            : 0;
-        const traitPercentageAvailable = !!traitPercentage;
-        const traitPercentageText = traitPercentageAvailable ? `${traitPercentage} %` : '';
-        return (
-          // eslint-disable-next-line react/no-array-index-key
-          <Grid item container lg={2} xl={2} md={3} sm={4} xs={6} key={trait.trait_type + i}>
-            <Card className={styles.traitCard}>
-              <div style={{ marginBottom: '1em' }}>
-                <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
-                  {trait.trait_type}
-                </Typography>
-              </div>
-              <CircularProgressbar
-                value={traitPercentage}
-                text={`${traitPercentageText}`}
-                styles={{
-                  path: {
-                    stroke: 'url(#lingrad)',
-                  },
-                  trail: {
-                    stroke: '#333333',
-                  },
-                  text: {
-                    fill: 'white',
-                    fontSize: '16px',
-                  },
-                }}
-              />
-              <div className={styles.traitFooter}>
-                <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
-                  {trait.value}
-                </Typography>
-                {traitPercentage !== 0 && (
-                  <Typography variant="body1" style={{ fontStyle: 'italic' }}>
-                    {traitPercentage !== 0 ? `${traitPercentage} %` : 'N/A'} have this trait
-                  </Typography>
-                )}
-              </div>
-            </Card>
-          </Grid>
-        );
-      })}
+      {traits.map((trait: any, i: any) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <Grid item container lg={3} xl={3} md={4} sm={4} xs={6} key={trait.trait_type + i}>
+          <Card className={styles.traitCard}>
+            <div style={{ marginBottom: '1em' }}>
+              <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
+                {trait.trait_type}
+              </Typography>
+            </div>
+            <div className={styles.traitFooter}>
+              <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
+                {trait.value}
+              </Typography>
+            </div>
+          </Card>
+        </Grid>
+      ))}
     </Grid>
   );
 };

@@ -52,17 +52,18 @@ export const MetaLanding = () => {
         url="https://doko.one"
         image="/DOKO_LOGO.png"
       />
-      <Snackbar
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        open={snackBar}
-        onClose={handleClose}
-      >
-        <SnackbarContent
-          style={{ width: '100%' }}
-          message={message}
-        />
-      </Snackbar>
       <Container maxWidth="lg" className={styles.landingTopSection}>
+        <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          open={snackBar}
+          onClose={handleClose}
+          className={styles.snackBar}
+        >
+          <SnackbarContent
+            style={{ width: '100%' }}
+            message={message}
+          />
+        </Snackbar>
         <h1 className={styles.landingTopTitle}>All Your Digital Real Estate in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
           Manage your digital real estate from supported metaverse under one single dashboard
@@ -209,6 +210,9 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    [theme.breakpoints.down('sm')]: {
+      height: 'calc(100vh - 150px)',
+    },
   },
   landingTopTitle: {
     fontSize: 64,
@@ -295,6 +299,10 @@ const useStyles = makeStyles((theme) => ({
   },
   wereHereImage: {
     width: '80px !important',
+  },
+  snackBar: {
+    width: '70vw',
+    bottom: '10%',
   },
 }));
 

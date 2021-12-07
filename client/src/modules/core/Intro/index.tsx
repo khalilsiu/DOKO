@@ -136,6 +136,8 @@ const useStyles = makeStyles((theme) => ({
       #00ffef 80%,
       #00ffef 100%
     )`,
+    flex: 'row',
+    justifyContent: 'flex-start',
     padding: '8px 20px',
     width: 200,
     fontWeight: 'bold',
