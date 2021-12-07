@@ -48,7 +48,7 @@ export const MetaLanding = () => {
     <>
       <Meta
         title="DOKO, Metaverse Real Estate Portfolio Manager"
-        description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
+        description="The Metaverse Real Estate Portfolio Manager that allows you to display, manage and trade your metaverse real estates"
         url="https://doko.one"
         image="/DOKO_LOGO.png"
       />
