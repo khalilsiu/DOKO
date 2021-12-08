@@ -60,7 +60,6 @@ export const MetaLanding = () => {
           className={styles.snackBar}
         >
           <SnackbarContent
-            style={{ width: '100%' }}
             message={message}
           />
         </Snackbar>
@@ -301,8 +300,7 @@ const useStyles = makeStyles((theme) => ({
     width: '80px !important',
   },
   snackBar: {
-    width: '70vw',
-    bottom: '10%',
+    minWidth: '80vw',
   },
 }));
 
