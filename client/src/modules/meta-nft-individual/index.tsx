@@ -136,7 +136,6 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 3,
   },
   networkIconMedium: {
-    width: 18,
     height: 18,
     marginRight: 3,
   },
