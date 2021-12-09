@@ -431,7 +431,7 @@ export const NftCollections = () => {
 
   useEffect(() => {
     const fetchEthData = async () => {
-      const newData = initialData;
+      const newData = initialData.map((a) => ({ ...a }));
       setSummary([...newData]);
       const decentralandNfts: any = [];
       const cryptovoxelsNfts: any = [];
