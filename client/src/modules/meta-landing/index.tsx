@@ -217,12 +217,16 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 64,
     fontFamily: 'Exo2',
     marginTop: 0,
-  },
-  landingTopMiddleText: {
-    maxWidth: '50%',
-    margin: '0 auto',
+    maxWidth: '80%',
     [theme.breakpoints.down('sm')]: {
       maxWidth: '100%',
+    },
+  },
+  landingTopMiddleText: {
+    maxWidth: '40%',
+    margin: '0 auto',
+    [theme.breakpoints.down('md')]: {
+      maxWidth: '90%',
     },
   },
   highlightText: {

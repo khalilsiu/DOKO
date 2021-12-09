@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -14,6 +15,17 @@ import { ToolbarItemsProps } from './types';
 export const LargeScreen = memo(
   ({ setSearch, search, loading, address, connect }: ToolbarItemsProps) => {
     const history = useHistory();
+    const { host } = window.location;
+    let subdomain = '';
+    const arr = host
+      .split('.');
+    if (arr.length > 0 && host.indexOf('staging') !== -1) {
+      subdomain = arr[1];
+    } else if (arr.length > 0) {
+      subdomain = arr[0];
+    }
+    let link = 'https://doko-one.gitbook.io/doko/';
+    if (subdomain !== 'nft') { link = 'https://doko-one.gitbook.io/doko-metaverse/'; }
 
     return (
       <>
@@ -50,7 +62,7 @@ export const LargeScreen = memo(
                 <a
                   style={{ textDecoration: 'none', display: 'block' }}
                   className="hover-button"
-                  href="https://doko-one.gitbook.io/doko/"
+                  href={link}
                   target="_blank"
                   rel="noreferrer"
                 >
