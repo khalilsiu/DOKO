@@ -103,7 +103,7 @@ export const MetaLanding = () => {
           justifyContent="flex-start"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/dashboard.png" alt="" />
           </div>
           <div>
@@ -127,7 +127,7 @@ export const MetaLanding = () => {
           justifyContent="center"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/analysis.png" alt="" />
           </div>
           <div>
@@ -151,7 +151,7 @@ export const MetaLanding = () => {
           justifyContent="flex-start"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/lending.png" alt="" />
           </div>
           <div>
@@ -175,7 +175,7 @@ export const MetaLanding = () => {
           justifyContent="center"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/rental.png" alt="" />
           </div>
           <div>
@@ -288,6 +288,12 @@ const useStyles = makeStyles((theme) => ({
       '& > div': {
         marginLeft: 0,
       },
+    },
+  },
+  whatYouCanDoImage: {
+    [theme.breakpoints.up('sm')]: {
+      width: 421,
+      height: 421,
     },
   },
   whatCanYouDoTextContainer: {
