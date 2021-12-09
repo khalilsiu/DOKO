@@ -79,19 +79,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const wallets: Wallet[] = [
-  {
-    icon: '/DOKO_Metamasklogo_asset.png',
-    label: 'MetaMask Wallet',
-    name: WalletName.METAMASK,
-  },
-  {
-    icon: '/DOKO_Phantomlogo_asset.png',
-    label: 'Phantom Wallet',
-    name: WalletName.PHANTOM,
-  },
-];
-
 declare let window: any;
 
 interface AuthContextValue {
@@ -108,7 +95,28 @@ export const AuthContext = createContext<AuthContextValue>({
   walletName: undefined,
 });
 
-export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
+export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) => {
+  let wallets: Wallet[] = [
+    {
+      icon: '/DOKO_Metamasklogo_asset.png',
+      label: 'MetaMask Wallet',
+      name: WalletName.METAMASK,
+    },
+  ];
+  if (nft) {
+    wallets = [
+      {
+        icon: '/DOKO_Metamasklogo_asset.png',
+        label: 'MetaMask Wallet',
+        name: WalletName.METAMASK,
+      },
+      {
+        icon: '/DOKO_Phantomlogo_asset.png',
+        label: 'Phantom Wallet',
+        name: WalletName.PHANTOM,
+      },
+    ];
+  }
   const [loading, setLoading] = useState(false);
   const { account, connect, status } = useMetaMask();
   const [solAccount, setSolAccount] = useState('');

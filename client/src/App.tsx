@@ -48,7 +48,7 @@ function App() {
     return (
       <Suspense fallback={<Loading />}>
         <BrowserRouter>
-          <AuthContextProvider>
+          <AuthContextProvider nft>
             <DrawerContextProvider intro={<Intro drawer />}>
               <Header />
               <Switch>
