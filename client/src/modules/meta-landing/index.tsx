@@ -291,9 +291,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   whatYouCanDoImage: {
-    [theme.breakpoints.up('sm')]: {
-      width: 421,
-      height: 421,
+    width: 421,
+    height: 421,
+    [theme.breakpoints.down('sm')]: {
+      width: 'unset',
     },
   },
   whatCanYouDoTextContainer: {
