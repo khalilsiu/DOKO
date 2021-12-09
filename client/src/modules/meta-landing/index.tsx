@@ -63,9 +63,9 @@ export const MetaLanding = () => {
             message={message}
           />
         </Snackbar>
-        <h1 className={styles.landingTopTitle}>All Your Digital Real Estate in One Place</h1>
+        <h1 className={styles.landingTopTitle}>All Your Metaverse Real Estate in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
-          Manage your digital real estate from supported metaverse under one single dashboard
+          Manage your real estate from supported metaverse under one single dashboard
         </h3>
         <Button
           style={{ marginTop: 48, minWidth: 160 }}
