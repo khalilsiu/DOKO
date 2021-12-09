@@ -1,11 +1,11 @@
+/* eslint-disable prefer-destructuring */
 import CloseIcon from '@material-ui/icons/Close';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { DrawerContext } from '../../../contexts/DrawerContext';
 
@@ -34,6 +34,17 @@ const Intro = ({ drawer = false }: Props) => {
   // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const history = useHistory();
+  const { host } = window.location;
+  let subdomain = '';
+  const arr = host
+    .split('.');
+  if (arr.length > 0 && host.indexOf('staging') !== -1) {
+    subdomain = arr[1];
+  } else if (arr.length > 0) {
+    subdomain = arr[0];
+  }
+  let link = 'https://doko-one.gitbook.io/doko/';
+  if (subdomain !== 'nft') { link = 'https://doko-one.gitbook.io/doko-metaverse/'; }
 
   return (
     <Grid
@@ -82,7 +93,7 @@ const Intro = ({ drawer = false }: Props) => {
           <Grid item>
             <a
               style={{ textDecoration: 'none' }}
-              href="https://doko-one.gitbook.io/doko/"
+              href={link}
               target="_blank"
               rel="noreferrer"
             >
