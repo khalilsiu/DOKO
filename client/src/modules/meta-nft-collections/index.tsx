@@ -344,6 +344,8 @@ export const NftCollections = () => {
 
   useEffect(() => {
     const fetchEthData = async () => {
+      const newData = initialData.map((a) => ({ ...a }));
+      setSummary([...newData]);
       const decentralandNfts: any = [];
       const cryptovoxelsNfts: any = [];
       const theSandboxNfts: any = [];
@@ -391,28 +393,28 @@ export const NftCollections = () => {
             if (slug === 'decentraland') {
               decentralandNfts.push(asset);
               setOwnedDecentralandNfts([...decentralandNfts]);
-              initialData[0].count = decentralandNfts.length;
-              initialData[0].price = decentralandNfts.length * collectionFloorPrice[name];
+              newData[0].count = decentralandNfts.length;
+              newData[0].price = decentralandNfts.length * collectionFloorPrice[name];
             }
             if (slug === 'cryptovoxels') {
               cryptovoxelsNfts.push(asset);
               setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
-              initialData[1].count = cryptovoxelsNfts.length;
-              initialData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
+              newData[1].count = cryptovoxelsNfts.length;
+              newData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
             }
             if (slug === 'sandbox') {
               theSandboxNfts.push(asset);
               setOwnedTheSandboxNfts([...theSandboxNfts]);
-              initialData[2].count = theSandboxNfts.length;
-              initialData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
+              newData[2].count = theSandboxNfts.length;
+              newData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
             }
             if (slug === 'somnium-space') {
               somniumNfts.push(asset);
               setOwnedSomniumNfts([...somniumNfts]);
-              initialData[3].count = somniumNfts.length;
-              initialData[3].price = somniumNfts.length * collectionFloorPrice[name];
+              newData[3].count = somniumNfts.length;
+              newData[3].price = somniumNfts.length * collectionFloorPrice[name];
             }
-            setSummary([...initialData]);
+            setSummary([...newData]);
           }
           offset += 50;
           if (res.data.assets.length < 50) {
@@ -423,9 +425,9 @@ export const NftCollections = () => {
         }
       }
       for (let j = 0; j < 4; j += 1) {
-        initialData[j].loading = false;
+        newData[j].loading = false;
       }
-      setSummary([...initialData]);
+      setSummary([...newData]);
       setLoading(false);
     };
     fetchEthData();
