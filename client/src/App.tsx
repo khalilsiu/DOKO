@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import { useEffect, useState, lazy, PropsWithChildren, Suspense } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -34,16 +35,62 @@ const RouteContainer = ({ children }: PropsWithChildren<any>) => {
 };
 
 function App() {
-  const [subdomain, setSubDomain] = useState('');
-  useEffect(() => {
-    const { host } = window.location;
-    const arr = host
-      .split('.');
-    console.log(arr);
-    if (arr.length > 0 && host.includes('staging')) setSubDomain(arr[1]);
-    else if (arr.length > 0) setSubDomain(arr[0]);
-  }, []);
+  const { host } = window.location;
+  let subdomain = '';
+  const arr = host
+    .split('.');
+  if (arr.length > 0 && host.indexOf('staging') !== -1) {
+    subdomain = arr[1];
+  } else if (arr.length > 0) {
+    subdomain = arr[0];
+  }
+  if (subdomain === 'nft') {
+    return (
+      <Suspense fallback={<Loading />}>
+        <BrowserRouter>
+          <AuthContextProvider nft>
+            <DrawerContextProvider intro={<Intro drawer />}>
+              <Header />
+              <Switch>
+                <Route path="/" exact>
+                  <Landing />
+                </Route>
+                <Route path="/address/:address" exact>
+                  <RouteContainer>
+                    <NftCollections />
+                  </RouteContainer>
+                </Route>
+                <Route path="/nft/:chain/:address/:id" exact>
+                  <RouteContainer>
+                    <NftIndividual />
+                  </RouteContainer>
+                </Route>
+                <Route path="/collections/:address" exact>
+                  <RouteContainer>
+                    <Collection />
+                  </RouteContainer>
+                </Route>
+                <Route path="/profiles" exact>
+                  <RouteContainer>
+                    <Profiles />
+                  </RouteContainer>
+                </Route>
+                <Route path="/profiles/:hash" exact>
+                  <RouteContainer>
+                    <ProfilePage />
+                  </RouteContainer>
+                </Route>
+              </Switch>
+              <Footer />
+            </DrawerContextProvider>
+          </AuthContextProvider>
+        </BrowserRouter>
+      </Suspense>
+    );
+  }
+
   return (
+
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
         <AuthContextProvider>
@@ -51,31 +98,31 @@ function App() {
             <Header />
             <Switch>
               <Route path="/" exact>
-                <Landing />
+                <MetaLanding />
               </Route>
               <Route path="/address/:address" exact>
                 <RouteContainer>
-                  <NftCollections />
+                  <MetaNftCollections />
                 </RouteContainer>
               </Route>
               <Route path="/nft/:chain/:address/:id" exact>
                 <RouteContainer>
-                  <NftIndividual />
+                  <MetaNftIndividual />
                 </RouteContainer>
               </Route>
               <Route path="/collections/:address" exact>
                 <RouteContainer>
-                  <Collection />
+                  <MetaCollection />
                 </RouteContainer>
               </Route>
               <Route path="/profiles" exact>
                 <RouteContainer>
-                  <Profiles />
+                  <MetaProfiles />
                 </RouteContainer>
               </Route>
               <Route path="/profiles/:hash" exact>
                 <RouteContainer>
-                  <ProfilePage />
+                  <MetaProfilePage />
                 </RouteContainer>
               </Route>
             </Switch>

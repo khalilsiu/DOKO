@@ -48,24 +48,24 @@ export const MetaLanding = () => {
     <>
       <Meta
         title="DOKO, Metaverse Real Estate Portfolio Manager"
-        description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
+        description="The Metaverse Real Estate Portfolio Manager that allows you to display, manage and trade your metaverse real estates"
         url="https://doko.one"
         image="/DOKO_LOGO.png"
       />
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={snackBar}
-        onClose={handleClose}
-      >
-        <SnackbarContent
-          style={{ width: '100%' }}
-          message={message}
-        />
-      </Snackbar>
       <Container maxWidth="lg" className={styles.landingTopSection}>
-        <h1 className={styles.landingTopTitle}>All Your Digital Real Estate in One Place</h1>
+        <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          open={snackBar}
+          onClose={handleClose}
+          className={styles.snackBar}
+        >
+          <SnackbarContent
+            message={message}
+          />
+        </Snackbar>
+        <h1 className={styles.landingTopTitle}>All Your Metaverse Real Estate in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
-          Manage your digital real estate from supported metaverse under one single dashboard
+          Manage your real estate from supported metaverse under one single dashboard
         </h3>
         <Button
           style={{ marginTop: 48, minWidth: 160 }}
@@ -103,7 +103,7 @@ export const MetaLanding = () => {
           justifyContent="flex-start"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/dashboard.png" alt="" />
           </div>
           <div>
@@ -127,7 +127,7 @@ export const MetaLanding = () => {
           justifyContent="center"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/analysis.png" alt="" />
           </div>
           <div>
@@ -151,7 +151,7 @@ export const MetaLanding = () => {
           justifyContent="flex-start"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/lending.png" alt="" />
           </div>
           <div>
@@ -175,7 +175,7 @@ export const MetaLanding = () => {
           justifyContent="center"
           spacing={10}
         >
-          <div style={{ width: 421, height: 421 }}>
+          <div className={styles.whatYouCanDoImage}>
             <img src="meta-landing/rental.png" alt="" />
           </div>
           <div>
@@ -209,17 +209,24 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    [theme.breakpoints.down('sm')]: {
+      height: 'calc(100vh - 150px)',
+    },
   },
   landingTopTitle: {
     fontSize: 64,
     fontFamily: 'Exo2',
     marginTop: 0,
-  },
-  landingTopMiddleText: {
-    maxWidth: '50%',
-    margin: '0 auto',
+    maxWidth: '80%',
     [theme.breakpoints.down('sm')]: {
       maxWidth: '100%',
+    },
+  },
+  landingTopMiddleText: {
+    maxWidth: '40%',
+    margin: '0 auto',
+    [theme.breakpoints.down('md')]: {
+      maxWidth: '90%',
     },
   },
   highlightText: {
@@ -287,6 +294,13 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
+  whatYouCanDoImage: {
+    width: 421,
+    height: 421,
+    [theme.breakpoints.down('sm')]: {
+      width: 'unset',
+    },
+  },
   whatCanYouDoTextContainer: {
     marginBottom: 84,
     [theme.breakpoints.down('sm')]: {
@@ -295,6 +309,9 @@ const useStyles = makeStyles((theme) => ({
   },
   wereHereImage: {
     width: '80px !important',
+  },
+  snackBar: {
+    minWidth: '80vw',
   },
 }));
 

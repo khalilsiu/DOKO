@@ -118,7 +118,6 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 3,
   },
   networkIconMedium: {
-    width: 18,
     height: 18,
     marginRight: 3,
   },
@@ -464,7 +463,7 @@ export const NftIndividual = () => {
             {lastSale ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src={eth} alt="eth" />
+                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -491,7 +490,7 @@ export const NftIndividual = () => {
             {floorPrice ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src={eth} alt="eth" />
+                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
                 </IconButton>
                 <Typography
                   variant="h5"

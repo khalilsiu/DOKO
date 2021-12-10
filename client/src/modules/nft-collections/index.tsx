@@ -293,6 +293,7 @@ export const NftCollections = () => {
               }
             }
             setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
+            console.log(asset);
             resNfts.push(asset);
             setOwnedEthNfts([...resNfts]);
             initialData[0].count = resNfts.length;

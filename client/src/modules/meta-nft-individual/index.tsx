@@ -14,12 +14,13 @@ import {
   TableRow,
   Typography,
   withStyles,
+  Hidden,
 } from '@material-ui/core';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useParams } from 'react-router-dom';
-import eth from 'cryptocurrency-icons/32/white/eth.png';
 import bsc from 'cryptocurrency-icons/32/white/bnb.png';
 import solana from 'cryptocurrency-icons/32/white/sol.png';
+import eth from './assets/eth.png';
 
 import Moralis from '../../libs/moralis';
 import { fetchOpenSeaEvents, fetchNFTOpensea } from './api';
@@ -35,6 +36,23 @@ import opensea_icon from '../../assets/opensea-transparent.png';
 import solsea_icon from '../../assets/solsea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 import { Meta } from '../../components';
+
+import decentraland from './assets/decentraland.png';
+import cryptovoxels from './assets/cryptovoxels.png';
+import somnium from './assets/somnium.png';
+import thesandbox from './assets/thesandbox.png';
+import OpenSeaAPI from '../../libs/opensea-api';
+
+type Icons = {
+  [key: string]: string
+}
+
+const metaverseIcon: Icons = {
+  decentraland,
+  cryptovoxels,
+  'somnium-space': somnium,
+  sandbox: thesandbox,
+};
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -118,7 +136,6 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 3,
   },
   networkIconMedium: {
-    width: 18,
     height: 18,
     marginRight: 3,
   },
@@ -132,7 +149,7 @@ const useStyles = makeStyles((theme) => ({
       #00ffef 100%
     )`,
     padding: '8px 20px',
-    width: 200,
+    width: 250,
     fontWeight: 'bold',
   },
 }));
@@ -155,6 +172,9 @@ export const NftIndividual = () => {
   const [totalSupply, setTotalSupply] = useState<number>();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [slug, setSlug] = useState<string>('');
+  const [externalLink, setExternalLink] = useState<string>('');
+  const [metaverseName, setMetaverseName] = useState<string>('');
 
   const getCurrencyIcon = (_chain: string) => {
     let icon;
@@ -228,6 +248,26 @@ export const NftIndividual = () => {
         setNftDesc(_nft.description);
         setCollection(_nft.asset_contract.name);
         const _traits = res.data.traits && res.data.traits.length ? res.data.traits : [];
+        setSlug(_nft.collection.slug);
+        switch (_nft.collection.slug) {
+          case 'decentraland':
+            setMetaverseName('Decentraland');
+            break;
+          case 'cryptovoxels':
+            setMetaverseName('Cryptovoxels');
+            break;
+          case 'somnium-space':
+            setMetaverseName('Somnium Space');
+            break;
+          case 'sandbox':
+            setMetaverseName('The Sandbox');
+            break;
+          default:
+            break;
+        }
+        const price_object: any = await OpenSeaAPI.get(`/collection/${_nft.collection.slug}/stats`);
+        setFloorPrice(price_object.data.stats.floor_price.toFixed(3));
+        setExternalLink(_nft.external_link);
         setTraits(_traits);
       }
       // eslint-disable-next-line no-empty
@@ -303,7 +343,6 @@ export const NftIndividual = () => {
       const _floorPrice = +res.data.collection.stats.floor_price;
       setLastSale(lastsale);
       setLastSaleUSD(usdAmount);
-      setFloorPrice(_floorPrice);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
@@ -329,6 +368,7 @@ export const NftIndividual = () => {
     fetchTxs(chain, address, id, 0, 100);
     fetchPrice(address, id);
     _getTotalSupply(address);
+    console.log(externalLink);
   }, [address, id, chain]);
 
   return (
@@ -464,7 +504,7 @@ export const NftIndividual = () => {
             {lastSale ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src={eth} alt="eth" />
+                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -472,7 +512,7 @@ export const NftIndividual = () => {
                   className="bolder"
                   style={{ marginRight: '4px' }}
                 >
-                  {lastSale}
+                  {lastSale.toFixed(3)}
                 </Typography>
                 <Typography variant="body1" display="inline">
                   {`(US ${lastSaleUSD})`}
@@ -491,7 +531,7 @@ export const NftIndividual = () => {
             {floorPrice ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src={eth} alt="eth" />
+                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -507,82 +547,145 @@ export const NftIndividual = () => {
                 <Typography variant="body1">N/A</Typography>
               </Grid>
             )}
-            {chain === 'eth' ? (
-              <Grid item style={{ marginTop: '.9em' }}>
-                <Link
-                  style={{ textDecoration: 'none' }}
-                  target="_blank"
-                  href={`https://opensea.io/assets/${address}/${id}`}
-                >
-                  <Button className={styles.profileButton}>
-                    <img width={16} src={opensea_icon} alt="" />
-                    <span style={{ marginLeft: 12, color: 'white' }}>View on Opensea</span>
-                  </Button>
-                </Link>
-              </Grid>
-            ) : chain === 'solana' ? (
-              <Grid item style={{ marginTop: '.9em' }}>
-                <Link
-                  style={{ textDecoration: 'none' }}
-                  target="_blank"
-                  href={`https://solsea.io/nft/${id}`}
-                >
-                  <Button className={styles.profileButton}>
-                    <img width={16} src={solsea_icon} alt="" />
-                    <span style={{ marginLeft: 12, color: 'white' }}>View on Solsea</span>
-                  </Button>
-                </Link>
-              </Grid>
-            ) : (
-              ''
-            )}
-          </Grid>
-
-          <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
-            <Grid item container xs={6} direction="column" spacing={1}>
-              <Grid item>
-                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                  Description
-                </Typography>
-                <Typography variant="body1">{nftDesc || <span>N/A</span>}</Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                  Collection
-                </Typography>
-                {chain === 'eth' ? (
-                  <Link
-                    style={{ textDecoration: 'none', color: '#61dafb' }}
-                    href={`${window.origin}/collections/${address}`}
-                  >
-                    {collection}
-                  </Link>
-                ) : (
-                  <Typography variant="body1">{collection}</Typography>
-                )}
-              </Grid>
-            </Grid>
-            <Grid item container direction="column" xs={6} spacing={1}>
-              <Grid item>
-                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                  Contract Address
-                </Typography>
-                <Typography variant="body1">{address}</Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                  Blockchain
-                </Typography>
-                <Typography variant="body1">{chainMapping(chain)}</Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                  Token ID
-                </Typography>
-                <Typography variant="body1">{id}</Typography>
-              </Grid>
+            <Grid item style={{ marginTop: '.9em' }}>
+              <Link
+                style={{ textDecoration: 'none' }}
+                target="_blank"
+                href={externalLink}
+              >
+                <Button className={styles.profileButton}>
+                  <img width={16} src={metaverseIcon[slug]} alt="" />
+                  <span style={{ marginLeft: 12, color: 'white' }}>{`View on ${metaverseName}`}</span>
+                </Button>
+              </Link>
             </Grid>
           </Grid>
+          <Hidden smUp>
+            <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
+              <Grid item container xs={6} direction="column" spacing={1}>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    MarketPlace
+                  </Typography>
+                  <Grid item style={{ marginTop: '.9em' }}>
+                    <Link
+                      style={{ textDecoration: 'none' }}
+                      target="_blank"
+                      href={`https://opensea.io/assets/${address}/${id}`}
+                    >
+                      <Button className="gradient-button" variant="outlined">
+                        <img width={16} src={opensea_icon} alt="" />
+                        <span style={{ marginLeft: 12 }}>Opensea</span>
+                      </Button>
+                    </Link>
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Description
+                  </Typography>
+                  <Typography variant="body1">{nftDesc || <span>N/A</span>}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Collection
+                  </Typography>
+                  {chain === 'eth' ? (
+                    <Link
+                      style={{ textDecoration: 'none', color: '#61dafb' }}
+                      href={`${window.origin}/collections/${address}`}
+                    >
+                      {collection}
+                    </Link>
+                  ) : (
+                    <Typography variant="body1">{collection}</Typography>
+                  )}
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Contract Address
+                  </Typography>
+                  <Typography variant="body1">{address}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Blockchain
+                  </Typography>
+                  <Typography variant="body1">{chainMapping(chain)}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Token ID
+                  </Typography>
+                  <Typography variant="body1">{id}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Hidden>
+          <Hidden xsDown>
+            <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
+              <Grid item container xs={6} direction="column" spacing={1}>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    MarketPlace
+                  </Typography>
+                  <Grid item style={{ marginTop: '.9em' }}>
+                    <Link
+                      style={{ textDecoration: 'none' }}
+                      target="_blank"
+                      href={`https://opensea.io/assets/${address}/${id}`}
+                    >
+                      <Button className="gradient-button" variant="outlined">
+                        <img width={16} src={opensea_icon} alt="" />
+                        <span style={{ marginLeft: 12 }}>Opensea</span>
+                      </Button>
+                    </Link>
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Description
+                  </Typography>
+                  <Typography variant="body1">{nftDesc || <span>N/A</span>}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Collection
+                  </Typography>
+                  {chain === 'eth' ? (
+                    <Link
+                      style={{ textDecoration: 'none', color: '#61dafb' }}
+                      href={`${window.origin}/collections/${address}`}
+                    >
+                      {collection}
+                    </Link>
+                  ) : (
+                    <Typography variant="body1">{collection}</Typography>
+                  )}
+                </Grid>
+              </Grid>
+              <Grid item container direction="column" xs={6} spacing={1}>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Contract Address
+                  </Typography>
+                  <Typography variant="body1">{address}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Blockchain
+                  </Typography>
+                  <Typography variant="body1">{chainMapping(chain)}</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
+                    Token ID
+                  </Typography>
+                  <Typography variant="body1">{id}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Hidden>
           <Grid item container direction="column">
             <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
               Traits
@@ -604,7 +707,7 @@ export const NftIndividual = () => {
               </Typography>
             </Grid>
             <Grid item>
-              <TableContainer>
+              <TableContainer style={{ maxWidth: '95vw', overflow: 'scroll' }}>
                 <Table aria-label="customized table">
                   <TableHead style={{ backgroundColor: '#333333' }}>
                     <TableRow>
