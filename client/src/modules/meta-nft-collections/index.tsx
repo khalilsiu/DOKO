@@ -347,9 +347,13 @@ export const NftCollections = () => {
       const newData = initialData.map((a) => ({ ...a }));
       setSummary([...newData]);
       const decentralandNfts: any = [];
+      setOwnedDecentralandNfts([]);
       const cryptovoxelsNfts: any = [];
+      setOwnedCryptovoxelsNfts([]);
       const theSandboxNfts: any = [];
+      setOwnedTheSandboxNfts([]);
       const somniumNfts: any = [];
+      setOwnedSomniumNfts([]);
       if (isSolAddress(address)) {
         setLoading(false);
         return;
