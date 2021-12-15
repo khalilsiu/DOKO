@@ -22,27 +22,24 @@ import {
 } from '@material-ui/core';
 import { useParams, useHistory } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
+import ListIcon from '@material-ui/icons/FormatListBulleted';
+import MapIcon from '@material-ui/icons/Map';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { useCookies } from 'react-cookie';
-import { OpenInBrowserRounded } from '@material-ui/icons';
-import { SSL_OP_TLS_D5_BUG } from 'constants';
-import { accountFromJSON } from 'opensea-js/lib/utils/utils';
-import { TabPanel, NftPagination, Meta, RadiusInput } from '../../components';
+import L from 'leaflet';
+import { TabPanel, NftPagination, Meta, RadiusInput, OpenseaNFTItem } from '../../components';
 import { getAddressStatus, getNFTs, indexAddress } from '../api';
 import { Filter } from './Filter';
 import Intro from '../core/Intro';
 import { isSolAddress, minimizeAddress } from '../../libs/utils';
 import { AddressStatus } from './AddressStatus';
 import CopyAddress from '../../components/CopyAddress';
-import EthNfts from './EthNfts';
-import SolNfts from './SolNfts';
 import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 import { PopoverShare } from '../../components/PopoverShare';
 
 import OpenSeaAPI from '../../libs/opensea-api';
-import { getSolNfts } from '../../libs/solana';
 
 import decentraland from './assets/decentraland.png';
 import cryptovoxels from './assets/cryptovoxels.png';
@@ -53,6 +50,8 @@ import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
 import solana from './assets/solana.png';
+
+import 'leaflet/dist/leaflet.css';
 
 type Icons = {
   [key: string]: string
@@ -190,6 +189,33 @@ const useStyles = makeStyles((theme) => ({
   chainInfo: {
     marginLeft: 48,
   },
+  viewButton: {
+    cursor: 'pointer',
+    width: '81.73px',
+    height: '24px',
+    left: '705px',
+    top: '1560px',
+    border: '1px solid rgba(255, 255, 255, 0.25)',
+    boxSizing: 'border-box',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viewTypography: {
+    fontFamily: 'Open Sans',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: '10px',
+    lineHeight: '14px',
+  },
+  map: {
+    height: 600,
+    width: '100%',
+    border: '3px solid rgba(255, 255, 255, 0.5)',
+    boxSizing: 'border-box',
+    borderRadius: '15px',
+  },
 }));
 
 const initialData = [
@@ -236,6 +262,7 @@ export const NftCollections = () => {
   const [filter, setFilter] = useState<any>({});
   const [decentralandPage, setDecentralandPage] = useState(1);
   const [cryptovoxelsPage, setCryptovoxelsPage] = useState(1);
+  const [cryptovoxelsView, setCryptovoxelsView] = useState('list');
   const [theSandboxPage, setTheSandboxPage] = useState(1);
   const [somniumPage, setSomniumPage] = useState(1);
   const [createProfile, setCreateProfile] = useState(false);
@@ -246,7 +273,7 @@ export const NftCollections = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const history = useHistory();
-  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
+  const [cookies, setCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
   const collectionFloorPrice: any = {};
@@ -526,6 +553,43 @@ export const NftCollections = () => {
     fetchEthData();
   }, [hash]);
 
+  let CVmap: any = null;
+  function onMapClick(e) {
+    // Transform the latitude and longitude of the map to geoX and geoY
+    const geoX = Math.round(100 * e.latlng.lng);
+    const geoY = Math.round(100 * e.latlng.lat);
+  }
+  useEffect(() => {
+    const container = document.getElementById('cvmap');
+    if (container && !CVmap) {
+      CVmap = L.map('cvmap').setView([1.80, 0.98], 9);
+      L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
+        minZoom: 3,
+        maxZoom: 20,
+        attribution: 'Map data &copy; Cryptovoxels',
+        id: 'cryptovoxels',
+      }).addTo(CVmap);
+      CVmap?.on('click', onMapClick);// Listen to clicks
+    }
+    const marker = new L.Icon({
+      iconUrl: '/marker.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    if (CVmap) {
+      Object.values(ownedCryptovoxelsNfts).forEach((nft: any) => {
+        const address = nft.image_original_url;
+        const x_start = address.indexOf('x=') + 2;
+        const x_end = address.indexOf('&');
+        const y_start = address.indexOf('y=') + 2;
+        L.marker([parseFloat(address.slice(y_start)), parseFloat(address.slice(x_start, x_end))], { icon: marker }).addTo(CVmap);
+      });
+    }
+  });
+
   return (
     <>
       <Meta
@@ -697,18 +761,61 @@ export const NftCollections = () => {
               onNext={() => setDecentralandPage(decentralandPage + 1)}
               onPrev={() => setDecentralandPage(decentralandPage - 1)}
             />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              Cryptovoxels
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, (cryptovoxelsPage) * 4)}
-              page={cryptovoxelsPage}
-              maxPage={Math.ceil(ownedCryptovoxelsNfts.length / 4)}
-              onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
-              onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
-            />
+            <Grid
+              container
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="center"
+              spacing={1}
+              style={{ marginTop: 48, marginBottom: 24 }}
+            >
+              <Grid item>
+                <SectionLabel variant="h5">
+                  Cryptovoxels
+                </SectionLabel>
+              </Grid>
+              <Grid item>
+                <span className={styles.viewButton} onClick={() => setCryptovoxelsView('list')} aria-hidden="true" style={cryptovoxelsView === 'list' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}>
+                  <ListIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
+                  <Typography className={styles.viewTypography}>
+                    List View
+                  </Typography>
+                </span>
+              </Grid>
+              <Grid item>
+                <span className={styles.viewButton} onClick={() => setCryptovoxelsView('map')} aria-hidden="true" style={cryptovoxelsView === 'map' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}>
+                  <MapIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
+                  <Typography className={styles.viewTypography}>
+                    Map View
+                  </Typography>
+                </span>
+              </Grid>
+            </Grid>
+            {cryptovoxelsView === 'list' ? (
+              <NftPagination
+                loading={loading}
+                isOpenSea
+                nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, (cryptovoxelsPage) * 4)}
+                page={cryptovoxelsPage}
+                maxPage={Math.ceil(ownedCryptovoxelsNfts.length / 4)}
+                onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
+                onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
+              />) : (
+                <Grid container spacing={1}>
+                  <Grid item xs={5}>
+                    <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
+                      {ownedCryptovoxelsNfts.map((nft) => (
+                        <Grid xs={6}>
+                          <OpenseaNFTItem key={nft._id} nft={nft} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={7}>
+                    <div id="cvmap" className={styles.map} />
+                  </Grid>
+                </Grid>
+            )}
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               The Sandbox
             </SectionLabel>
