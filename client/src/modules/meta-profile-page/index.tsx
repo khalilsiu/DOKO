@@ -561,7 +561,7 @@ export const NftCollections = () => {
   }
   useEffect(() => {
     const container = document.getElementById('cvmap');
-    if (container && !CVmap) {
+    if (container && CVmap === null) {
       CVmap = L.map('cvmap').setView([1.80, 0.98], 9);
       L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
         minZoom: 3,
@@ -636,7 +636,6 @@ export const NftCollections = () => {
                 <Typography
                   className={styles.titleText}
                   variant="h5"
-                  noWrap
                 >
                   {profile.name}
                 </Typography>
