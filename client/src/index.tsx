@@ -9,25 +9,32 @@ import { HelmetProvider } from 'react-helmet-async';
 
 import './index.scss';
 import { CookiesProvider } from 'react-cookie';
+import { Provider } from 'react-redux';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ThemeProvider from './core/ThemeProvider';
 import { config } from './config';
+import store from './store/store';
 
 ReactDOM.render(
   <React.StrictMode>
-    <HelmetProvider>
-      <MetaMaskProvider>
-        <ThemeProvider>
-          <CookiesProvider>
-            <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
-              <CssBaseline />
-              <App />
-            </MoralisProvider>
-          </CookiesProvider>
-        </ThemeProvider>
-      </MetaMaskProvider>
-    </HelmetProvider>
+    <Provider store={store}>
+      <HelmetProvider>
+        <MetaMaskProvider>
+          <ThemeProvider>
+            <CookiesProvider>
+              <MoralisProvider
+                appId={config.moralisApplicationId}
+                serverUrl={config.moralisServerUrl}
+              >
+                <CssBaseline />
+                <App />
+              </MoralisProvider>
+            </CookiesProvider>
+          </ThemeProvider>
+        </MetaMaskProvider>
+      </HelmetProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root'),
 );
