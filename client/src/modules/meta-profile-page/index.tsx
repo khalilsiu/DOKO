@@ -20,17 +20,19 @@ import {
   Menu,
   MenuItem,
 } from '@material-ui/core';
-import { useSelector } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
 import { useCookies } from 'react-cookie';
+import { useSelector } from 'react-redux';
 import { TabPanel, NftPagination, Meta } from '../../components';
 import Intro from '../core/Intro';
 import { isSolAddress } from '../../libs/utils';
 import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 import { PopoverShare } from '../../components/PopoverShare';
+
 import OpenSeaAPI from '../../libs/opensea-api';
+
 import decentraland from './assets/decentraland.png';
 import cryptovoxels from './assets/cryptovoxels.png';
 import thesandbox from './assets/thesandbox.png';
@@ -216,7 +218,6 @@ const initialData = [
 export const NftCollections = () => {
   const [summary, setSummary] = useState(initialData);
   const { hash } = useParams<{ hash: string }>();
-  console.log('atob(hash)', hash);
   const profile: any = JSON.parse(atob(hash));
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
@@ -235,9 +236,10 @@ export const NftCollections = () => {
   const history = useHistory();
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
-  // const userOwnership = useSelector((state: RootState) => state.userOwnership);
-
+  const userOwnership = useSelector((state: RootState) => state.userOwnership);
   const collectionFloorPrice: any = {};
+
+  console.log('userOwnershippp', userOwnership);
 
   const handleClickOpen = () => {
     setCreateProfile(true);
@@ -439,8 +441,6 @@ export const NftCollections = () => {
   };
 
   useEffect(() => {
-    console.log('profileeee', profile);
-    console.log('profileeeebbbb');
     const fetchEthData = async () => {
       const newData = initialData.map((a) => ({ ...a }));
       setSummary([...newData]);

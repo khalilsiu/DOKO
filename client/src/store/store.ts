@@ -1,9 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import metaProfilePageReducer from './userOwnership/slice';
+import { userOwnership, collectionSummary } from './meta-nft-collections';
 
 const store = configureStore({
   reducer: {
-    userOwnership: metaProfilePageReducer,
+    userOwnership,
+    collectionSummary,
   },
 });
 

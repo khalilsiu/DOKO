@@ -12,8 +12,8 @@ import { CookiesProvider } from 'react-cookie';
 import { Provider } from 'react-redux';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import ThemeProvider from './core/ThemeProvider';
 import { config } from './config';
+import ThemeProvider from './core/ThemeProvider';
 import store from './store/store';
 
 ReactDOM.render(
