@@ -10,7 +10,6 @@ import {
   makeStyles,
   Tab,
   Tabs,
-  Tooltip,
   Typography,
   withStyles,
   Button,
@@ -236,10 +235,7 @@ export const NftCollections = () => {
   const history = useHistory();
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
-  const userOwnership = useSelector((state: RootState) => state.userOwnership);
   const collectionFloorPrice: any = {};
-
-  console.log('userOwnershippp', userOwnership);
 
   const handleClickOpen = () => {
     setCreateProfile(true);

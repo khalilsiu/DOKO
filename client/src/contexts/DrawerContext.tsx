@@ -13,7 +13,6 @@ export const DrawerContext = createContext<DrawerContextValue>({
 
 export const DrawerContextProvider = ({ children, intro }: PropsWithChildren<any>) => {
   const [open, setOpen] = useState(false);
-
   return (
     <DrawerContext.Provider value={{ toggle: () => setOpen(!open), open }}>
       <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>

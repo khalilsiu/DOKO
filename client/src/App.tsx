@@ -8,6 +8,7 @@ import Header from './modules/core/Header';
 import Footer from './modules/core/Footer';
 
 import { AuthContextProvider } from './contexts/AuthContext';
+import { CreateProfileContextProvider } from './contexts/CreateProfileContext';
 import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
 import { Landing } from './modules/landing';
@@ -94,40 +95,42 @@ function App() {
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
         <AuthContextProvider>
-          <DrawerContextProvider intro={<Intro drawer />}>
-            <Header />
-            <Switch>
-              <Route path="/" exact>
-                <MetaLanding />
-              </Route>
-              <Route path="/address/:address" exact>
-                <RouteContainer>
-                  <MetaNftCollections />
-                </RouteContainer>
-              </Route>
-              <Route path="/nft/:chain/:address/:id" exact>
-                <RouteContainer>
-                  <MetaNftIndividual />
-                </RouteContainer>
-              </Route>
-              <Route path="/collections/:address" exact>
-                <RouteContainer>
-                  <MetaCollection />
-                </RouteContainer>
-              </Route>
-              <Route path="/profiles" exact>
-                <RouteContainer>
-                  <MetaProfiles />
-                </RouteContainer>
-              </Route>
-              <Route path="/profiles/:hash" exact>
-                <RouteContainer>
-                  <MetaProfilePage />
-                </RouteContainer>
-              </Route>
-            </Switch>
-            <Footer />
-          </DrawerContextProvider>
+          <CreateProfileContextProvider>
+            <DrawerContextProvider intro={<Intro drawer />}>
+              <Header />
+              <Switch>
+                <Route path="/" exact>
+                  <MetaLanding />
+                </Route>
+                <Route path="/address/:address" exact>
+                  <RouteContainer>
+                    <MetaNftCollections />
+                  </RouteContainer>
+                </Route>
+                <Route path="/nft/:chain/:address/:id" exact>
+                  <RouteContainer>
+                    <MetaNftIndividual />
+                  </RouteContainer>
+                </Route>
+                <Route path="/collections/:address" exact>
+                  <RouteContainer>
+                    <MetaCollection />
+                  </RouteContainer>
+                </Route>
+                <Route path="/profiles" exact>
+                  <RouteContainer>
+                    <MetaProfiles />
+                  </RouteContainer>
+                </Route>
+                <Route path="/profiles/:hash" exact>
+                  <RouteContainer>
+                    <MetaProfilePage />
+                  </RouteContainer>
+                </Route>
+              </Switch>
+              <Footer />
+            </DrawerContextProvider>
+          </CreateProfileContextProvider>
         </AuthContextProvider>
       </BrowserRouter>
     </Suspense>

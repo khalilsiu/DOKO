@@ -25,7 +25,7 @@ import loading from './assets/loading.gif';
 import { Asset } from '../store/meta-nft-collections';
 
 interface NFTItemProps {
-  nft: Asset;
+  nft: Asset & {floorPrice: number};
 }
 
 export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
@@ -126,7 +126,7 @@ export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
               <img className={styles.networkIcon} src={eth} alt="ETH" />
 
               <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
-                0
+                {nft.floorPrice || 'N.A.'}
               </Typography>
             </Grid>
             <div>

@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-continue */
 /* eslint-disable no-await-in-loop */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import {
   Card,
   Grid,
@@ -13,13 +13,9 @@ import {
   Typography,
   withStyles,
   Button,
-  Modal,
-  OutlinedInput,
 } from '@material-ui/core';
-import { useDispatch, useSelector } from 'react-redux';
-import { useCookies } from 'react-cookie';
-import { useParams, useHistory } from 'react-router-dom';
-import CloseIcon from '@material-ui/icons/Close';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import metaverses from '../../constants/metaverses';
 import { TabPanel, NftPagination, Meta } from '../../components';
 import Intro from '../core/Intro';
@@ -28,9 +24,10 @@ import CopyAddress from '../../components/CopyAddress';
 import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 import './select-search.css';
-import { RootState } from '../../store/store';
-import { fetchUserOwnership, Trait } from '../../store/meta-nft-collections/userOwnershipSlice';
+import { fetchUserOwnership } from '../../store/meta-nft-collections/userOwnershipSlice';
 import { fetchCollectionSummary } from '../../store/meta-nft-collections';
+import useMetaverseSummaries from '../../hooks/useMetaverseSummaries';
+import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 
 const CustomTabs = withStyles({
   root: {
@@ -111,20 +108,6 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 999,
     position: 'absolute',
   },
-  createProfileDialog: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    maxHeight: '90vh',
-    maxWidth: '90vw',
-    width: 578,
-    height: 320,
-    border: '1px solid #FFFFFF',
-    background: '#000000',
-    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.75)',
-    borderRadius: '23px',
-  },
   totalSummary: {
     width: '345px',
     height: '99px',
@@ -152,100 +135,13 @@ export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
-  const history = useHistory();
-
-  const [createProfile, setCreateProfile] = useState(false);
-  const [cookies, setCookie] = useCookies(['profiles']);
-  const [profileName, setProfileName] = useState('');
-  const { isLoading: ownershipsIsLoading, ownerships } = useSelector(
-    (state: RootState) => state.userOwnership,
-  );
-  const { isLoading: summaryIsLoading, summaries: collectionSummaries } = useSelector(
-    (state: RootState) => state.collectionSummary,
-  );
+  const { openProfileModal } = useContext(CreateProfileContext);
+  const { metaverseSummaries } = useMetaverseSummaries();
   const paginations = metaverses.map(() => useState(1));
   const dispatch = useDispatch();
 
-  const metaverseSummaries = useMemo(
-    () => metaverses.map((metaverse, i) => ({
-      ...metaverse,
-      isAvailable: collectionSummaries[i].isAvailable,
-      traits: metaverse.traits.map((filters, j) => ({
-        filters,
-        floorPrice: collectionSummaries[i].traits[j].floorPrice,
-      })),
-    })),
-    [collectionSummaries],
-  );
-
-  interface Filter {traitType: string; value: any; operator: string ;
-  }
-
-  function match(filters: Filter[], trait: Trait) {
-    return filters.every((filter) => {
-      if (filter.traitType !== trait.traitType) {
-        return false;
-      }
-      if (filter.operator === '=' && filter.value !== trait.value) {
-        return false;
-      }
-      if (filter.operator === '>=' && !(filter.value >= trait.value)) {
-        return false;
-      }
-      if (filter.operator === '<=' && !(filter.value <= trait.value)) {
-        return false;
-      }
-      return true;
-    });
-  }
-
-  const ownershipsWithFloorPrice = useMemo(
-    () => ownerships.map((assets, index) => {
-      const metaverseSummary = metaverseSummaries[index];
-      return assets.map((asset) => {
-        let floorPrice = 0;
-        asset.traits.forEach((trait) => {
-          metaverseSummary.traits.forEach((traitFilter) => {
-            if (!match(traitFilter.filters, trait)) {
-              return;
-            }
-            floorPrice = traitFilter.floorPrice;
-          });
-        });
-        return {
-          ...asset,
-          floorPrice,
-        };
-      });
-    }),
-    [ownerships],
-  );
-
-  const summary = useMemo(
-    () => metaverseSummaries.map((metaverseSummary, index) => ({
-      name: metaverseSummary.label,
-      icon: metaverseSummary.icon,
-      count: ownershipsWithFloorPrice[index].length,
-      price: ownershipsWithFloorPrice[index].reduce((acc, asset) => asset.floorPrice + acc, 0),
-      available: metaverseSummary.isAvailable,
-      loading: summaryIsLoading || ownershipsIsLoading,
-    })),
-    [ownershipsIsLoading, ownerships, summaryIsLoading, collectionSummaries],
-  );
-
   const handleClickOpen = () => {
-    setCreateProfile(true);
-  };
-
-  const handleSubmit = () => {
-    setCreateProfile(false);
-    const profiles = cookies.profiles ? cookies.profiles : {};
-    profiles[profileName] = {
-      address: [],
-      hash: btoa(JSON.stringify({ name: profileName, address: [] })),
-    };
-    setCookie('profiles', profiles, { path: '/' });
-    history.push('/profiles');
+    openProfileModal();
   };
 
   useEffect(() => {
@@ -333,7 +229,7 @@ export const NftCollections = () => {
                   <Grid item>
                     <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
                     <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                      {summary.reduce((a, b) => a + b.count, 0)}
+                      {metaverseSummaries.reduce((count, collection) => count + collection.ownership.length, 0)}
                     </Typography>
                   </Grid>
                   <Grid item className={styles.chainInfo}>
@@ -346,27 +242,27 @@ export const NftCollections = () => {
                         alt="ETH"
                       />
                       <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                        {summary.reduce((a, b) => a + b.price, 0).toFixed(3)}
+                        {metaverseSummaries.reduce((floorPrice, collection) => floorPrice + collection.price, 0).toFixed(3)}
                       </Typography>
                     </Grid>
                   </Grid>
                 </ChainContainer>
               </Grid>
             </Grid>
-            <Summary data={{ summary }} />
-            {metaverses.map((metaverse, index) => {
+            <Summary data={{ summary: metaverseSummaries }} />
+            {metaverseSummaries.map((metaverse, index) => {
               const [page, setPage] = paginations[index];
               return (
-                <div>
+                <div key={metaverse.name}>
                   <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-                    {metaverse.label}
+                    {metaverse.name}
                   </SectionLabel>
                   <NftPagination
-                    loading={ownershipsIsLoading}
+                    loading={metaverse.loading}
                     isOpenSea
-                    nfts={ownerships[index].slice((page - 1) * 5, page * 5)}
+                    nfts={metaverse.ownership.slice((page - 1) * 5, page * 5)}
                     page={page}
-                    maxPage={Math.floor(ownerships[index].length / 5) + 1}
+                    maxPage={Math.floor(metaverse.ownership.length / 5) + 1}
                     onNext={() => setPage(page + 1)}
                     onPrev={() => setPage(page - 1)}
                   />
@@ -376,62 +272,6 @@ export const NftCollections = () => {
           </TabPanel>
         </Grid>
       </Grid>
-      <Modal open={createProfile}>
-        <div className={styles.createProfileDialog}>
-          <Grid
-            container
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            style={{ height: '24%' }}
-          >
-            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>
-              Create Profile
-            </Typography>
-            <IconButton
-              style={{ marginRight: 30 }}
-              onClick={() => {
-                setCreateProfile(false);
-              }}
-            >
-              <CloseIcon style={{ fill: '#FFFFFF' }} />
-            </IconButton>
-          </Grid>
-          <hr style={{ width: '100%', margin: 0 }} />
-          <Grid
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            style={{ height: '52%' }}
-          >
-            <OutlinedInput
-              value={profileName}
-              onChange={(e) => {
-                setProfileName(e.target.value);
-              }}
-              style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
-            />
-          </Grid>
-          <hr style={{ width: '100%', margin: 0 }} />
-          <Grid
-            container
-            direction="row"
-            justifyContent="flex-end"
-            alignItems="center"
-            style={{ height: '24%' }}
-          >
-            <Button
-              style={{ width: 170, marginRight: 34 }}
-              className="gradient-button"
-              variant="outlined"
-              onClick={handleSubmit}
-            >
-              Create Profile
-            </Button>
-          </Grid>
-        </div>
-      </Modal>
     </>
   );
 };
