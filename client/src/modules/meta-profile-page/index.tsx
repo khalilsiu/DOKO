@@ -10,7 +10,6 @@ import {
   makeStyles,
   Tab,
   Tabs,
-  Tooltip,
   Typography,
   withStyles,
   Button,
@@ -22,19 +21,11 @@ import {
 } from '@material-ui/core';
 import { useParams, useHistory } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
-import ListIcon from '@material-ui/icons/FormatListBulleted';
-import MapIcon from '@material-ui/icons/Map';
-import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
-
 import { useCookies } from 'react-cookie';
-import L from 'leaflet';
-import { TabPanel, NftPagination, Meta, RadiusInput, OpenseaNFTItem } from '../../components';
-import { getAddressStatus, getNFTs, indexAddress } from '../api';
-import { Filter } from './Filter';
+import { useSelector } from 'react-redux';
+import { TabPanel, NftPagination, Meta } from '../../components';
 import Intro from '../core/Intro';
-import { isSolAddress, minimizeAddress } from '../../libs/utils';
-import { AddressStatus } from './AddressStatus';
-import CopyAddress from '../../components/CopyAddress';
+import { isSolAddress } from '../../libs/utils';
 import SectionLabel from '../../components/SectionLabel';
 import { Summary } from './Summary';
 import { PopoverShare } from '../../components/PopoverShare';
@@ -50,12 +41,11 @@ import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
 import solana from './assets/solana.png';
-
-import 'leaflet/dist/leaflet.css';
+import { RootState } from '../../store/store';
 
 type Icons = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 
 const icon: Icons = {
   eth,
@@ -165,9 +155,7 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.75)',
     borderRadius: '23px',
   },
-  xsAddress: {
-
-  },
+  xsAddress: {},
   totalSummary: {
     width: '345px',
     height: '99px',
@@ -188,33 +176,6 @@ const useStyles = makeStyles((theme) => ({
   },
   chainInfo: {
     marginLeft: 48,
-  },
-  viewButton: {
-    cursor: 'pointer',
-    width: '81.73px',
-    height: '24px',
-    left: '705px',
-    top: '1560px',
-    border: '1px solid rgba(255, 255, 255, 0.25)',
-    boxSizing: 'border-box',
-    borderRadius: '6px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  viewTypography: {
-    fontFamily: 'Open Sans',
-    fontStyle: 'normal',
-    fontWeight: 'bold',
-    fontSize: '10px',
-    lineHeight: '14px',
-  },
-  map: {
-    height: 600,
-    width: '100%',
-    border: '3px solid rgba(255, 255, 255, 0.5)',
-    boxSizing: 'border-box',
-    borderRadius: '15px',
   },
 }));
 
@@ -262,7 +223,6 @@ export const NftCollections = () => {
   const [filter, setFilter] = useState<any>({});
   const [decentralandPage, setDecentralandPage] = useState(1);
   const [cryptovoxelsPage, setCryptovoxelsPage] = useState(1);
-  const [cryptovoxelsView, setCryptovoxelsView] = useState('list');
   const [theSandboxPage, setTheSandboxPage] = useState(1);
   const [somniumPage, setSomniumPage] = useState(1);
   const [createProfile, setCreateProfile] = useState(false);
@@ -273,9 +233,8 @@ export const NftCollections = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const history = useHistory();
-  const [cookies, setCookie] = useCookies(['profiles']);
+  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
-
   const collectionFloorPrice: any = {};
 
   const handleClickOpen = () => {
@@ -289,7 +248,10 @@ export const NftCollections = () => {
   const handleSubmit = () => {
     setCreateProfile(false);
     const profiles = cookies.profiles ? cookies.profiles : {};
-    profiles[profileName] = { address: [], hash: btoa(JSON.stringify({ name: profileName, address: [] })) };
+    profiles[profileName] = {
+      address: [],
+      hash: btoa(JSON.stringify({ name: profileName, address: [] })),
+    };
     setCookie('profiles', profiles, { path: '/' });
     history.push('/profiles');
   };
@@ -298,148 +260,166 @@ export const NftCollections = () => {
     <Hidden xsDown>
       <Grid container direction="row" justifyContent="flex-start">
         <Grid direction="column">
-          {profile.address[0] &&
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src={icon[profile.address[0][0]]} alt={profile.address[0][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 143 }}
+          {profile.address[0] && (
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-start"
+              wrap="nowrap"
             >
-              {`${profile.address[0][1].substr(0, 6)}...${profile.address[0][1].substr(-4)}`}
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>}
-          {profile.address[1] &&
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src={icon[profile.address[1][0]]} alt={profile.address[1][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 143 }}
+              <img
+                width={20}
+                src={icon[profile.address[0][0]]}
+                alt={profile.address[0][0]}
+                style={{ borderRadius: '50%', marginRight: 10 }}
+              />
+              <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
+                {`${profile.address[0][1].substr(0, 6)}...${profile.address[0][1].substr(-4)}`}
+              </Typography>
+              <Checkbox
+                checked
+                disabled
+                style={{
+                  color: '#FF06D7',
+                }}
+              />
+            </Grid>
+          )}
+          {profile.address[1] && (
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-start"
+              wrap="nowrap"
             >
-              {`${profile.address[1][1].substr(0, 6)}...${profile.address[1][1].substr(-4)}`}
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>}
+              <img
+                width={20}
+                src={icon[profile.address[1][0]]}
+                alt={profile.address[1][0]}
+                style={{ borderRadius: '50%', marginRight: 10 }}
+              />
+              <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
+                {`${profile.address[1][1].substr(0, 6)}...${profile.address[1][1].substr(-4)}`}
+              </Typography>
+              <Checkbox
+                checked
+                disabled
+                style={{
+                  color: '#FF06D7',
+                }}
+              />
+            </Grid>
+          )}
         </Grid>
         <Grid direction="column">
-          {profile.address[2] &&
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src={icon[profile.address[2][0]]} alt={profile.address[2][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 143 }}
+          {profile.address[2] && (
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-start"
+              wrap="nowrap"
             >
-              {`${profile.address[2][1].substr(0, 6)}...${profile.address[2][1].substr(-4)}`}
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>}
-          {profile.address[3] &&
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src={icon[profile.address[3][0]]} alt={profile.address[3][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 143 }}
+              <img
+                width={20}
+                src={icon[profile.address[2][0]]}
+                alt={profile.address[2][0]}
+                style={{ borderRadius: '50%', marginRight: 10 }}
+              />
+              <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
+                {`${profile.address[2][1].substr(0, 6)}...${profile.address[2][1].substr(-4)}`}
+              </Typography>
+              <Checkbox
+                checked
+                disabled
+                style={{
+                  color: '#FF06D7',
+                }}
+              />
+            </Grid>
+          )}
+          {profile.address[3] && (
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-start"
+              wrap="nowrap"
             >
-              {`${profile.address[3][1].substr(0, 6)}...${profile.address[3][1].substr(-4)}`}
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>}
+              <img
+                width={20}
+                src={icon[profile.address[3][0]]}
+                alt={profile.address[3][0]}
+                style={{ borderRadius: '50%', marginRight: 10 }}
+              />
+              <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
+                {`${profile.address[3][1].substr(0, 6)}...${profile.address[3][1].substr(-4)}`}
+              </Typography>
+              <Checkbox
+                checked
+                disabled
+                style={{
+                  color: '#FF06D7',
+                }}
+              />
+            </Grid>
+          )}
         </Grid>
         <Grid direction="column">
-          {profile.address[4] &&
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src={icon[profile.address[4][0]]} alt={profile.address[4][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 143 }}
+          {profile.address[4] && (
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-start"
+              wrap="nowrap"
             >
-              {`${profile.address[4][1].substr(0, 6)}...${profile.address[4][1].substr(-4)}`}
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>}
-          {profile.address[5] &&
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src={icon[profile.address[5][0]]} alt={profile.address[5][0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 143 }}
+              <img
+                width={20}
+                src={icon[profile.address[4][0]]}
+                alt={profile.address[4][0]}
+                style={{ borderRadius: '50%', marginRight: 10 }}
+              />
+              <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
+                {`${profile.address[4][1].substr(0, 6)}...${profile.address[4][1].substr(-4)}`}
+              </Typography>
+              <Checkbox
+                checked
+                disabled
+                style={{
+                  color: '#FF06D7',
+                }}
+              />
+            </Grid>
+          )}
+          {profile.address[5] && (
+            <Grid
+              container
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-start"
+              wrap="nowrap"
             >
-              {`${profile.address[5][1].substr(0, 6)}...${profile.address[5][1].substr(-4)}`}
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>}
+              <img
+                width={20}
+                src={icon[profile.address[5][0]]}
+                alt={profile.address[5][0]}
+                style={{ borderRadius: '50%', marginRight: 10 }}
+              />
+              <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
+                {`${profile.address[5][1].substr(0, 6)}...${profile.address[5][1].substr(-4)}`}
+              </Typography>
+              <Checkbox
+                checked
+                disabled
+                style={{
+                  color: '#FF06D7',
+                }}
+              />
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Hidden>
@@ -486,7 +466,9 @@ export const NftCollections = () => {
             for (let j = 0; j < res.data.assets.length; j += 1) {
               let asset = {};
               const { slug, name } = res.data.assets[j].collection;
-              if (['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1) {
+              if (
+                ['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1
+              ) {
                 continue;
               }
               if (collectionFloorPrice[name]) {
@@ -553,43 +535,6 @@ export const NftCollections = () => {
     fetchEthData();
   }, [hash]);
 
-  let CVmap: any = null;
-  function onMapClick(e) {
-    // Transform the latitude and longitude of the map to geoX and geoY
-    const geoX = Math.round(100 * e.latlng.lng);
-    const geoY = Math.round(100 * e.latlng.lat);
-  }
-  useEffect(() => {
-    const container = document.getElementById('cvmap');
-    if (container && CVmap === null) {
-      CVmap = L.map('cvmap').setView([1.80, 0.98], 9);
-      L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
-        minZoom: 3,
-        maxZoom: 20,
-        attribution: 'Map data &copy; Cryptovoxels',
-        id: 'cryptovoxels',
-      }).addTo(CVmap);
-      CVmap?.on('click', onMapClick);// Listen to clicks
-    }
-    const marker = new L.Icon({
-      iconUrl: '/marker.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
-
-    if (CVmap) {
-      Object.values(ownedCryptovoxelsNfts).forEach((nft: any) => {
-        const address = nft.image_original_url;
-        const x_start = address.indexOf('x=') + 2;
-        const x_end = address.indexOf('&');
-        const y_start = address.indexOf('y=') + 2;
-        L.marker([parseFloat(address.slice(y_start)), parseFloat(address.slice(x_start, x_end))], { icon: marker }).addTo(CVmap);
-      });
-    }
-  });
-
   return (
     <>
       <Meta
@@ -633,17 +578,12 @@ export const NftCollections = () => {
           >
             <Grid item xs={12} sm="auto">
               <Grid container direction="column" className={styles.addressContainer}>
-                <Typography
-                  className={styles.titleText}
-                  variant="h5"
-                >
+                <Typography className={styles.titleText} variant="h5" noWrap>
                   {profile.name}
                 </Typography>
                 <Grid item>
                   <Hidden xsDown>
-                    <Typography
-                      style={{ marginLeft: 5, fontFamily: 'Open Sans', fontSize: 12 }}
-                    >
+                    <Typography style={{ marginLeft: 5, fontFamily: 'Open Sans', fontSize: 12 }}>
                       ADDRESSES
                     </Typography>
                   </Hidden>
@@ -659,7 +599,7 @@ export const NftCollections = () => {
                   variant="outlined"
                   onClick={handleOpenAddress}
                 >
-                  {`View Profile Address ${String.fromCharCode(0x25BC)}`}
+                  {`View Profile Address ${String.fromCharCode(0x25bc)}`}
                 </Button>
               </Grid>
               <Menu
@@ -679,11 +619,13 @@ export const NftCollections = () => {
                       justifyContent="flex-start"
                       wrap="nowrap"
                     >
-                      <img width={20} src={icon[adrs[0]]} alt={adrs[1]} style={{ borderRadius: '50%', marginRight: 10 }} />
-                      <Typography
-                        variant="h3"
-                        style={{ fontSize: 22, color: '#000000' }}
-                      >
+                      <img
+                        width={20}
+                        src={icon[adrs[0]]}
+                        alt={adrs[1]}
+                        style={{ borderRadius: '50%', marginRight: 10 }}
+                      />
+                      <Typography variant="h3" style={{ fontSize: 22, color: '#000000' }}>
                         {`${adrs[1].substr(0, 6)}...${adrs[1].substr(-4)}`}
                       </Typography>
                       <Checkbox
@@ -694,7 +636,8 @@ export const NftCollections = () => {
                         }}
                       />
                     </Grid>
-                  </MenuItem>))}
+                  </MenuItem>
+                ))}
               </Menu>
             </Hidden>
             <Hidden xsDown>
@@ -727,7 +670,7 @@ export const NftCollections = () => {
                   <Grid item>
                     <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
                     <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                      {summary.reduce((a, b) => (a + b.count), 0)}
+                      {summary.reduce((a, b) => a + b.count, 0)}
                     </Typography>
                   </Grid>
                   <Grid item className={styles.chainInfo}>
@@ -740,7 +683,7 @@ export const NftCollections = () => {
                         alt="ETH"
                       />
                       <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                        {summary.reduce((a, b) => (a + b.price), 0).toFixed(3)}
+                        {summary.reduce((a, b) => a + b.price, 0).toFixed(3)}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -754,74 +697,31 @@ export const NftCollections = () => {
             <NftPagination
               loading={loading}
               isOpenSea
-              nfts={ownedDecentralandNfts.slice((decentralandPage - 1) * 4, (decentralandPage) * 4)}
+              nfts={ownedDecentralandNfts.slice((decentralandPage - 1) * 4, decentralandPage * 4)}
               page={decentralandPage}
               maxPage={Math.ceil(ownedDecentralandNfts.length / 4)}
               onNext={() => setDecentralandPage(decentralandPage + 1)}
               onPrev={() => setDecentralandPage(decentralandPage - 1)}
             />
-            <Grid
-              container
-              direction="row"
-              justifyContent="flex-start"
-              alignItems="center"
-              spacing={1}
-              style={{ marginTop: 48, marginBottom: 24 }}
-            >
-              <Grid item>
-                <SectionLabel variant="h5">
-                  Cryptovoxels
-                </SectionLabel>
-              </Grid>
-              <Grid item>
-                <span className={styles.viewButton} onClick={() => setCryptovoxelsView('list')} aria-hidden="true" style={cryptovoxelsView === 'list' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}>
-                  <ListIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
-                  <Typography className={styles.viewTypography}>
-                    List View
-                  </Typography>
-                </span>
-              </Grid>
-              <Grid item>
-                <span className={styles.viewButton} onClick={() => setCryptovoxelsView('map')} aria-hidden="true" style={cryptovoxelsView === 'map' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}>
-                  <MapIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
-                  <Typography className={styles.viewTypography}>
-                    Map View
-                  </Typography>
-                </span>
-              </Grid>
-            </Grid>
-            {cryptovoxelsView === 'list' ? (
-              <NftPagination
-                loading={loading}
-                isOpenSea
-                nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, (cryptovoxelsPage) * 4)}
-                page={cryptovoxelsPage}
-                maxPage={Math.ceil(ownedCryptovoxelsNfts.length / 4)}
-                onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
-                onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
-              />) : (
-                <Grid container spacing={1}>
-                  <Grid item xs={5}>
-                    <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
-                      {ownedCryptovoxelsNfts.map((nft) => (
-                        <Grid xs={6}>
-                          <OpenseaNFTItem key={nft._id} nft={nft} />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={7}>
-                    <div id="cvmap" className={styles.map} />
-                  </Grid>
-                </Grid>
-            )}
+            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
+              Cryptovoxels
+            </SectionLabel>
+            <NftPagination
+              loading={loading}
+              isOpenSea
+              nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, cryptovoxelsPage * 4)}
+              page={cryptovoxelsPage}
+              maxPage={Math.ceil(ownedCryptovoxelsNfts.length / 4)}
+              onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
+              onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
+            />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               The Sandbox
             </SectionLabel>
             <NftPagination
               loading={loading}
               isOpenSea
-              nfts={ownedTheSandboxNfts.slice((theSandboxPage - 1) * 4, (theSandboxPage) * 4)}
+              nfts={ownedTheSandboxNfts.slice((theSandboxPage - 1) * 4, theSandboxPage * 4)}
               page={theSandboxPage}
               maxPage={Math.ceil(ownedTheSandboxNfts.length / 4)}
               onNext={() => setTheSandboxPage(theSandboxPage + 1)}
@@ -833,7 +733,7 @@ export const NftCollections = () => {
             <NftPagination
               loading={loading}
               isOpenSea
-              nfts={ownedSomniumNfts.slice((somniumPage - 1) * 4, (somniumPage) * 4)}
+              nfts={ownedSomniumNfts.slice((somniumPage - 1) * 4, somniumPage * 4)}
               page={somniumPage}
               maxPage={Math.ceil(ownedSomniumNfts.length / 4)}
               onNext={() => setSomniumPage(somniumPage + 1)}
@@ -851,8 +751,15 @@ export const NftCollections = () => {
             alignItems="center"
             style={{ height: '24%' }}
           >
-            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
-            <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
+            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>
+              Create Profile
+            </Typography>
+            <IconButton
+              style={{ marginRight: 30 }}
+              onClick={() => {
+                setCreateProfile(false);
+              }}
+            >
               <CloseIcon style={{ fill: '#FFFFFF' }} />
             </IconButton>
           </Grid>
@@ -866,7 +773,9 @@ export const NftCollections = () => {
           >
             <OutlinedInput
               value={profileName}
-              onChange={(e) => { setProfileName(e.target.value); }}
+              onChange={(e) => {
+                setProfileName(e.target.value);
+              }}
               style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
             />
           </Grid>
