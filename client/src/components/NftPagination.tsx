@@ -1,13 +1,13 @@
 import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
-import { useEffect } from 'react';
 import { SolanaNFTItem } from './SolanaNFTItem';
 import { OpenseaNFTItem } from './OpenseaNFTItem';
 import { LightButton } from './LightButton';
 import { NFTItem } from './NFTItem';
+import { Asset } from '../store/meta-nft-collections';
 
 interface Props {
-  nfts: any[];
+  nfts: (Asset & {floorPrice: number})[];
   total?: number;
   page?: number;
   onNext?: () => void;
@@ -21,15 +21,15 @@ interface Props {
 const useStyles = makeStyles((theme) => ({
   nftsContainer: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridTemplateColumns: 'repeat(5, 1fr)',
     gridAutoRows: '1fr',
     columnGap: 12,
     rowGap: 12,
     [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(3, 1fr)',
+      gridTemplateColumns: 'repeat(5, 1fr)',
     },
     [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: 'repeat(3, 1fr)',
+      gridTemplateColumns: 'repeat(5, 1fr)',
     },
     [theme.breakpoints.down(630)]: {
       gridTemplateColumns: 'repeat(2, 1fr)',
@@ -57,9 +57,9 @@ export const NftPagination = ({
     <div>
       <div className={styles.nftsContainer}>
         {isSolana
-          ? nfts.map((nft) => <SolanaNFTItem key={nft._id} nft={nft} />)
+          ? nfts.map((nft) => <SolanaNFTItem key={nft.id} nft={nft} />)
           : !isOpenSea && nfts?.length
-            ? nfts.map((nft) => <NFTItem key={nft._id} nft={nft} />)
+            ? nfts.map((nft) => <NFTItem key={nft.id} nft={nft} />)
             : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />)}
       </div>
       {loading && <CircularProgress />}
