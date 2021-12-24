@@ -186,6 +186,7 @@ export const NftCollections = () => {
     const x_start = address_url.indexOf('x=') + 2;
     const x_end = address_url.indexOf('&');
     const y_start = address_url.indexOf('y=') + 2;
+    if (Number.isNaN(parseFloat(address_url.slice(y_start))) || Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))) return;
     const coordinate: Pair<number, number> = [parseFloat(address_url.slice(y_start)), parseFloat(address_url.slice(x_start, x_end))];
     maps[index].setView(coordinate, 9);
   };
@@ -221,17 +222,19 @@ export const NftCollections = () => {
       shadowSize: [41, 41],
     });
     metaverseSummaries.forEach((metaverse, index) => {
-      metaverse.ownership.forEach((nft: any) => {
-        const address_url = nft.imageOriginalUrl;
-        const x_start = address_url.indexOf('x=') + 2;
-        const x_end = address_url.indexOf('&');
-        const y_start = address_url.indexOf('y=') + 2;
-        const coordinate: Pair<number, number> = [parseFloat(address_url.slice(y_start)), parseFloat(address_url.slice(x_start, x_end))];
-        if (!markers[index].includes(coordinate)) {
-          L.marker(coordinate, { icon: marker }).addTo(maps[index]);
-          markers[index].push(coordinate);
-        }
-      });
+      if (metaverse.name === 'Cryptovoxels') {
+        metaverse.ownership.forEach((nft: any) => {
+          const address_url = nft.imageOriginalUrl;
+          const x_start = address_url.indexOf('x=') + 2;
+          const x_end = address_url.indexOf('&');
+          const y_start = address_url.indexOf('y=') + 2;
+          const coordinate: Pair<number, number> = [parseFloat(address_url.slice(y_start)), parseFloat(address_url.slice(x_start, x_end))];
+          if (!markers[index].includes(coordinate)) {
+            L.marker(coordinate, { icon: marker }).addTo(maps[index]);
+            markers[index].push(coordinate);
+          }
+        });
+      }
     });
   }, [metaverseSummaries]);
 
@@ -386,11 +389,15 @@ export const NftCollections = () => {
                     <Grid container spacing={1}>
                       <Grid item xs={5}>
                         <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
-                          {metaverse.ownership.map((nft) => (
-                            <Grid item xs={6}>
+                          {metaverse.ownership.length ? (metaverse.ownership.map((nft) => (
+                            <Grid item xs={6} style={{ maxHeight: 400 }}>
                               <OpenseaNFTItem key={nft.id} nft={nft} onClick={handleMapViewClick(nft, index)} />
                             </Grid>
-                          ))}
+                          ))) : (
+                            <Typography style={{ marginLeft: 24 }}>
+                              No Items
+                            </Typography>
+                          )}
                         </Grid>
                       </Grid>
                       <Grid item xs={7}>
