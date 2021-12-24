@@ -23,6 +23,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
 import { useCookies } from 'react-cookie';
 import { useSelector } from 'react-redux';
+import L from 'leaflet';
 import { TabPanel, NftPagination, Meta } from '../../components';
 import Intro from '../core/Intro';
 import { isSolAddress } from '../../libs/utils';

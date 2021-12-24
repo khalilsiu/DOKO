@@ -44,6 +44,7 @@ const preprocess = (asset: any): Asset => {
     'image_url',
     'image_preview_url',
     'image_thumbnail_url',
+    'image_original_url',
     'name',
     'asset_contract',
     'traits',
