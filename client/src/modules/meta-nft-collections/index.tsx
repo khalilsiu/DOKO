@@ -19,6 +19,7 @@ import MapIcon from '@material-ui/icons/Map';
 import L from 'leaflet';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import metaverses from '../../constants/metaverses';
 import { TabPanel, NftPagination, Meta, OpenseaNFTItem } from '../../components';
 import Intro from '../core/Intro';
@@ -181,6 +182,24 @@ export const NftCollections = () => {
     openProfileModal();
   };
 
+  function getCoordinates(geoX: number, geoY: number) {
+    const coordinates: string[] = [];
+    // Checking if geoX is null else if negative -> West, if positive -> Est
+    if (geoX !== 0) {
+      coordinates.push(geoX < 0 ? `${Math.abs(geoX)}W` : `${geoX}E`);
+    }
+
+    // Checking if geoY is null and else if negative -> South, if positive -> North
+    if (geoY !== 0) {
+      coordinates.push(geoY < 0 ? `${Math.abs(geoY)}S` : `${geoY}N`);
+    }
+    // Checking if Coordinates are different than 0, and else send the location to the GET url
+    if (coordinates.length === 0) {
+      return '/';
+    }
+    return `/?coords=${coordinates.join(',')}`;
+  }
+
   const handleMapViewClick = (nft, index) => () => {
     const address_url = nft.imageOriginalUrl;
     const x_start = address_url.indexOf('x=') + 2;
@@ -189,6 +208,14 @@ export const NftCollections = () => {
     if (Number.isNaN(parseFloat(address_url.slice(y_start))) || Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))) return;
     const coordinate: Pair<number, number> = [parseFloat(address_url.slice(y_start)), parseFloat(address_url.slice(x_start, x_end))];
     maps[index].setView(coordinate, 9);
+    const popupWindow = L.popup();
+    popupWindow
+      .setLatLng(coordinate)// Set content of the popup Object
+      .setContent(`<div class="container-fluid" style="display:inline-block;"> <div class="title_box" ><div class="title_name" style="text-align: left;float:left;"></div><div class="title_owner" style="text-align: right;"></div></div>
+<div class="title_box" ><div class="" style="text-align: left;float:left;"></div><div class="collab_box" style="float:right;text-align: right;"></div></div>
+<iframe id="cryptovoxel" src=${`https://www.cryptovoxels.com/play${getCoordinates(coordinate[0], coordinate[1])}&mode=orbit`} scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:18rem; height:100%; min-height:7rem;" allowTransparency="true" sandbox="allow-scripts allow-same-origin">
+</div>`)
+      .openOn(maps[index]);
   };
 
   function onMapClick(e) {
