@@ -18,8 +18,7 @@ import ListIcon from '@material-ui/icons/FormatListBulleted';
 import MapIcon from '@material-ui/icons/Map';
 import L from 'leaflet';
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { useParams, useHistory } from 'react-router-dom';
 import metaverses from '../../constants/metaverses';
 import { TabPanel, NftPagination, Meta, OpenseaNFTItem } from '../../components';
 import Intro from '../core/Intro';
@@ -176,6 +175,7 @@ export const NftCollections = () => {
   const { metaverseSummaries } = useMetaverseSummaries();
   const views = metaverses.map(() => useState('list'));
   const paginations = metaverses.map(() => useState(1));
+  const history = useHistory();
   const dispatch = useDispatch();
 
   const handleClickOpen = () => {
@@ -200,6 +200,32 @@ export const NftCollections = () => {
     return `/?coords=${coordinates.join(',')}`;
   }
 
+  function renderPopUp(nft) {
+    return (
+      `<div class="container-fluid" style="display:inline-block;"> 
+        <div class="title_box" >
+          <div class="title_name" style="text-align: left;float:left;">
+            ${nft.name}
+          </div>
+          <div class="title_owner" style="text-align: right;">
+          </div>
+        </div>
+        <div class="title_box" >
+          <div class="" style="text-align: left;float:left;">
+            ${nft.tokenId}
+          </div>
+          <div class="collab_box" style="float:right;text-align: right;">
+          </div>
+        </div>
+        <div>
+          <img src=${nft.imageUrl} style="width: 150px; height: 150px" />
+        </div>
+        <div>
+          <a href="${`/nft/eth/${nft.assetContract.address}/${nft.tokenId}`}">view</a>
+        </div>
+      </div>`);
+  }
+
   const handleMapViewClick = (nft, index) => () => {
     const address_url = nft.imageOriginalUrl;
     const x_start = address_url.indexOf('x=') + 2;
@@ -210,22 +236,20 @@ export const NftCollections = () => {
     maps[index].setView(coordinate, 9);
     const popupWindow = L.popup();
     popupWindow
-      .setLatLng(coordinate)// Set content of the popup Object
-      .setContent(`<div class="container-fluid" style="display:inline-block;"> <div class="title_box" ><div class="title_name" style="text-align: left;float:left;"></div><div class="title_owner" style="text-align: right;"></div></div>
-<div class="title_box" ><div class="" style="text-align: left;float:left;"></div><div class="collab_box" style="float:right;text-align: right;"></div></div>
-<iframe id="cryptovoxel" src=${`https://www.cryptovoxels.com/play${getCoordinates(coordinate[0], coordinate[1])}&mode=orbit`} scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:18rem; height:100%; min-height:7rem;" allowTransparency="true" sandbox="allow-scripts allow-same-origin">
-</div>`)
+      .setLatLng(coordinate)
+      .setContent(renderPopUp(nft))
       .openOn(maps[index]);
   };
 
   function onMapClick(e) {
-    // Transform the latitude and longitude of the map to geoX and geoY
-    const geoX = Math.round(100 * e.latlng.lng);
-    const geoY = Math.round(100 * e.latlng.lat);
+    const geoX = e.latlng.lng;
+    const geoY = e.latlng.lat;
   }
+
+  // load address
   useEffect(() => {
     metaverseSummaries.forEach((metaverse, index) => {
-      maps.push(L.map(`${metaverse.name}_map`).setView([1.80, 0.98], 9));
+      maps.push(L.map(`${metaverse.name}_map`).setView([1.80, 0.98], 8));
       if (metaverse.name === 'Cryptovoxels') {
         L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
           minZoom: 3,
@@ -234,12 +258,16 @@ export const NftCollections = () => {
           id: 'cryptovoxels',
         }).addTo(maps[index]);
         maps[index]?.on('click', onMapClick);// Listen to clicks
+        setInterval(() => {
+          maps[index].invalidateSize();
+        }, 1000);
       }
     });
     dispatch(fetchUserOwnership(address));
     dispatch(fetchCollectionSummary());
   }, [address]);
 
+  // mark nft on map
   useEffect(() => {
     const marker = new L.Icon({
       iconUrl: '/marker.png',
@@ -412,7 +440,7 @@ export const NftCollections = () => {
                       onPrev={() => setPage(page - 1)}
                     />
                   </div>
-                  <div key={`${metaverse.name}mapview`} style={view === 'map' ? {} : { display: 'none' }}>
+                  <div id={`${metaverse.name}mapview`} style={view === 'map' ? {} : { display: 'none' }}>
                     <Grid container spacing={1}>
                       <Grid item xs={5}>
                         <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
