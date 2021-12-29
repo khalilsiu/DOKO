@@ -40,7 +40,7 @@ const useMetaverseSummaries = () => {
         floorPrice: collectionSummaries[metaverseIndex].traits[traitIndex],
       }));
 
-      const assetsWithFloorPrice = ownerships[metaverseIndex].map((asset, index) => {
+      const assetsWithFloorPrice = ownerships[metaverseIndex].map((asset) => {
         let floorPrice = 0;
         asset.traits.forEach((trait) => {
           traitsWithFloorPrice.forEach((traitFilter) => {
