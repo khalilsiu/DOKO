@@ -127,7 +127,7 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
               <img className={styles.networkIcon} src={eth} alt="ETH" />
 
               <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
-                {nft.floorPrice || 'N.A.'}
+                {nft.floorPrice.toFixed(2) || 'N.A.'}
               </Typography>
             </Grid>
             <div>

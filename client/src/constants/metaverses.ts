@@ -65,13 +65,16 @@ const metaverses = [
     slug: 'cryptovoxels',
     primaryAddress: '0x79986af15539de2db9a5086382daeda917a9cf0c',
     addresses: ['0x79986af15539de2db9a5086382daeda917a9cf0c'],
-    traits: cryptovoxelsIslands.map((island) => [
-      {
-        traitType: 'island',
-        value: island,
-        operator: '=',
-      },
-    ]),
+    traits: [
+      [],
+      ...cryptovoxelsIslands.map((island) => [
+        {
+          traitType: 'island',
+          value: island,
+          operator: '=',
+        },
+      ]),
+    ],
   },
 
   {
@@ -81,13 +84,16 @@ const metaverses = [
     slug: 'somnium-space',
     primaryAddress: '0x913ae503153d9a335398d0785ba60a2d63ddb4e2',
     addresses: ['0x913ae503153d9a335398d0785ba60a2d63ddb4e2'],
-    traits: somniumParcelSizes.map((size) => [
-      {
-        traitType: 'Parcel size',
-        value: size,
-        operator: '=',
-      },
-    ]),
+    traits: [
+      [],
+      ...somniumParcelSizes.map((size) => [
+        {
+          traitType: 'Parcel size',
+          value: size,
+          operator: '=',
+        },
+      ]),
+    ],
   },
 ];
 
