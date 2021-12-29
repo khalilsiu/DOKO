@@ -50,6 +50,12 @@ const useMetaverseSummaries = () => {
             floorPrice = traitFilter.floorPrice;
           });
         });
+        // special case for decentraland estate
+        if (asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
+          const sizeTrait = asset.traits.find((trait) => trait.traitType === 'Size');
+          const size = parseInt((sizeTrait || { value: '1' }).value, 10);
+          floorPrice *= size;
+        }
         return {
           ...asset,
           floorPrice,
