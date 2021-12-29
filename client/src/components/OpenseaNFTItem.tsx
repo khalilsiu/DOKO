@@ -26,9 +26,10 @@ import { Asset } from '../store/meta-nft-collections';
 
 interface NFTItemProps {
   nft: Asset & {floorPrice: number};
+  onClick?: ()=>void;
 }
 
-export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
+export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
   const history = useHistory();
 
   // eslint-disable-next-line no-use-before-define
@@ -49,9 +50,9 @@ export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
     window.open(link[type], '_blank');
   };
 
-  const onClickCard = () => {
+  const onClickCard = onClick || (() => {
     history.push(nftPath);
-  };
+  });
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
