@@ -32,6 +32,7 @@ import { Summary } from './Summary';
 import { PopoverShare } from '../../components/PopoverShare';
 
 import OpenSeaAPI from '../../libs/opensea-api';
+import ContractServiceAPI from '../../libs/contract-service-api';
 
 import decentraland from './assets/decentraland.png';
 import cryptovoxels from './assets/cryptovoxels.png';
@@ -43,6 +44,7 @@ import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
 import solana from './assets/solana.png';
 import { RootState } from '../../store/store';
+import { preprocess } from '../../store/meta-nft-collections';
 
 type Icons = {
   [key: string]: string;
@@ -465,56 +467,86 @@ export const NftCollections = () => {
               break;
             }
             for (let j = 0; j < res.data.assets.length; j += 1) {
-              let asset = {};
+              let asset: any = {};
               const { slug, name } = res.data.assets[j].collection;
               if (
                 ['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1
               ) {
                 continue;
               }
-              if (collectionFloorPrice[name]) {
-                asset = {
-                  ...res.data.assets[j],
-                  floor_price: collectionFloorPrice[name].toFixed(3),
-                };
-              } else {
-                while (1) {
-                  try {
-                    const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
-                    collectionFloorPrice[name] = price_object.data.stats.floor_price;
-                    asset = {
-                      ...res.data.assets[j],
-                      floor_price: collectionFloorPrice[name].toFixed(3),
-                    };
-                    break;
-                  } catch (error: any) {
-                    break;
-                  }
-                }
-              }
+              console.log(res.data.assets[j]);
+              asset = preprocess(res.data.assets[j]);
               if (slug === 'decentraland') {
+                try {
+                  const response = await ContractServiceAPI.post('asset/floor-price', {
+                    address: '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d',
+                    traits: asset.trait,
+                  });
+                  const { price, payment_token } = response.data;
+                  const priceInToken = parseFloat(price);
+                  const ethPrice = parseFloat(payment_token.eth_price);
+                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+                } catch (error) {
+                  asset.floorPrice = 0;
+                }
                 decentralandNfts.push(asset);
                 setOwnedDecentralandNfts([...decentralandNfts]);
                 newData[0].count = decentralandNfts.length;
-                newData[0].price = decentralandNfts.length * collectionFloorPrice[name];
+                newData[0].price += asset.floorPrice;
               }
               if (slug === 'cryptovoxels') {
+                try {
+                  const response = await ContractServiceAPI.post('asset/floor-price', {
+                    address: '0x79986af15539de2db9a5086382daeda917a9cf0c',
+                    traits: asset.trait,
+                  });
+                  const { price, payment_token } = response.data;
+                  const priceInToken = parseFloat(price);
+                  const ethPrice = parseFloat(payment_token.eth_price);
+                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+                } catch (error) {
+                  asset.floorPrice = 0;
+                }
                 cryptovoxelsNfts.push(asset);
                 setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
                 newData[1].count = cryptovoxelsNfts.length;
-                newData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
+                newData[1].price += asset.floorPrice;
               }
               if (slug === 'sandbox') {
+                try {
+                  const response = await ContractServiceAPI.post('asset/floor-price', {
+                    address: '0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a',
+                    traits: asset.trait,
+                  });
+                  const { price, payment_token } = response.data;
+                  const priceInToken = parseFloat(price);
+                  const ethPrice = parseFloat(payment_token.eth_price);
+                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+                } catch (error) {
+                  asset.floorPrice = 0;
+                }
                 theSandboxNfts.push(asset);
                 setOwnedTheSandboxNfts([...theSandboxNfts]);
                 newData[2].count = theSandboxNfts.length;
-                newData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
+                newData[2].price += asset.floorPrice;
               }
               if (slug === 'somnium-space') {
+                try {
+                  const response = await ContractServiceAPI.post('asset/floor-price', {
+                    address: '0x913ae503153d9a335398d0785ba60a2d63ddb4e2',
+                    traits: asset.trait,
+                  });
+                  const { price, payment_token } = response.data;
+                  const priceInToken = parseFloat(price);
+                  const ethPrice = parseFloat(payment_token.eth_price);
+                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+                } catch (error) {
+                  asset.floorPrice = 0;
+                }
                 somniumNfts.push(asset);
                 setOwnedSomniumNfts([...somniumNfts]);
                 newData[3].count = somniumNfts.length;
-                newData[3].price = somniumNfts.length * collectionFloorPrice[name];
+                newData[3].price += asset.floorPrice;
               }
               setSummary([...newData]);
             }
