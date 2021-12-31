@@ -37,7 +37,7 @@ const initialState: UserOwnership = {
   isLoading: false,
 };
 
-const preprocess = (asset: any): Asset => {
+export const preprocess = (asset: any): Asset => {
   const picked = pick(asset, [
     'id',
     'token_id',
