@@ -8,6 +8,9 @@ interface Filter {traitType: string; value: any; operator: string ;
 }
 
 function match(filters: Filter[], trait: Trait) {
+  if (!filters.length) {
+    return false;
+  }
   return filters.every((filter) => {
     if (filter.traitType !== trait.traitType) {
       return false;
@@ -41,7 +44,9 @@ const useMetaverseSummaries = () => {
       }));
 
       const assetsWithFloorPrice = ownerships[metaverseIndex].map((asset) => {
-        let floorPrice = 0;
+        // floor price be collection floor price then match price with filter
+        let { floorPrice } = traitsWithFloorPrice[0];
+
         asset.traits.forEach((trait) => {
           traitsWithFloorPrice.forEach((traitFilter) => {
             if (!match(traitFilter.filters, trait)) {
