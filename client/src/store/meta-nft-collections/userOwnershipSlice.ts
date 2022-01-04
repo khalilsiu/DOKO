@@ -15,6 +15,7 @@ export interface Asset {
   imageUrl: string;
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
+  imageOriginalUrl: string;
   name: string;
   assetContract: {
     address: string;
