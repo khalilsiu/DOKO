@@ -12,7 +12,7 @@ import { DrawerContext } from '../../../contexts/DrawerContext';
 const socialLinks = [
   {
     image: '/social/Twitter.png',
-    link: 'https://twitter.com/doko_nft',
+    link: 'https://twitter.com/doko_metaverse',
   },
   {
     image: '/social/Discord.png',
