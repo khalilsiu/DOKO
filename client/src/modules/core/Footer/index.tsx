@@ -7,7 +7,7 @@ import { memo } from 'react';
 const socialLinks = [
   {
     image: '/social/Twitter.png',
-    link: 'https://twitter.com/doko_nft',
+    link: 'https://twitter.com/doko_metaverse',
   },
   {
     image: '/social/Discord.png',
@@ -51,7 +51,7 @@ export const Footer = memo(() => {
     <FooterContainer container justifyContent="space-between" alignItems="center">
       <Grid item xs={4}>
         <Typography variant="caption" style={{ color: 'black' }}>
-          Ⓒ 2021 DOKO
+          Ⓒ 2022 DOKO
         </Typography>
       </Grid>
       <img height={24} src="/DOKO_LOGO_LOCKUP.png" alt="DOKO" />
