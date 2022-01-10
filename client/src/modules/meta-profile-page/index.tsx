@@ -93,6 +93,12 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 30,
     },
   },
+  addressRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  addressAndShareButton: { display: 'flex', width: '100%', justifyContent: 'space-between' },
 }));
 
 export const NftCollections = () => {
@@ -120,36 +126,27 @@ export const NftCollections = () => {
 
   const renderAddressList = (addresses: TypedAddress[]) => (
     <Hidden xsDown>
-      <Grid container justifyContent="flex-start">
-        <Grid direction="column">
-          {addresses.map((typedAddress) => (
-            <Grid
-              container
-              direction="row"
-              alignItems="center"
-              justifyContent="flex-start"
-              wrap="nowrap"
-              md={4}
-            >
-              <img
-                width={20}
-                src={icon[typedAddress.type]}
-                alt={typedAddress.address}
-                style={{ borderRadius: '50%', marginRight: 10 }}
-              />
-              <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
-                {`${typedAddress.address.substr(0, 6)}...${typedAddress.address.substr(-4)}`}
-              </Typography>
-              <Checkbox
-                checked
-                disabled
-                style={{
-                  color: '#FF06D7',
-                }}
-              />
-            </Grid>
-          ))}
-        </Grid>
+      <Grid container direction="column" justifyContent="flex-start" alignItems="flex-start">
+        {addresses.map((typedAddress) => (
+          <div className={styles.addressRow}>
+            <img
+              width={20}
+              src={icon[typedAddress.type]}
+              alt={typedAddress.address}
+              style={{ borderRadius: '50%', marginRight: 10 }}
+            />
+            <Typography variant="h3" style={{ fontSize: 22, width: 143 }}>
+              {`${typedAddress.address.substr(0, 6)}...${typedAddress.address.substr(-4)}`}
+            </Typography>
+            <Checkbox
+              checked
+              disabled
+              style={{
+                color: '#FF06D7',
+              }}
+            />
+          </div>
+        ))}
       </Grid>
     </Hidden>
   );
@@ -212,7 +209,7 @@ export const NftCollections = () => {
             alignItems="center"
             className={styles.addressContainer}
           >
-            <Grid item xs={12} sm="auto">
+            <Grid item xs={12} sm="auto" style={{ width: '100%' }}>
               <Grid container direction="column" className={styles.addressContainer}>
                 <Typography className={styles.titleText} variant="h5" noWrap>
                   {profile.name}
@@ -224,7 +221,14 @@ export const NftCollections = () => {
                     </Typography>
                   </Hidden>
                 </Grid>
-                {renderAddressList(typedAddresses)}
+                <div className={styles.addressAndShareButton}>
+                  {renderAddressList(typedAddresses)}
+                  <Hidden xsDown>
+                    <Grid>
+                      <PopoverShare address={hash} tokenId="test" chain="test" name="test" />
+                    </Grid>
+                  </Hidden>
+                </div>
               </Grid>
             </Grid>
             <Hidden smUp>
@@ -275,11 +279,6 @@ export const NftCollections = () => {
                   </MenuItem>
                 ))}
               </Menu>
-            </Hidden>
-            <Hidden xsDown>
-              <Grid>
-                <PopoverShare address={hash} tokenId="test" chain="test" name="test" />
-              </Grid>
             </Hidden>
           </Grid>
           <OwnershipView metaverseSummaries={profileSummaries} />
