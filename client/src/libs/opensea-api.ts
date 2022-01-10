@@ -5,7 +5,6 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-  // eslint-disable-next-line no-param-reassign
   config.headers['x-api-key'] = 'bea970cbbdae445a9f01b827f9ac227e';
   return config;
 });

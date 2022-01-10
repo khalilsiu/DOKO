@@ -229,9 +229,7 @@ export const NftIndividual = () => {
         const _traits = res.data.traits && res.data.traits.length ? res.data.traits : [];
         setTraits(_traits);
       }
-      // eslint-disable-next-line no-empty
     } catch (err) {
-      // eslint-disable-next-line no-console
       if (err) console.log(err);
     }
   };
@@ -261,7 +259,6 @@ export const NftIndividual = () => {
       }
       setTxs(formatted_txs);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.log(e);
       setTxs([]);
     }
@@ -304,7 +301,6 @@ export const NftIndividual = () => {
       setLastSaleUSD(usdAmount);
       setFloorPrice(_floorPrice);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
     }
   };
@@ -463,7 +459,11 @@ export const NftIndividual = () => {
             {lastSale ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
+                  <img
+                    className={styles.networkIconMedium}
+                    src="/collection/DOKOasset_EthereumBlue.png"
+                    alt="eth"
+                  />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -490,7 +490,11 @@ export const NftIndividual = () => {
             {floorPrice ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
+                  <img
+                    className={styles.networkIconMedium}
+                    src="/collection/DOKOasset_EthereumBlue.png"
+                    alt="eth"
+                  />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -620,7 +624,6 @@ export const NftIndividual = () => {
                       .map((tx, i) => {
                         const icon = getCurrencyIcon(chain);
                         return (
-                          // eslint-disable-next-line react/no-array-index-key
                           <TableRow key={i}>
                             <StyledTableCell>{tx.event}</StyledTableCell>
                             <StyledTableCell>

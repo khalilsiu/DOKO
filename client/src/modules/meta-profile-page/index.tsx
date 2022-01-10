@@ -1,6 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable no-continue */
-/* eslint-disable no-await-in-loop */
 import { useEffect, useState, SyntheticEvent, MouseEvent } from 'react';
 import {
   Card,
@@ -37,13 +34,20 @@ import decentraland from './assets/decentraland.png';
 import cryptovoxels from './assets/cryptovoxels.png';
 import thesandbox from './assets/thesandbox.png';
 import somnium from './assets/somnium.png';
+import { useDispatch } from 'react-redux';
 
 import eth from './assets/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
 import solana from './assets/solana.png';
 import { RootState } from '../../store/store';
-import { preprocess } from '../../store/meta-nft-collections';
+import {
+  fetchCollectionSummary,
+  fetchProfileOwnership,
+  preprocess,
+} from '../../store/meta-nft-collections';
+import OwnershipView from '../../components/ownershipView';
+import useProfileSummaries from '../../hooks/useProfileSummaries';
 
 type Icons = {
   [key: string]: string;
@@ -221,6 +225,8 @@ export const NftCollections = () => {
   const { hash } = useParams<{ hash: string }>();
   const profile: any = JSON.parse(atob(hash));
   const styles = useStyles();
+  const profileSummaries = useProfileSummaries();
+
   const [tabValue, setTabValue] = useState(0);
   const [filter, setFilter] = useState<any>({});
   const [decentralandPage, setDecentralandPage] = useState(1);
@@ -238,6 +244,7 @@ export const NftCollections = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
   const collectionFloorPrice: any = {};
+  const dispatch = useDispatch();
 
   const handleClickOpen = () => {
     setCreateProfile(true);
@@ -438,133 +445,139 @@ export const NftCollections = () => {
     setAnchorEl(null);
   };
 
+  const addresses = profile.address.map((address) => address[1]);
   useEffect(() => {
-    const fetchEthData = async () => {
-      const newData = initialData.map((a) => ({ ...a }));
-      setSummary([...newData]);
-      const decentralandNfts: any = [];
-      setOwnedDecentralandNfts([]);
-      const cryptovoxelsNfts: any = [];
-      setOwnedCryptovoxelsNfts([]);
-      const theSandboxNfts: any = [];
-      setOwnedTheSandboxNfts([]);
-      const somniumNfts: any = [];
-      setOwnedSomniumNfts([]);
-      for (let i = 0; i < profile.address.length; i += 1) {
-        if (isSolAddress(profile.address[i][1])) continue;
-        let offset = 0;
-        while (1) {
-          try {
-            const res: any = await OpenSeaAPI.get('/assets', {
-              params: {
-                limit: 50,
-                owner: profile.address[i][1],
-                offset,
-              },
-            });
-            if (!res.data.assets) {
-              break;
-            }
-            for (let j = 0; j < res.data.assets.length; j += 1) {
-              let asset: any = {};
-              const { slug, name } = res.data.assets[j].collection;
-              if (
-                ['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1
-              ) {
-                continue;
-              }
-              asset = preprocess(res.data.assets[j]);
-              if (slug === 'decentraland') {
-                try {
-                  const response = await ContractServiceAPI.post('asset/floor-price', {
-                    address: '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d',
-                    traits: asset.trait,
-                  });
-                  const { price, payment_token } = response.data;
-                  const priceInToken = parseFloat(price);
-                  const ethPrice = parseFloat(payment_token.eth_price);
-                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
-                } catch (error) {
-                  asset.floorPrice = 0;
-                }
-                decentralandNfts.push(asset);
-                setOwnedDecentralandNfts([...decentralandNfts]);
-                newData[0].count = decentralandNfts.length;
-                newData[0].price += asset.floorPrice;
-              }
-              if (slug === 'cryptovoxels') {
-                try {
-                  const response = await ContractServiceAPI.post('asset/floor-price', {
-                    address: '0x79986af15539de2db9a5086382daeda917a9cf0c',
-                    traits: asset.trait,
-                  });
-                  const { price, payment_token } = response.data;
-                  const priceInToken = parseFloat(price);
-                  const ethPrice = parseFloat(payment_token.eth_price);
-                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
-                } catch (error) {
-                  asset.floorPrice = 0;
-                }
-                cryptovoxelsNfts.push(asset);
-                setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
-                newData[1].count = cryptovoxelsNfts.length;
-                newData[1].price += asset.floorPrice;
-              }
-              if (slug === 'sandbox') {
-                try {
-                  const response = await ContractServiceAPI.post('asset/floor-price', {
-                    address: '0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a',
-                    traits: asset.trait,
-                  });
-                  const { price, payment_token } = response.data;
-                  const priceInToken = parseFloat(price);
-                  const ethPrice = parseFloat(payment_token.eth_price);
-                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
-                } catch (error) {
-                  asset.floorPrice = 0;
-                }
-                theSandboxNfts.push(asset);
-                setOwnedTheSandboxNfts([...theSandboxNfts]);
-                newData[2].count = theSandboxNfts.length;
-                newData[2].price += asset.floorPrice;
-              }
-              if (slug === 'somnium-space') {
-                try {
-                  const response = await ContractServiceAPI.post('asset/floor-price', {
-                    address: '0x913ae503153d9a335398d0785ba60a2d63ddb4e2',
-                    traits: asset.trait,
-                  });
-                  const { price, payment_token } = response.data;
-                  const priceInToken = parseFloat(price);
-                  const ethPrice = parseFloat(payment_token.eth_price);
-                  asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
-                } catch (error) {
-                  asset.floorPrice = 0;
-                }
-                somniumNfts.push(asset);
-                setOwnedSomniumNfts([...somniumNfts]);
-                newData[3].count = somniumNfts.length;
-                newData[3].price += asset.floorPrice;
-              }
-              setSummary([...newData]);
-            }
-            if (res.data.assets.length < 50) {
-              break;
-            }
-            offset += 50;
-          } catch (error: any) {
-            break;
-          }
-        }
-      }
-      for (let j = 0; j < 4; j += 1) {
-        newData[j].loading = false;
-      }
-      setSummary([...newData]);
-      setLoading(false);
-    };
-    fetchEthData();
-  }, [hash]);
+    dispatch(fetchProfileOwnership(addresses));
+    dispatch(fetchCollectionSummary());
+  });
+
+  // useEffect(() => {
+  //   const fetchEthData = async () => {
+  //     const newData = initialData.map((a) => ({ ...a }));
+  //     setSummary([...newData]);
+  //     const decentralandNfts: any = [];
+  //     setOwnedDecentralandNfts([]);
+  //     const cryptovoxelsNfts: any = [];
+  //     setOwnedCryptovoxelsNfts([]);
+  //     const theSandboxNfts: any = [];
+  //     setOwnedTheSandboxNfts([]);
+  //     const somniumNfts: any = [];
+  //     setOwnedSomniumNfts([]);
+  //     for (let i = 0; i < profile.address.length; i += 1) {
+  //       if (isSolAddress(profile.address[i][1])) continue;
+  //       let offset = 0;
+  //       while (1) {
+  //         try {
+  //           const res: any = await OpenSeaAPI.get('/assets', {
+  //             params: {
+  //               limit: 50,
+  //               owner: profile.address[i][1],
+  //               offset,
+  //             },
+  //           });
+  //           if (!res.data.assets) {
+  //             break;
+  //           }
+  //           for (let j = 0; j < res.data.assets.length; j += 1) {
+  //             let asset: any = {};
+  //             const { slug, name } = res.data.assets[j].collection;
+  //             if (
+  //               ['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1
+  //             ) {
+  //               continue;
+  //             }
+  //             asset = preprocess(res.data.assets[j]);
+  //             if (slug === 'decentraland') {
+  //               try {
+  //                 const response = await ContractServiceAPI.post('asset/floor-price', {
+  //                   address: '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d',
+  //                   traits: asset.trait,
+  //                 });
+  //                 const { price, payment_token } = response.data;
+  //                 const priceInToken = parseFloat(price);
+  //                 const ethPrice = parseFloat(payment_token.eth_price);
+  //                 asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+  //               } catch (error) {
+  //                 asset.floorPrice = 0;
+  //               }
+  //               decentralandNfts.push(asset);
+  //               setOwnedDecentralandNfts([...decentralandNfts]);
+  //               newData[0].count = decentralandNfts.length;
+  //               newData[0].price += asset.floorPrice;
+  //             }
+  //             if (slug === 'cryptovoxels') {
+  //               try {
+  //                 const response = await ContractServiceAPI.post('asset/floor-price', {
+  //                   address: '0x79986af15539de2db9a5086382daeda917a9cf0c',
+  //                   traits: asset.trait,
+  //                 });
+  //                 const { price, payment_token } = response.data;
+  //                 const priceInToken = parseFloat(price);
+  //                 const ethPrice = parseFloat(payment_token.eth_price);
+  //                 asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+  //               } catch (error) {
+  //                 asset.floorPrice = 0;
+  //               }
+  //               cryptovoxelsNfts.push(asset);
+  //               setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
+  //               newData[1].count = cryptovoxelsNfts.length;
+  //               newData[1].price += asset.floorPrice;
+  //             }
+  //             if (slug === 'sandbox') {
+  //               try {
+  //                 const response = await ContractServiceAPI.post('asset/floor-price', {
+  //                   address: '0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a',
+  //                   traits: asset.trait,
+  //                 });
+  //                 const { price, payment_token } = response.data;
+  //                 const priceInToken = parseFloat(price);
+  //                 const ethPrice = parseFloat(payment_token.eth_price);
+  //                 asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+  //               } catch (error) {
+  //                 asset.floorPrice = 0;
+  //               }
+  //               theSandboxNfts.push(asset);
+  //               setOwnedTheSandboxNfts([...theSandboxNfts]);
+  //               newData[2].count = theSandboxNfts.length;
+  //               newData[2].price += asset.floorPrice;
+  //             }
+  //             if (slug === 'somnium-space') {
+  //               try {
+  //                 const response = await ContractServiceAPI.post('asset/floor-price', {
+  //                   address: '0x913ae503153d9a335398d0785ba60a2d63ddb4e2',
+  //                   traits: asset.trait,
+  //                 });
+  //                 const { price, payment_token } = response.data;
+  //                 const priceInToken = parseFloat(price);
+  //                 const ethPrice = parseFloat(payment_token.eth_price);
+  //                 asset.floorPrice = (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+  //               } catch (error) {
+  //                 asset.floorPrice = 0;
+  //               }
+  //               somniumNfts.push(asset);
+  //               setOwnedSomniumNfts([...somniumNfts]);
+  //               newData[3].count = somniumNfts.length;
+  //               newData[3].price += asset.floorPrice;
+  //             }
+  //             setSummary([...newData]);
+  //           }
+  //           if (res.data.assets.length < 50) {
+  //             break;
+  //           }
+  //           offset += 50;
+  //         } catch (error: any) {
+  //           break;
+  //         }
+  //       }
+  //     }
+  //     for (let j = 0; j < 4; j += 1) {
+  //       newData[j].loading = false;
+  //     }
+  //     setSummary([...newData]);
+  //     setLoading(false);
+  //   };
+  //   fetchEthData();
+  // }, [hash]);
 
   return (
     <>
@@ -677,100 +690,7 @@ export const NftCollections = () => {
               </Grid>
             </Hidden>
           </Grid>
-          <Grid item style={{ width: '100%' }}>
-            <Hidden xsDown>
-              <Button className={styles.createProfileButton} onClick={handleClickOpen}>
-                <img src="/createProfileButton.png" alt="Create Profile" />
-              </Button>
-            </Hidden>
-            <CustomTabs
-              style={{ marginTop: 12 }}
-              indicatorColor="primary"
-              textColor="primary"
-              value={tabValue}
-              onChange={(event, newValue) => setTabValue(newValue)}
-            >
-              <CustomTab style={{ fontWeight: 'bolder' }} label="Portfolio" value={0} />
-            </CustomTabs>
-          </Grid>
-          <TabPanel index={0} value={tabValue}>
-            <Grid className={styles.totalSummary} container direction="row">
-              <Grid className={styles.summaryLeftDiv} />
-              <Grid>
-                <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
-                  <Grid item>
-                    <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
-                    <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                      {summary.reduce((a, b) => a + b.count, 0)}
-                    </Typography>
-                  </Grid>
-                  <Grid item className={styles.chainInfo}>
-                    <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
-                    <Grid container alignItems="center">
-                      <img
-                        style={{ marginRight: 8 }}
-                        src="/collection/DOKOasset_EthereumBlue.png"
-                        width={10}
-                        alt="ETH"
-                      />
-                      <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                        {summary.reduce((a, b) => a + b.price, 0).toFixed(3)}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </ChainContainer>
-              </Grid>
-            </Grid>
-            <Summary data={{ summary }} />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              Decentraland
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedDecentralandNfts.slice((decentralandPage - 1) * 4, decentralandPage * 4)}
-              page={decentralandPage}
-              maxPage={Math.ceil(ownedDecentralandNfts.length / 4)}
-              onNext={() => setDecentralandPage(decentralandPage + 1)}
-              onPrev={() => setDecentralandPage(decentralandPage - 1)}
-            />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              Cryptovoxels
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, cryptovoxelsPage * 4)}
-              page={cryptovoxelsPage}
-              maxPage={Math.ceil(ownedCryptovoxelsNfts.length / 4)}
-              onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
-              onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
-            />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              The Sandbox
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedTheSandboxNfts.slice((theSandboxPage - 1) * 4, theSandboxPage * 4)}
-              page={theSandboxPage}
-              maxPage={Math.ceil(ownedTheSandboxNfts.length / 4)}
-              onNext={() => setTheSandboxPage(theSandboxPage + 1)}
-              onPrev={() => setTheSandboxPage(theSandboxPage - 1)}
-            />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              Somnium Space
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedSomniumNfts.slice((somniumPage - 1) * 4, somniumPage * 4)}
-              page={somniumPage}
-              maxPage={Math.ceil(ownedSomniumNfts.length / 4)}
-              onNext={() => setSomniumPage(somniumPage + 1)}
-              onPrev={() => setSomniumPage(somniumPage - 1)}
-            />
-          </TabPanel>
+          <OwnershipView metaverseSummaries={profileSummaries} />
         </Grid>
       </Grid>
       <Modal open={createProfile}>

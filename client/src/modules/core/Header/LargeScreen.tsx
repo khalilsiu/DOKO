@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -17,15 +16,16 @@ export const LargeScreen = memo(
     const history = useHistory();
     const { host } = window.location;
     let subdomain = '';
-    const arr = host
-      .split('.');
+    const arr = host.split('.');
     if (arr.length > 0 && host.indexOf('staging') !== -1) {
       subdomain = arr[1];
     } else if (arr.length > 0) {
       subdomain = arr[0];
     }
     let link = 'https://doko-one.gitbook.io/doko/';
-    if (subdomain !== 'nft') { link = 'https://doko-one.gitbook.io/doko-metaverse/'; }
+    if (subdomain !== 'nft') {
+      link = 'https://doko-one.gitbook.io/doko-metaverse/';
+    }
 
     return (
       <>
@@ -42,12 +42,7 @@ export const LargeScreen = memo(
                 placeholder="Search by Address"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={
-                  (e) =>
-                    // eslint-disable-next-line implicit-arrow-linebreak
-                    search && e.key === 'Enter' && history.push(`/address/${search}`)
-                  // eslint-disable-next-line react/jsx-curly-newline
-                }
+                onKeyDown={(e) => search && e.key === 'Enter' && history.push(`/address/${search}`)}
                 startAdornment={
                   <InputAdornment position="start">
                     <SearchIcon color="action" fontSize="small" />

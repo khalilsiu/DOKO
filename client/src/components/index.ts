@@ -1,4 +1,3 @@
-/* eslint-disable import/export */
 export * from './RadiusInput';
 export * from './TabPanel';
 export * from './Popover';

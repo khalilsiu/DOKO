@@ -1,11 +1,9 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable implicit-arrow-linebreak */
 import moment from 'moment';
 import { web3 } from './web3';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const abi = require('./abis/erc721.json');
 
-// eslint-disable-next-line no-confusing-arrow
 export const minimizeAddress = (address: string) =>
   address ? `${address.substr(0, 6)}...${address.substr(-4)}` : '';
 
@@ -160,7 +158,7 @@ export function isSolAddress(address: string) {
   return !address.startsWith('0x') && address.length >= 32 && address.length <= 44;
 }
 
-export function formatPrice(label: number, decimals: number = 1) {
+export function formatPrice(label: number, decimals = 1) {
   const lookup = [
     { value: 1, symbol: '' },
     { value: 1e3, symbol: 'K' },

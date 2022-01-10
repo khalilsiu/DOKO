@@ -1,10 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { userOwnership, collectionSummary } from './meta-nft-collections';
+import { appState } from './app';
+import { addressOwnership, collectionSummary, profileOwnership } from './meta-nft-collections';
 
 const store = configureStore({
   reducer: {
-    userOwnership,
+    addressOwnership,
+    profileOwnership,
     collectionSummary,
+    appState,
   },
 });
 

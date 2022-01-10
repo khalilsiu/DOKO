@@ -57,7 +57,6 @@ export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
     <Grid item container justifyContent="flex-start" spacing={3}>
       <GradientSVG />
       {traits.map((trait: any, i: any) => (
-        // eslint-disable-next-line react/no-array-index-key
         <Grid item container lg={3} xl={3} md={4} sm={4} xs={6} key={trait.trait_type + i}>
           <Card className={styles.traitCard}>
             <div style={{ marginBottom: '1em' }}>

@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
@@ -25,8 +24,8 @@ import polygon from './assets/polygon.png';
 import solana from './assets/solana.png';
 
 type Icons = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 
 const icon: Icons = {
   eth,
@@ -197,7 +196,10 @@ export const Profiles = () => {
   const handleSubmit = () => {
     setCreateProfile(false);
     const profiles = cookies.profiles ? cookies.profiles : {};
-    profiles[profileName] = { address: [], hash: btoa(JSON.stringify({ name: profileName, address: [] })) };
+    profiles[profileName] = {
+      address: [],
+      hash: btoa(JSON.stringify({ name: profileName, address: [] })),
+    };
     setCookie('profiles', profiles, { path: '/' });
   };
 
@@ -209,8 +211,12 @@ export const Profiles = () => {
 
   const handleDeleteAddress = (address: string) => {
     const profiles = cookies.profiles ? cookies.profiles : {};
-    profiles[editProfile].address = profiles[editProfile].address.filter((adrs: any) => adrs[1] !== address);
-    profiles[editProfile].hash = btoa(JSON.stringify({ name: editProfile, address: profiles[editProfile].address }));
+    profiles[editProfile].address = profiles[editProfile].address.filter(
+      (adrs: any) => adrs[1] !== address,
+    );
+    profiles[editProfile].hash = btoa(
+      JSON.stringify({ name: editProfile, address: profiles[editProfile].address }),
+    );
     setCookie('profiles', profiles, { path: '/' });
   };
 
@@ -224,19 +230,16 @@ export const Profiles = () => {
     const profiles = cookies.profiles ? cookies.profiles : {};
     if (profiles[editProfile].address.length < 6) {
       profiles[editProfile].address.push([addressType, newAddress]);
-      profiles[editProfile].hash = btoa(JSON.stringify({ name: editProfile, address: profiles[editProfile].address }));
+      profiles[editProfile].hash = btoa(
+        JSON.stringify({ name: editProfile, address: profiles[editProfile].address }),
+      );
       setCookie('profiles', profiles, { path: '/' });
     }
   };
 
   const renderProfileList = () => (
     <div>
-      <Grid
-        className={styles.itemsContainer}
-        container
-        direction="column"
-        alignItems="flex-start"
-      >
+      <Grid className={styles.itemsContainer} container direction="column" alignItems="flex-start">
         <Hidden smUp>
           <Grid
             container
@@ -273,25 +276,20 @@ export const Profiles = () => {
             </Button>
           </Hidden>
         </Grid>
-        <Grid
-          container
-          alignItems="center"
-          style={{ paddingBottom: 40 }}
-        >
-          <Typography
-            className={styles.descriptionText}
-          >
+        <Grid container alignItems="center" style={{ paddingBottom: 40 }}>
+          <Typography className={styles.descriptionText}>
             This is where you can view, edit or delete each of your created and saved profiles.
           </Typography>
         </Grid>
         <Grid container spacing={3}>
-          {cookies.profiles && Object.keys(cookies.profiles).map(
-            (name: string) => (<ProfileItem
-              profile={name}
-              onClickEdit={() => setEditProfile(name)}
-              onClickDelete={() => handleDeleteProfile(name)}
-            />),
-          )}
+          {cookies.profiles &&
+            Object.keys(cookies.profiles).map((name: string) => (
+              <ProfileItem
+                profile={name}
+                onClickEdit={() => setEditProfile(name)}
+                onClickDelete={() => handleDeleteProfile(name)}
+              />
+            ))}
         </Grid>
       </Grid>
       <Modal open={createProfile}>
@@ -303,8 +301,15 @@ export const Profiles = () => {
             alignItems="center"
             style={{ height: '24%' }}
           >
-            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
-            <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
+            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>
+              Create Profile
+            </Typography>
+            <IconButton
+              style={{ marginRight: 30 }}
+              onClick={() => {
+                setCreateProfile(false);
+              }}
+            >
               <CloseIcon style={{ fill: '#FFFFFF' }} />
             </IconButton>
           </Grid>
@@ -318,7 +323,9 @@ export const Profiles = () => {
           >
             <OutlinedInput
               value={profileName}
-              onChange={(e) => { setProfileName(e.target.value); }}
+              onChange={(e) => {
+                setProfileName(e.target.value);
+              }}
               style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
             />
           </Grid>
@@ -346,12 +353,7 @@ export const Profiles = () => {
 
   const renderEditPage = () => (
     <div>
-      <Grid
-        className={styles.itemsContainer}
-        container
-        direction="column"
-        alignItems="flex-start"
-      >
+      <Grid className={styles.itemsContainer} container direction="column" alignItems="flex-start">
         <Grid item>
           <div onClick={handleClickBack} aria-hidden="true">
             <Grid
@@ -389,32 +391,24 @@ export const Profiles = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid
-          container
-          alignItems="center"
-          style={{ paddingBottom: 40 }}
-        >
-          <Typography
-            className={styles.descriptionText}
-          >
-            This is where you can view, edit or delete each of your profiles. You can only have a maximum of 6 addresses per profile.
+        <Grid container alignItems="center" style={{ paddingBottom: 40 }}>
+          <Typography className={styles.descriptionText}>
+            This is where you can view, edit or delete each of your profiles. You can only have a
+            maximum of 6 addresses per profile.
           </Typography>
         </Grid>
-        <Grid
-          container
-          alignItems="center"
-          style={{ paddingBottom: 20 }}
-        >
+        <Grid container alignItems="center" style={{ paddingBottom: 20 }}>
           <Typography className={styles.connectedAddress}>
             {`Address Connected (${cookies.profiles?.[editProfile].address.length})`}
           </Typography>
         </Grid>
-        {cookies.profiles?.[editProfile].address.length < 6 &&
-        <Grid container>
-          <Button className={styles.buttons} onClick={() => setAddAddress(true)}>
-            <img src="/addAddress.png" alt="add address" />
-          </Button>
-        </Grid>}
+        {cookies.profiles?.[editProfile].address.length < 6 && (
+          <Grid container>
+            <Button className={styles.buttons} onClick={() => setAddAddress(true)}>
+              <img src="/addAddress.png" alt="add address" />
+            </Button>
+          </Grid>
+        )}
         {cookies.profiles?.[editProfile].address.map((adrs: any) => (
           <Grid
             container
@@ -425,8 +419,15 @@ export const Profiles = () => {
             className={styles.buttons}
             style={{ marginTop: 10 }}
           >
-            <img width={20} src={icon[adrs[0]]} alt={adrs[0]} style={{ borderRadius: '50%', margin: '3%' }} />
-            <Typography noWrap style={{ fontSize: '18px', fontFamily: 'Open Sans' }}>{adrs[1]}</Typography>
+            <img
+              width={20}
+              src={icon[adrs[0]]}
+              alt={adrs[0]}
+              style={{ borderRadius: '50%', margin: '3%' }}
+            />
+            <Typography noWrap style={{ fontSize: '18px', fontFamily: 'Open Sans' }}>
+              {adrs[1]}
+            </Typography>
             <Button
               style={{ width: 100, height: '50%', margin: '3%' }}
               className="gradient-button"
@@ -447,7 +448,9 @@ export const Profiles = () => {
             alignItems="center"
             style={{ height: '12%' }}
           >
-            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Add an Address</Typography>
+            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>
+              Add an Address
+            </Typography>
             <IconButton style={{ marginRight: 30 }} onClick={() => setAddAddress(false)}>
               <CloseIcon style={{ fill: '#FFFFFF' }} />
             </IconButton>
@@ -461,15 +464,14 @@ export const Profiles = () => {
             style={{ padding: 30, height: '74%' }}
           >
             <Typography style={{ fontSize: 21 }}>Select Blockchain</Typography>
-            <Typography style={{ fontSize: 14 }}>Select the type of address that you want to add to the profile.</Typography>
-            <Grid
-              container
-              direction="row"
-            >
+            <Typography style={{ fontSize: 14 }}>
+              Select the type of address that you want to add to the profile.
+            </Typography>
+            <Grid container direction="row">
               <div
                 onClick={() => setAddressType('eth')}
                 aria-hidden="true"
-                className={(addressType === 'eth' ? styles.typeButtonOutlined : styles.typeButton)}
+                className={addressType === 'eth' ? styles.typeButtonOutlined : styles.typeButton}
               >
                 <div style={{ marginTop: '30%' }}>
                   <img className={styles.typeImg} src={eth} alt="EVM" />
@@ -479,7 +481,7 @@ export const Profiles = () => {
               <div
                 onClick={() => setAddressType('solana')}
                 aria-hidden="true"
-                className={(addressType === 'solana' ? styles.typeButtonOutlined : styles.typeButton)}
+                className={addressType === 'solana' ? styles.typeButtonOutlined : styles.typeButton}
               >
                 <div style={{ marginTop: '30%' }}>
                   <img className={styles.typeImg} src={solana} alt="SOL" />
@@ -488,17 +490,22 @@ export const Profiles = () => {
               </div>
             </Grid>
             <Typography style={{ fontSize: 21, marginTop: 15 }}>Enter your address</Typography>
-            <Typography style={{ fontSize: 14 }}>Enter the address that you want to add to the profile</Typography>
-            <Grid
-              container
-              direction="row"
-              justifyContent="center"
-              alignItems="center"
-            >
+            <Typography style={{ fontSize: 14 }}>
+              Enter the address that you want to add to the profile
+            </Typography>
+            <Grid container direction="row" justifyContent="center" alignItems="center">
               <OutlinedInput
                 value={newAddress}
-                onChange={(e) => { setNewAddress(e.target.value); }}
-                style={{ marginTop: 30, width: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
+                onChange={(e) => {
+                  setNewAddress(e.target.value);
+                }}
+                style={{
+                  marginTop: 30,
+                  width: '90%',
+                  height: 50,
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                }}
               />
             </Grid>
           </Grid>

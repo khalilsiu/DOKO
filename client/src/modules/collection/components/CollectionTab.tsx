@@ -50,7 +50,6 @@ export default function CollectionTab({ collection, loading, setPage, page, nfts
             {collection.description && (
               <Typography
                 style={{ color: 'white' }}
-                // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: collection.description }}
               />
             )}

@@ -91,6 +91,6 @@ const darkTheme = createTheme({
   },
 });
 
-export default function Palette({ children }: PropsWithChildren<{}>) {
+export default function Palette({ children }: PropsWithChildren<any>) {
   return <ThemeProvider theme={darkTheme}>{children}</ThemeProvider>;
 }

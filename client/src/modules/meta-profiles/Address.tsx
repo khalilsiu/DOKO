@@ -9,8 +9,8 @@ import polygon from './assets/polygon.png';
 import solana from './assets/solana.png';
 
 interface AddressProps {
-    address: [string, string];
-  }
+  address: [string, string];
+}
 
 const useStyles = makeStyles(() => ({
   traitFooter: {
@@ -34,8 +34,8 @@ const useStyles = makeStyles(() => ({
 }));
 
 type Icons = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 const icon: Icons = {
   eth,
   bsc,
@@ -55,8 +55,16 @@ export const Address = ({ address }: AddressProps) => {
       wrap="nowrap"
       style={{ height: '20%', paddingLeft: '5%', paddingRight: '5%' }}
     >
-      <img width={20} src={icon[address[0]]} alt={address[0]} style={{ borderRadius: '50%', marginRight: 10 }} />
-      <Typography noWrap style={{ fontSize: '18px', fontFamily: 'Open Sans' }}>{`${address[1].substr(0, 6)}...${address[1].substr(-4)}`}</Typography>
+      <img
+        width={20}
+        src={icon[address[0]]}
+        alt={address[0]}
+        style={{ borderRadius: '50%', marginRight: 10 }}
+      />
+      <Typography
+        noWrap
+        style={{ fontSize: '18px', fontFamily: 'Open Sans' }}
+      >{`${address[1].substr(0, 6)}...${address[1].substr(-4)}`}</Typography>
     </Grid>
   );
 };

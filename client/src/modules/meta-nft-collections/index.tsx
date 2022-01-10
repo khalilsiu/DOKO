@@ -1,6 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable no-continue */
-/* eslint-disable no-await-in-loop */
 import { useEffect, useState, useContext } from 'react';
 import {
   Card,
@@ -12,22 +9,27 @@ import {
   Tabs,
   Typography,
   withStyles,
-  Button,
 } from '@material-ui/core';
+<<<<<<< HEAD
+=======
+import L from 'leaflet';
+>>>>>>> b6f546b (feat: adding profile page)
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import metaverses from '../../constants/metaverses';
+<<<<<<< HEAD
 import { TabPanel, NftPagination, Meta } from '../../components';
+=======
+import { Meta } from '../../components';
+>>>>>>> b6f546b (feat: adding profile page)
 import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
 import CopyAddress from '../../components/CopyAddress';
-import SectionLabel from '../../components/SectionLabel';
-import { Summary } from './Summary';
 import './select-search.css';
-import { fetchUserOwnership } from '../../store/meta-nft-collections/userOwnershipSlice';
+import { fetchAddressOwnership } from '../../store/meta-nft-collections/addressOwnershipSlice';
 import { fetchCollectionSummary } from '../../store/meta-nft-collections';
-import useMetaverseSummaries from '../../hooks/useMetaverseSummaries';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
+<<<<<<< HEAD
 
 const CustomTabs = withStyles({
   root: {
@@ -50,6 +52,11 @@ const ChainContainer = withStyles(() => ({
     marginTop: 10,
   },
 }))(Grid);
+=======
+import 'leaflet/dist/leaflet.css';
+import useAddressSummaries from '../../hooks/useAddressSummaries';
+import OwnershipView from '../../components/ownershipView';
+>>>>>>> b6f546b (feat: adding profile page)
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -100,54 +107,135 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 30,
     },
   },
-  createProfileButton: {
-    cursor: 'pointer',
-    right: '4%',
-    width: 162,
-    height: 46,
-    zIndex: 999,
-    position: 'absolute',
-  },
-  totalSummary: {
-    width: '345px',
-    height: '99px',
-    left: '467px',
-    top: '502px',
-    background: 'rgba(255,255,255,0.25)',
-    borderRadius: '15px',
-    marginBottom: '24px',
-  },
-  summaryLeftDiv: {
-    width: '40px',
-    height: '99px',
-    left: '507px',
-    top: '601px',
-    background: '#FF06D7',
-    borderRadius: '0px 15px 15px 0px',
-    transform: 'rotate(-180deg)',
-  },
-  chainInfo: {
-    marginLeft: 48,
-  },
 }));
 
 export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
-  const [tabValue, setTabValue] = useState(0);
   const { openProfileModal } = useContext(CreateProfileContext);
-  const { metaverseSummaries } = useMetaverseSummaries();
-  const paginations = metaverses.map(() => useState(1));
+  const addressSummaries = useAddressSummaries();
   const dispatch = useDispatch();
 
   const handleClickOpen = () => {
     openProfileModal();
   };
 
+  function getCoordinates(geoX: number, geoY: number) {
+    const coordinates: string[] = [];
+    // Checking if geoX is null else if negative -> West, if positive -> Est
+    if (geoX !== 0) {
+      coordinates.push(geoX < 0 ? `${Math.abs(geoX)}W` : `${geoX}E`);
+    }
+
+    // Checking if geoY is null and else if negative -> South, if positive -> North
+    if (geoY !== 0) {
+      coordinates.push(geoY < 0 ? `${Math.abs(geoY)}S` : `${geoY}N`);
+    }
+    // Checking if Coordinates are different than 0, and else send the location to the GET url
+    if (coordinates.length === 0) {
+      return '/';
+    }
+    return `/?coords=${coordinates.join(',')}`;
+  }
+
+  function renderPopUp(nft) {
+    return `<div class="container-fluid" style="display:inline-block;"> 
+        <div class="title_box" >
+          <div class="title_name" style="text-align: left;float:left;">
+            ${nft.name}
+          </div>
+          <div class="title_owner" style="text-align: right;">
+          </div>
+        </div>
+        <div class="title_box" >
+          <div class="" style="text-align: left;float:left;">
+            ${nft.tokenId}
+          </div>
+          <div class="collab_box" style="float:right;text-align: right;">
+          </div>
+        </div>
+        <div>
+          <img src=${nft.imageUrl} style="width: 150px; height: 150px" />
+        </div>
+        <div>
+          <a href="${`/nft/eth/${nft.assetContract.address}/${nft.tokenId}`}">view</a>
+        </div>
+      </div>`;
+  }
+
+  const handleMapViewClick = (nft, index) => () => {
+    const address_url = nft.imageOriginalUrl;
+    const x_start = address_url.indexOf('x=') + 2;
+    const x_end = address_url.indexOf('&');
+    const y_start = address_url.indexOf('y=') + 2;
+    if (
+      Number.isNaN(parseFloat(address_url.slice(y_start))) ||
+      Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))
+    )
+      return;
+    const coordinate: Pair<number, number> = [
+      parseFloat(address_url.slice(y_start)),
+      parseFloat(address_url.slice(x_start, x_end)),
+    ];
+    maps[index].setView(coordinate, 9);
+    const popupWindow = L.popup();
+    popupWindow.setLatLng(coordinate).setContent(renderPopUp(nft)).openOn(maps[index]);
+  };
+
+  function onMapClick(e) {
+    const geoX = e.latlng.lng;
+    const geoY = e.latlng.lat;
+  }
+
+  // load address
   useEffect(() => {
-    dispatch(fetchUserOwnership(address));
+    addressSummaries.forEach((metaverse, index) => {
+      maps.push(L.map(`${metaverse.name}_map`).setView([1.8, 0.98], 8));
+      if (metaverse.name === 'Cryptovoxels') {
+        L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
+          minZoom: 3,
+          maxZoom: 20,
+          attribution: 'Map data &copy; Cryptovoxels',
+          id: 'cryptovoxels',
+        }).addTo(maps[index]);
+        maps[index]?.on('click', onMapClick); // Listen to clicks
+        setInterval(() => {
+          maps[index].invalidateSize();
+        }, 1000);
+      }
+    });
+    dispatch(fetchAddressOwnership(address));
     dispatch(fetchCollectionSummary());
   }, [address]);
+
+  // mark nft on map
+  useEffect(() => {
+    const marker = new L.Icon({
+      iconUrl: '/marker.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    addressSummaries.forEach((metaverse, index) => {
+      if (metaverse.name === 'Cryptovoxels') {
+        metaverse.ownership.forEach((nft: any) => {
+          const address_url = nft.imageOriginalUrl;
+          const x_start = address_url.indexOf('x=') + 2;
+          const x_end = address_url.indexOf('&');
+          const y_start = address_url.indexOf('y=') + 2;
+          const coordinate: Pair<number, number> = [
+            parseFloat(address_url.slice(y_start)),
+            parseFloat(address_url.slice(x_start, x_end)),
+          ];
+          if (!markers[index].includes(coordinate)) {
+            L.marker(coordinate, { icon: marker }).addTo(maps[index]);
+            markers[index].push(coordinate);
+          }
+        });
+      }
+    });
+  }, [addressSummaries]);
 
   return (
     <>
@@ -205,71 +293,7 @@ export const NftCollections = () => {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item style={{ width: '100%' }}>
-            <Hidden xsDown>
-              <Button className={styles.createProfileButton} onClick={handleClickOpen}>
-                <img src="/createProfileButton.png" alt="Create Profile" />
-              </Button>
-            </Hidden>
-            <CustomTabs
-              style={{ marginTop: 12 }}
-              indicatorColor="primary"
-              textColor="primary"
-              value={tabValue}
-              onChange={(event, newValue) => setTabValue(newValue)}
-            >
-              <CustomTab style={{ fontWeight: 'bolder' }} label="Portfolio" value={0} />
-            </CustomTabs>
-          </Grid>
-          <TabPanel index={0} value={tabValue}>
-            <Grid className={styles.totalSummary} container direction="row">
-              <Grid className={styles.summaryLeftDiv} />
-              <Grid>
-                <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
-                  <Grid item>
-                    <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
-                    <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                      {metaverseSummaries.reduce((count, collection) => count + collection.ownership.length, 0)}
-                    </Typography>
-                  </Grid>
-                  <Grid item className={styles.chainInfo}>
-                    <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
-                    <Grid container alignItems="center">
-                      <img
-                        style={{ marginRight: 8 }}
-                        src="/collection/DOKOasset_EthereumBlue.png"
-                        width={10}
-                        alt="ETH"
-                      />
-                      <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                        {metaverseSummaries.reduce((floorPrice, collection) => floorPrice + collection.price, 0).toFixed(3)}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </ChainContainer>
-              </Grid>
-            </Grid>
-            <Summary data={{ summary: metaverseSummaries }} />
-            {metaverseSummaries.map((metaverse, index) => {
-              const [page, setPage] = paginations[index];
-              return (
-                <div key={metaverse.name}>
-                  <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-                    {metaverse.name}
-                  </SectionLabel>
-                  <NftPagination
-                    loading={metaverse.loading}
-                    isOpenSea
-                    nfts={metaverse.ownership.slice((page - 1) * 5, page * 5)}
-                    page={page}
-                    maxPage={Math.floor(metaverse.ownership.length / 5) + 1}
-                    onNext={() => setPage(page + 1)}
-                    onPrev={() => setPage(page - 1)}
-                  />
-                </div>
-              );
-            })}
-          </TabPanel>
+          <OwnershipView metaverseSummaries={addressSummaries} />
         </Grid>
       </Grid>
     </>

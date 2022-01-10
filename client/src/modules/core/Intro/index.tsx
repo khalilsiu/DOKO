@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import CloseIcon from '@material-ui/icons/Close';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -31,20 +30,21 @@ interface Props {
 const Intro = ({ drawer = false }: Props) => {
   const { connect, loading, address } = useContext(AuthContext);
   const { toggle } = useContext(DrawerContext);
-  // eslint-disable-next-line no-use-before-define
+
   const styles = useStyles();
   const history = useHistory();
   const { host } = window.location;
   let subdomain = '';
-  const arr = host
-    .split('.');
+  const arr = host.split('.');
   if (arr.length > 0 && host.indexOf('staging') !== -1) {
     subdomain = arr[1];
   } else if (arr.length > 0) {
     subdomain = arr[0];
   }
   let link = 'https://doko-one.gitbook.io/doko/';
-  if (subdomain !== 'nft') { link = 'https://doko-one.gitbook.io/doko-metaverse/'; }
+  if (subdomain !== 'nft') {
+    link = 'https://doko-one.gitbook.io/doko-metaverse/';
+  }
 
   return (
     <Grid
@@ -85,18 +85,13 @@ const Intro = ({ drawer = false }: Props) => {
             )}
           </Grid>
           <Grid item>
-            <Button className={styles.aboutDokoButton} onClick={() => (history.push('/profiles'))}>
+            <Button className={styles.aboutDokoButton} onClick={() => history.push('/profiles')}>
               <img width={16} src="/manageProfile.png" alt="" />
               <span style={{ marginLeft: 12 }}>Manage Profile(s)</span>
             </Button>
           </Grid>
           <Grid item>
-            <a
-              style={{ textDecoration: 'none' }}
-              href={link}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a style={{ textDecoration: 'none' }} href={link} target="_blank" rel="noreferrer">
               <Button className={styles.aboutDokoButton}>
                 <img width={16} src="/DOKO_LOGO_BLACK.png" alt="" />
                 <span style={{ marginLeft: 12 }}>About DOKO</span>

@@ -5,7 +5,7 @@ import twitter from '../../../components/assets/twitter.png';
 
 interface Props {
   collection: any;
-  // eslint-disable-next-line no-unused-vars
+
   onShare: (param: 'facebook' | 'twitter') => void;
 }
 

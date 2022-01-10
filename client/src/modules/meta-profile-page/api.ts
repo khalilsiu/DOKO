@@ -3,7 +3,6 @@ import api from '../../libs/api';
 // import { getSolanaNFTMetadata } from '../../libs/metaplex/utils';
 
 export const getEthAssets = (owner: string, offset: number, collection = '') =>
-  // eslint-disable-next-line implicit-arrow-linebreak
   OpenSeaAPI.get('/assets', {
     params: {
       owner,
@@ -14,7 +13,6 @@ export const getEthAssets = (owner: string, offset: number, collection = '') =>
   })
     .then((res) => res.data)
     .catch((err) => {
-      // eslint-disable-next-line no-console
       console.error(err);
       return {};
     });
@@ -24,11 +22,9 @@ export const getNFTsCount = (owner: string) => api.get(`/nfts/${owner}/count`);
 export const getAllEthAssets = async (owner: string) => {
   let nfts: any[] = [];
 
-  // eslint-disable-next-line no-constant-condition
   while (1) {
     const {
       data: { assets },
-      // eslint-disable-next-line no-await-in-loop
     } = await OpenSeaAPI.get('/assets', {
       params: {
         owner,
