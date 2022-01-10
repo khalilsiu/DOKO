@@ -43,6 +43,7 @@ const metaverses = [
     label: 'Decentraland',
     slug: 'decentraland',
     primaryAddress: '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d',
+    primaryTraitTypes: [],
     addresses: [
       '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d',
       '0x959e104e1a4db6317fa58f8295f586e1a978c297',
@@ -57,6 +58,7 @@ const metaverses = [
     primaryAddress: '0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a',
     addresses: ['0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a'],
     traits: [[]],
+    primaryTraitTypes: [],
   },
   {
     icon: cryptovoxels,
@@ -65,6 +67,7 @@ const metaverses = [
     slug: 'cryptovoxels',
     primaryAddress: '0x79986af15539de2db9a5086382daeda917a9cf0c',
     addresses: ['0x79986af15539de2db9a5086382daeda917a9cf0c'],
+    primaryTraitTypes: ['island'],
     traits: [
       [],
       ...cryptovoxelsIslands.map((island) => [
@@ -84,6 +87,7 @@ const metaverses = [
     slug: 'somnium-space',
     primaryAddress: '0x913ae503153d9a335398d0785ba60a2d63ddb4e2',
     addresses: ['0x913ae503153d9a335398d0785ba60a2d63ddb4e2'],
+    primaryTraitTypes: ['Parcel size'],
     traits: [
       [],
       ...somniumParcelSizes.map((size) => [
