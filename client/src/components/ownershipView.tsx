@@ -247,7 +247,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                     <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
                       {metaverse.ownership.length ? (
                         metaverse.ownership.map((nft) => (
-                          <Grid item xs={6} style={{ maxHeight: 400 }}>
+                          <Grid key={nft.id} item xs={6} style={{ maxHeight: 400 }}>
                             <OpenseaNFTItem key={nft.id} nft={nft} />
                           </Grid>
                         ))
