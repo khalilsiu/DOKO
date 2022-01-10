@@ -201,7 +201,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                     {metaverse.name}
                   </SectionLabel>
                 </Grid>
-                <Grid item style={{ marginTop: 48, marginBottom: 24 }}>
+                {/* <Grid item style={{ marginTop: 48, marginBottom: 24 }}>
                   <span
                     className={styles.viewButton}
                     onClick={() => setView('list')}
@@ -222,7 +222,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                     <MapIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
                     <Typography className={styles.viewTypography}>Map View</Typography>
                   </span>
-                </Grid>
+                </Grid> */}
               </Grid>
               <div
                 key={`${metaverse.name}listview`}
@@ -256,9 +256,9 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                       )}
                     </Grid>
                   </Grid>
-                  <Grid item xs={7}>
+                  {/* <Grid item xs={7}>
                     <div id={`${metaverse.name}_map`} className={styles.map} />
-                  </Grid>
+                  </Grid> */}
                 </Grid>
               </div>
             </div>
