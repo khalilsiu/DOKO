@@ -7,7 +7,7 @@ import { NFTItem } from './NFTItem';
 import { Asset } from '../store/meta-nft-collections';
 
 interface Props {
-  nfts: (Asset & {floorPrice: number})[];
+  nfts: (Asset & { floorPrice: number })[];
   total?: number;
   page?: number;
   onNext?: () => void;
@@ -59,8 +59,8 @@ export const NftPagination = ({
         {isSolana
           ? nfts.map((nft) => <SolanaNFTItem key={nft.id} nft={nft} />)
           : !isOpenSea && nfts?.length
-            ? nfts.map((nft) => <NFTItem key={nft.id} nft={nft} />)
-            : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />)}
+          ? nfts.map((nft) => <NFTItem key={nft.id} nft={nft} />)
+          : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />)}
       </div>
       {loading && <CircularProgress />}
       {!loading && (!page || page <= 1) && (!nfts || nfts.length === 0) ? (
@@ -79,10 +79,7 @@ export const NftPagination = ({
           </Grid>
 
           <Grid item>
-            <LightButton
-              onClick={onNext}
-              disabled={loading || !page || page === maxPage}
-            >
+            <LightButton onClick={onNext} disabled={loading || !page || page === maxPage}>
               Next
               <ArrowRight color="secondary" />
             </LightButton>

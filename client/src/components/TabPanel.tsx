@@ -17,7 +17,6 @@ export function TabPanel(props: TabPanelProps) {
       hidden={value !== index}
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
-      // eslint-disable-next-line react/jsx-props-no-spreading
       {...other}
       style={{ width: '100%' }}
     >

@@ -2,7 +2,6 @@ import api from '../../libs/api';
 import openseaApi from '../../libs/opensea-api';
 
 export const getNFTs = (address: string, offset: number, params: any = {}) =>
-  // eslint-disable-next-line implicit-arrow-linebreak
   api.get(`/collections/${address}/nfts`, {
     params: {
       offset,
@@ -13,7 +12,6 @@ export const getNFTs = (address: string, offset: number, params: any = {}) =>
 export const getCollection = (address: string) => api.get(`/collections/${address}`);
 
 export const getEthNFTs = (asset_contract_address: string, offset: number) =>
-  // eslint-disable-next-line implicit-arrow-linebreak
   openseaApi.get('/assets', {
     params: {
       offset,

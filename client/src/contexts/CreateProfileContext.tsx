@@ -1,4 +1,12 @@
-import { makeStyles, Modal, Grid, Typography, IconButton, OutlinedInput, Button } from '@material-ui/core';
+import {
+  makeStyles,
+  Modal,
+  Grid,
+  Typography,
+  IconButton,
+  OutlinedInput,
+  Button,
+} from '@material-ui/core';
 import { createContext, PropsWithChildren, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useHistory } from 'react-router-dom';
@@ -22,11 +30,11 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface CreateProfileContextValue {
-  openProfileModal: () => void
+  openProfileModal: () => void;
 }
 
 export const CreateProfileContext = createContext<CreateProfileContextValue>({
-  openProfileModal: () => {},
+  openProfileModal: () => null,
 });
 
 export const CreateProfileContextProvider = ({ children }: PropsWithChildren<any>) => {
@@ -47,9 +55,7 @@ export const CreateProfileContextProvider = ({ children }: PropsWithChildren<any
     history.push('/profiles');
   };
   return (
-    <CreateProfileContext.Provider
-      value={{ openProfileModal: () => setOpenProfileModal(true) }}
-    >
+    <CreateProfileContext.Provider value={{ openProfileModal: () => setOpenProfileModal(true) }}>
       <>
         {children}
         <Modal open={openProfileModal}>

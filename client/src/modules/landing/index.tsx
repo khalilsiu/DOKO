@@ -18,7 +18,7 @@ export const Landing = () => {
     'landing/Ronin.png',
     'landing/Flow.png',
   ];
-  // eslint-disable-next-line no-use-before-define
+
   const styles = useStyles();
   const { connect, loading, address } = useContext(AuthContext);
   const history = useHistory();

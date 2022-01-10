@@ -1,6 +1,6 @@
 interface AppConfig {
   provider: string;
-  polygon_provider: string,
+  polygon_provider: string;
   moralisServerUrl: string;
   moralisApplicationId: string;
   moralisApiKey: string;

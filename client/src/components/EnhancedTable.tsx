@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable no-param-reassign */
 import {
   TableHead,
   TableRow,
@@ -204,9 +202,8 @@ function Pagination({
         <Typography variant="subtitle2">Previous</Typography>
       </div>
       <div>
-        <Typography variant="body1" style={{ fontStyle: 'italic' }}>{`Page ${page + 1} of ${
-          totalPages + 1
-        }`}
+        <Typography variant="body1" style={{ fontStyle: 'italic' }}>
+          {`Page ${page + 1} of ${totalPages + 1}`}
         </Typography>
       </div>
       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -283,15 +280,16 @@ export default function EnhancedTable({
   };
 
   const filteredRows = useMemo(
-    () => stableSort(rows, getComparator(order, orderBy)).filter((row) => {
-      if (daysToFilter === 'all') return row;
-      const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
-      return (
-        row[dateFilterHeaderId] < endOfToday &&
+    () =>
+      stableSort(rows, getComparator(order, orderBy)).filter((row) => {
+        if (daysToFilter === 'all') return row;
+        const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
+        return (
+          row[dateFilterHeaderId] < endOfToday &&
           row[dateFilterHeaderId] >
             new Date(endOfToday.setDate(endOfToday.getDate() - (daysToFilter as number)))
-      );
-    }),
+        );
+      }),
     [rows, order, orderBy, daysToFilter, dateFilterHeaderId],
   );
 
@@ -367,11 +365,7 @@ export default function EnhancedTable({
                               {dateFormat(row[key], 'dd/mm/yyyy, HH:mm')}
                             </Typography>
                           ) : isValidUrl ? (
-                            <a
-                              href={row[key] as string}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
+                            <a href={row[key] as string} target="_blank" rel="noopener noreferrer">
                               <img
                                 height={20}
                                 src="/DOKOasset_EtherScan.png"

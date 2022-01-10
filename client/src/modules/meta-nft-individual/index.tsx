@@ -44,8 +44,8 @@ import thesandbox from './assets/thesandbox.png';
 import OpenSeaAPI from '../../libs/opensea-api';
 
 type Icons = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 
 const metaverseIcon: Icons = {
   decentraland,
@@ -270,9 +270,7 @@ export const NftIndividual = () => {
         setExternalLink(_nft.external_link);
         setTraits(_traits);
       }
-      // eslint-disable-next-line no-empty
     } catch (err) {
-      // eslint-disable-next-line no-console
       if (err) console.log(err);
     }
   };
@@ -302,7 +300,6 @@ export const NftIndividual = () => {
       }
       setTxs(formatted_txs);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.log(e);
       setTxs([]);
     }
@@ -344,7 +341,6 @@ export const NftIndividual = () => {
       setLastSale(lastsale);
       setLastSaleUSD(usdAmount);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
     }
   };
@@ -504,7 +500,11 @@ export const NftIndividual = () => {
             {lastSale ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
+                  <img
+                    className={styles.networkIconMedium}
+                    src="/collection/DOKOasset_EthereumBlue.png"
+                    alt="eth"
+                  />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -531,7 +531,11 @@ export const NftIndividual = () => {
             {floorPrice ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
+                  <img
+                    className={styles.networkIconMedium}
+                    src="/collection/DOKOasset_EthereumBlue.png"
+                    alt="eth"
+                  />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -548,14 +552,12 @@ export const NftIndividual = () => {
               </Grid>
             )}
             <Grid item style={{ marginTop: '.9em' }}>
-              <Link
-                style={{ textDecoration: 'none' }}
-                target="_blank"
-                href={externalLink}
-              >
+              <Link style={{ textDecoration: 'none' }} target="_blank" href={externalLink}>
                 <Button className={styles.profileButton}>
                   <img width={16} src={metaverseIcon[slug]} alt="" />
-                  <span style={{ marginLeft: 12, color: 'white' }}>{`View on ${metaverseName}`}</span>
+                  <span
+                    style={{ marginLeft: 12, color: 'white' }}
+                  >{`View on ${metaverseName}`}</span>
                 </Button>
               </Link>
             </Grid>
@@ -724,7 +726,6 @@ export const NftIndividual = () => {
                       .map((tx, i) => {
                         const icon = getCurrencyIcon(chain);
                         return (
-                          // eslint-disable-next-line react/no-array-index-key
                           <TableRow key={i}>
                             <StyledTableCell>{tx.event}</StyledTableCell>
                             <StyledTableCell>

@@ -7,7 +7,6 @@ interface CopyAddressProps {
   hasLink?: boolean;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
   const [copied, setCopied] = useState(false);
 

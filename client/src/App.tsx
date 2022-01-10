@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import { useEffect, useState, lazy, PropsWithChildren, Suspense } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -20,11 +19,17 @@ const Collection = lazy(() => import(/* webpackPrefetch: true */ './modules/coll
 const Profiles = lazy(() => import(/* webpackPrefetch: true */ './modules/profiles'));
 const ProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/profile-page'));
 
-const MetaNftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-nft-collections'));
-const MetaNftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-nft-individual'));
+const MetaNftCollections = lazy(
+  () => import(/* webpackPrefetch: true */ './modules/meta-nft-collections'),
+);
+const MetaNftIndividual = lazy(
+  () => import(/* webpackPrefetch: true */ './modules/meta-nft-individual'),
+);
 const MetaCollection = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-collection'));
 const MetaProfiles = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profiles'));
-const MetaProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profile-page'));
+const MetaProfilePage = lazy(
+  () => import(/* webpackPrefetch: true */ './modules/meta-profile-page'),
+);
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
@@ -38,8 +43,7 @@ const RouteContainer = ({ children }: PropsWithChildren<any>) => {
 function App() {
   const { host } = window.location;
   let subdomain = '';
-  const arr = host
-    .split('.');
+  const arr = host.split('.');
   if (arr.length > 0 && host.indexOf('staging') !== -1) {
     subdomain = arr[1];
   } else if (arr.length > 0) {
@@ -91,7 +95,6 @@ function App() {
   }
 
   return (
-
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
         <AuthContextProvider>

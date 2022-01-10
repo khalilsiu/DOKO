@@ -73,7 +73,6 @@ export default function MetaCollection() {
         })),
       );
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error(err);
       setNFTs([]);
     }
@@ -89,7 +88,6 @@ export default function MetaCollection() {
   }, [address]);
 
   useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
     page && fetchNfts();
   }, [page]);
 

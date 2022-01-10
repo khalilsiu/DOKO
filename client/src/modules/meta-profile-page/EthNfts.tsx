@@ -1,4 +1,3 @@
-/* eslint-disable implicit-arrow-linebreak */
 import { useEffect, useState } from 'react';
 import SelectSearch from 'react-select-search';
 import { Grid } from '@material-ui/core';
@@ -65,7 +64,7 @@ export default function EthNfts({ data }: Props) {
       <NftPagination
         isOpenSea
         loading={data.loading}
-        nfts={nfts.slice((page - 1) * 12, (page) * 12)}
+        nfts={nfts.slice((page - 1) * 12, page * 12)}
         page={page}
         maxPage={Math.floor(nfts.length / 12) + 1}
         onNext={() => setPage(page + 1)}

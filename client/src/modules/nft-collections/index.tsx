@@ -1,6 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable no-continue */
-/* eslint-disable no-await-in-loop */
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -139,7 +136,6 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.75)',
     borderRadius: '23px',
   },
-
 }));
 
 const initialData = [
@@ -205,7 +201,10 @@ export const NftCollections = () => {
   const handleSubmit = () => {
     setCreateProfile(false);
     const profiles = cookies.profiles ? cookies.profiles : {};
-    profiles[profileName] = { address: [], hash: btoa(JSON.stringify({ name: profileName, address: [] })) };
+    profiles[profileName] = {
+      address: [],
+      hash: btoa(JSON.stringify({ name: profileName, address: [] })),
+    };
     setCookie('profiles', profiles, { path: '/' });
     history.push('/profiles');
   };
@@ -221,13 +220,17 @@ export const NftCollections = () => {
       while (1) {
         const res = await getNFTs(address, (offset - 1) * 12);
         bscNfts = [...bscNfts, ...res.data];
-        if (res.data.length === 0) { break; }
+        if (res.data.length === 0) {
+          break;
+        }
         offset += 1;
       }
       const sort = bscNfts.sort((a: any, b: any): number => (a.name < b.name ? -1 : 1));
       setOwnedBscNfts([...sort]);
       sort.forEach((i) => {
-        if (i.chain === 'bsc') { initialData[1].count += 1; } else initialData[2].count += 1;
+        if (i.chain === 'bsc') {
+          initialData[1].count += 1;
+        } else initialData[2].count += 1;
       });
       setSummary(initialData);
       setBsc_Loading(false);
@@ -292,13 +295,16 @@ export const NftCollections = () => {
                 }
               }
             }
-            setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
+            setOwnedEthCollections(
+              Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })),
+            );
             console.log(asset);
             resNfts.push(asset);
             setOwnedEthNfts([...resNfts]);
             initialData[0].count = resNfts.length;
-            initialData[0].price =
-              resNfts.map((r: any) => r.floor_price).reduce((a: any, b: any) => a + b, 0);
+            initialData[0].price = resNfts
+              .map((r: any) => r.floor_price)
+              .reduce((a: any, b: any) => a + b, 0);
             setSummary(initialData);
           }
           offset += 50;
@@ -311,8 +317,9 @@ export const NftCollections = () => {
       }
       initialData[0].loading = false;
       initialData[0].count = resNfts.length;
-      initialData[0].price =
-        resNfts.map((res: any) => res.floor_price).reduce((a: any, b: any) => a + b, 0);
+      initialData[0].price = resNfts
+        .map((res: any) => res.floor_price)
+        .reduce((a: any, b: any) => a + b, 0);
       setSummary(initialData);
       setOwnedEthNfts(resNfts);
       setOwnedEthCollections(Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })));
@@ -398,15 +405,19 @@ export const NftCollections = () => {
           <TabPanel index={0} value={tabValue}>
             <Summary data={{ summary }} />
 
-            <EthNfts data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading: eth_loading }} />
+            <EthNfts
+              data={{ nfts: ownedEthNfts, collections: ownedEthCollections, loading: eth_loading }}
+            />
 
-            <SolNfts data={{ nfts: ownedSolNfts, collections: ownedSolCollections, loading: sol_loading }} />
+            <SolNfts
+              data={{ nfts: ownedSolNfts, collections: ownedSolCollections, loading: sol_loading }}
+            />
             <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
               BSC & Polygon NFTs (Beta)
             </SectionLabel>
             <NftPagination
               loading={bsc_loading}
-              nfts={ownedBscNfts.slice((page - 1) * 12, (page) * 12)}
+              nfts={ownedBscNfts.slice((page - 1) * 12, page * 12)}
               page={page}
               maxPage={Math.floor(ownedBscNfts.length / 12) + 1}
               onNext={() => setPage(page + 1)}
@@ -424,8 +435,15 @@ export const NftCollections = () => {
             alignItems="center"
             style={{ height: '24%' }}
           >
-            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
-            <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
+            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>
+              Create Profile
+            </Typography>
+            <IconButton
+              style={{ marginRight: 30 }}
+              onClick={() => {
+                setCreateProfile(false);
+              }}
+            >
               <CloseIcon style={{ fill: '#FFFFFF' }} />
             </IconButton>
           </Grid>
@@ -439,7 +457,9 @@ export const NftCollections = () => {
           >
             <OutlinedInput
               value={profileName}
-              onChange={(e) => { setProfileName(e.target.value); }}
+              onChange={(e) => {
+                setProfileName(e.target.value);
+              }}
               style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
             />
           </Grid>

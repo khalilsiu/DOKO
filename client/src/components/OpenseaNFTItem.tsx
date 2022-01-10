@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable no-param-reassign */
 import { useState, MouseEvent, SyntheticEvent, memo } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
@@ -25,14 +23,13 @@ import loading from './assets/loading.gif';
 import { Asset } from '../store/meta-nft-collections';
 
 interface NFTItemProps {
-  nft: Asset & {floorPrice: number};
-  onClick?: ()=>void;
+  nft: Asset & { floorPrice: number };
+  onClick?: () => void;
 }
 
 export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
   const history = useHistory();
 
-  // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
@@ -50,9 +47,11 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
     window.open(link[type], '_blank');
   };
 
-  const onClickCard = onClick || (() => {
-    history.push(nftPath);
-  });
+  const onClickCard =
+    onClick ||
+    (() => {
+      history.push(nftPath);
+    });
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -68,7 +67,6 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div className={styles.wrapper} onClick={() => onClickCard()}>
       <Card className={styles.card}>
         <CardContent className={styles.cardContent}>
