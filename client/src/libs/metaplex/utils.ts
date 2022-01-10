@@ -12,11 +12,11 @@ const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 const METADATA_PROGRAM_ID = 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s';
 
 const isMetadataAccount = (account: AccountInfo<Buffer>) =>
-  // eslint-disable-next-line implicit-arrow-linebreak
+  
   account.owner.toBase58() === METADATA_PROGRAM_ID;
 
 const isMetadataV1Account = (account: AccountInfo<Buffer>) =>
-  // eslint-disable-next-line implicit-arrow-linebreak
+  
   account.data[0] === MetadataKey.MetadataV1;
 
 const decodeMetadata = (buffer: Buffer): Metadata => {
@@ -45,14 +45,14 @@ export const getTokenInfo = async (mintAddress: string) => {
       }
     }
   } catch (err) {
-    // eslint-disable-next-line no-console
+    
     console.error(err);
   }
   return {};
 };
 
 export const getTokenAccountsByOwner = (address: string) =>
-  // eslint-disable-next-line implicit-arrow-linebreak
+  
   axios.post(solanaRpcUrl, {
     jsonrpc: '2.0',
     id: 1,
@@ -105,7 +105,7 @@ export const getSolanaNFTMetadata = async (NFTMetadata: Metadata) => {
       metadata,
     };
   } catch (err) {
-    // eslint-disable-next-line no-console
+    
     console.error(err);
   }
   return {};

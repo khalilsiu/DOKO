@@ -55,7 +55,6 @@ export const SolanaNftTraits = ({ traits }: NFtTraitsProps) => {
     <Grid item container justifyContent="flex-start" spacing={3}>
       <GradientSVG />
       {traits.map((trait: any, i: any) => (
-        // eslint-disable-next-line react/no-array-index-key
         <Grid item container lg={2} xl={2} md={3} sm={4} xs={6} key={trait.trait_type + i}>
           <Card className={styles.traitCard}>
             <div style={{ marginBottom: '1em' }}>

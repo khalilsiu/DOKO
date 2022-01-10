@@ -2,7 +2,6 @@ import OpenSeaAPI from '../../libs/opensea-api';
 import { formatTx, sortTxsByDates } from '../../libs/utils';
 
 export const fetchNFTOpensea = async (address: string, id: string) =>
-  // eslint-disable-next-line implicit-arrow-linebreak
   OpenSeaAPI.get(`/asset/${address}/${id}`);
 
 export const fetchOpenSeaEvents = async (
@@ -13,7 +12,7 @@ export const fetchOpenSeaEvents = async (
   event_types: string[],
 ) => {
   const promises = [] as any;
-  // eslint-disable-next-line no-restricted-syntax
+
   for (const eventType of event_types) {
     promises.push(
       OpenSeaAPI.get('/events', {
@@ -39,7 +38,7 @@ export const fetchOpenSeaEvents = async (
     const sorted = sortTxsByDates(formatted);
     return sorted;
   } catch (err) {
-    //   eslint-disable-next-line no-console
+    //
     console.error(err);
     return [];
   }

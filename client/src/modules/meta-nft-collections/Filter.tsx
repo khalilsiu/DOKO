@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import { Button, Grid, MenuItem, MenuList } from '@material-ui/core';
 // import Checkbox from '@material-ui/core/Checkbox';
 import { ArrowDropDown, ArrowDropUp } from '@material-ui/icons';
@@ -50,7 +49,6 @@ const sorts = [
 // type ChainKey = 'all' | 'bsc' | 'polygon';
 
 interface FilterProps {
-  // eslint-disable-next-line no-unused-vars
   onChange: (filter: any) => void;
 }
 

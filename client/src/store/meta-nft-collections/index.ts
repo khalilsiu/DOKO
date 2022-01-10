@@ -1,2 +1,3 @@
 export * from './collectionSummarySlice';
-export * from './userOwnershipSlice';
+export * from './addressOwnershipSlice';
+export * from './profileOwnershipSlice';

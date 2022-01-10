@@ -27,7 +27,7 @@ export default function SolNfts({ data }: Props) {
       <NftPagination
         isSolana
         loading={data.loading}
-        nfts={nfts.slice((page - 1) * 12, (page) * 12)}
+        nfts={nfts.slice((page - 1) * 12, page * 12)}
         page={page}
         maxPage={Math.floor(nfts.length / 12) + 1}
         onNext={() => setPage(page + 1)}

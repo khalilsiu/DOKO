@@ -1,4 +1,3 @@
-/* eslint-disable react/require-default-props */
 import { Placement } from '@popperjs/core';
 import { PropsWithChildren, useState } from 'react';
 import { usePopper } from 'react-popper';
@@ -107,11 +106,9 @@ export const Popover = ({
         onMouseLeave={() => toggleShow(false)}
         ref={setPopperElement}
         style={{ ...styles.popper, visibility: show ? 'visible' : 'hidden', opacity: +show }}
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...attributes.popper}
       >
         {children}
-        {/* <Arrow ref={setArrowElement} style={styles.arrow} /> */}
       </Wrapper>
     </div>
   );

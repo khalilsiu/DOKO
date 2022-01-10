@@ -1,4 +1,3 @@
-/* eslint-disable implicit-arrow-linebreak */
 import api from '../libs/api';
 import { getTokenInfo } from '../libs/metaplex/utils';
 
