@@ -6,7 +6,7 @@ import { Asset, Trait } from '../store/meta-nft-collections/profileOwnershipSlic
 
 import { RootState } from '../store/store';
 
-interface Filter {
+export interface Filter {
   traitType: string;
   value: any;
   operator: string;
@@ -70,7 +70,7 @@ export function getAggregatedSummary(
       // special case for decentraland estate
       if (asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
         const sizeTrait = asset.traits.find((trait) => trait.traitType === 'Size');
-        const size = parseInt((sizeTrait || { value: '1' }).value, 10);
+        const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
         floorPrice *= size;
       }
 
