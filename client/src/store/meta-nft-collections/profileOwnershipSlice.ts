@@ -90,15 +90,13 @@ export const fetchAssets = async (address: string) => {
 
 export const fetchProfileOwnership = createAsyncThunk(
   'ProfileOwnership/fetchProfileOwnership',
-  async (addresses: string[]): Promise<AddressOwnership[]> => {
-    console.log('xcvxcvxcv', await fetchAssets('0x274af2158e20afabd0524bd01140748edb1eb47e'));
-    return [
-      {
-        address: '0x274af2158e20afabd0524bd01140748edb1eb47e',
-        assets: await fetchAssets('0x274af2158e20afabd0524bd01140748edb1eb47e'),
-      },
-    ];
-  },
+  async (addresses: string[]): Promise<AddressOwnership[]> =>
+    Promise.all(
+      addresses.map(async (address) => ({
+        address,
+        assets: await fetchAssets(address),
+      })),
+    ),
 );
 
 const profileOwnershipSlice = createSlice({
