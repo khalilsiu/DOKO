@@ -97,6 +97,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    flexWrap: 'wrap',
   },
   addressAndShareButton: { display: 'flex', width: '100%', justifyContent: 'space-between' },
 }));
@@ -126,7 +127,13 @@ export const NftCollections = () => {
 
   const renderAddressList = (addresses: TypedAddress[]) => (
     <Hidden xsDown>
-      <Grid container direction="column" justifyContent="flex-start" alignItems="flex-start">
+      <Grid
+        container
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        style={{ width: '60%' }}
+      >
         {addresses.map((typedAddress) => (
           <div className={styles.addressRow}>
             <img
