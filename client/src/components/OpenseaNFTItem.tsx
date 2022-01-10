@@ -27,7 +27,7 @@ interface NFTItemProps {
   onClick?: () => void;
 }
 
-export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
+export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
   const history = useHistory();
 
   const styles = useStyles();

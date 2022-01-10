@@ -10,18 +10,11 @@ import {
   Typography,
   withStyles,
 } from '@material-ui/core';
-<<<<<<< HEAD
-=======
 import L from 'leaflet';
->>>>>>> b6f546b (feat: adding profile page)
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import metaverses from '../../constants/metaverses';
-<<<<<<< HEAD
-import { TabPanel, NftPagination, Meta } from '../../components';
-=======
 import { Meta } from '../../components';
->>>>>>> b6f546b (feat: adding profile page)
 import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
 import CopyAddress from '../../components/CopyAddress';
@@ -29,34 +22,9 @@ import './select-search.css';
 import { fetchAddressOwnership } from '../../store/meta-nft-collections/addressOwnershipSlice';
 import { fetchCollectionSummary } from '../../store/meta-nft-collections';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
-<<<<<<< HEAD
-
-const CustomTabs = withStyles({
-  root: {
-    width: '100%',
-  },
-  flexContainer: {
-    borderBottom: '2px solid #46324a',
-  },
-})(Tabs);
-
-const CustomTab = withStyles({
-  wrapper: {
-    textTransform: 'none',
-  },
-})(Tab);
-
-const ChainContainer = withStyles(() => ({
-  root: {
-    padding: '10px 30px 24px',
-    marginTop: 10,
-  },
-}))(Grid);
-=======
 import 'leaflet/dist/leaflet.css';
 import useAddressSummaries from '../../hooks/useAddressSummaries';
 import OwnershipView from '../../components/ownershipView';
->>>>>>> b6f546b (feat: adding profile page)
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -108,6 +76,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
+const maps: any = [];
+type Pair<T, K> = [T, K];
+const markers: Array<Array<Pair<number, number>>> = [[], [], [], []];
 
 export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
@@ -163,79 +135,79 @@ export const NftCollections = () => {
       </div>`;
   }
 
-  const handleMapViewClick = (nft, index) => () => {
-    const address_url = nft.imageOriginalUrl;
-    const x_start = address_url.indexOf('x=') + 2;
-    const x_end = address_url.indexOf('&');
-    const y_start = address_url.indexOf('y=') + 2;
-    if (
-      Number.isNaN(parseFloat(address_url.slice(y_start))) ||
-      Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))
-    )
-      return;
-    const coordinate: Pair<number, number> = [
-      parseFloat(address_url.slice(y_start)),
-      parseFloat(address_url.slice(x_start, x_end)),
-    ];
-    maps[index].setView(coordinate, 9);
-    const popupWindow = L.popup();
-    popupWindow.setLatLng(coordinate).setContent(renderPopUp(nft)).openOn(maps[index]);
-  };
+  // const handleMapViewClick = (nft, index) => () => {
+  //   const address_url = nft.imageOriginalUrl;
+  //   const x_start = address_url.indexOf('x=') + 2;
+  //   const x_end = address_url.indexOf('&');
+  //   const y_start = address_url.indexOf('y=') + 2;
+  //   if (
+  //     Number.isNaN(parseFloat(address_url.slice(y_start))) ||
+  //     Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))
+  //   )
+  //     return;
+  //   const coordinate: Pair<number, number> = [
+  //     parseFloat(address_url.slice(y_start)),
+  //     parseFloat(address_url.slice(x_start, x_end)),
+  //   ];
+  //   maps[index].setView(coordinate, 9);
+  //   const popupWindow = L.popup();
+  //   popupWindow.setLatLng(coordinate).setContent(renderPopUp(nft)).openOn(maps[index]);
+  // };
 
-  function onMapClick(e) {
-    const geoX = e.latlng.lng;
-    const geoY = e.latlng.lat;
-  }
+  // function onMapClick(e) {
+  //   const geoX = e.latlng.lng;
+  //   const geoY = e.latlng.lat;
+  // }
 
   // load address
   useEffect(() => {
-    addressSummaries.forEach((metaverse, index) => {
-      maps.push(L.map(`${metaverse.name}_map`).setView([1.8, 0.98], 8));
-      if (metaverse.name === 'Cryptovoxels') {
-        L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
-          minZoom: 3,
-          maxZoom: 20,
-          attribution: 'Map data &copy; Cryptovoxels',
-          id: 'cryptovoxels',
-        }).addTo(maps[index]);
-        maps[index]?.on('click', onMapClick); // Listen to clicks
-        setInterval(() => {
-          maps[index].invalidateSize();
-        }, 1000);
-      }
-    });
+    // addressSummaries.forEach((metaverse, index) => {
+    //   maps.push(L.map(`${metaverse.name}_map`).setView([1.8, 0.98], 8));
+    //   if (metaverse.name === 'Cryptovoxels') {
+    //     L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
+    //       minZoom: 3,
+    //       maxZoom: 20,
+    //       attribution: 'Map data &copy; Cryptovoxels',
+    //       id: 'cryptovoxels',
+    //     }).addTo(maps[index]);
+    //     maps[index]?.on('click', onMapClick); // Listen to clicks
+    //     setInterval(() => {
+    //       maps[index].invalidateSize();
+    //     }, 1000);
+    //   }
+    // });
     dispatch(fetchAddressOwnership(address));
     dispatch(fetchCollectionSummary());
   }, [address]);
 
   // mark nft on map
-  useEffect(() => {
-    const marker = new L.Icon({
-      iconUrl: '/marker.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
-    addressSummaries.forEach((metaverse, index) => {
-      if (metaverse.name === 'Cryptovoxels') {
-        metaverse.ownership.forEach((nft: any) => {
-          const address_url = nft.imageOriginalUrl;
-          const x_start = address_url.indexOf('x=') + 2;
-          const x_end = address_url.indexOf('&');
-          const y_start = address_url.indexOf('y=') + 2;
-          const coordinate: Pair<number, number> = [
-            parseFloat(address_url.slice(y_start)),
-            parseFloat(address_url.slice(x_start, x_end)),
-          ];
-          if (!markers[index].includes(coordinate)) {
-            L.marker(coordinate, { icon: marker }).addTo(maps[index]);
-            markers[index].push(coordinate);
-          }
-        });
-      }
-    });
-  }, [addressSummaries]);
+  // useEffect(() => {
+  //   const marker = new L.Icon({
+  //     iconUrl: '/marker.png',
+  //     iconSize: [25, 41],
+  //     iconAnchor: [12, 41],
+  //     popupAnchor: [1, -34],
+  //     shadowSize: [41, 41],
+  //   });
+  //   addressSummaries.forEach((metaverse, index) => {
+  //     if (metaverse.name === 'Cryptovoxels') {
+  //       metaverse.ownership.forEach((nft: any) => {
+  //         const address_url = nft.imageOriginalUrl;
+  //         const x_start = address_url.indexOf('x=') + 2;
+  //         const x_end = address_url.indexOf('&');
+  //         const y_start = address_url.indexOf('y=') + 2;
+  //         const coordinate: Pair<number, number> = [
+  //           parseFloat(address_url.slice(y_start)),
+  //           parseFloat(address_url.slice(x_start, x_end)),
+  //         ];
+  //         if (!markers[index].includes(coordinate)) {
+  //           L.marker(coordinate, { icon: marker }).addTo(maps[index]);
+  //           markers[index].push(coordinate);
+  //         }
+  //       });
+  //     }
+  //   });
+  // }, [addressSummaries]);
 
   return (
     <>
