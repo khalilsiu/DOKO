@@ -141,7 +141,6 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
         await connect();
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('metamask connection', err);
     }
   };
@@ -155,7 +154,6 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
       await window.solana.connect();
       setSolAccount(window.solana.publicKey.toString());
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('phantom connection', err);
     }
   };
@@ -216,7 +214,6 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
           renderBody={() => (
             <div className={classes.modalContent}>
               {wallets.map((wallet) => (
-                // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                 <div
                   className={`${classes.walletContainer} 
                 ${walletSelected.name === wallet.name && classes.walletSelected}`}

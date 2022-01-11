@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
@@ -21,9 +20,8 @@ export const MetaLanding = () => {
     'meta-landing/cryptovoxels.png',
     'meta-landing/thesandbox.png',
     'meta-landing/somniumspace.png',
-
   ];
-  // eslint-disable-next-line no-use-before-define
+
   const styles = useStyles();
   const { connect, loading, address } = useContext(AuthContext);
   const history = useHistory();
@@ -35,12 +33,13 @@ export const MetaLanding = () => {
   const message = (
     <div>
       <Typography>
-        {"We are expanding our product offering to metaverse real estate. To visit DOKO's NFT Dashboard, click here to visit "}
+        {
+          "We are expanding our product offering to metaverse real estate. To visit DOKO's NFT Dashboard, click here to visit "
+        }
         <Link href="https://nft.doko.one" underline="always" style={{ color: '#00b0ff' }}>
           nft.doko.one
         </Link>
       </Typography>
-
     </div>
   );
 
@@ -59,9 +58,7 @@ export const MetaLanding = () => {
           onClose={handleClose}
           className={styles.snackBar}
         >
-          <SnackbarContent
-            message={message}
-          />
+          <SnackbarContent message={message} />
         </Snackbar>
         <h1 className={styles.landingTopTitle}>All Your Metaverse Real Estate in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>

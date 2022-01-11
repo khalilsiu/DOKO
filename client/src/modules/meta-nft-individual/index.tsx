@@ -33,7 +33,6 @@ import { normalizeImageURL, chainMapping, formatTx, getTotalSupply } from '../..
 import { getNFT, fetchOpenseaLastSale } from '../api';
 import { getTokenInfo, getSolanaNFTMetadata, getTokenOwner } from '../../libs/metaplex/utils';
 import opensea_icon from '../../assets/opensea-transparent.png';
-import solsea_icon from '../../assets/solsea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 import { Meta } from '../../components';
 
@@ -41,11 +40,14 @@ import decentraland from './assets/decentraland.png';
 import cryptovoxels from './assets/cryptovoxels.png';
 import somnium from './assets/somnium.png';
 import thesandbox from './assets/thesandbox.png';
-import OpenSeaAPI from '../../libs/opensea-api';
+import metaverses from '../../constants/metaverses';
+import { Filter } from '../../hooks/useProfileSummaries';
+import ContractServiceAPI from '../../libs/contract-service-api';
+import { parsePrice } from '../../store/meta-nft-collections/collectionSummarySlice';
 
 type Icons = {
-  [key: string]: string
-}
+  [key: string]: string;
+};
 
 const metaverseIcon: Icons = {
   decentraland,
@@ -248,6 +250,32 @@ export const NftIndividual = () => {
         setNftDesc(_nft.description);
         setCollection(_nft.asset_contract.name);
         const _traits = res.data.traits && res.data.traits.length ? res.data.traits : [];
+        let traitFilter: Filter[] = [];
+        // just for a quick fix...
+        const metaverse = metaverses.find((metaverse) => _nft.collection.slug === metaverse.slug);
+        if (metaverse) {
+          const lookupTraits = _traits.filter((trait) =>
+            metaverse.primaryTraitTypes.includes(trait.trait_type),
+          );
+          traitFilter = lookupTraits.map((trait) => ({
+            traitType: trait.trait_type,
+            value: trait.value,
+            operator: '=',
+          }));
+          const response: any = await ContractServiceAPI.getAssetFloorPrice(
+            metaverse.primaryAddress,
+            traitFilter,
+          );
+          let floorPrice = parsePrice(response.price, response.payment_token);
+          if (_nft.asset_contract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
+            const sizeTrait = _nft.traits.find((trait) => trait.trait_type === 'Size');
+            console.log(sizeTrait);
+
+            const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
+            floorPrice *= size;
+          }
+          setFloorPrice(floorPrice);
+        }
         setSlug(_nft.collection.slug);
         switch (_nft.collection.slug) {
           case 'decentraland':
@@ -265,14 +293,10 @@ export const NftIndividual = () => {
           default:
             break;
         }
-        const price_object: any = await OpenSeaAPI.get(`/collection/${_nft.collection.slug}/stats`);
-        setFloorPrice(price_object.data.stats.floor_price.toFixed(3));
         setExternalLink(_nft.external_link);
         setTraits(_traits);
       }
-      // eslint-disable-next-line no-empty
     } catch (err) {
-      // eslint-disable-next-line no-console
       if (err) console.log(err);
     }
   };
@@ -302,7 +326,6 @@ export const NftIndividual = () => {
       }
       setTxs(formatted_txs);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.log(e);
       setTxs([]);
     }
@@ -344,7 +367,6 @@ export const NftIndividual = () => {
       setLastSale(lastsale);
       setLastSaleUSD(usdAmount);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error(e);
     }
   };
@@ -504,7 +526,11 @@ export const NftIndividual = () => {
             {lastSale ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
+                  <img
+                    className={styles.networkIconMedium}
+                    src="/collection/DOKOasset_EthereumBlue.png"
+                    alt="eth"
+                  />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -531,7 +557,11 @@ export const NftIndividual = () => {
             {floorPrice ? (
               <Grid item>
                 <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                  <img className={styles.networkIconMedium} src="/collection/DOKOasset_EthereumBlue.png" alt="eth" />
+                  <img
+                    className={styles.networkIconMedium}
+                    src="/collection/DOKOasset_EthereumBlue.png"
+                    alt="eth"
+                  />
                 </IconButton>
                 <Typography
                   variant="h5"
@@ -548,14 +578,12 @@ export const NftIndividual = () => {
               </Grid>
             )}
             <Grid item style={{ marginTop: '.9em' }}>
-              <Link
-                style={{ textDecoration: 'none' }}
-                target="_blank"
-                href={externalLink}
-              >
+              <Link style={{ textDecoration: 'none' }} target="_blank" href={externalLink}>
                 <Button className={styles.profileButton}>
                   <img width={16} src={metaverseIcon[slug]} alt="" />
-                  <span style={{ marginLeft: 12, color: 'white' }}>{`View on ${metaverseName}`}</span>
+                  <span
+                    style={{ marginLeft: 12, color: 'white' }}
+                  >{`View on ${metaverseName}`}</span>
                 </Button>
               </Link>
             </Grid>
@@ -724,7 +752,6 @@ export const NftIndividual = () => {
                       .map((tx, i) => {
                         const icon = getCurrencyIcon(chain);
                         return (
-                          // eslint-disable-next-line react/no-array-index-key
                           <TableRow key={i}>
                             <StyledTableCell>{tx.event}</StyledTableCell>
                             <StyledTableCell>

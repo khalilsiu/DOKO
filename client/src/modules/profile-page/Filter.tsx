@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import {
   Button,
   Divider,
@@ -61,7 +60,6 @@ const sorts = [
 type ChainKey = 'all' | 'bsc' | 'polygon';
 
 interface FilterProps {
-  // eslint-disable-next-line no-unused-vars
   onChange: (filter: any) => void;
 }
 

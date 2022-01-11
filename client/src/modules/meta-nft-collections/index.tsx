@@ -1,7 +1,4 @@
-/* eslint-disable max-len */
-/* eslint-disable no-continue */
-/* eslint-disable no-await-in-loop */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import {
   Card,
   Grid,
@@ -10,71 +7,24 @@ import {
   makeStyles,
   Tab,
   Tabs,
-  Tooltip,
   Typography,
   withStyles,
-  Button,
-  Modal,
-  OutlinedInput,
-  Checkbox,
 } from '@material-ui/core';
-
-import { useCookies } from 'react-cookie';
+import L from 'leaflet';
+import { useDispatch } from 'react-redux';
 import { useParams, useHistory } from 'react-router-dom';
-import CloseIcon from '@material-ui/icons/Close';
-import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
-
-import { TabPanel, NftPagination, Meta } from '../../components';
-import { getAddressStatus, getNFTs, indexAddress } from '../api';
-import { Filter } from './Filter';
+import metaverses from '../../constants/metaverses';
+import { Meta } from '../../components';
 import Intro from '../core/Intro';
-import { isSolAddress, minimizeAddress } from '../../libs/utils';
-import { AddressStatus } from './AddressStatus';
+import { minimizeAddress } from '../../libs/utils';
 import CopyAddress from '../../components/CopyAddress';
-import EthNfts from './EthNfts';
-import SolNfts from './SolNfts';
-import SectionLabel from '../../components/SectionLabel';
-import { Summary } from './Summary';
-
 import './select-search.css';
-
-import OpenSeaAPI from '../../libs/opensea-api';
-import { getSolNfts } from '../../libs/solana';
-
-import decentraland from './assets/decentraland.png';
-import cryptovoxels from './assets/cryptovoxels.png';
-import thesandbox from './assets/thesandbox.png';
-import somnium from './assets/somnium.png';
-
-const CustomTabs = withStyles({
-  root: {
-    width: '100%',
-  },
-  flexContainer: {
-    borderBottom: '2px solid #46324a',
-  },
-})(Tabs);
-
-const CustomTab = withStyles({
-  wrapper: {
-    textTransform: 'none',
-  },
-})(Tab);
-
-const CustomIconButton = withStyles({
-  disabled: {
-    color: '#333 !important',
-  },
-})(IconButton);
-
-const ChainContainer = withStyles((theme) => ({
-  root: {
-    padding: '10px 30px 24px',
-    marginTop: 10,
-  },
-}))(Grid);
-
-let syncInterval: any;
+import { fetchAddressOwnership } from '../../store/meta-nft-collections/addressOwnershipSlice';
+import { fetchCollectionSummary } from '../../store/meta-nft-collections';
+import { CreateProfileContext } from '../../contexts/CreateProfileContext';
+import 'leaflet/dist/leaflet.css';
+import useAddressSummaries from '../../hooks/useAddressSummaries';
+import OwnershipView from '../../components/ownershipView';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -125,317 +75,139 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 30,
     },
   },
-  createProfileButton: {
-    cursor: 'pointer',
-    right: '4%',
-    width: 162,
-    height: 46,
-    zIndex: 999,
-    position: 'absolute',
-  },
-  createProfileDialog: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    maxHeight: '90vh',
-    maxWidth: '90vw',
-    width: 578,
-    height: 320,
-    border: '1px solid #FFFFFF',
-    background: '#000000',
-    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.75)',
-    borderRadius: '23px',
-  },
-  totalSummary: {
-    width: '345px',
-    height: '99px',
-    left: '467px',
-    top: '502px',
-    background: 'rgba(255,255,255,0.25)',
-    borderRadius: '15px',
-    marginBottom: '24px',
-  },
-  summaryLeftDiv: {
-    width: '40px',
-    height: '99px',
-    left: '507px',
-    top: '601px',
-    background: '#FF06D7',
-    borderRadius: '0px 15px 15px 0px',
-    transform: 'rotate(-180deg)',
-  },
-  chainInfo: {
-    marginLeft: 48,
-  },
 }));
 
-const initialData = [
-  {
-    icon: decentraland,
-    count: 0,
-    price: 0,
-    name: 'Decentraland',
-    available: true,
-    loading: true,
-  },
-  {
-    icon: cryptovoxels,
-    count: 0,
-    price: 0,
-    name: 'Cryptovoxels',
-    available: true,
-    loading: true,
-  },
-  {
-    icon: thesandbox,
-    count: 0,
-    price: 0,
-    name: 'The Sandbox',
-    available: true,
-    loading: true,
-  },
-  {
-    icon: somnium,
-    count: 0,
-    price: 0,
-    name: 'Somnium Space',
-    available: true,
-    loading: true,
-  },
-];
+const maps: any = [];
+type Pair<T, K> = [T, K];
+const markers: Array<Array<Pair<number, number>>> = [[], [], [], []];
 
 export const NftCollections = () => {
-  const [loading, setLoading] = useState(true);
-  const [nfts, setNFTs] = useState<any[]>([]);
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
-  const [tabValue, setTabValue] = useState(0);
-  const [filter, setFilter] = useState<any>({});
-  const [syncStatus, setSyncStatus] = useState<any>(null);
-  const isSolana = isSolAddress(address);
-  const history = useHistory();
-
-  const [summary, setSummary] = useState(initialData);
-  const [decentralandPage, setDecentralandPage] = useState(1);
-  const [cryptovoxelsPage, setCryptovoxelsPage] = useState(1);
-  const [theSandboxPage, setTheSandboxPage] = useState(1);
-  const [somniumPage, setSomniumPage] = useState(1);
-  const [createProfile, setCreateProfile] = useState(false);
-  const [ownedDecentralandNfts, setOwnedDecentralandNfts] = useState<any>([]);
-  const [ownedCryptovoxelsNfts, setOwnedCryptovoxelsNfts] = useState<any>([]);
-  const [ownedTheSandboxNfts, setOwnedTheSandboxNfts] = useState<any>([]);
-  const [ownedSomniumNfts, setOwnedSomniumNfts] = useState<any>([]);
-  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
-  const [profileName, setProfileName] = useState('');
-
-  const collectionFloorPrice: any = {};
+  const { openProfileModal } = useContext(CreateProfileContext);
+  const addressSummaries = useAddressSummaries();
+  const dispatch = useDispatch();
 
   const handleClickOpen = () => {
-    setCreateProfile(true);
+    openProfileModal();
   };
 
-  const handleSubmit = () => {
-    setCreateProfile(false);
-    const profiles = cookies.profiles ? cookies.profiles : {};
-    profiles[profileName] = { address: [], hash: btoa(JSON.stringify({ name: profileName, address: [] })) };
-    setCookie('profiles', profiles, { path: '/' });
-    history.push('/profiles');
-  };
+  function getCoordinates(geoX: number, geoY: number) {
+    const coordinates: string[] = [];
+    // Checking if geoX is null else if negative -> West, if positive -> Est
+    if (geoX !== 0) {
+      coordinates.push(geoX < 0 ? `${Math.abs(geoX)}W` : `${geoX}E`);
+    }
 
-  const renderAddressList = () => (
-    <Hidden xsDown>
-      <Grid container direction="row" justifyContent="flex-start">
-        <Grid direction="column">
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src="/decentraland.png" alt="decentraland" style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 165 }}
-            >
-              Decentraland
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src="/cryptovoxels.png" alt="cryptovoxels" style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 165 }}
-            >
-              Cryptovoxels
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>
-        </Grid>
-        <Grid direction="column">
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src="/thesandbox.png" alt="thesandbox" style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 165 }}
-            >
-              The Sandbox
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>
-          <Grid
-            container
-            direction="row"
-            alignItems="center"
-            justifyContent="flex-start"
-            wrap="nowrap"
-          >
-            <img width={20} src="/somnium.png" alt="somnium" style={{ borderRadius: '50%', marginRight: 10 }} />
-            <Typography
-              variant="h3"
-              style={{ fontSize: 22, width: 165 }}
-            >
-              Somnium Space
-            </Typography>
-            <Checkbox
-              checked
-              disabled
-              style={{
-                color: '#FF06D7',
-              }}
-            />
-          </Grid>
-        </Grid>
-      </Grid>
-    </Hidden>
-  );
+    // Checking if geoY is null and else if negative -> South, if positive -> North
+    if (geoY !== 0) {
+      coordinates.push(geoY < 0 ? `${Math.abs(geoY)}S` : `${geoY}N`);
+    }
+    // Checking if Coordinates are different than 0, and else send the location to the GET url
+    if (coordinates.length === 0) {
+      return '/';
+    }
+    return `/?coords=${coordinates.join(',')}`;
+  }
 
+  function renderPopUp(nft) {
+    return `<div class="container-fluid" style="display:inline-block;"> 
+        <div class="title_box" >
+          <div class="title_name" style="text-align: left;float:left;">
+            ${nft.name}
+          </div>
+          <div class="title_owner" style="text-align: right;">
+          </div>
+        </div>
+        <div class="title_box" >
+          <div class="" style="text-align: left;float:left;">
+            ${nft.tokenId}
+          </div>
+          <div class="collab_box" style="float:right;text-align: right;">
+          </div>
+        </div>
+        <div>
+          <img src=${nft.imageUrl} style="width: 150px; height: 150px" />
+        </div>
+        <div>
+          <a href="${`/nft/eth/${nft.assetContract.address}/${nft.tokenId}`}">view</a>
+        </div>
+      </div>`;
+  }
+
+  // const handleMapViewClick = (nft, index) => () => {
+  //   const address_url = nft.imageOriginalUrl;
+  //   const x_start = address_url.indexOf('x=') + 2;
+  //   const x_end = address_url.indexOf('&');
+  //   const y_start = address_url.indexOf('y=') + 2;
+  //   if (
+  //     Number.isNaN(parseFloat(address_url.slice(y_start))) ||
+  //     Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))
+  //   )
+  //     return;
+  //   const coordinate: Pair<number, number> = [
+  //     parseFloat(address_url.slice(y_start)),
+  //     parseFloat(address_url.slice(x_start, x_end)),
+  //   ];
+  //   maps[index].setView(coordinate, 9);
+  //   const popupWindow = L.popup();
+  //   popupWindow.setLatLng(coordinate).setContent(renderPopUp(nft)).openOn(maps[index]);
+  // };
+
+  // function onMapClick(e) {
+  //   const geoX = e.latlng.lng;
+  //   const geoY = e.latlng.lat;
+  // }
+
+  // load address
   useEffect(() => {
-    const fetchEthData = async () => {
-      const newData = initialData.map((a) => ({ ...a }));
-      setSummary([...newData]);
-      const decentralandNfts: any = [];
-      setOwnedDecentralandNfts([]);
-      const cryptovoxelsNfts: any = [];
-      setOwnedCryptovoxelsNfts([]);
-      const theSandboxNfts: any = [];
-      setOwnedTheSandboxNfts([]);
-      const somniumNfts: any = [];
-      setOwnedSomniumNfts([]);
-      if (isSolAddress(address)) {
-        setLoading(false);
-        return;
-      }
-      let offset = 0;
-      while (1) {
-        try {
-          const res: any = await OpenSeaAPI.get('/assets', {
-            params: {
-              limit: 50,
-              owner: address,
-              offset,
-            },
-          });
-          for (let j = 0; j < res.data.assets.length; j += 1) {
-            let asset = {};
-            const { slug, name } = res.data.assets[j].collection;
-            if (['decentraland', 'cryptovoxels', 'somnium-space', 'sandbox'].indexOf(slug) === -1) {
-              continue;
-            }
-            if (collectionFloorPrice[name]) {
-              asset = {
-                ...res.data.assets[j],
-                floor_price: collectionFloorPrice[name].toFixed(3),
-              };
-            } else {
-              while (1) {
-                try {
-                  const price_object: any = await OpenSeaAPI.get(`/collection/${slug}/stats`);
-                  collectionFloorPrice[name] = price_object.data.stats.floor_price.toFixed(3);
-                  asset = {
-                    ...res.data.assets[j],
-                    floor_price: collectionFloorPrice[name],
-                  };
-                  break;
-                } catch (error: any) {
-                  break;
-                }
-              }
-            }
-            if (slug === 'decentraland') {
-              decentralandNfts.push(asset);
-              setOwnedDecentralandNfts([...decentralandNfts]);
-              newData[0].count = decentralandNfts.length;
-              newData[0].price = decentralandNfts.length * collectionFloorPrice[name];
-            }
-            if (slug === 'cryptovoxels') {
-              cryptovoxelsNfts.push(asset);
-              setOwnedCryptovoxelsNfts([...cryptovoxelsNfts]);
-              newData[1].count = cryptovoxelsNfts.length;
-              newData[1].price = cryptovoxelsNfts.length * collectionFloorPrice[name];
-            }
-            if (slug === 'sandbox') {
-              theSandboxNfts.push(asset);
-              setOwnedTheSandboxNfts([...theSandboxNfts]);
-              newData[2].count = theSandboxNfts.length;
-              newData[2].price = theSandboxNfts.length * collectionFloorPrice[name];
-            }
-            if (slug === 'somnium-space') {
-              somniumNfts.push(asset);
-              setOwnedSomniumNfts([...somniumNfts]);
-              newData[3].count = somniumNfts.length;
-              newData[3].price = somniumNfts.length * collectionFloorPrice[name];
-            }
-            setSummary([...newData]);
-          }
-          offset += 50;
-          if (res.data.assets.length < 50) {
-            break;
-          }
-        } catch (error: any) {
-          break;
-        }
-      }
-      for (let j = 0; j < 4; j += 1) {
-        newData[j].loading = false;
-      }
-      setSummary([...newData]);
-      setLoading(false);
-    };
-    fetchEthData();
+    // addressSummaries.forEach((metaverse, index) => {
+    //   maps.push(L.map(`${metaverse.name}_map`).setView([1.8, 0.98], 8));
+    //   if (metaverse.name === 'Cryptovoxels') {
+    //     L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
+    //       minZoom: 3,
+    //       maxZoom: 20,
+    //       attribution: 'Map data &copy; Cryptovoxels',
+    //       id: 'cryptovoxels',
+    //     }).addTo(maps[index]);
+    //     maps[index]?.on('click', onMapClick); // Listen to clicks
+    //     setInterval(() => {
+    //       maps[index].invalidateSize();
+    //     }, 1000);
+    //   }
+    // });
+    dispatch(fetchAddressOwnership(address));
+    dispatch(fetchCollectionSummary());
   }, [address]);
+
+  // mark nft on map
+  // useEffect(() => {
+  //   const marker = new L.Icon({
+  //     iconUrl: '/marker.png',
+  //     iconSize: [25, 41],
+  //     iconAnchor: [12, 41],
+  //     popupAnchor: [1, -34],
+  //     shadowSize: [41, 41],
+  //   });
+  //   addressSummaries.forEach((metaverse, index) => {
+  //     if (metaverse.name === 'Cryptovoxels') {
+  //       metaverse.ownership.forEach((nft: any) => {
+  //         const address_url = nft.imageOriginalUrl;
+  //         const x_start = address_url.indexOf('x=') + 2;
+  //         const x_end = address_url.indexOf('&');
+  //         const y_start = address_url.indexOf('y=') + 2;
+  //         const coordinate: Pair<number, number> = [
+  //           parseFloat(address_url.slice(y_start)),
+  //           parseFloat(address_url.slice(x_start, x_end)),
+  //         ];
+  //         if (!markers[index].includes(coordinate)) {
+  //           L.marker(coordinate, { icon: marker }).addTo(maps[index]);
+  //           markers[index].push(coordinate);
+  //         }
+  //       });
+  //     }
+  //   });
+  // }, [addressSummaries]);
 
   return (
     <>
@@ -493,149 +265,9 @@ export const NftCollections = () => {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item style={{ width: '100%' }}>
-            <Hidden xsDown>
-              <Button className={styles.createProfileButton} onClick={handleClickOpen}>
-                <img src="/createProfileButton.png" alt="Create Profile" />
-              </Button>
-            </Hidden>
-            <CustomTabs
-              style={{ marginTop: 12 }}
-              indicatorColor="primary"
-              textColor="primary"
-              value={tabValue}
-              onChange={(event, newValue) => setTabValue(newValue)}
-            >
-              <CustomTab style={{ fontWeight: 'bolder' }} label="Portfolio" value={0} />
-            </CustomTabs>
-          </Grid>
-          <TabPanel index={0} value={tabValue}>
-            <Grid className={styles.totalSummary} container direction="row">
-              <Grid className={styles.summaryLeftDiv} />
-              <Grid>
-                <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
-                  <Grid item>
-                    <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
-                    <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                      {summary.reduce((a, b) => (a + b.count), 0)}
-                    </Typography>
-                  </Grid>
-                  <Grid item className={styles.chainInfo}>
-                    <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
-                    <Grid container alignItems="center">
-                      <img
-                        style={{ marginRight: 8 }}
-                        src="/collection/DOKOasset_EthereumBlue.png"
-                        width={10}
-                        alt="ETH"
-                      />
-                      <Typography style={{ fontSize: 18, fontWeight: 700 }}>
-                        {summary.reduce((a, b) => (a + b.price), 0).toFixed(3)}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </ChainContainer>
-              </Grid>
-            </Grid>
-            <Summary data={{ summary }} />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              Decentraland
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedDecentralandNfts.slice((decentralandPage - 1) * 4, (decentralandPage) * 4)}
-              page={decentralandPage}
-              maxPage={Math.floor(ownedDecentralandNfts.length / 4) + 1}
-              onNext={() => setDecentralandPage(decentralandPage + 1)}
-              onPrev={() => setDecentralandPage(decentralandPage - 1)}
-            />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              Cryptovoxels
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedCryptovoxelsNfts.slice((cryptovoxelsPage - 1) * 4, (cryptovoxelsPage) * 4)}
-              page={cryptovoxelsPage}
-              maxPage={Math.floor(ownedCryptovoxelsNfts.length / 4) + 1}
-              onNext={() => setCryptovoxelsPage(cryptovoxelsPage + 1)}
-              onPrev={() => setCryptovoxelsPage(cryptovoxelsPage - 1)}
-            />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              The Sandbox
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedTheSandboxNfts.slice((theSandboxPage - 1) * 4, (theSandboxPage) * 4)}
-              page={theSandboxPage}
-              maxPage={Math.floor(ownedTheSandboxNfts.length / 4) + 1}
-              onNext={() => setTheSandboxPage(theSandboxPage + 1)}
-              onPrev={() => setTheSandboxPage(theSandboxPage - 1)}
-            />
-            <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-              Somnium Space
-            </SectionLabel>
-            <NftPagination
-              loading={loading}
-              isOpenSea
-              nfts={ownedSomniumNfts.slice((somniumPage - 1) * 4, (somniumPage) * 4)}
-              page={somniumPage}
-              maxPage={Math.floor(ownedSomniumNfts.length / 4) + 1}
-              onNext={() => setSomniumPage(somniumPage + 1)}
-              onPrev={() => setSomniumPage(somniumPage - 1)}
-            />
-          </TabPanel>
+          <OwnershipView metaverseSummaries={addressSummaries} />
         </Grid>
       </Grid>
-      <Modal open={createProfile}>
-        <div className={styles.createProfileDialog}>
-          <Grid
-            container
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            style={{ height: '24%' }}
-          >
-            <Typography variant="h4" style={{ marginLeft: 30, fontSize: 25, fontWeight: 'bold' }}>Create Profile</Typography>
-            <IconButton style={{ marginRight: 30 }} onClick={() => { setCreateProfile(false); }}>
-              <CloseIcon style={{ fill: '#FFFFFF' }} />
-            </IconButton>
-          </Grid>
-          <hr style={{ width: '100%', margin: 0 }} />
-          <Grid
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            style={{ height: '52%' }}
-          >
-            <OutlinedInput
-              value={profileName}
-              onChange={(e) => { setProfileName(e.target.value); }}
-              style={{ minWidth: '90%', height: 50, fontWeight: 'bold', fontSize: '16px' }}
-            />
-          </Grid>
-          <hr style={{ width: '100%', margin: 0 }} />
-          <Grid
-            container
-            direction="row"
-            justifyContent="flex-end"
-            alignItems="center"
-            style={{ height: '24%' }}
-          >
-            <Button
-              style={{ width: 170, marginRight: 34 }}
-              className="gradient-button"
-              variant="outlined"
-              onClick={handleSubmit}
-            >
-              Create Profile
-            </Button>
-          </Grid>
-        </div>
-      </Modal>
     </>
   );
 };

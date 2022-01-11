@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable no-param-reassign */
 import { useState, MouseEvent, SyntheticEvent, memo } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
@@ -22,19 +20,20 @@ import facebook from './assets/facebook.png';
 import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
+import { Asset } from '../store/meta-nft-collections';
 
 interface NFTItemProps {
-  nft: any;
+  nft: Asset & { floorPrice: number };
+  onClick?: () => void;
 }
 
-export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
+export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
   const history = useHistory();
 
-  // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
-  const nftPath = `/nft/eth/${nft.asset_contract.address}/${nft.token_id}`;
+  const nftPath = `/nft/eth/${nft.assetContract.address}/${nft.tokenId}`;
 
   const share = (event: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
     event.stopPropagation();
@@ -48,9 +47,11 @@ export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
     window.open(link[type], '_blank');
   };
 
-  const onClickCard = () => {
-    history.push(nftPath);
-  };
+  const onClickCard =
+    onClick ||
+    (() => {
+      history.push(nftPath);
+    });
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -66,17 +67,16 @@ export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div className={styles.wrapper} onClick={() => onClickCard()}>
       <Card className={styles.card}>
         <CardContent className={styles.cardContent}>
           <Grid container alignItems="center" style={{ flex: 1 }}>
-            {nft.image_url && !error ? (
+            {nft.imageUrl && !error ? (
               <LazyLoadImage
                 className={styles.image}
                 alt=""
                 width="100%"
-                src={nft.image_preview_url}
+                src={nft.imagePreviewUrl}
                 placeholder={<img src={loading} alt="" />}
                 effect="opacity"
                 onError={() => setError(true)}
@@ -125,7 +125,7 @@ export const OpenseaNFTItem = memo(({ nft }: NFTItemProps) => {
               <img className={styles.networkIcon} src={eth} alt="ETH" />
 
               <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
-                {nft.floor_price || '0'}
+                {nft.floorPrice.toFixed(2) || 'N.A.'}
               </Typography>
             </Grid>
             <div>

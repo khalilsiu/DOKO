@@ -1,6 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable no-param-reassign */
 import { memo, MouseEvent, SyntheticEvent, useState, useEffect, useRef } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
@@ -45,7 +42,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: ProfileItemProps) => {
-  // eslint-disable-next-line no-use-before-define
   const styles = useStyles();
   const history = useHistory();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -95,7 +91,6 @@ export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: Profil
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <Grid item xs={12} sm={6} lg={4} style={{ minWidth: '25vw' }}>
       <Grid className={styles.card}>
         <Grid
@@ -106,7 +101,10 @@ export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: Profil
           style={{ height: '20%', paddingLeft: 19 }}
           ref={titleRef}
         >
-          <Typography variant="h5" style={{ fontWeight: 'bold', fontSize: '20px', lineHeight: '33px' }}>
+          <Typography
+            variant="h5"
+            style={{ fontWeight: 'bold', fontSize: '20px', lineHeight: '33px' }}
+          >
             {`${shortenName(profile)} (${cookies.profiles[profile].address.length})`}
           </Typography>
           <div>
@@ -114,7 +112,9 @@ export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: Profil
               className="gradient-button"
               variant="outlined"
               style={{ fontSize: 12, lineHeight: '16px' }}
-              onClick={() => { history.push(`/profiles/${cookies.profiles[profile].hash}`); }}
+              onClick={() => {
+                history.push(`/profiles/${cookies.profiles[profile].hash}`);
+              }}
             >
               View
             </Button>
@@ -129,19 +129,47 @@ export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: Profil
               anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
               transformOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-              <MenuItem className={styles.options} onClick={(e) => { navigator.clipboard.writeText(`https://doko.one/profiles/$${cookies.profiles[profile].hash}`); handleClose(e); }}>
+              <MenuItem
+                className={styles.options}
+                onClick={(e) => {
+                  navigator.clipboard.writeText(
+                    `https://doko.one/profiles/$${cookies.profiles[profile].hash}`,
+                  );
+                  handleClose(e);
+                }}
+              >
                 Copy URL
               </MenuItem>
-              <MenuItem className={styles.options} onClick={(e) => { onClickEdit(); handleClose(e); }}>
+              <MenuItem
+                className={styles.options}
+                onClick={(e) => {
+                  onClickEdit();
+                  handleClose(e);
+                }}
+              >
                 Edit
               </MenuItem>
-              <MenuItem className={styles.options} onClick={(e) => { onClickDelete(); handleClose(e); }}>
+              <MenuItem
+                className={styles.options}
+                onClick={(e) => {
+                  onClickDelete();
+                  handleClose(e);
+                }}
+              >
                 Delete
               </MenuItem>
             </Menu>
           </div>
         </Grid>
-        <hr style={{ border: 'none', backgroundColor: 'rgba(255, 255, 255, 0.5)', height: '1px', width: '100%', margin: 0 }} />
+        <hr
+          style={{
+            border: 'none',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            height: '1px',
+            width: '100%',
+            margin: 0,
+          }}
+        />
 
         {cookies.profiles[profile].address.length ? (
           <Grid
@@ -151,22 +179,17 @@ export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: Profil
             style={{ height: '80%' }}
             wrap="nowrap"
           >
-            {cookies.profiles[profile].address.map((address: any) => (<Address address={address} />))}
-          </Grid>)
-          :
-          (
-            <Grid
-              container
-              alignItems="center"
-              justifyContent="center"
-              style={{ height: '80%' }}
-            >
-              <Typography style={{ fontFamily: 'Open Sans', fontSize: '21px' }}>
-                No addresses found
-              </Typography>
-            </Grid>
-          )}
-
+            {cookies.profiles[profile].address.map((address: any) => (
+              <Address address={address} />
+            ))}
+          </Grid>
+        ) : (
+          <Grid container alignItems="center" justifyContent="center" style={{ height: '80%' }}>
+            <Typography style={{ fontFamily: 'Open Sans', fontSize: '21px' }}>
+              No addresses found
+            </Typography>
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );

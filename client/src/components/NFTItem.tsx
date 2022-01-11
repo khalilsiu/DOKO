@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable no-param-reassign */
 import { memo, MouseEvent, SyntheticEvent, useState } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
@@ -42,7 +40,7 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
       .replace('ipfs/', '')
       .replace('ipfs://', 'ipfs/')}`;
   }
-  // eslint-disable-next-line no-use-before-define
+
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const nftPath = `/nft/${nft.chain}/${nft.token_address}/${nft.token_id}`;
@@ -79,7 +77,6 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div className={styles.wrapper} onClick={() => onClickCard()}>
       <Card className={styles.card}>
         <CardContent className={styles.cardContent}>
@@ -88,7 +85,6 @@ export const NFTItem = memo(({ nft }: NFTItemProps) => {
               nft.metadata.image.indexOf('<svg') === 0 ? (
                 <div
                   style={{ flex: 1 }}
-                  // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{ __html: nft.metadata.image }}
                   className={styles.image}
                 />
