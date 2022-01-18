@@ -1,3 +1,4 @@
+import { AssessmentTwoTone } from '@material-ui/icons';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
@@ -16,6 +17,7 @@ export interface Asset {
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
   imageOriginalUrl: string;
+  coordinateString: string;
   name: string;
   assetContract: {
     address: string;
@@ -46,12 +48,21 @@ export const preprocess = (asset: any): Asset => {
     'image_preview_url',
     'image_thumbnail_url',
     'image_original_url',
+    'coordinate_string',
     'name',
     'asset_contract',
     'traits',
   ]);
+
   picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
+  if (asset.collection.name === 'Somnium Space VR') {
+    picked.coordinate_string = asset.description;
+  } else if (asset.collection.name === 'The Sandbox') {
+    picked.coordinate_string = asset.name;
+  } else {
+    picked.coordinate_string = asset.image_original_url;
+  }
   return camelize(picked);
 };
 

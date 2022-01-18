@@ -76,7 +76,6 @@ const metaverses = [
       ]),
     ],
   },
-
   {
     icon: somnium,
     name: 'somnium-space',

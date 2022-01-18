@@ -183,18 +183,31 @@ export const NftCollections = () => {
   };
 
   function getCoordinates(url: string, metaverse: string): Pair<number, number> {
-    if (metaverse === 'Cryptovoxels') {
-      const x = url.match(/x=([+-]\d*\.?\d*)/i)![1];
-      const y = url.match(/&y=([+-]\d*\.?\d*)/i)![1];
-      return [parseFloat(y), parseFloat(x)];
+    try {
+      if (metaverse === 'Cryptovoxels') {
+        const x = url.match(/x=([+-]?([0-9]*[.])?[0-9]+)/)![1];
+        const y = url.match(/&y=([+-]?([0-9]*[.])?[0-9]+)/)![1];
+        return [parseFloat(y), parseFloat(x)];
+      }
+      if (metaverse === 'Decentraland') {
+        const x = url.match(/parcels\/([+-]?([0-9]*[.])?[0-9]+)\/([+-]?([0-9]*[.])?[0-9]+)/)![1];
+        const y = url.match(/parcels\/([+-]?([0-9]*[.])?[0-9]+)\/([+-]?([0-9]*[.])?[0-9]+)/)![3];
+        return [parseFloat(y) * 5, parseFloat(x) * 5];
+      }
+      if (metaverse === 'Sandbox') {
+        const x = url.match(/\(([+-]?([0-9]*[.])?[0-9]+)/)![1];
+        const y = url.match(/, ([+-]?([0-9]*[.])?[0-9]+)/)![1];
+        return [parseFloat(y) * (3 / 2), parseFloat(x) * (3 / 2)];
+      }
+      if (metaverse === 'Somnium Space VR') {
+        const x = url.match(/X = ([+-]?([0-9]*[.])?[0-9]+)/)![1];
+        const y = url.match(/Z = ([+-]?([0-9]*[.])?[0-9]+)/)![1];
+        return [(parseFloat(y) + 202.167) / 23, (parseFloat(x) - 576.433) / 22.7356];
+      }
+    } catch {
+      console.log('wrong coordinate');
     }
-    if (metaverse === 'Decentraland') {
-      const x = url.match(/parcels\/([+-]\d*\.?\d*)\/([+-]\d*\.?\d*)/i)![1];
-      const y = url.match(/parcels\/([+-]\d*\.?\d*)\/([+-]\d*\.?\d*)/i)![2];
-      return [parseFloat(y) * 5, parseFloat(x) * 5];
-    }
-
-    return [0, 0];
+    return [NaN, NaN];
   }
 
   function renderPopUp(nft) {
@@ -222,8 +235,18 @@ export const NftCollections = () => {
       </div>`);
   }
 
-  const handlePopUp = (nft: Asset, coordinate: Pair<number, number>, index: number) => () => {
-    maps[index].setView(coordinate, 9);
+  const handlePopUp = (nft: Asset, coordinate: Pair<number, number>, index: number, metaverseName) => () => {
+    if (Number.isNaN(coordinate[0]) || Number.isNaN(coordinate[1])) {
+      return;
+    }
+    if (metaverseName === 'Cryptovoxels') {
+      maps[index].setView(coordinate, 9);
+    } else if (metaverseName === 'Somnium Space VR') {
+      maps[index].setView(coordinate, 2);
+    } else {
+      maps[index].setView(coordinate, 0);
+    }
+
     const popupWindow = L.popup();
     popupWindow
       .setLatLng(coordinate)
@@ -270,8 +293,40 @@ export const NftCollections = () => {
         setInterval(() => {
           maps[index].invalidateSize();
         }, 1000);
-      } else {
-        maps.push(L.map(`${metaverse.name}_map`).setView([1.80, 0.98], 8));
+      } else if (metaverse.name === 'Sandbox') {
+        maps.push(L.map(`${metaverse.name}_map`, {
+          minZoom: 0,
+          maxZoom: 2,
+          center: [0, 0],
+          zoom: 0,
+          crs: L.CRS.Simple,
+        }));
+        const southWest = maps[index].unproject([-320, -320], 0);
+        const northEast = maps[index].unproject([320, 320], 0);
+        const bounds = new L.LatLngBounds(southWest, northEast);
+        L.imageOverlay('/blank_map.png', bounds).addTo(maps[index]);
+        maps[index].setMaxBounds(bounds);
+        maps[index]?.on('click', onMapClick);
+        setInterval(() => {
+          maps[index].invalidateSize();
+        }, 1000);
+      } else if (metaverse.name === 'Somnium Space VR') {
+        maps.push(L.map(`${metaverse.name}_map`, {
+          minZoom: 2,
+          maxZoom: 5,
+          center: [0, 0],
+          zoom: 3,
+          crs: L.CRS.Simple,
+        }));
+        const southWest = maps[index].unproject([-130, -130], 0);
+        const northEast = maps[index].unproject([130, 130], 0);
+        const bounds = new L.LatLngBounds(southWest, northEast);
+        L.imageOverlay('https://map.somniumspace.com/images/Somnium_Space_World_Map_HQ2.jpg', bounds).addTo(maps[index]);
+        maps[index].setMaxBounds(bounds);
+        maps[index]?.on('click', onMapClick);
+        setInterval(() => {
+          maps[index].invalidateSize();
+        }, 1000);
       }
     });
     dispatch(fetchUserOwnership(address));
@@ -289,9 +344,12 @@ export const NftCollections = () => {
     });
     metaverseSummaries.forEach((metaverse, index) => {
       metaverse.ownership.forEach((nft: any) => {
-        const coordinate: Pair<number, number> = getCoordinates(nft.imageOriginalUrl, metaverse.name);
+        const coordinate: Pair<number, number> = getCoordinates(nft.coordinateString, metaverse.name);
+        if (Number.isNaN(coordinate[0])) {
+          return;
+        }
         if (!markers[index].includes(coordinate)) {
-          L.marker(coordinate, { icon: marker }).addTo(maps[index]).on('click', handlePopUp(nft, coordinate, index));
+          L.marker(coordinate, { icon: marker }).addTo(maps[index]).on('click', handlePopUp(nft, coordinate, index, metaverse.name));
           markers[index].push(coordinate);
         }
       });
@@ -451,7 +509,7 @@ export const NftCollections = () => {
                         <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
                           {metaverse.ownership.length ? (metaverse.ownership.map((nft) => (
                             <Grid item xs={6} style={{ maxHeight: 400 }}>
-                              <OpenseaNFTItem key={nft.id} nft={nft} onClick={handlePopUp(nft, getCoordinates(nft.imageOriginalUrl, metaverse.name), index)} />
+                              <OpenseaNFTItem key={nft.id} nft={nft} onClick={handlePopUp(nft, getCoordinates(nft.coordinateString, metaverse.name), index, metaverse.name)} />
                             </Grid>
                           ))) : (
                             <Typography style={{ marginLeft: 24 }}>
