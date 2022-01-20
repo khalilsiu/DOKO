@@ -6,7 +6,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
 import { getCoordinatesFromUrl } from '../utils/utils';
-import DecentralandMap from './DecentralandMap';
+import { useEffect } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   map: {
@@ -36,10 +36,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface RenderMapsProps {
+  metaverseName: string;
+  assets: Asset[];
+  position: L.LatLngExpression;
+}
+
+const marker = new L.Icon({
+  iconUrl: '/marker.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 interface PopupProps {
   readonly color: string;
 }
-
 const StyledPopup = styled(Popup)<PopupProps>`
   .leaflet-popup-content-wrapper {
     background-color: black;
@@ -56,25 +68,17 @@ const StyledPopup = styled(Popup)<PopupProps>`
   }
 `;
 
-const marker = new L.Icon({
-  iconUrl: '/marker.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-interface RenderMapsProps {
-  metaverseName: string;
-  assets: Asset[];
-  position: L.LatLngExpression;
-}
-
-const RenderMaps = ({ metaverseName, assets, position }: RenderMapsProps) => {
+const DecentralandMap = ({ metaverseName, assets, position }: RenderMapsProps) => {
   const [map, setMap] = useState<Map | null>(null);
   const theme = useTheme<Theme>();
   const refs: Array<L.Popup | null> = [];
   const styles = useStyles();
+  const [latLangBounds, setLatLangBounds] = useState<L.LatLngBounds>(
+    new L.LatLngBounds([
+      [0, 0],
+      [0, 0],
+    ]),
+  );
 
   const ResizeMap = () => {
     setTimeout(() => {
@@ -87,24 +91,39 @@ const RenderMaps = ({ metaverseName, assets, position }: RenderMapsProps) => {
     return null;
   }
 
+  useEffect(() => {
+    if (map) {
+      setLatLangBounds(
+        new L.LatLngBounds(map.unproject([-750, -750], 0), map.unproject([750, 750], 0)),
+      );
+    }
+  }, [map]);
+
   return (
     <div>
-      {metaverseName === 'Cryptovoxels' ? (
+      {
         <MapContainer
-          center={position}
-          zoom={8}
+          center={[0, 0]}
+          zoom={0}
           className={styles.map}
           whenCreated={(map) => setMap(map)}
+          minZoom={0}
+          maxZoom={10}
+          crs={L.CRS.Simple}
+          maxBounds={latLangBounds}
         >
-          <TileLayer
-            attribution="Map data &copy; Cryptovoxels"
-            url="https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}"
+          <ImageOverlay
+            attribution="Map data &copy; Decentraland"
+            url="https://api.decentraland.org/v1/map.png?width=1500&height=1500&size=5&center=0,0"
+            bounds={latLangBounds}
           />
+
           <ResizeMap />
           <ChangeMapView coords={position} />
           {assets.map((asset) => {
             const markerPosition = getCoordinatesFromUrl(metaverseName, asset.imageOriginalUrl);
-
+            console.log(asset.imageOriginalUrl);
+            console.log(markerPosition);
             return (
               <Marker icon={marker} position={markerPosition}>
                 <StyledPopup color={theme.palette.secondary.main} ref={(r) => refs.push(r || null)}>
@@ -124,13 +143,9 @@ const RenderMaps = ({ metaverseName, assets, position }: RenderMapsProps) => {
             );
           })}
         </MapContainer>
-      ) : metaverseName === 'Decentraland' ? (
-        <DecentralandMap metaverseName="Decentraland" assets={assets} position={position} />
-      ) : (
-        <></>
-      )}
+      }
     </div>
   );
 };
 
-export default RenderMaps;
+export default DecentralandMap;
