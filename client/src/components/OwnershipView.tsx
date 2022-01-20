@@ -7,6 +7,8 @@ import {
   Typography,
   withStyles,
   Button,
+  Theme,
+  useTheme,
 } from '@material-ui/core';
 import { useState, useContext } from 'react';
 import { TabPanel, NftPagination, OpenseaNFTItem } from '.';
@@ -17,6 +19,15 @@ import { AggregatedSummary } from '../hooks/useProfileSummaries';
 import ListIcon from '@material-ui/icons/FormatListBulleted';
 import MapIcon from '@material-ui/icons/Map';
 import { CreateProfileContext } from '../contexts/CreateProfileContext';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L, { LatLngExpression, Map } from 'leaflet';
+import styled from 'styled-components';
+import { useRef } from 'react';
+import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
+import { useEffect } from 'react';
+import RenderMaps from './RenderMaps';
+import { getCoordinatesFromUrl } from '../utils/utils';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -75,6 +86,24 @@ const useStyles = makeStyles((theme) => ({
     boxSizing: 'border-box',
     borderRadius: '15px',
   },
+  popupTitleContainer: {
+    borderBottom: 'solid white 1px',
+    padding: '10px 16px',
+    fontWeight: 'bold',
+    width: '300px',
+    height: '20%',
+  },
+  popupContentContainer: {
+    height: '80%',
+    padding: '10px 16px',
+  },
+  popupContent: {
+    width: 'auto',
+    height: '100%',
+    backgroundPosition: 'center',
+    backgroundSize: 'cover',
+    borderRadius: '6px',
+  },
 }));
 
 const CustomTabs = withStyles({
@@ -99,19 +128,73 @@ const ChainContainer = withStyles(() => ({
   },
 }))(Grid);
 
+interface PopupProps {
+  readonly color: string;
+}
+
+const StyledPopup = styled(Popup)<PopupProps>`
+  .leaflet-popup-content-wrapper {
+    background-color: black;
+    border: white 1px solid;
+    color: ${(props) => props.color};
+  }
+  .leaflet-popup-content {
+    height: 200px;
+    margin: 0;
+  }
+  .leaflet-popup-tip {
+    background-color: black;
+    border: white 1px solid;
+  }
+`;
+
 interface IOwnershipViewProps {
   metaverseSummaries: AggregatedSummary[];
 }
+
+const marker = new L.Icon({
+  iconUrl: '/marker.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
 const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
   const { openProfileModal } = useContext(CreateProfileContext);
   const [tabValue, setTabValue] = useState(0);
   const styles = useStyles();
+  const theme = useTheme<Theme>();
   const views = metaverses.map(() => useState('list'));
   const paginations = metaverses.map(() => useState(1));
+  const [position, setPosition] = useState<LatLngExpression>([1.8, 0.98]);
+  const refs: Array<L.Popup | null> = [];
+  const [map, setMap] = useState<Map | null>(null);
   const handleClickOpen = () => {
     openProfileModal();
   };
+
+  const ResizeMap = () => {
+    setTimeout(() => {
+      map?.invalidateSize();
+    }, 250);
+    return null;
+  };
+
+  const onLandClick = (nft: Asset, nftIndex: number) => {
+    if (!map) return;
+    map.closePopup();
+    if (refs && refs[nftIndex]) {
+      const coords = getCoordinatesFromUrl(nft.name, nft.imageOriginalUrl);
+      map.setView(coords);
+      refs[nftIndex]?.openOn(map);
+    }
+  };
+
+  function ChangeMapView({ coords }) {
+    map?.setView(coords, 8);
+    return null;
+  }
 
   // const handleMapViewClick = (nft, index) => () => {
   //   const address_url = nft.imageOriginalUrl;
@@ -201,7 +284,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                     {metaverse.name}
                   </SectionLabel>
                 </Grid>
-                {/* <Grid item style={{ marginTop: 48, marginBottom: 24 }}>
+                <Grid item style={{ marginTop: 48, marginBottom: 24 }}>
                   <span
                     className={styles.viewButton}
                     onClick={() => setView('list')}
@@ -222,7 +305,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                     <MapIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
                     <Typography className={styles.viewTypography}>Map View</Typography>
                   </span>
-                </Grid> */}
+                </Grid>
               </Grid>
               <div
                 key={`${metaverse.name}listview`}
@@ -246,9 +329,18 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                   <Grid item xs={5}>
                     <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
                       {metaverse.ownership.length ? (
-                        metaverse.ownership.map((nft) => (
+                        metaverse.ownership.map((nft, nftIndex) => (
                           <Grid key={nft.id} item xs={6} style={{ maxHeight: 400 }}>
-                            <OpenseaNFTItem key={nft.id} nft={nft} />
+                            <OpenseaNFTItem
+                              key={nft.id}
+                              nft={nft}
+                              onClick={() => {
+                                onLandClick(nft, nftIndex);
+                                setPosition(
+                                  getCoordinatesFromUrl(metaverse.name, nft.imageOriginalUrl),
+                                );
+                              }}
+                            />
                           </Grid>
                         ))
                       ) : (
@@ -256,9 +348,13 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                       )}
                     </Grid>
                   </Grid>
-                  {/* <Grid item xs={7}>
-                    <div id={`${metaverse.name}_map`} className={styles.map} />
-                  </Grid> */}
+                  <Grid item xs={7} id="map">
+                    <RenderMaps
+                      metaverseName={metaverse.name}
+                      assets={metaverse.ownership}
+                      position={position}
+                    />
+                  </Grid>
                 </Grid>
               </div>
             </div>

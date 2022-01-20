@@ -14,6 +14,7 @@ export interface Asset {
   id: string;
   tokenId: string;
   imageUrl: string;
+  imageOriginalUrl: string;
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
   name: string;

@@ -18,13 +18,12 @@ import { Meta } from '../../components';
 import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
 import CopyAddress from '../../components/CopyAddress';
-import './select-search.css';
 import { fetchAddressOwnership } from '../../store/meta-nft-collections/addressOwnershipSlice';
 import { fetchCollectionSummary } from '../../store/meta-nft-collections';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import 'leaflet/dist/leaflet.css';
 import useAddressSummaries from '../../hooks/useAddressSummaries';
-import OwnershipView from '../../components/ownershipView';
+import OwnershipView from '../../components/OwnershipView';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {

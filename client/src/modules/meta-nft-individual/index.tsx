@@ -20,7 +20,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useParams } from 'react-router-dom';
 import bsc from 'cryptocurrency-icons/32/white/bnb.png';
 import solana from 'cryptocurrency-icons/32/white/sol.png';
-import eth from './assets/eth.png';
+import eth from '../../assets/eth-small.png';
 
 import Moralis from '../../libs/moralis';
 import { fetchOpenSeaEvents, fetchNFTOpensea } from './api';
@@ -36,10 +36,10 @@ import opensea_icon from '../../assets/opensea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 import { Meta } from '../../components';
 
-import decentraland from './assets/decentraland.png';
-import cryptovoxels from './assets/cryptovoxels.png';
-import somnium from './assets/somnium.png';
-import thesandbox from './assets/thesandbox.png';
+import decentraland from '../../assets/decentraland.png';
+import cryptovoxels from '../../assets/cryptovoxels.png';
+import somnium from '../../assets/somnium.png';
+import thesandbox from '../../assets/thesandbox.png';
 import metaverses from '../../constants/metaverses';
 import { Filter } from '../../hooks/useProfileSummaries';
 import ContractServiceAPI from '../../libs/contract-service-api';
