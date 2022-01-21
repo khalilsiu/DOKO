@@ -5,6 +5,7 @@ import { makeStyles, Theme, useTheme } from '@material-ui/core';
 import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
 import { marker, StyledPopup } from './constants';
 import useRenderMaps from '../../hooks/useRenderMaps';
+import { useState, useRef, useEffect } from 'react';
 
 const useStyles = makeStyles(() => ({
   map: {
@@ -42,17 +43,31 @@ const MapName = 'Somnium Space VR';
 
 const SomniumSpaceMap = ({ assets, selected }: MapsProps) => {
   const theme = useTheme<Theme>();
-  const refs: { ref: L.Popup | null; position: L.LatLngExpression }[] = [];
+  const [position, setPosition] = useState<L.LatLngExpression>([0, 0]);
+  const refs = useRef<{ ref: L.Marker | null; position: L.LatLngExpression }[]>([]);
   const styles = useStyles();
-  const { latLangBounds, position, setMap, ResizeMap, ChangeMapView } = useRenderMaps({
-    refs,
-    selected,
-    initialPosition: [0, 0],
+  const { latLangBounds, map, setMap, ResizeMap, ChangeMapView } = useRenderMaps({
     bounds: {
       southwest: [-130, -130],
       northeast: [130, 130],
     },
   });
+
+  useEffect(() => {
+    refs.current = refs.current.slice(0, assets.length);
+  }, [assets]);
+
+  useEffect(() => {
+    if (!map) return;
+    map.closePopup();
+    if (refs && selected !== null && refs.current[selected].ref) {
+      const coords = refs.current[selected].position;
+      map.flyTo(new L.LatLng(coords[0], coords[1]));
+      refs.current[selected].ref?.openPopup();
+      setPosition(coords);
+      return;
+    }
+  }, [selected, map, refs, refs.current]);
 
   return (
     <div>
@@ -74,13 +89,14 @@ const SomniumSpaceMap = ({ assets, selected }: MapsProps) => {
 
           <ResizeMap />
           <ChangeMapView coords={position} />
-          {assets.map((asset) => {
+          {assets.map((asset, i) => {
             return (
-              <Marker icon={marker} position={asset.coordinates}>
-                <StyledPopup
-                  color={theme.palette.secondary.main}
-                  ref={(r) => refs.push({ ref: r || null, position: asset.coordinates })}
-                >
+              <Marker
+                icon={marker}
+                position={asset.coordinates}
+                ref={(r) => (refs.current[i] = { ref: r, position: asset.coordinates })}
+              >
+                <StyledPopup color={theme.palette.secondary.main}>
                   <div className={styles.popupTitleContainer}>{asset.name}</div>
                   <div className={styles.popupContentContainer}>
                     <a href={`/nft/eth/${asset.assetContract.address}/${asset.tokenId}`}>

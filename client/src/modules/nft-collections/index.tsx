@@ -263,7 +263,6 @@ export const NftCollections = () => {
       }
       let offset = 0;
       while (1) {
-        console.log(offset);
         try {
           const res: any = await OpenSeaAPI.get('/assets', {
             params: {
@@ -298,7 +297,6 @@ export const NftCollections = () => {
             setOwnedEthCollections(
               Object.keys(collectionFloorPrice).map((s) => ({ value: s, name: s })),
             );
-            console.log(asset);
             resNfts.push(asset);
             setOwnedEthNfts([...resNfts]);
             initialData[0].count = resNfts.length;

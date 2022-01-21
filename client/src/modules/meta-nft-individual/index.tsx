@@ -324,7 +324,6 @@ export const NftIndividual = () => {
       }
       setTxs(formatted_txs);
     } catch (e) {
-      console.log(e);
       setTxs([]);
     }
     if (formatted_txs.length) {
@@ -388,7 +387,6 @@ export const NftIndividual = () => {
     fetchTxs(chain, address, id, 0, 100);
     fetchPrice(address, id);
     _getTotalSupply(address);
-    console.log(externalLink);
   }, [address, id, chain]);
 
   return (
