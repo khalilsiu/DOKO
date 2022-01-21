@@ -48,7 +48,6 @@ export class NftService {
   }
 
   async updateNFTs(address?: string) {
-    console.log('updateNFTs:', address);
     const query = { metadata_updated: false };
 
     if (address) {
