@@ -44,7 +44,7 @@ export const getCoordinatesFromUrl = (metaverseName: string, url: string): L.Lat
       return [parseFloat(match[3]) * 5, parseFloat(match[1]) * 5];
     }
 
-    case 'Sandbox': {
+    case 'The Sandbox': {
       const matchX = url.match(/\(([+-]?([0-9]*[.])?[0-9]+)/);
       const matchY = url.match(/, ([+-]?([0-9]*[.])?[0-9]+)/);
       if (!matchX || !matchY) {

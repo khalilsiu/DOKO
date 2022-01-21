@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
-import { camelize } from '../../utils/utils';
+import { Pair } from '../../types/interfaces';
+import { camelize, getCoordinatesFromUrl } from '../../utils/utils';
 
 export interface Trait {
   traitType: string;
@@ -15,6 +16,7 @@ export interface Asset {
   tokenId: string;
   imageUrl: string;
   imageOriginalUrl: string;
+  coordinates: L.LatLngExpression;
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
   name: string;
@@ -48,7 +50,18 @@ export const preprocess = (asset: any): Asset => {
   ]);
   picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
-  return camelize(picked);
+
+  let coordinates: L.LatLngExpression = [0, 0];
+  if (asset.collection.name === 'Decentraland') {
+    coordinates = getCoordinatesFromUrl('Decentraland', asset.image_original_url);
+  } else if (asset.collection.name === 'The Sandbox') {
+    coordinates = getCoordinatesFromUrl('The Sandbox', asset.name);
+  } else if (asset.collection.name === 'Cryptovoxels') {
+    coordinates = getCoordinatesFromUrl('Cryptovoxels', asset.image_original_url);
+  } else {
+    coordinates = getCoordinatesFromUrl('Somnium Space VR', asset.description);
+  }
+  return camelize({ ...picked, coordinates });
 };
 
 export const fetchAssets = async (address: string) => {

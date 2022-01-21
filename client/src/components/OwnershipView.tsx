@@ -26,7 +26,7 @@ import styled from 'styled-components';
 import { useRef } from 'react';
 import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
 import { useEffect } from 'react';
-import RenderMaps from './RenderMaps';
+import RenderMaps from './maps/RenderMaps';
 import { getCoordinatesFromUrl } from '../utils/utils';
 
 const useStyles = makeStyles((theme) => ({
@@ -170,6 +170,9 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
   const [position, setPosition] = useState<LatLngExpression>([1.8, 0.98]);
   const refs: Array<L.Popup | null> = [];
   const [map, setMap] = useState<Map | null>(null);
+  const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
+    metaverses.map((_) => null),
+  );
   const handleClickOpen = () => {
     openProfileModal();
   };
@@ -181,14 +184,10 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
     return null;
   };
 
-  const onLandClick = (nft: Asset, nftIndex: number) => {
-    if (!map) return;
-    map.closePopup();
-    if (refs && refs[nftIndex]) {
-      const coords = getCoordinatesFromUrl(nft.name, nft.imageOriginalUrl);
-      map.setView(coords);
-      refs[nftIndex]?.openOn(map);
-    }
+  const onAssetClick = (collectionIndex: number, index: number) => {
+    const copy = collectionAssetSelected.slice();
+    copy[collectionIndex] = index;
+    setCollectionAssetSelected(copy);
   };
 
   function ChangeMapView({ coords }) {
@@ -266,9 +265,9 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
           </Grid>
         </Grid>
         <Summary data={{ summary: metaverseSummaries }} />
-        {metaverseSummaries.map((metaverse, index) => {
-          const [page, setPage] = paginations[index];
-          const [view, setView] = views[index];
+        {metaverseSummaries.map((metaverse, metaverseIndex) => {
+          const [page, setPage] = paginations[metaverseIndex];
+          const [view, setView] = views[metaverseIndex];
           return (
             <div key={metaverse.name}>
               <Grid
@@ -334,12 +333,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                             <OpenseaNFTItem
                               key={nft.id}
                               nft={nft}
-                              onClick={() => {
-                                onLandClick(nft, nftIndex);
-                                setPosition(
-                                  getCoordinatesFromUrl(metaverse.name, nft.imageOriginalUrl),
-                                );
-                              }}
+                              onClick={() => onAssetClick(metaverseIndex, nftIndex)}
                             />
                           </Grid>
                         ))
@@ -352,7 +346,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                     <RenderMaps
                       metaverseName={metaverse.name}
                       assets={metaverse.ownership}
-                      position={position}
+                      assetsSelected={collectionAssetSelected}
                     />
                   </Grid>
                 </Grid>

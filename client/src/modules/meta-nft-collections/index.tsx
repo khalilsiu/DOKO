@@ -76,10 +76,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const maps: any = [];
-type Pair<T, K> = [T, K];
-const markers: Array<Array<Pair<number, number>>> = [[], [], [], []];
-
 export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
