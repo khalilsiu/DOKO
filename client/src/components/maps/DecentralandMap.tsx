@@ -1,75 +1,26 @@
-import { MapContainer, Marker, ImageOverlay, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { MapContainer, Marker, ImageOverlay } from 'react-leaflet';
 import L from 'leaflet';
 import { makeStyles, Theme, useTheme } from '@material-ui/core';
-import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
-import { marker, StyledPopup } from './constants';
+import { MapsProps, MapStyles, marker, StyledPopup } from './constants';
 import useRenderMaps from '../../hooks/useRenderMaps';
-import { useEffect, useRef, useState } from 'react';
 
-const useStyles = makeStyles(() => ({
-  map: {
-    height: 600,
-    width: '100%',
-    border: '3px solid rgba(255, 255, 255, 0.5)',
-    boxSizing: 'border-box',
-    borderRadius: '15px',
-  },
-  popupTitleContainer: {
-    borderBottom: 'solid white 1px',
-    padding: '10px 16px',
-    fontWeight: 'bold',
-    width: '300px',
-    height: '20%',
-  },
-  popupContentContainer: {
-    height: '80%',
-    padding: '10px 16px',
-  },
-  popupContent: {
-    width: 'auto',
-    height: '100%',
-    backgroundPosition: 'center',
-    backgroundSize: 'cover',
-    borderRadius: '6px',
-  },
-}));
-
-interface MapsProps {
-  assets: Asset[];
-  selected: number | null;
-}
+const useStyles = makeStyles(() => MapStyles);
 
 const MapName = 'Decentraland';
 
 const DecentralandMap = ({ assets, selected }: MapsProps) => {
   const theme = useTheme<Theme>();
 
-  const [position, setPosition] = useState<L.LatLngExpression>([0, 0]);
-  const refs = useRef<{ ref: L.Marker | null; position: L.LatLngExpression }[]>([]);
   const styles = useStyles();
-  const { latLangBounds, map, setMap } = useRenderMaps({
+  const { latLangBounds, markerRefs, position, setMap } = useRenderMaps({
     bounds: {
       southwest: [-750, -750],
       northeast: [750, 750],
     },
+    items: assets,
+    center: [0, 0],
+    selected,
   });
-
-  useEffect(() => {
-    refs.current = refs.current.slice(0, assets.length);
-  }, [assets]);
-
-  useEffect(() => {
-    if (!map) return;
-    map.closePopup();
-    if (refs && selected !== null && refs.current[selected].ref) {
-      const coords = refs.current[selected].position;
-      map.flyTo(new L.LatLng(coords[0], coords[1]));
-      refs.current[selected].ref?.openPopup();
-      setPosition(coords);
-      return;
-    }
-  }, [selected, map, refs, refs.current]);
 
   return (
     <div>
@@ -91,14 +42,13 @@ const DecentralandMap = ({ assets, selected }: MapsProps) => {
             bounds={latLangBounds}
           />
 
-          {/* <ResizeMap /> */}
-          {/* <ChangeMapView coords={position} /> */}
           {assets.map((asset, i) => {
             return (
               <Marker
+                key={asset.id}
                 icon={marker}
                 position={asset.coordinates}
-                ref={(r) => (refs.current[i] = { ref: r, position: asset.coordinates })}
+                ref={(r) => (markerRefs.current[i] = { ref: r, position: asset.coordinates })}
               >
                 <StyledPopup color={theme.palette.secondary.main}>
                   <div className={styles.popupTitleContainer}>{asset.name}</div>

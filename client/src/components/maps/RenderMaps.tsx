@@ -1,4 +1,3 @@
-import 'leaflet/dist/leaflet.css';
 import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
 import DecentralandMap from './DecentralandMap';
 import CryptovoxelsMap from './CryptovoxelsMap';
@@ -14,14 +13,14 @@ interface RenderMapsProps {
 const RenderMaps = ({ metaverseName, assets, assetsSelected }: RenderMapsProps) => {
   return (
     <div>
-      {metaverseName === 'Cryptovoxels' ? (
-        <CryptovoxelsMap assets={assets} selected={assetsSelected[2]} />
-      ) : metaverseName === 'Decentraland' ? (
+      {metaverseName === 'Decentraland' ? (
         <DecentralandMap assets={assets} selected={assetsSelected[0]} />
-      ) : metaverseName === 'Somnium Space VR' ? (
-        <SomniumSpaceMap assets={assets} selected={assetsSelected[3]} />
-      ) : (
+      ) : metaverseName === 'The Sandbox' ? (
         <SandboxMap assets={assets} selected={assetsSelected[1]} />
+      ) : metaverseName === 'Cryptovoxels' ? (
+        <CryptovoxelsMap assets={assets} selected={assetsSelected[2]} />
+      ) : (
+        <SomniumSpaceMap assets={assets} selected={assetsSelected[3]} />
       )}
     </div>
   );

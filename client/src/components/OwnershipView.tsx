@@ -7,8 +7,6 @@ import {
   Typography,
   withStyles,
   Button,
-  Theme,
-  useTheme,
 } from '@material-ui/core';
 import { useState, useContext } from 'react';
 import { TabPanel, NftPagination, OpenseaNFTItem } from '.';
@@ -19,17 +17,9 @@ import { AggregatedSummary } from '../hooks/useProfileSummaries';
 import ListIcon from '@material-ui/icons/FormatListBulleted';
 import MapIcon from '@material-ui/icons/Map';
 import { CreateProfileContext } from '../contexts/CreateProfileContext';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L, { LatLngExpression, Map } from 'leaflet';
-import styled from 'styled-components';
-import { useRef } from 'react';
-import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
-import { useEffect } from 'react';
 import RenderMaps from './maps/RenderMaps';
-import { getCoordinatesFromUrl } from '../utils/utils';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   createProfileButton: {
     cursor: 'pointer',
     right: '4%',
@@ -128,60 +118,21 @@ const ChainContainer = withStyles(() => ({
   },
 }))(Grid);
 
-interface PopupProps {
-  readonly color: string;
-}
-
-const StyledPopup = styled(Popup)<PopupProps>`
-  .leaflet-popup-content-wrapper {
-    background-color: black;
-    border: white 1px solid;
-    color: ${(props) => props.color};
-  }
-  .leaflet-popup-content {
-    height: 200px;
-    margin: 0;
-  }
-  .leaflet-popup-tip {
-    background-color: black;
-    border: white 1px solid;
-  }
-`;
-
 interface IOwnershipViewProps {
   metaverseSummaries: AggregatedSummary[];
 }
-
-const marker = new L.Icon({
-  iconUrl: '/marker.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
 
 const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
   const { openProfileModal } = useContext(CreateProfileContext);
   const [tabValue, setTabValue] = useState(0);
   const styles = useStyles();
-  const theme = useTheme<Theme>();
   const views = metaverses.map(() => useState('list'));
   const paginations = metaverses.map(() => useState(1));
-  const [position, setPosition] = useState<LatLngExpression>([1.8, 0.98]);
-  const refs: Array<L.Popup | null> = [];
-  const [map, setMap] = useState<Map | null>(null);
   const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
     metaverses.map((_) => null),
   );
   const handleClickOpen = () => {
     openProfileModal();
-  };
-
-  const ResizeMap = () => {
-    setTimeout(() => {
-      map?.invalidateSize();
-    }, 250);
-    return null;
   };
 
   const onAssetClick = (collectionIndex: number, index: number) => {
@@ -190,29 +141,6 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
     setCollectionAssetSelected(copy);
   };
 
-  function ChangeMapView({ coords }) {
-    map?.setView(coords, 8);
-    return null;
-  }
-
-  // const handleMapViewClick = (nft, index) => () => {
-  //   const address_url = nft.imageOriginalUrl;
-  //   const x_start = address_url.indexOf('x=') + 2;
-  //   const x_end = address_url.indexOf('&');
-  //   const y_start = address_url.indexOf('y=') + 2;
-  //   if (
-  //     Number.isNaN(parseFloat(address_url.slice(y_start))) ||
-  //     Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))
-  //   )
-  //     return;
-  //   const coordinate: Pair<number, number> = [
-  //     parseFloat(address_url.slice(y_start)),
-  //     parseFloat(address_url.slice(x_start, x_end)),
-  //   ];
-  //   maps[index].setView(coordinate, 9);
-  //   const popupWindow = L.popup();
-  //   popupWindow.setLatLng(coordinate).setContent(renderPopUp(nft)).openOn(maps[index]);
-  // };
   return (
     <>
       <Grid item style={{ width: '100%' }}>

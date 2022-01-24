@@ -1,19 +1,7 @@
-import { useEffect, useState, useContext } from 'react';
-import {
-  Card,
-  Grid,
-  Hidden,
-  IconButton,
-  makeStyles,
-  Tab,
-  Tabs,
-  Typography,
-  withStyles,
-} from '@material-ui/core';
-import L from 'leaflet';
+import { useEffect, useContext } from 'react';
+import { Card, Grid, Hidden, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
-import { useParams, useHistory } from 'react-router-dom';
-import metaverses from '../../constants/metaverses';
+import { useParams } from 'react-router-dom';
 import { Meta } from '../../components';
 import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
@@ -21,7 +9,6 @@ import CopyAddress from '../../components/CopyAddress';
 import { fetchAddressOwnership } from '../../store/meta-nft-collections/addressOwnershipSlice';
 import { fetchCollectionSummary } from '../../store/meta-nft-collections';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
-import 'leaflet/dist/leaflet.css';
 import useAddressSummaries from '../../hooks/useAddressSummaries';
 import OwnershipView from '../../components/OwnershipView';
 
@@ -87,122 +74,10 @@ export const NftCollections = () => {
     openProfileModal();
   };
 
-  function getCoordinates(geoX: number, geoY: number) {
-    const coordinates: string[] = [];
-    // Checking if geoX is null else if negative -> West, if positive -> Est
-    if (geoX !== 0) {
-      coordinates.push(geoX < 0 ? `${Math.abs(geoX)}W` : `${geoX}E`);
-    }
-
-    // Checking if geoY is null and else if negative -> South, if positive -> North
-    if (geoY !== 0) {
-      coordinates.push(geoY < 0 ? `${Math.abs(geoY)}S` : `${geoY}N`);
-    }
-    // Checking if Coordinates are different than 0, and else send the location to the GET url
-    if (coordinates.length === 0) {
-      return '/';
-    }
-    return `/?coords=${coordinates.join(',')}`;
-  }
-
-  function renderPopUp(nft) {
-    return `<div class="container-fluid" style="display:inline-block;"> 
-        <div class="title_box" >
-          <div class="title_name" style="text-align: left;float:left;">
-            ${nft.name}
-          </div>
-          <div class="title_owner" style="text-align: right;">
-          </div>
-        </div>
-        <div class="title_box" >
-          <div class="" style="text-align: left;float:left;">
-            ${nft.tokenId}
-          </div>
-          <div class="collab_box" style="float:right;text-align: right;">
-          </div>
-        </div>
-        <div>
-          <img src=${nft.imageUrl} style="width: 150px; height: 150px" />
-        </div>
-        <div>
-          <a href="${`/nft/eth/${nft.assetContract.address}/${nft.tokenId}`}">view</a>
-        </div>
-      </div>`;
-  }
-
-  // const handleMapViewClick = (nft, index) => () => {
-  //   const address_url = nft.imageOriginalUrl;
-  //   const x_start = address_url.indexOf('x=') + 2;
-  //   const x_end = address_url.indexOf('&');
-  //   const y_start = address_url.indexOf('y=') + 2;
-  //   if (
-  //     Number.isNaN(parseFloat(address_url.slice(y_start))) ||
-  //     Number.isNaN(parseFloat(address_url.slice(x_start, x_end)))
-  //   )
-  //     return;
-  //   const coordinate: Pair<number, number> = [
-  //     parseFloat(address_url.slice(y_start)),
-  //     parseFloat(address_url.slice(x_start, x_end)),
-  //   ];
-  //   maps[index].setView(coordinate, 9);
-  //   const popupWindow = L.popup();
-  //   popupWindow.setLatLng(coordinate).setContent(renderPopUp(nft)).openOn(maps[index]);
-  // };
-
-  // function onMapClick(e) {
-  //   const geoX = e.latlng.lng;
-  //   const geoY = e.latlng.lat;
-  // }
-
-  // load address
   useEffect(() => {
-    // addressSummaries.forEach((metaverse, index) => {
-    //   maps.push(L.map(`${metaverse.name}_map`).setView([1.8, 0.98], 8));
-    //   if (metaverse.name === 'Cryptovoxels') {
-    //     L.tileLayer('https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}', {
-    //       minZoom: 3,
-    //       maxZoom: 20,
-    //       attribution: 'Map data &copy; Cryptovoxels',
-    //       id: 'cryptovoxels',
-    //     }).addTo(maps[index]);
-    //     maps[index]?.on('click', onMapClick); // Listen to clicks
-    //     setInterval(() => {
-    //       maps[index].invalidateSize();
-    //     }, 1000);
-    //   }
-    // });
     dispatch(fetchAddressOwnership(address));
     dispatch(fetchCollectionSummary());
   }, [address]);
-
-  // mark nft on map
-  // useEffect(() => {
-  //   const marker = new L.Icon({
-  //     iconUrl: '/marker.png',
-  //     iconSize: [25, 41],
-  //     iconAnchor: [12, 41],
-  //     popupAnchor: [1, -34],
-  //     shadowSize: [41, 41],
-  //   });
-  //   addressSummaries.forEach((metaverse, index) => {
-  //     if (metaverse.name === 'Cryptovoxels') {
-  //       metaverse.ownership.forEach((nft: any) => {
-  //         const address_url = nft.imageOriginalUrl;
-  //         const x_start = address_url.indexOf('x=') + 2;
-  //         const x_end = address_url.indexOf('&');
-  //         const y_start = address_url.indexOf('y=') + 2;
-  //         const coordinate: Pair<number, number> = [
-  //           parseFloat(address_url.slice(y_start)),
-  //           parseFloat(address_url.slice(x_start, x_end)),
-  //         ];
-  //         if (!markers[index].includes(coordinate)) {
-  //           L.marker(coordinate, { icon: marker }).addTo(maps[index]);
-  //           markers[index].push(coordinate);
-  //         }
-  //       });
-  //     }
-  //   });
-  // }, [addressSummaries]);
 
   return (
     <>
