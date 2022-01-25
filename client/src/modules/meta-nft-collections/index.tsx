@@ -66,18 +66,17 @@ const useStyles = makeStyles((theme) => ({
 export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
+  const metaverseSummaries = useAddressSummaries();
   const { openProfileModal } = useContext(CreateProfileContext);
-  const addressSummaries = useAddressSummaries();
   const dispatch = useDispatch();
-
-  const handleClickOpen = () => {
-    openProfileModal();
-  };
-
   useEffect(() => {
     dispatch(fetchAddressOwnership(address));
     dispatch(fetchCollectionSummary());
   }, [address]);
+
+  const handleClickOpen = () => {
+    openProfileModal();
+  };
 
   return (
     <>
@@ -135,7 +134,7 @@ export const NftCollections = () => {
               </Grid>
             </Grid>
           </Grid>
-          <OwnershipView metaverseSummaries={addressSummaries} />
+          <OwnershipView metaverseSummaries={metaverseSummaries} />
         </Grid>
       </Grid>
     </>

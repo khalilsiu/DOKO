@@ -47,7 +47,9 @@ const useRenderMaps = ({ bounds, items, selected, center }: IProps) => {
     map.closePopup();
     if (markerRefs && selected !== null && markerRefs.current[selected].ref) {
       const coords = markerRefs.current[selected].position;
-      map.flyTo(new L.LatLng(coords[0], coords[1]));
+      const popup = markerRefs.current[selected].ref?.getPopup();
+      if (!popup) return;
+      map.setView(new L.LatLng(coords[0], coords[1]));
       markerRefs.current[selected].ref?.openPopup();
       setPosition(coords);
       return;

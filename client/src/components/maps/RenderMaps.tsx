@@ -1,16 +1,16 @@
-import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
 import DecentralandMap from './DecentralandMap';
 import CryptovoxelsMap from './CryptovoxelsMap';
 import SomniumSpaceMap from './SomniumSpaceMap';
 import SandboxMap from './SandboxMap';
+import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
 
 interface RenderMapsProps {
   metaverseName: string;
-  assets: Asset[];
   assetsSelected: Array<number | null>;
+  assets: Asset[];
 }
 
-const RenderMaps = ({ metaverseName, assets, assetsSelected }: RenderMapsProps) => {
+const RenderMaps = ({ metaverseName, assetsSelected, assets }: RenderMapsProps) => {
   return (
     <div>
       {metaverseName === 'Decentraland' ? (

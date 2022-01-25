@@ -7,8 +7,10 @@ import {
   Typography,
   withStyles,
   Button,
+  useMediaQuery,
+  Theme,
 } from '@material-ui/core';
-import { useState, useContext } from 'react';
+import { useState, useContext, memo } from 'react';
 import { TabPanel, NftPagination, OpenseaNFTItem } from '.';
 import Summary from '../modules/nft-collections/Summary';
 import SectionLabel from './SectionLabel';
@@ -18,6 +20,7 @@ import ListIcon from '@material-ui/icons/FormatListBulleted';
 import MapIcon from '@material-ui/icons/Map';
 import { CreateProfileContext } from '../contexts/CreateProfileContext';
 import RenderMaps from './maps/RenderMaps';
+import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
 
 const useStyles = makeStyles(() => ({
   createProfileButton: {
@@ -50,6 +53,7 @@ const useStyles = makeStyles(() => ({
     marginLeft: 48,
   },
   viewButton: {
+    marginRight: '0.5rem',
     cursor: 'pointer',
     width: '81.73px',
     height: '24px',
@@ -62,37 +66,32 @@ const useStyles = makeStyles(() => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  viewButtonMobile: {
+    padding: '0.3rem',
+    marginLeft: '12px',
+    boxSizing: 'border-box',
+    border: '1px solid rgba(255, 255, 255, 0.25)',
+    borderRadius: '6px',
+    width: '5rem',
+    display: 'flex',
+    height: '2rem',
+    alignItems: 'center',
+  },
+  viewButtonIcon: {
+    width: '1.3rem',
+    height: '1.3rem',
+    display: 'flex',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '5px',
+  },
   viewTypography: {
     fontFamily: 'Open Sans',
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: '10px',
     lineHeight: '14px',
-  },
-  map: {
-    height: 600,
-    width: '100%',
-    border: '3px solid rgba(255, 255, 255, 0.5)',
-    boxSizing: 'border-box',
-    borderRadius: '15px',
-  },
-  popupTitleContainer: {
-    borderBottom: 'solid white 1px',
-    padding: '10px 16px',
-    fontWeight: 'bold',
-    width: '300px',
-    height: '20%',
-  },
-  popupContentContainer: {
-    height: '80%',
-    padding: '10px 16px',
-  },
-  popupContent: {
-    width: 'auto',
-    height: '100%',
-    backgroundPosition: 'center',
-    backgroundSize: 'cover',
-    borderRadius: '6px',
   },
 }));
 
@@ -118,19 +117,22 @@ const ChainContainer = withStyles(() => ({
   },
 }))(Grid);
 
-interface IOwnershipViewProps {
+interface IOwnershipView {
   metaverseSummaries: AggregatedSummary[];
 }
 
-const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
+const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
   const [tabValue, setTabValue] = useState(0);
   const styles = useStyles();
   const views = metaverses.map(() => useState('list'));
+  const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const paginations = metaverses.map(() => useState(1));
   const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
     metaverses.map((_) => null),
   );
+  console.log('metaverseSummaries', metaverseSummaries);
+
   const handleClickOpen = () => {
     openProfileModal();
   };
@@ -140,6 +142,30 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
     copy[collectionIndex] = index;
     setCollectionAssetSelected(copy);
   };
+
+  interface IRenderAssets {
+    assets: Asset[];
+    metaverseIndex: number;
+  }
+  const RenderAssets = memo(({ assets, metaverseIndex }: IRenderAssets) => {
+    return (
+      <>
+        {assets.length ? (
+          assets.map((nft, nftIndex) => (
+            <Grid key={nft.id} item xs={6} style={{ maxHeight: 400 }}>
+              <OpenseaNFTItem
+                key={nft.id}
+                nft={nft}
+                onClick={() => onAssetClick(metaverseIndex, nftIndex)}
+              />
+            </Grid>
+          ))
+        ) : (
+          <Typography style={{ marginLeft: 24 }}>No Items</Typography>
+        )}
+      </>
+    );
+  });
 
   return (
     <>
@@ -197,43 +223,61 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
           const [page, setPage] = paginations[metaverseIndex];
           const [view, setView] = views[metaverseIndex];
           return (
-            <div key={metaverse.name}>
+            <div key={metaverse.name} style={{ marginBottom: '3rem' }}>
               <Grid
                 container
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                spacing={1}
-                style={{ marginTop: 48, marginBottom: 24 }}
+                direction={smOrAbove ? 'row' : 'column'}
+                alignItems={smOrAbove ? 'center' : 'flex-start'}
+                spacing={3}
+                style={{ marginBottom: '0.5rem' }}
               >
                 <Grid item>
-                  <SectionLabel variant="h5" style={{ marginTop: 48, marginBottom: 24 }}>
-                    {metaverse.name}
-                  </SectionLabel>
+                  <SectionLabel variant="h5">{metaverse.name}</SectionLabel>
                 </Grid>
-                <Grid item style={{ marginTop: 48, marginBottom: 24 }}>
-                  <span
-                    className={styles.viewButton}
-                    onClick={() => setView('list')}
-                    aria-hidden="true"
-                    style={view === 'list' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}
-                  >
-                    <ListIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
-                    <Typography className={styles.viewTypography}>List View</Typography>
-                  </span>
-                </Grid>
-                <Grid item style={{ marginTop: 48, marginBottom: 24 }}>
-                  <span
-                    className={styles.viewButton}
-                    onClick={() => setView('map')}
-                    aria-hidden="true"
-                    style={view === 'map' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}
-                  >
-                    <MapIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
-                    <Typography className={styles.viewTypography}>Map View</Typography>
-                  </span>
-                </Grid>
+                {smOrAbove ? (
+                  <>
+                    <span
+                      className={styles.viewButton}
+                      onClick={() => setView('list')}
+                      aria-hidden="true"
+                      style={view === 'list' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}
+                    >
+                      <ListIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
+                      <Typography className={styles.viewTypography}>List View</Typography>
+                    </span>
+
+                    <span
+                      className={styles.viewButton}
+                      onClick={() => setView('map')}
+                      aria-hidden="true"
+                      style={view === 'map' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}
+                    >
+                      <MapIcon style={{ fill: '#FFFFFF', fontSize: '14px', margin: '3px' }} />
+                      <Typography className={styles.viewTypography}>Map View</Typography>
+                    </span>
+                  </>
+                ) : (
+                  <div className={styles.viewButtonMobile}>
+                    <span
+                      onClick={() => setView('list')}
+                      aria-hidden="true"
+                      className={styles.viewButtonIcon}
+                      style={view === 'list' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}
+                    >
+                      <ListIcon style={{ fill: '#FFFFFF', fontSize: '17px' }} />
+                    </span>
+                    <span
+                      onClick={() => setView('map')}
+                      aria-hidden="true"
+                      className={styles.viewButtonIcon}
+                      style={view === 'map' ? { background: 'rgba(255, 255, 255, 0.25)' } : {}}
+                    >
+                      <MapIcon style={{ fill: '#FFFFFF', fontSize: '17px' }} />
+                    </span>
+                  </div>
+                )}
               </Grid>
+
               <div
                 key={`${metaverse.name}listview`}
                 style={view === 'list' ? {} : { display: 'none' }}
@@ -241,9 +285,9 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                 <NftPagination
                   loading={metaverse.loading}
                   isOpenSea
-                  nfts={metaverse.ownership.slice((page - 1) * 5, page * 5)}
+                  nfts={metaverse.ownership.slice((page - 1) * 4, page * 4)}
                   page={page}
-                  maxPage={Math.ceil(metaverse.ownership.length / 5)}
+                  maxPage={Math.ceil(metaverse.ownership.length / 4)}
                   onNext={() => setPage(page + 1)}
                   onPrev={() => setPage(page - 1)}
                 />
@@ -252,32 +296,47 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
                 id={`${metaverse.name}mapview`}
                 style={view === 'map' ? {} : { display: 'none' }}
               >
-                <Grid container spacing={1}>
-                  <Grid item xs={5}>
-                    <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
-                      {metaverse.ownership.length ? (
-                        metaverse.ownership.map((nft, nftIndex) => (
-                          <Grid key={nft.id} item xs={6} style={{ maxHeight: 400 }}>
-                            <OpenseaNFTItem
-                              key={nft.id}
-                              nft={nft}
-                              onClick={() => onAssetClick(metaverseIndex, nftIndex)}
-                            />
-                          </Grid>
-                        ))
-                      ) : (
-                        <Typography style={{ marginLeft: 24 }}>No Items</Typography>
-                      )}
+                {smOrAbove ? (
+                  <Grid container spacing={1}>
+                    <Grid item xs={5}>
+                      <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
+                        <RenderAssets
+                          assets={metaverse.ownership}
+                          metaverseIndex={metaverseIndex}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={7} id="map">
+                      <RenderMaps
+                        assets={metaverse.ownership}
+                        metaverseName={metaverse.name}
+                        assetsSelected={collectionAssetSelected}
+                      />
                     </Grid>
                   </Grid>
-                  <Grid item xs={7} id="map">
-                    <RenderMaps
-                      metaverseName={metaverse.name}
-                      assets={metaverse.ownership}
-                      assetsSelected={collectionAssetSelected}
-                    />
+                ) : (
+                  <Grid direction="column-reverse" container spacing={1}>
+                    <Grid item>
+                      <Grid
+                        direction="column"
+                        container
+                        style={{ height: 300, overflowX: 'scroll', width: '100%' }}
+                      >
+                        <RenderAssets
+                          assets={metaverse.ownership}
+                          metaverseIndex={metaverseIndex}
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid item id="map" style={{ height: 300, marginBottom: '4px' }}>
+                      <RenderMaps
+                        assets={metaverse.ownership}
+                        metaverseName={metaverse.name}
+                        assetsSelected={collectionAssetSelected}
+                      />
+                    </Grid>
                   </Grid>
-                </Grid>
+                )}
               </div>
             </div>
           );
@@ -287,4 +346,4 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipViewProps) => {
   );
 };
 
-export default OwnershipView;
+export default memo(OwnershipView);

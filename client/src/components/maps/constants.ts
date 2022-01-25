@@ -1,9 +1,10 @@
 import L from 'leaflet';
 import styled from 'styled-components';
 import { Popup } from 'react-leaflet';
-import { ClassNameMap } from '@material-ui/core/styles/withStyles';
+
 import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
-import { ClassKeyOfStyles, createStyles } from '@material-ui/styles';
+import { createStyles } from '@material-ui/styles';
+import { Theme } from '@material-ui/core';
 
 export const marker = new L.Icon({
   iconUrl: '/marker.png',
@@ -20,9 +21,10 @@ export const StyledPopup = styled(Popup)<PopupProps>`
     background-color: black;
     border: white 1px solid;
     color: ${(props) => props.color};
+    width: 250px;
   }
   .leaflet-popup-content {
-    height: 200px;
+    height: 150px;
     margin: 0;
   }
   .leaflet-popup-tip {
@@ -32,23 +34,27 @@ export const StyledPopup = styled(Popup)<PopupProps>`
 `;
 
 export interface MapsProps {
-  assets: Asset[];
   selected: number | null;
+  assets: Asset[];
 }
 
-export const MapStyles = createStyles({
+export interface StyleProps {
+  smOrAbove: boolean;
+}
+
+export const MapStyles = createStyles<any, StyleProps>({
   map: {
-    height: 600,
+    height: ({ smOrAbove }) => (smOrAbove ? 600 : 300),
     width: '100%',
-    border: '3px solid rgba(255, 255, 255, 0.5)',
+    border: '1px solid rgba(255, 255, 255, 0.5)',
     boxSizing: 'border-box',
-    borderRadius: '15px',
+    overflow: 'hidden',
   },
   popupTitleContainer: {
     borderBottom: 'solid white 1px',
     padding: '10px 16px',
     fontWeight: 'bold',
-    width: '300px',
+    width: '100%',
     height: '20%',
   },
   popupContentContainer: {

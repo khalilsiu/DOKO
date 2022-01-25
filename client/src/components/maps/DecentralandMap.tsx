@@ -1,17 +1,17 @@
-import { MapContainer, Marker, ImageOverlay } from 'react-leaflet';
+import { MapContainer, ImageOverlay } from 'react-leaflet';
 import L from 'leaflet';
-import { makeStyles, Theme, useTheme } from '@material-ui/core';
-import { MapsProps, MapStyles, marker, StyledPopup } from './constants';
+import { makeStyles, Theme, useMediaQuery } from '@material-ui/core';
+import { MapsProps, MapStyles, StyleProps } from './constants';
 import useRenderMaps from '../../hooks/useRenderMaps';
+import RenderMarkers from './RenderMarkers';
 
-const useStyles = makeStyles(() => MapStyles);
+const useStyles = makeStyles<Theme, StyleProps>(() => MapStyles);
 
 const MapName = 'Decentraland';
 
-const DecentralandMap = ({ assets, selected }: MapsProps) => {
-  const theme = useTheme<Theme>();
-
-  const styles = useStyles();
+const DecentralandMap = ({ selected, assets }: MapsProps) => {
+  const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
+  const styles = useStyles({ smOrAbove });
   const { latLangBounds, markerRefs, position, setMap } = useRenderMaps({
     bounds: {
       southwest: [-750, -750],
@@ -41,31 +41,7 @@ const DecentralandMap = ({ assets, selected }: MapsProps) => {
             url="https://api.decentraland.org/v1/map.png?width=1500&height=1500&size=5&center=0,0"
             bounds={latLangBounds}
           />
-
-          {assets.map((asset, i) => {
-            return (
-              <Marker
-                key={asset.id}
-                icon={marker}
-                position={asset.coordinates}
-                ref={(r) => (markerRefs.current[i] = { ref: r, position: asset.coordinates })}
-              >
-                <StyledPopup color={theme.palette.secondary.main}>
-                  <div className={styles.popupTitleContainer}>{asset.name}</div>
-                  <div className={styles.popupContentContainer}>
-                    <a href={`/nft/eth/${asset.assetContract.address}/${asset.tokenId}`}>
-                      <div
-                        className={styles.popupContent}
-                        style={{
-                          backgroundImage: `url('${asset.imageUrl}')`,
-                        }}
-                      ></div>
-                    </a>
-                  </div>
-                </StyledPopup>
-              </Marker>
-            );
-          })}
+          <RenderMarkers markerRefs={markerRefs} assets={assets} />
         </MapContainer>
       }
     </div>
