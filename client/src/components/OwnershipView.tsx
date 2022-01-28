@@ -131,7 +131,6 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
     metaverses.map((_) => null),
   );
-  console.log('metaverseSummaries', metaverseSummaries);
 
   const handleClickOpen = () => {
     openProfileModal();
