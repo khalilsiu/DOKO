@@ -21,21 +21,21 @@ interface Props {
 const useStyles = makeStyles((theme) => ({
   nftsContainer: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(5, 1fr)',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gridAutoRows: '1fr',
     columnGap: 12,
     rowGap: 12,
     [theme.breakpoints.down('md')]: {
-      gridTemplateColumns: 'repeat(5, 1fr)',
+      gridTemplateColumns: 'repeat(4, 1fr)',
     },
     [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: 'repeat(5, 1fr)',
+      gridTemplateColumns: 'repeat(4, 1fr)',
     },
     [theme.breakpoints.down(630)]: {
       gridTemplateColumns: 'repeat(2, 1fr)',
     },
     [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: 'repeat(1, 1fr)',
+      gridTemplateColumns: 'repeat(2, 1fr)',
     },
   },
 }));

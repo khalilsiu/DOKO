@@ -113,7 +113,7 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
           direction="column"
           justifyContent="space-between"
           wrap="nowrap"
-          style={{ height: 88 }}
+          style={{ height: 60 }}
         >
           <Box px={1}>
             <Typography className={styles.nftName} variant="caption">

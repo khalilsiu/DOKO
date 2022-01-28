@@ -16,12 +16,12 @@ import { Meta } from '../../components';
 import Intro from '../core/Intro';
 import { PopoverShare } from '../../components/PopoverShare';
 import { useDispatch } from 'react-redux';
-import eth from './assets/eth.png';
-import bsc from './assets/bsc.png';
-import polygon from './assets/polygon.png';
-import solana from './assets/solana.png';
+import eth from '../../assets/eth-small.png';
+import bsc from '../../assets/bsc-small.png';
+import polygon from '../../assets/polygon-small.png';
+import solana from '../../assets/solana-small.png';
 import { fetchCollectionSummary, fetchProfileOwnership } from '../../store/meta-nft-collections';
-import OwnershipView from '../../components/ownershipView';
+import OwnershipView from '../../components/OwnershipView';
 import useProfileSummaries from '../../hooks/useProfileSummaries';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 

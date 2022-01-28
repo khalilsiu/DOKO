@@ -20,7 +20,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useParams } from 'react-router-dom';
 import bsc from 'cryptocurrency-icons/32/white/bnb.png';
 import solana from 'cryptocurrency-icons/32/white/sol.png';
-import eth from './assets/eth.png';
+import eth from '../../assets/eth-small.png';
 
 import Moralis from '../../libs/moralis';
 import { fetchOpenSeaEvents, fetchNFTOpensea } from './api';
@@ -36,10 +36,10 @@ import opensea_icon from '../../assets/opensea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 import { Meta } from '../../components';
 
-import decentraland from './assets/decentraland.png';
-import cryptovoxels from './assets/cryptovoxels.png';
-import somnium from './assets/somnium.png';
-import thesandbox from './assets/thesandbox.png';
+import decentraland from '../../assets/decentraland.png';
+import cryptovoxels from '../../assets/cryptovoxels.png';
+import somnium from '../../assets/somnium.png';
+import thesandbox from '../../assets/thesandbox.png';
 import metaverses from '../../constants/metaverses';
 import { Filter } from '../../hooks/useProfileSummaries';
 import ContractServiceAPI from '../../libs/contract-service-api';
@@ -269,8 +269,6 @@ export const NftIndividual = () => {
           let floorPrice = parsePrice(response.price, response.payment_token);
           if (_nft.asset_contract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
             const sizeTrait = _nft.traits.find((trait) => trait.trait_type === 'Size');
-            console.log(sizeTrait);
-
             const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
             floorPrice *= size;
           }
@@ -326,7 +324,6 @@ export const NftIndividual = () => {
       }
       setTxs(formatted_txs);
     } catch (e) {
-      console.log(e);
       setTxs([]);
     }
     if (formatted_txs.length) {
@@ -390,7 +387,6 @@ export const NftIndividual = () => {
     fetchTxs(chain, address, id, 0, 100);
     fetchPrice(address, id);
     _getTotalSupply(address);
-    console.log(externalLink);
   }, [address, id, chain]);
 
   return (

@@ -4,7 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { MetaMaskProvider } from 'metamask-react';
 import { MoralisProvider } from 'react-moralis';
 import { HelmetProvider } from 'react-helmet-async';
-
+import 'leaflet/dist/leaflet.css';
 import './index.scss';
 import { CookiesProvider } from 'react-cookie';
 import { Provider } from 'react-redux';

@@ -18,10 +18,10 @@ import { AddToHomeScreenTwoTone } from '@material-ui/icons';
 import { Meta } from '../../components';
 import Intro from '../core/Intro';
 import { ProfileItem } from './ProfileItem';
-import eth from './assets/eth.png';
-import bsc from './assets/bsc.png';
-import polygon from './assets/polygon.png';
-import solana from './assets/solana.png';
+import eth from '../../assets/eth-small.png';
+import bsc from '../../assets/bsc-small.png';
+import polygon from '../../assets/polygon-small.png';
+import solana from '../../assets/solana-small.png';
 
 type Icons = {
   [key: string]: string;
