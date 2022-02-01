@@ -12,7 +12,7 @@ const MapName = 'Decentraland';
 const DecentralandMap = ({ selected, assets }: MapsProps) => {
   const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const styles = useStyles({ smOrAbove });
-  const { latLangBounds, markerRefs, position, setMap } = useRenderMaps({
+  const { latLangBounds, markerRefs, position, setMap, ResizeMap } = useRenderMaps({
     bounds: {
       southwest: [-750, -750],
       northeast: [750, 750],
@@ -41,6 +41,7 @@ const DecentralandMap = ({ selected, assets }: MapsProps) => {
             url="https://api.decentraland.org/v1/map.png?width=1500&height=1500&size=5&center=0,0"
             bounds={latLangBounds}
           />
+          <ResizeMap />
           <RenderMarkers markerRefs={markerRefs} assets={assets} />
         </MapContainer>
       }
