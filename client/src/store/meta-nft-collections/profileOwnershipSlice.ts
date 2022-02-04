@@ -50,16 +50,8 @@ export const preprocess = (asset: any): Asset => {
   picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
 
-  let coordinates: L.LatLngExpression = [0, 0];
-  if (asset.collection.name === 'Decentraland') {
-    coordinates = getCoordinates('Decentraland', asset);
-  } else if (asset.collection.name === 'The Sandbox') {
-    coordinates = getCoordinates('The Sandbox', asset);
-  } else if (asset.collection.name === 'Cryptovoxels') {
-    coordinates = getCoordinates('Cryptovoxels', asset);
-  } else {
-    coordinates = getCoordinates('Somnium Space VR', asset);
-  }
+  const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
+
   return camelize({ ...picked, coordinates });
 };
 

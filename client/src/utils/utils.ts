@@ -65,7 +65,7 @@ export const getCoordinates = (metaverseName: string, asset: any): L.LatLngExpre
       return [(parseFloat(matchY[1]) + 202.167) / 23, (parseFloat(matchX[1]) - 576.433) / 22.7356];
     }
     default: {
-      return [0, 0];
+      return [NaN, NaN];
     }
   }
 };
