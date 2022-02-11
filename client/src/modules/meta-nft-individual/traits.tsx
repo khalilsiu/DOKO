@@ -4,7 +4,6 @@ import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
 
 interface NFtTraitsProps {
   traits: any;
-  totalSupply: any;
 }
 
 const useStyles = makeStyles(() => ({
@@ -51,17 +50,17 @@ export const GradientSVG = () => {
     </svg>
   );
 };
-export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
+export const NftTraits = ({ traits }: NFtTraitsProps) => {
   const styles = useStyles();
   return (
     <Grid item container justifyContent="flex-start" spacing={3}>
       <GradientSVG />
       {traits.map((trait: any, i: any) => (
-        <Grid item container lg={3} xl={3} md={4} sm={4} xs={6} key={trait.trait_type + i}>
+        <Grid item container lg={3} xl={3} md={4} sm={4} xs={6} key={trait.traitType + i}>
           <Card className={styles.traitCard}>
             <div style={{ marginBottom: '1em' }}>
               <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
-                {trait.trait_type}
+                {trait.traitType}
               </Typography>
             </div>
             <div className={styles.traitFooter}>

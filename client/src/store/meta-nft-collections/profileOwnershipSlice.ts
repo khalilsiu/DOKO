@@ -11,8 +11,14 @@ export interface Trait {
 
 export interface Asset {
   floorPrice: number;
+  lastSale: number;
   id: string;
+  collection: string;
   tokenId: string;
+  owner: string;
+  creator: string;
+  description: string;
+  externalLink: string;
   imageUrl: string;
   imageOriginalUrl: string;
   coordinates: L.LatLngExpression;
@@ -21,6 +27,7 @@ export interface Asset {
   name: string;
   assetContract: {
     address: string;
+    schemaName: string;
   };
   traits: Trait[];
 }
@@ -39,6 +46,11 @@ export const preprocess = (asset: any): Asset => {
   const picked = pick(asset, [
     'id',
     'token_id',
+    'collection',
+    'owner',
+    'creator',
+    'description',
+    'external_link',
     'image_url',
     'image_preview_url',
     'image_thumbnail_url',
@@ -47,7 +59,11 @@ export const preprocess = (asset: any): Asset => {
     'asset_contract',
     'traits',
   ]);
-  picked.asset_contract = pick(picked.asset_contract, ['address']);
+
+  picked.creator = picked.creator.address;
+  picked.owner = picked.owner.address;
+  picked.collection = picked.collection.name;
+  picked.asset_contract = pick(picked.asset_contract, ['address', 'schema_name']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
 
   const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
