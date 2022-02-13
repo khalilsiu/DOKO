@@ -12,6 +12,12 @@ import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
 import { Landing } from './modules/landing';
 import { MetaLanding } from './modules/meta-landing';
+import Snackbar from '@material-ui/core/Snackbar';
+import { Alert } from '@material-ui/lab';
+import { closeToast } from './store/app/appStateSlice';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from './store/store';
 
 const NftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-collections'));
 const NftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-individual'));
@@ -42,6 +48,8 @@ const RouteContainer = ({ children }: PropsWithChildren<any>) => {
 
 function App() {
   const { host } = window.location;
+  const { toast } = useSelector((state: RootState) => state.appState);
+  const dispatch = useDispatch();
   let subdomain = '';
   const arr = host.split('.');
   if (arr.length > 0 && host.indexOf('staging') !== -1) {
@@ -94,6 +102,9 @@ function App() {
     );
   }
 
+  const handleToastClose = () => {
+    dispatch(closeToast());
+  };
   return (
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
@@ -131,6 +142,9 @@ function App() {
                   </RouteContainer>
                 </Route>
               </Switch>
+              <Snackbar open={toast.show} autoHideDuration={6000} onClose={handleToastClose}>
+                <Alert severity={toast.state}>{toast.message}</Alert>
+              </Snackbar>
               <Footer />
             </DrawerContextProvider>
           </CreateProfileContextProvider>

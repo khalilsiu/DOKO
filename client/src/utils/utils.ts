@@ -24,6 +24,11 @@ export const snakeize = (obj: any) =>
     }
   });
 
+export const camelToText = (camelCase: string) => {
+  const result = camelCase.replace(/([A-Z])/g, ' $1');
+  return result.charAt(0).toUpperCase() + result.slice(1);
+};
+
 export const getCoordinatesFromUrl = (metaverseName: string, url: string): L.LatLngExpression => {
   switch (metaverseName) {
     case 'Cryptovoxels': {

@@ -10,22 +10,24 @@ import {
   useMediaQuery,
   Theme,
   IconButton,
+  Checkbox,
 } from '@material-ui/core';
 import { useState, useContext, memo } from 'react';
-import { TabPanel, NftPagination, OpenseaNFTItem } from '.';
-import Summary from '../modules/nft-collections/Summary';
-import SectionLabel from './SectionLabel';
-import metaverses from '../constants/metaverses';
-import { AggregatedSummary } from '../hooks/useProfileSummaries';
+import { TabPanel, NftPagination, OpenseaNFTItem, RadiusInput } from '..';
+import Summary from '../../modules/nft-collections/Summary';
+import SectionLabel from '../SectionLabel';
+import metaverses from '../../constants/metaverses';
+import { AggregatedSummary } from '../../hooks/useProfileSummaries';
 import ListIcon from '@material-ui/icons/FormatListBulleted';
 import MapIcon from '@material-ui/icons/Map';
-import { CreateProfileContext } from '../contexts/CreateProfileContext';
-import RenderMaps from './maps/RenderMaps';
-import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
-import LandPagination from './LandPagination';
+import { CreateProfileContext } from '../../contexts/CreateProfileContext';
+import RenderMaps from '../maps/RenderMaps';
+import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
+import LandPagination from '../LandPagination';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import UIModal from './modal';
+import UIModal from '../modal';
 import CloseIcon from '@material-ui/icons/Close';
+import LeaseModal from './LeaseModal';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -108,9 +110,11 @@ const useStyles = makeStyles((theme) => ({
     },
     justifyContent: 'space-between',
   },
+  modal: {
+    width: '900px',
+  },
   modalContent: {
     display: 'flex',
-    padding: '1.5rem',
   },
 }));
 
@@ -140,6 +144,13 @@ interface IOwnershipView {
   metaverseSummaries: AggregatedSummary[];
 }
 
+export interface AssetForLease {
+  imageOriginalUrl: string;
+  tokenId: string;
+  address: string;
+  name: string;
+}
+
 const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
   const [tabValue, setTabValue] = useState(0);
@@ -161,8 +172,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     setCollectionAssetSelected(copy);
   };
 
-  const [selectedAssetForLease, setSelectedAssetForLease] = useState<Asset | null>(null);
-
+  const [selectedAssetForLease, setSelectedAssetForLease] = useState<AssetForLease | null>(null);
   interface IRenderAssets {
     assets: Asset[];
     metaverseIndex: number;
@@ -177,7 +187,8 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
                 key={nft.id}
                 nft={nft}
                 onClick={() => onAssetClick(metaverseIndex, nftIndex)}
-                onLeaseButtonClick={setSelectedAssetForLease}
+                setSelectedAssetForLease={setSelectedAssetForLease}
+                selectedAssetForLease={selectedAssetForLease}
               />
             </Grid>
           ))
@@ -362,32 +373,6 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
             </div>
           );
         })}
-        <UIModal
-          modalOpen={!!selectedAssetForLease}
-          renderHeader={() => (
-            <div className={styles.modalHeader}>
-              <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-                Connect Wallet
-              </Typography>
-              <IconButton style={{ color: 'white' }} onClick={() => setSelectedAssetForLease(null)}>
-                <CloseIcon fontSize="medium" />
-              </IconButton>
-            </div>
-          )}
-          renderBody={() => (
-            <div className={styles.modalContent}>
-              <div style={{ flex: 1 }}>
-                <img
-                  src={selectedAssetForLease?.imageOriginalUrl}
-                  alt=""
-                  style={{ height: '40px', width: '20px ' }}
-                />
-              </div>
-              <div style={{ flex: 3 }}></div>
-            </div>
-          )}
-          renderFooter={() => <>diu</>}
-        />
       </TabPanel>
     </>
   );

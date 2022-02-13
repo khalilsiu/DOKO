@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from '@material-ui/icons';
 import { OpenseaNFTItem } from './OpenseaNFTItem';
 import { LightButton } from './LightButton';
 import { Asset } from '../store/meta-nft-collections';
+import { AssetForLease } from './landProfile/OwnershipView';
 
 interface Props {
   nfts: (Asset & { floorPrice: number })[];
@@ -12,7 +13,7 @@ interface Props {
   onPrev?: () => void;
   loading?: boolean;
   maxPage?: number;
-  onLeaseButtonClick: (nft: Asset) => void;
+  onLeaseButtonClick?: (nftInfo: AssetForLease | null) => void;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -53,7 +54,7 @@ export const LandPagination = ({
     <div>
       <div className={styles.nftsContainer}>
         {nfts.map((nft) => (
-          <OpenseaNFTItem onLeaseButtonClick={onLeaseButtonClick} nft={nft} key={nft.id} />
+          <OpenseaNFTItem setSelectedAssetForLease={onLeaseButtonClick} nft={nft} key={nft.id} />
         ))}
       </div>
       {loading && <CircularProgress />}

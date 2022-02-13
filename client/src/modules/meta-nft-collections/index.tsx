@@ -10,7 +10,7 @@ import { fetchAddressOwnership } from '../../store/meta-nft-collections/addressO
 import { fetchCollectionSummary } from '../../store/meta-nft-collections';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import useAddressSummaries from '../../hooks/useAddressSummaries';
-import OwnershipView from '../../components/OwnershipView';
+import OwnershipView from '../../components/landProfile/OwnershipView';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {

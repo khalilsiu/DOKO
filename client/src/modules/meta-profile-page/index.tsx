@@ -21,7 +21,7 @@ import bsc from '../../assets/bsc-small.png';
 import polygon from '../../assets/polygon-small.png';
 import solana from '../../assets/solana-small.png';
 import { fetchCollectionSummary, fetchProfileOwnership } from '../../store/meta-nft-collections';
-import OwnershipView from '../../components/OwnershipView';
+import OwnershipView from '../../components/landProfile/OwnershipView';
 import useProfileSummaries from '../../hooks/useProfileSummaries';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 
