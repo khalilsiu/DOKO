@@ -52,8 +52,8 @@ const metaverses = [
   },
   {
     icon: thesandbox,
-    name: 'sandbox',
-    label: 'Sandbox',
+    name: 'the-sandbox',
+    label: 'The Sandbox',
     slug: 'sandbox',
     primaryAddress: '0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a',
     addresses: ['0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a'],

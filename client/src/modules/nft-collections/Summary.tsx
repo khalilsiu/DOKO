@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Grid, Typography, withStyles, makeStyles, CircularProgress } from '@material-ui/core';
-
-import ethIcon from './assets/eth.png';
-import bscIcon from './assets/bsc.png';
-import polygonIcon from './assets/polygon.png';
-import solanaIcon from './assets/solana.png';
-import { getAllEthAssets, getFloorPrice, getNFTsCount } from './api';
-import { getSolNftsCount } from '../../libs/solana';
-import { isSolAddress } from '../../libs/utils';
+import {
+  Grid,
+  Typography,
+  withStyles,
+  makeStyles,
+  CircularProgress,
+  useMediaQuery,
+  Theme,
+} from '@material-ui/core';
 import SectionLabel from '../../components/SectionLabel';
 
 const ChainContainer = withStyles((theme) => ({
   root: {
     padding: '28px 30px 24px',
     borderRadius: 15,
-    border: '2px solid white',
+    border: '2px solid rgba(277,277,277,0.5)',
     marginTop: 10,
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
@@ -30,71 +29,70 @@ const useStyles = makeStyles((theme) => ({
       marginTop: 12,
     },
   },
+  summaryBox: { flex: 1 },
 }));
 
 interface Props {
   data: any;
 }
 
-const initialData = [
-  {
-    icon: ethIcon,
-    count: 0,
-    price: 0,
-    name: 'Ethereum',
-    available: true,
-  },
-  {
-    icon: bscIcon,
-    count: 0,
-    price: 0,
-    name: 'BSC',
-  },
-  {
-    icon: polygonIcon,
-    count: 0,
-    price: 0,
-    name: 'Polygon',
-  },
-  {
-    icon: solanaIcon,
-    count: 0,
-    price: 0,
-    name: 'Solana',
-  },
-];
-
 export const Summary = ({ data }: Props) => {
   const classes = useStyles();
+  const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
 
   return (
     <>
-      <SectionLabel variant="h5" gutterBottom>
-        Summary
-      </SectionLabel>
-      <Grid style={{ marginTop: 32, marginBottom: 64 }} container spacing={2}>
+      {smOrAbove && (
+        <SectionLabel variant="h5" gutterBottom>
+          Summary
+        </SectionLabel>
+      )}
+      <Grid style={{ marginTop: 32, marginBottom: 64 }} container spacing={1}>
         {data.summary.map((item: any) => (
-          <Grid item key={item.name} xs={12} sm={6} lg={3}>
+          <Grid item key={item.name} xs={6} sm={6} lg={3}>
             <Grid container direction="column" style={{ height: '100%' }}>
-              <Grid container alignItems="center">
-                <img width={30} src={item.icon} alt={item.name} style={{ borderRadius: '50%' }} />
-                <Typography
-                  style={{ marginLeft: 12, fontWeight: 700, fontSize: 14 }}
-                  component="strong"
-                >
-                  {item.name}
-                </Typography>
-              </Grid>
-              <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
+              {smOrAbove && (
+                <Grid container alignItems="center">
+                  <img width={30} src={item.icon} alt={item.name} style={{ borderRadius: '50%' }} />
+                  <Typography
+                    style={{ marginLeft: 12, fontWeight: 700, fontSize: 14 }}
+                    component="strong"
+                  >
+                    {item.name}
+                  </Typography>
+                </Grid>
+              )}
+              <ChainContainer
+                container
+                wrap="nowrap"
+                style={smOrAbove ? {} : { padding: '0.8rem' }}
+                className={classes.summaryBox}
+              >
                 <Grid item>
-                  <Typography style={{ fontSize: 14 }}>Total NFTs</Typography>
-                  <Typography style={{ fontSize: 18, fontWeight: 700 }}>{item.count}</Typography>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography style={{ fontSize: '0.8rem' }}>Total NFTs</Typography>
+                    {!smOrAbove && (
+                      <img
+                        width={20}
+                        src={item.icon}
+                        alt={item.name}
+                        style={{ borderRadius: '50%' }}
+                      />
+                    )}
+                  </div>
+                  <Typography style={{ fontSize: '1rem', fontWeight: 700 }}>
+                    {item.count}
+                  </Typography>
                 </Grid>
                 <Grid item className={classes.chainInfo}>
-                  <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
+                  <Typography style={{ fontSize: '0.8rem' }}>Total Floor Price</Typography>
                   <Typography
                     component="div"
-                    style={{ fontSize: 18, fontWeight: 700, opacity: item.available ? 1 : 0.5 }}
+                    style={{
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      opacity: item.available ? 1 : 0.5,
+                    }}
                   >
                     {item.available ? (
                       <Grid container alignItems="center">

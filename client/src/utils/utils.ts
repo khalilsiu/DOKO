@@ -1,4 +1,5 @@
 import { transform, isArray, camelCase, isDate, isObject, snakeCase } from 'lodash';
+import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
 
 export const camelize = (obj: any) =>
   transform(obj, (acc: any, value, key, target) => {
@@ -23,3 +24,48 @@ export const snakeize = (obj: any) =>
       acc[snakeKey] = value;
     }
   });
+
+export const getCoordinates = (metaverseName: string, asset: any): L.LatLngExpression => {
+  switch (metaverseName) {
+    case 'Cryptovoxels': {
+      const matchX = asset.image_original_url.match(/x=([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchY = asset.image_original_url.match(/&y=([+-]?([0-9]*[.])?[0-9]+)/);
+      if (!matchX || !matchY) {
+        // to add error handler
+        return [0, 0];
+      }
+      return [parseFloat(matchY[1]), parseFloat(matchX[1])];
+    }
+    case 'Decentraland': {
+      const match = asset.image_original_url.match(
+        /parcels\/([+-]?([0-9]*[.])?[0-9]+)\/([+-]?([0-9]*[.])?[0-9]+)/,
+      );
+      if (!match) {
+        // to add error handler
+        return [0, 0];
+      }
+      return [parseFloat(match[3]) * 5, parseFloat(match[1]) * 5];
+    }
+    case 'The Sandbox': {
+      const matchX = asset.name.match(/\(([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchY = asset.name.match(/, ([+-]?([0-9]*[.])?[0-9]+)/);
+      if (!matchX || !matchY) {
+        // to add error handler
+        return [0, 0];
+      }
+      return [parseFloat(matchY[1]), parseFloat(matchX[1])];
+    }
+    case 'Somnium Space VR': {
+      const matchX = asset.description.match(/X = ([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchY = asset.description.match(/Z = ([+-]?([0-9]*[.])?[0-9]+)/);
+      if (!matchX || !matchY) {
+        // to add error handler
+        return [0, 0];
+      }
+      return [(parseFloat(matchY[1]) + 202.167) / 23, (parseFloat(matchX[1]) - 576.433) / 22.7356];
+    }
+    default: {
+      return [NaN, NaN];
+    }
+  }
+};

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
-import { camelize } from '../../utils/utils';
+import { camelize, getCoordinates } from '../../utils/utils';
 
 export interface Trait {
   traitType: string;
@@ -14,6 +14,8 @@ export interface Asset {
   id: string;
   tokenId: string;
   imageUrl: string;
+  imageOriginalUrl: string;
+  coordinates: L.LatLngExpression;
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
   name: string;
@@ -47,7 +49,10 @@ export const preprocess = (asset: any): Asset => {
   ]);
   picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
-  return camelize(picked);
+
+  const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
+
+  return camelize({ ...picked, coordinates });
 };
 
 export const fetchAssets = async (address: string) => {
