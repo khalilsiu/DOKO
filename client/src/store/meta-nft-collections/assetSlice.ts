@@ -1,12 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { Asset, preprocess } from './profileOwnershipSlice';
-import { parsePrice } from './collectionSummarySlice';
+import { parseEthPrice, parseUSDPrice } from './collectionSummarySlice';
 import ContractServiceAPI from '../../libs/contract-service-api';
+import { floorPriceFilter } from '../../hooks/useProfileSummaries';
+import metaverses from '../../constants/metaverses';
 
 const initialState: Asset = {
   floorPrice: 0,
+  floorPriceUSD: 0,
   lastSale: 0,
+  lastSaleUSD: 0,
   id: 'N/A',
   collection: 'N/A',
   tokenId: 'N/A',
@@ -31,18 +35,36 @@ export const fetchSingleAsset = async (asset_contract_address: string, token_id:
   const response = await OpenSeaAPI.get(`/asset/${asset_contract_address}/${token_id}`);
   const assetFromResponse = response.data;
   const asset = preprocess(assetFromResponse);
-  const filter = asset.traits.map((trait) => ({
-    traitType: trait.traitType,
-    value: trait.value,
-    operator: '=',
-  }));
-  const floorPriceFromResponse = await ContractServiceAPI.getAssetFloorPrice(
-    asset.assetContract.address,
-    filter,
-  );
 
-  asset.floorPrice = parsePrice(floorPriceFromResponse.price, floorPriceFromResponse.payment_token);
-  asset.lastSale = parsePrice(
+  const assetMetaverse = metaverses.find((metaverse) => metaverse.label === asset.collection);
+  if (assetMetaverse) {
+    const metaverseRequests = assetMetaverse.traits.map((traits) =>
+      ContractServiceAPI.getAssetFloorPrice(assetMetaverse.primaryAddress, traits),
+    );
+    const metaverseResponses = await Promise.all(metaverseRequests);
+    const traitsWithFloorPrice = assetMetaverse.traits.map((filters, traitIndex) => ({
+      filters,
+      floorPrice: parseEthPrice(
+        metaverseResponses[traitIndex].price,
+        metaverseResponses[traitIndex].payment_token,
+      ),
+    }));
+    const traitsWithFloorPriceUSD = assetMetaverse.traits.map((filters, traitIndex) => ({
+      filters,
+      floorPrice: parseUSDPrice(
+        metaverseResponses[traitIndex].price,
+        metaverseResponses[traitIndex].payment_token,
+      ),
+    }));
+    asset.floorPrice = floorPriceFilter(traitsWithFloorPrice, asset);
+    asset.floorPriceUSD = floorPriceFilter(traitsWithFloorPriceUSD, asset);
+  }
+
+  asset.lastSale = parseEthPrice(
+    assetFromResponse.last_sale.total_price,
+    assetFromResponse.last_sale.payment_token,
+  );
+  asset.lastSaleUSD = parseUSDPrice(
     assetFromResponse.last_sale.total_price,
     assetFromResponse.last_sale.payment_token,
   );

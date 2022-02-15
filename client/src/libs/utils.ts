@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { web3 } from './web3';
-
+import { parseEthPrice } from '../store/meta-nft-collections';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const abi = require('./abis/erc721.json');
 
@@ -86,14 +86,14 @@ export const formatTx = (tx: any, chain: string) => {
         formatted.from = minimizeAddress(tx.seller.address);
         formatted.to = minimizeAddress(tx.winner_account.address);
         formatted.price = tx.total_price
-          ? Number.parseFloat(web3.utils.fromWei(tx.total_price, 'ether')).toFixed(2)
+          ? parseEthPrice(tx.total_price, tx.payment_token).toFixed(2)
           : '0';
         break;
       case 'bid_entered':
         formatted.from = tx.from_account.address;
         formatted.event = 'Bid';
         formatted.price = tx.bid_amount
-          ? Number.parseFloat(web3.utils.fromWei(tx.bid_amount, 'ether')).toFixed(2)
+          ? parseEthPrice(tx.bid_amount, tx.payment_token).toFixed(2)
           : '0';
         formatted.payment_token = tx.payment_token.symbol;
         break;
@@ -113,14 +113,14 @@ export const formatTx = (tx: any, chain: string) => {
         formatted.from = tx.from_account.address;
         formatted.event = 'Offer Entered';
         formatted.price = tx.bid_amount
-          ? Number.parseFloat(web3.utils.fromWei(tx.bid_amount, 'ether')).toFixed(2)
+          ? parseEthPrice(tx.bid_amount, tx.payment_token).toFixed(2)
           : '0';
         formatted.payment_token = tx.payment_token.symbol;
         break;
       case 'created':
         formatted.event = 'Listing';
         formatted.price = tx.ending_price
-          ? Number.parseFloat(web3.utils.fromWei(tx.ending_price, 'ether')).toFixed(2)
+          ? parseEthPrice(tx.ending_price, tx.payment_token).toFixed(2)
           : '0';
         break;
       default:

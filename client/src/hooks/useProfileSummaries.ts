@@ -43,6 +43,27 @@ export interface AggregatedSummary {
   ownership: Asset[];
 }
 
+export function floorPriceFilter(traitsWithFloorPrice, asset) {
+  // floor price be collection floor price then match price with filter
+  let { floorPrice } = traitsWithFloorPrice[0];
+
+  asset.traits.forEach((trait) => {
+    traitsWithFloorPrice.forEach((traitFilter) => {
+      if (!match(traitFilter.filters, trait)) {
+        return;
+      }
+      floorPrice = traitFilter.floorPrice;
+    });
+  });
+  // special case for decentraland estate
+  if (asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
+    const sizeTrait = asset.traits.find((trait) => trait.traitType === 'Size');
+    const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
+    floorPrice *= size;
+  }
+  return floorPrice;
+}
+
 export function getAggregatedSummary(
   collectionSummaries: MetaverseSummary[],
   ownerships: Asset[][],
@@ -56,24 +77,7 @@ export function getAggregatedSummary(
     }));
 
     const assetsWithFloorPrice = ownerships[metaverseIndex].map((asset) => {
-      // floor price be collection floor price then match price with filter
-      let { floorPrice } = traitsWithFloorPrice[0];
-
-      asset.traits.forEach((trait) => {
-        traitsWithFloorPrice.forEach((traitFilter) => {
-          if (!match(traitFilter.filters, trait)) {
-            return;
-          }
-          floorPrice = traitFilter.floorPrice;
-        });
-      });
-      // special case for decentraland estate
-      if (asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
-        const sizeTrait = asset.traits.find((trait) => trait.traitType === 'Size');
-        const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
-        floorPrice *= size;
-      }
-
+      const floorPrice = floorPriceFilter(traitsWithFloorPrice, asset);
       return {
         ...asset,
         floorPrice,

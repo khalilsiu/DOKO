@@ -1,5 +1,6 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import {
+  Card,
   Button,
   Grid,
   IconButton,
@@ -35,6 +36,7 @@ import { PopoverShare } from '../../components/PopoverShare';
 import opensea_icon from '../../assets/opensea-transparent.png';
 import loading_image from '../../assets/loading.gif';
 import { Meta } from '../../components';
+import Intro from '../core/Intro';
 
 import Decentraland from '../../assets/decentraland.png';
 import Cryptovoxels from '../../assets/cryptovoxels.png';
@@ -99,6 +101,10 @@ const useStyles = makeStyles((theme) => ({
     },
     minHeight: 'calc(100vh)',
   },
+  introCard: {
+    position: 'sticky',
+    top: 120,
+  },
   nftNameMobile: {
     [theme.breakpoints.down('sm')]: {
       display: 'flex',
@@ -113,24 +119,18 @@ const useStyles = makeStyles((theme) => ({
     },
     display: 'flex',
   },
-  lazyloadwrapper: {
-    [theme.breakpoints.up('md')]: {
-      position: 'fixed',
-      left: 0,
-    },
-    textAlign: 'center',
-    width: 'inherit',
-    maxWidth: 'inherit',
-  },
   image: {
     borderRadius: 12,
     border: '3px solid white',
-    maxHeight: 400,
-    minHeight: 200,
+    maxHeight: 600,
+    minHeight: 400,
     maxWidth: '80%',
     '& > svg': {
       width: '100%',
       height: 'auto',
+    },
+    [theme.breakpoints.down('md')]: {
+      marginBottom: '0.6em',
     },
   },
   separator: {
@@ -171,10 +171,8 @@ const useStyles = makeStyles((theme) => ({
 export const NftIndividual = () => {
   const styles = useStyles();
   const { address, id, chain } = useParams<{ address: string; id: string; chain: string }>();
-  const [nft, setNFT] = useState<any>();
   const [tabValue, setTabValue] = useState(0);
   const [txs, setTxs] = useState<any[]>([]);
-  const [creator, setCreator] = useState<string>('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -219,30 +217,14 @@ export const NftIndividual = () => {
   ) => {
     let formatted_txs: Array<any> = [];
     try {
-      if (_chain === 'solana') {
-        return;
-      }
-      if (_chain !== 'eth') {
-        const options: any = { address, token_id: id, chain };
-        const transfers = await (Moralis.Web3API as any).token.getWalletTokenIdTransfers(options);
-        formatted_txs = transfers.result.map((transfer: any) => formatTx(transfer, _chain));
-      } else {
-        formatted_txs = await fetchOpenSeaEvents(address, id, offset, limit, [
-          'created',
-          'successful',
-          'transfer',
-        ]);
-      }
+      formatted_txs = await fetchOpenSeaEvents(address, id, offset, limit, [
+        'created',
+        'successful',
+        'transfer',
+      ]);
       setTxs(formatted_txs);
     } catch (e) {
       setTxs([]);
-    }
-    if (formatted_txs.length) {
-      if (formatted_txs[formatted_txs.length - 1].event === 'Mint') {
-        setCreator(formatted_txs[formatted_txs.length - 1].to);
-      }
-    } else {
-      setCreator('');
     }
   };
 
@@ -276,14 +258,12 @@ export const NftIndividual = () => {
 
   return (
     <>
-      {nft && (
-        <Meta
-          title={`${singleAsset.name} | DOKO`}
-          description={singleAsset.description || ''}
-          url="https://doko.one"
-          image={singleAsset.imageUrl || ''}
-        />
-      )}
+      <Meta
+        title={`${singleAsset.name} | DOKO`}
+        description={singleAsset.description || ''}
+        url="https://doko.one"
+        image={singleAsset.imageUrl || ''}
+      />
       <Grid
         className={styles.collectionContainer}
         container
@@ -291,6 +271,13 @@ export const NftIndividual = () => {
         justifyContent="flex-start"
         spacing={4}
       >
+        <Hidden smDown>
+          <Grid item>
+            <Card className={styles.introCard}>
+              <Intro drawer={false} />
+            </Card>
+          </Grid>
+        </Hidden>
         <Grid
           item
           container
@@ -318,28 +305,6 @@ export const NftIndividual = () => {
               name={singleAsset.name}
             />
           </Grid>
-        </Grid>
-        <Grid
-          item
-          container
-          xs={12}
-          sm={12}
-          md={4}
-          lg={3}
-          xl={3}
-          justifyContent="flex-start"
-          style={{ position: 'relative' }}
-        >
-          <LazyLoadImage
-            style={{ textAlign: 'center' }}
-            key={singleAsset.id}
-            className={styles.image}
-            wrapperClassName={styles.lazyloadwrapper}
-            alt=""
-            src={singleAsset.imageUrl}
-            placeholder={<img src={loading_image} alt="Loading" />}
-            effect="opacity"
-          />
         </Grid>
         <Grid
           item
@@ -393,7 +358,7 @@ export const NftIndividual = () => {
               <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
                 Creator
               </Typography>
-              <CopyAddress address={singleAsset.creator} hasLink={false} />
+              <CopyAddress address={singleAsset.creator} hasLink />
             </Grid>
             <Grid item style={{ paddingBottom: 0, paddingTop: 0 }}>
               <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
@@ -402,189 +367,255 @@ export const NftIndividual = () => {
               <CopyAddress address={singleAsset.owner} hasLink />
             </Grid>
           </Grid>
-          <Grid item container direction="column" spacing={0}>
-            <Grid item>
-              <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
-                Last Purchase Price
-              </Typography>
+          <Grid item container direction="row">
+            <Grid item md={5}>
+              <LazyLoadImage
+                style={{ textAlign: 'center' }}
+                key={singleAsset.id}
+                className={styles.image}
+                alt=""
+                src={singleAsset.imageUrl}
+                placeholder={<img src={loading_image} alt="Loading" />}
+                effect="opacity"
+              />
             </Grid>
-            <Grid item>
-              <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                <img
-                  className={styles.networkIconMedium}
-                  src="/collection/DOKOasset_EthereumBlue.png"
-                  alt="eth"
-                />
-              </IconButton>
-              <Typography
-                variant="h5"
-                display="inline"
-                className="bolder"
-                style={{ marginRight: '4px' }}
-              >
-                {singleAsset.lastSale.toFixed(3)}
-              </Typography>
-              <Typography variant="body1" display="inline">
-                {`(US ${singleAsset.lastSale.toFixed(3)})`}
-              </Typography>
-            </Grid>
-            <Grid item style={{ marginTop: '.5em' }}>
-              <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
-                Floor Price
-              </Typography>
-            </Grid>
-            <Grid item>
-              <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
-                <img
-                  className={styles.networkIconMedium}
-                  src="/collection/DOKOasset_EthereumBlue.png"
-                  alt="eth"
-                />
-              </IconButton>
-              <Typography
-                variant="h5"
-                display="inline"
-                className="bolder"
-                style={{ marginRight: '4px' }}
-              >
-                {parseFloat(`${singleAsset.floorPrice}`).toFixed(2)}
-              </Typography>
-            </Grid>
-          </Grid>
-          <Grid item container direction="column">
-            <Typography variant="h5" style={{ fontWeight: 'bolder', marginBottom: '0.6em' }}>
-              Parcel Stats
-            </Typography>
-            <NftTraits traits={singleAsset.traits.slice(0, 4)} />
-          </Grid>
-          <Hidden smUp>
-            <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
-              <Grid item container xs={6} direction="column" spacing={1}>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Metaverse
-                  </Typography>
+            <Grid item md={7}>
+              <Grid item container direction="column" spacing={0}>
+                <Grid
+                  item
+                  container
+                  direction="row"
+                  spacing={3}
+                  justifyContent="flex-start"
+                  style={{ paddingTop: '1px' }}
+                >
                   <Grid
-                    container
-                    direction="row"
-                    style={{ marginTop: '.9em' }}
-                    justifyContent="flex-start"
-                    spacing={1}
+                    item
+                    className={styles.separator}
+                    style={{ paddingBottom: 0, paddingTop: 0 }}
                   >
                     <Grid item>
-                      <img width={16} src={metaverseIcon[singleAsset.collection]} alt="" />
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Last Purchase Price
+                      </Typography>
                     </Grid>
                     <Grid item>
-                      <Typography>{singleAsset.collection}</Typography>
-                    </Grid>
-                    <Grid item>
-                      <Link
-                        style={{ textDecoration: 'none', color: '#61dafb' }}
-                        href={singleAsset.externalLink}
+                      <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
+                        <img
+                          className={styles.networkIconMedium}
+                          src="/collection/DOKOasset_EthereumBlue.png"
+                          alt="eth"
+                        />
+                      </IconButton>
+                      <Typography
+                        variant="h5"
+                        display="inline"
+                        className="bolder"
+                        style={{ marginRight: '4px' }}
                       >
-                        {`View on ${singleAsset.collection}`}
-                      </Link>
+                        {singleAsset.lastSale.toFixed(3)}
+                      </Typography>
+                      <Typography variant="body1" display="inline">
+                        {`(US ${singleAsset.lastSaleUSD.toFixed(3)})`}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid item style={{ paddingBottom: 0, paddingTop: 0 }}>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Current Floor Price
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <IconButton style={{ padding: 0, verticalAlign: 'baseline' }}>
+                        <img
+                          className={styles.networkIconMedium}
+                          src="/collection/DOKOasset_EthereumBlue.png"
+                          alt="eth"
+                        />
+                      </IconButton>
+                      <Typography
+                        variant="h5"
+                        display="inline"
+                        className="bolder"
+                        style={{ marginRight: '4px' }}
+                      >
+                        {parseFloat(`${singleAsset.floorPrice}`).toFixed(2)}
+                      </Typography>
+                      <Typography variant="body1" display="inline">
+                        {`(US ${singleAsset.floorPriceUSD.toFixed(3)})`}
+                      </Typography>
                     </Grid>
                   </Grid>
                 </Grid>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Contract Address
-                  </Typography>
-                  <Typography variant="body1">{address}</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    MarketPlaces
-                  </Typography>
-                  <Link
-                    style={{ textDecoration: 'none' }}
-                    target="_blank"
-                    href={`https://opensea.io/assets/${address}/${id}`}
-                  >
-                    <Button className="gradient-button" variant="outlined">
-                      <img width={16} src={opensea_icon} alt="" />
-                      <span style={{ marginLeft: 12 }}>Opensea</span>
-                    </Button>
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Token ID
-                  </Typography>
-                  <Typography variant="body1">{`${id.substr(0, 6)}...${id.substr(-4)}`}</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Token Standard
-                  </Typography>
-                  <Typography variant="body1">{singleAsset.assetContract.schemaName}</Typography>
-                </Grid>
               </Grid>
-            </Grid>
-          </Hidden>
-          <Hidden xsDown>
-            <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
-              <Grid item container xs={6} direction="column" spacing={1}>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Metaverse
-                  </Typography>
-                  <Grid container direction="row" justifyContent="flex-start" spacing={1}>
+              <Grid
+                item
+                style={{
+                  height: '20px',
+                  border: '1px solid transparent',
+                  borderBottomColor: '#333333',
+                }}
+              />
+              <Grid item container direction="column" style={{ marginBottom: '0.6em' }}>
+                <Typography
+                  variant="h6"
+                  style={{ fontWeight: 'bolder', marginTop: '0.6em', marginBottom: '0.6em' }}
+                >
+                  Parcel Stats
+                </Typography>
+                <NftTraits traits={singleAsset.traits.slice(0, 4)} />
+              </Grid>
+              <Hidden smUp>
+                <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
+                  <Grid item container xs={6} direction="column" spacing={1}>
                     <Grid item>
-                      <img width={16} src={metaverseIcon[singleAsset.collection]} alt="" />
-                    </Grid>
-                    <Grid item>
-                      <Typography>{singleAsset.collection}</Typography>
-                    </Grid>
-                    <Grid item>
-                      <Link
-                        style={{ textDecoration: 'none', color: '#61dafb' }}
-                        href={singleAsset.externalLink}
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Metaverse
+                      </Typography>
+                      <Grid
+                        container
+                        direction="row"
+                        style={{ marginTop: '.9em' }}
+                        justifyContent="flex-start"
+                        spacing={1}
                       >
-                        {`View on ${singleAsset.collection}`}
+                        <Grid item>
+                          <img width={16} src={metaverseIcon[singleAsset.collection]} alt="" />
+                        </Grid>
+                        <Grid item>
+                          <Typography>{singleAsset.collection}</Typography>
+                        </Grid>
+                        <Grid item>
+                          <Link
+                            style={{ textDecoration: 'none', color: '#61dafb' }}
+                            href={singleAsset.externalLink}
+                          >
+                            {`View on ${singleAsset.collection}`}
+                          </Link>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Contract Address
+                      </Typography>
+                      <Typography variant="body1">{`${address.substr(0, 6)}...${address.substr(
+                        -4,
+                      )}`}</Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        MarketPlaces
+                      </Typography>
+                      <Link
+                        style={{ textDecoration: 'none' }}
+                        target="_blank"
+                        href={`https://opensea.io/assets/${address}/${id}`}
+                      >
+                        <Button
+                          className="gradient-button"
+                          variant="outlined"
+                          style={{ height: '30px' }}
+                        >
+                          <img width={16} src={opensea_icon} alt="" />
+                          <span style={{ marginLeft: 12 }}>Opensea</span>
+                        </Button>
                       </Link>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Token ID
+                      </Typography>
+                      <Typography variant="body1">{`${id.substr(0, 6)}...${id.substr(
+                        -4,
+                      )}`}</Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Token Standard
+                      </Typography>
+                      <Typography variant="body1">
+                        {singleAsset.assetContract.schemaName}
+                      </Typography>
                     </Grid>
                   </Grid>
                 </Grid>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Contract Address
-                  </Typography>
-                  <Typography variant="body1">{address}</Typography>
+              </Hidden>
+              <Hidden xsDown>
+                <Grid item container wrap="nowrap" justifyContent="flex-start" spacing={5}>
+                  <Grid item container xs={6} direction="column" spacing={2}>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Metaverse
+                      </Typography>
+                      <Grid container direction="row" justifyContent="flex-start" spacing={1}>
+                        <Grid item>
+                          <img width={16} src={metaverseIcon[singleAsset.collection]} alt="" />
+                        </Grid>
+                        <Grid item>
+                          <Typography>{singleAsset.collection}</Typography>
+                        </Grid>
+                        <Grid item>
+                          <Link
+                            style={{ textDecoration: 'none', color: '#61dafb' }}
+                            href={singleAsset.externalLink}
+                          >
+                            {`View on ${singleAsset.collection}`}
+                          </Link>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Contract Address
+                      </Typography>
+                      <Typography variant="body1">{`${address.substr(0, 6)}...${address.substr(
+                        -4,
+                      )}`}</Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        MarketPlaces
+                      </Typography>
+                      <Link
+                        style={{ textDecoration: 'none' }}
+                        target="_blank"
+                        href={`https://opensea.io/assets/${address}/${id}`}
+                      >
+                        <Button
+                          className="gradient-button"
+                          variant="outlined"
+                          style={{ height: '30px' }}
+                        >
+                          <img width={16} src={opensea_icon} alt="" />
+                          <span style={{ marginLeft: 12 }}>Opensea</span>
+                        </Button>
+                      </Link>
+                    </Grid>
+                  </Grid>
+                  <Grid item container direction="column" xs={6} spacing={1}>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Token ID
+                      </Typography>
+                      <Typography variant="body1">{`${id.substr(0, 6)}...${id.substr(
+                        -4,
+                      )}`}</Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant="h6" style={{ fontWeight: 'bolder' }}>
+                        Token Standard
+                      </Typography>
+                      <Typography variant="body1">
+                        {singleAsset.assetContract.schemaName}
+                      </Typography>
+                    </Grid>
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    MarketPlaces
-                  </Typography>
-                  <Link
-                    style={{ textDecoration: 'none' }}
-                    target="_blank"
-                    href={`https://opensea.io/assets/${address}/${id}`}
-                  >
-                    <Button className="gradient-button" variant="outlined">
-                      <img width={16} src={opensea_icon} alt="" />
-                      <span style={{ marginLeft: 12 }}>Opensea</span>
-                    </Button>
-                  </Link>
-                </Grid>
-              </Grid>
-              <Grid item container direction="column" xs={6} spacing={1}>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Token ID
-                  </Typography>
-                  <Typography variant="body1">{`${id.substr(0, 6)}...${id.substr(-4)}`}</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h5" style={{ fontWeight: 'bolder' }}>
-                    Token Standard
-                  </Typography>
-                  <Typography variant="body1">{singleAsset.assetContract.schemaName}</Typography>
-                </Grid>
-              </Grid>
+              </Hidden>
             </Grid>
-          </Hidden>
+          </Grid>
           <Grid container item direction="column">
             <Grid item>
               <Typography variant="h5" className={styles.bolder} style={{ marginBottom: '0.6em' }}>
@@ -659,7 +690,7 @@ export const NftIndividual = () => {
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={txs.length}
+                count={txs.filter((tx) => getIndex(tx.event) === tabValue).length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}

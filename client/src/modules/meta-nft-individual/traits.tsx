@@ -59,7 +59,21 @@ export const NftTraits = ({ traits }: NFtTraitsProps) => {
         <Grid item container lg={3} xl={3} md={4} sm={4} xs={6} key={trait.traitType + i}>
           <Card className={styles.traitCard}>
             <div style={{ marginBottom: '1em' }}>
-              <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
+              <Typography
+                variant="body1"
+                style={{
+                  fontFamily: 'Open Sans',
+                  fontStyle: 'normal',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  lineHeight: '19px',
+                  textTransform: 'uppercase',
+
+                  color: '#FFFFFF',
+
+                  opacity: '0.5',
+                }}
+              >
                 {trait.traitType}
               </Typography>
             </div>

@@ -11,7 +11,9 @@ export interface Trait {
 
 export interface Asset {
   floorPrice: number;
+  floorPriceUSD: number;
   lastSale: number;
+  lastSaleUSD: number;
   id: string;
   collection: string;
   tokenId: string;

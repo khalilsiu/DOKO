@@ -10,10 +10,16 @@ const initialState: MetaverseSummary[] = metaverses.map((metaverse) => ({
   traits: metaverse.traits.map(() => 0),
 }));
 
-export const parsePrice = (price: string, payment_token: any) => {
+export const parseEthPrice = (price: string, payment_token: any) => {
   const priceInToken = parseFloat(price);
   const ethPrice = parseFloat(payment_token.eth_price);
   return (priceInToken * ethPrice) / 10 ** payment_token.decimals;
+};
+
+export const parseUSDPrice = (price: string, payment_token: any) => {
+  const priceInToken = parseFloat(price);
+  const usdPrice = parseFloat(payment_token.usd_price);
+  return (priceInToken * usdPrice) / 10 ** payment_token.decimals;
 };
 
 export const fetchCollectionSummary = createAsyncThunk(
@@ -28,11 +34,10 @@ export const fetchCollectionSummary = createAsyncThunk(
     const metaverseResponses = await Promise.all(
       metaverseRequests.map((requests) => Promise.all(requests)),
     );
-
     const floorPrices = metaverseResponses.map((responses) =>
       responses.map((response) => {
         const { price, payment_token } = response;
-        return parsePrice(price, payment_token);
+        return parseEthPrice(price, payment_token);
       }),
     );
     return floorPrices;
