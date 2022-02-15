@@ -178,6 +178,7 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
     if (!dclContract) {
       return;
     }
+    console.log(walletAddress, DokoRental.address);
     const isApprovedForAll = await dclContract.isApprovedForAll(walletAddress, DokoRental.address);
     setIsDokoApproved(isApprovedForAll);
   };

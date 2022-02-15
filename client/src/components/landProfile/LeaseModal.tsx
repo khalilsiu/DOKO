@@ -21,9 +21,8 @@ import Joi from 'joi';
 import { camelToText } from '../../utils/utils';
 import { AuthContext } from '../../contexts/AuthContext';
 import { memo } from 'react';
-import DokoRental from '../../contracts/DokoRental.json';
 import { useDispatch, useSelector } from 'react-redux';
-import { createLeaseToBlockchain, lease } from '../../store/lease/leaseSlice';
+import { createLeaseToBlockchain, getLease } from '../../store/lease/leaseSlice';
 import { RootState } from '../../store/store';
 
 const useStyles = makeStyles((theme) => ({
@@ -196,6 +195,13 @@ const LeaseModal = memo(
           walletAddress,
           asset: selectedAssetForLease,
           dokoRentalContract,
+        }),
+      );
+      await dispatch(
+        getLease({
+          walletAddress,
+          contractAddress: selectedAssetForLease.address,
+          tokenId: selectedAssetForLease.tokenId,
         }),
       );
     };

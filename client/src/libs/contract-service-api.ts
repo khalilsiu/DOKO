@@ -1,27 +1,16 @@
 import axios from 'axios';
-import { AcceptedTokens } from '../constants/acceptedTokens';
 import { Filter } from '../hooks/useProfileSummaries';
 
 const instance = axios.create({
   baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
 });
 
-interface LeaseDetails {
-  rentToken: AcceptedTokens;
-  rentAmount: number;
-  deposit: number;
-  gracePeriod: number;
-  minLeaseLength: number;
-  maxLeaseLength: number;
-  autoRegenerate: boolean;
-  tokenId: string;
-  rentorAddress: string;
+export interface IGetLease {
+  walletAddress: string;
   contractAddress: string;
-  // isOpen: boolean;
-  // isLeased: boolean;
-  // renteeAddress: string;
-  // monthsPaid: number
+  tokenId: string;
 }
+
 export default class ContractServiceAPI {
   static async getAssetFloorPrice(address: string, traits: Filter[]) {
     const res = await instance
@@ -47,16 +36,18 @@ export default class ContractServiceAPI {
     return res;
   }
 
-  static async createLease(leaseDetails: LeaseDetails) {
-    const res = await instance
-      .post('lease', {
-        ...leaseDetails,
-        isOpen: true,
-        isLeased: false,
-        renteeAddress: '0x0000000000000000000000000000000000000000',
-        monthsPaid: 0,
-      })
-      .then((res) => res.data);
+  static async getLease(payload: IGetLease) {
+    const body = Object.keys(payload).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: {
+          operator: '=',
+          value: payload[key],
+        },
+      }),
+      {},
+    );
+    const res = await instance.post('lease/filter', body).then((res) => res.data);
     return res;
   }
 }

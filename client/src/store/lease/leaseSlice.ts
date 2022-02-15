@@ -3,8 +3,8 @@ import { ethers } from 'ethers';
 import { LeaseForm } from '../../components/landProfile/LeaseModal';
 import { AssetForLease } from '../../components/landProfile/OwnershipView';
 import { AcceptedTokens } from '../../constants/acceptedTokens';
-import ContractServiceAPI from '../../libs/contract-service-api';
-import DokoRental from '../../contracts/DokoRental.json';
+import ContractServiceAPI, { IGetLease } from '../../libs/contract-service-api';
+import { camelize } from '../../utils/utils';
 
 interface Lease {
   rentAmount: number;
@@ -25,35 +25,35 @@ interface Lease {
   contractAddress: string;
 }
 
-const initialState: Lease[] = [];
+const initialState: Lease = {
+  rentAmount: 0,
+  deposit: 0,
+  monthsPaid: 0,
+  gracePeriod: 0,
+  minLeaseLength: 0,
+  maxLeaseLength: 0,
+  finalLeaseLength: 0,
+  dateSigned: new Date(),
+  rentToken: AcceptedTokens['ETH'],
+  isOpen: true,
+  isLeased: false,
+  autoRegenerate: false,
+  rentorAddress: '',
+  renteeAddress: '',
+  tokenId: '0',
+  contractAddress: '',
+};
 
-interface Payload {
+interface ICreateLease {
   leaseForm: LeaseForm;
   walletAddress: string;
   asset: AssetForLease;
   dokoRentalContract: ethers.Contract;
 }
 
-// export const createLeaseToServer = createAsyncThunk(
-//   'Lease/createLeaseToServer',
-//   async ({ leaseForm, walletAddress, asset }: Payload) => {
-//     const leaseDetails = {
-//       ...leaseForm,
-//       tokenId: asset.tokenId,
-//       rentorAddress: walletAddress,
-//       contractAddress: asset.address,
-//     };
-//     const leaseCreated = await ContractServiceAPI.createLease(leaseDetails);
-//     console.log('leaseCreated', leaseCreated);
-//   },
-// );
-
 export const createLeaseToBlockchain = createAsyncThunk(
   'Lease/createLeaseToBlockchain',
-  async ({ leaseForm, walletAddress, asset, dokoRentalContract }: Payload) => {
-    console.log('hihihihi1', dokoRentalContract);
-    const nftType =
-      asset.address === '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d' ? 'land' : 'estate';
+  async ({ leaseForm, walletAddress, asset, dokoRentalContract }: ICreateLease) => {
     const leaseDetails = [
       ethers.utils.parseEther(leaseForm.rentAmount.toFixed(1)),
       ethers.utils.parseEther(leaseForm.deposit.toFixed(1)),
@@ -68,23 +68,24 @@ export const createLeaseToBlockchain = createAsyncThunk(
       false,
       leaseForm.autoRegenerate,
     ];
-    const lease = [walletAddress, '0x0000000000000000000000000000000000000000'];
-    console.log('leaseDetails', leaseDetails);
-    console.log('lease', lease);
-    const haha = await dokoRentalContract.createLease(lease, leaseDetails, false);
-    console.log(haha);
+    const lease = [walletAddress, '0x0000000000000000000000000000000000000000', asset.tokenId];
+    await dokoRentalContract.createLease(lease, leaseDetails, false);
   },
 );
+
+export const getLease = createAsyncThunk('Lease/getLesae', async (payload: IGetLease) => {
+  const lease = await ContractServiceAPI.getLease(payload);
+  return camelize(lease);
+});
 
 const leaseSlice = createSlice({
   name: 'Lease',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(createLeaseToBlockchain.fulfilled, (state, action) => ({
-      ...state,
-      // ...action.payload,
-    }));
+    builder.addCase(getLease.fulfilled, (state, action) => {
+      return action.payload;
+    });
   },
 });
 
