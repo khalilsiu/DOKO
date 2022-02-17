@@ -360,7 +360,6 @@ export const NftIndividual = () => {
       const usdRate = isLastSale ? +res.data.last_sale.payment_token.usd_price : 0;
       let usdAmount = lastsale * usdRate;
       usdAmount = +Number.parseFloat(usdAmount.toString()).toFixed(2);
-      const _floorPrice = +res.data.collection.stats.floor_price;
       setLastSale(lastsale);
       setLastSaleUSD(usdAmount);
     } catch (e) {

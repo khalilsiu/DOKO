@@ -1,7 +1,6 @@
-import { useState, MouseEvent, SyntheticEvent, memo, useContext } from 'react';
+import { useState, MouseEvent, SyntheticEvent, memo } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
-import CloseIcon from '@material-ui/icons/Close';
 import {
   Box,
   Button,
@@ -24,15 +23,14 @@ import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 import { Asset } from '../store/meta-nft-collections';
-import { AssetForLease } from './landProfile/OwnershipView';
 import { useMetaMask } from 'metamask-react';
 import LeaseModal from './landProfile/LeaseModal';
 
 interface NFTItemProps {
   nft: Asset & { floorPrice: number };
   onClick?: () => void;
-  setSelectedAssetForLease?: (nftInfo: AssetForLease | null) => void;
-  selectedAssetForLease?: AssetForLease | null;
+  setSelectedAssetForLease?: (asset: Asset | null) => void;
+  selectedAssetForLease?: Asset | null;
 }
 
 const LeaseButton = withStyles({
@@ -49,10 +47,8 @@ export const OpenseaNFTItem = memo(
     const styles = useStyles();
     const [shareActive, setShareActive] = useState(false);
     const [error, setError] = useState(false);
-    // const [leaseModalOpen, setLeaseModalOpen] = useState(false);
     const nftPath = `/nft/eth/${nft.assetContract.address}/${nft.tokenId}`;
 
-    console.log(status, walletAddress, urlAddress);
     // only decentraland right now
     const showLeaseButton =
       status === 'connected' &&
@@ -80,13 +76,7 @@ export const OpenseaNFTItem = memo(
 
     const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
       e.stopPropagation();
-      setSelectedAssetForLease &&
-        setSelectedAssetForLease({
-          imageOriginalUrl: nft.imageOriginalUrl,
-          tokenId: nft.tokenId,
-          name: nft.name,
-          address: nft.assetContract.address,
-        });
+      setSelectedAssetForLease && setSelectedAssetForLease(nft);
     };
 
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -179,7 +169,7 @@ export const OpenseaNFTItem = memo(
                         onClick={(e) => handleLeaseBtnClick(e)}
                       >
                         <Typography className={styles.leaseBtn} variant="caption">
-                          Create Lease
+                          {nft.lease ? 'Update Lease' : 'Create Lease'}
                         </Typography>
                       </LeaseButton>
                     </div>

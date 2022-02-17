@@ -1,4 +1,4 @@
-import { useEffect, useState, SyntheticEvent, MouseEvent, useContext } from 'react';
+import { useState, SyntheticEvent, MouseEvent, useContext } from 'react';
 import {
   Card,
   Grid,
@@ -15,12 +15,10 @@ import { useParams } from 'react-router-dom';
 import { Meta } from '../../components';
 import Intro from '../core/Intro';
 import { PopoverShare } from '../../components/PopoverShare';
-import { useDispatch } from 'react-redux';
 import eth from '../../assets/eth-small.png';
 import bsc from '../../assets/bsc-small.png';
 import polygon from '../../assets/polygon-small.png';
 import solana from '../../assets/solana-small.png';
-import { fetchCollectionSummary, fetchProfileOwnership } from '../../store/meta-nft-collections';
 import OwnershipView from '../../components/landProfile/OwnershipView';
 import useProfileSummaries from '../../hooks/useProfileSummaries';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
@@ -105,11 +103,11 @@ const useStyles = makeStyles((theme) => ({
 export const NftCollections = () => {
   const { hash } = useParams<{ hash: string }>();
   const profile: any = JSON.parse(atob(hash));
-  const styles = useStyles();
-  const profileSummaries = useProfileSummaries();
+  const addresses = profile.address.map((address) => address[1]);
+  const profileSummaries = useProfileSummaries(addresses);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const dispatch = useDispatch();
   const { openProfileModal } = useContext(CreateProfileContext);
+  const styles = useStyles();
 
   const handleClickOpen = () => {
     openProfileModal();
@@ -168,12 +166,6 @@ export const NftCollections = () => {
     e.stopPropagation();
     setAnchorEl(null);
   };
-
-  const addresses = profile.address.map((address) => address[1]);
-  useEffect(() => {
-    dispatch(fetchProfileOwnership(addresses));
-    dispatch(fetchCollectionSummary());
-  }, []);
 
   return (
     <>

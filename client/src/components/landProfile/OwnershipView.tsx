@@ -9,11 +9,9 @@ import {
   Button,
   useMediaQuery,
   Theme,
-  IconButton,
-  Checkbox,
 } from '@material-ui/core';
 import { useState, useContext, memo } from 'react';
-import { TabPanel, NftPagination, OpenseaNFTItem, RadiusInput } from '..';
+import { TabPanel, OpenseaNFTItem } from '..';
 import Summary from '../../modules/nft-collections/Summary';
 import SectionLabel from '../SectionLabel';
 import metaverses from '../../constants/metaverses';
@@ -24,10 +22,6 @@ import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import RenderMaps from '../maps/RenderMaps';
 import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import UIModal from '../modal';
-import CloseIcon from '@material-ui/icons/Close';
-import LeaseModal from './LeaseModal';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -144,13 +138,6 @@ interface IOwnershipView {
   metaverseSummaries: AggregatedSummary[];
 }
 
-export interface AssetForLease {
-  imageOriginalUrl: string;
-  tokenId: string;
-  address: string;
-  name: string;
-}
-
 const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
   const [tabValue, setTabValue] = useState(0);
@@ -159,7 +146,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const paginations = metaverses.map(() => useState(1));
   const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
-    metaverses.map((_) => null),
+    metaverses.map(() => null),
   );
 
   const handleClickOpen = () => {
@@ -172,7 +159,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     setCollectionAssetSelected(copy);
   };
 
-  const [selectedAssetForLease, setSelectedAssetForLease] = useState<AssetForLease | null>(null);
+  const [selectedAssetForLease, setSelectedAssetForLease] = useState<Asset | null>(null);
   interface IRenderAssets {
     assets: Asset[];
     metaverseIndex: number;

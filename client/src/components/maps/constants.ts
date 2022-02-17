@@ -4,7 +4,6 @@ import { Popup } from 'react-leaflet';
 
 import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
 import { createStyles } from '@material-ui/styles';
-import { Theme } from '@material-ui/core';
 
 export const marker = new L.Icon({
   iconUrl: '/marker.png',

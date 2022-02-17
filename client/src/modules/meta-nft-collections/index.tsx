@@ -1,13 +1,10 @@
-import { useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import { Card, Grid, Hidden, IconButton, makeStyles, Typography } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Meta } from '../../components';
 import Intro from '../core/Intro';
 import { minimizeAddress } from '../../libs/utils';
 import CopyAddress from '../../components/CopyAddress';
-import { fetchAddressOwnership } from '../../store/meta-nft-collections/addressOwnershipSlice';
-import { fetchCollectionSummary } from '../../store/meta-nft-collections';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import useAddressSummaries from '../../hooks/useAddressSummaries';
 import OwnershipView from '../../components/landProfile/OwnershipView';
@@ -66,13 +63,8 @@ const useStyles = makeStyles((theme) => ({
 export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
-  const metaverseSummaries = useAddressSummaries();
+  const metaverseSummaries = useAddressSummaries(address);
   const { openProfileModal } = useContext(CreateProfileContext);
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(fetchAddressOwnership(address));
-    dispatch(fetchCollectionSummary());
-  }, [address]);
 
   const handleClickOpen = () => {
     openProfileModal();

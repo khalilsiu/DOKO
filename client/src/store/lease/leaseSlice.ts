@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ethers } from 'ethers';
 import { LeaseForm } from '../../components/landProfile/LeaseModal';
-import { AssetForLease } from '../../components/landProfile/OwnershipView';
 import { AcceptedTokens } from '../../constants/acceptedTokens';
 import ContractServiceAPI, { IGetLease } from '../../libs/contract-service-api';
 import { camelize } from '../../utils/utils';
+import { Asset } from '../meta-nft-collections/profileOwnershipSlice';
 
-interface Lease {
+export interface Lease {
   rentAmount: number;
   deposit: number;
   monthsPaid: number;
@@ -21,33 +21,16 @@ interface Lease {
   autoRegenerate: boolean;
   rentorAddress: string;
   renteeAddress: string;
-  tokenId: string;
+  assetId: string;
   contractAddress: string;
 }
 
-const initialState: Lease = {
-  rentAmount: 0,
-  deposit: 0,
-  monthsPaid: 0,
-  gracePeriod: 0,
-  minLeaseLength: 0,
-  maxLeaseLength: 0,
-  finalLeaseLength: 0,
-  dateSigned: new Date(),
-  rentToken: AcceptedTokens['ETH'],
-  isOpen: true,
-  isLeased: false,
-  autoRegenerate: false,
-  rentorAddress: '',
-  renteeAddress: '',
-  tokenId: '0',
-  contractAddress: '',
-};
+const initialState: Lease[] = [];
 
 interface ICreateLease {
   leaseForm: LeaseForm;
   walletAddress: string;
-  asset: AssetForLease;
+  asset: Asset;
   dokoRentalContract: ethers.Contract;
 }
 
@@ -55,8 +38,8 @@ export const createLeaseToBlockchain = createAsyncThunk(
   'Lease/createLeaseToBlockchain',
   async ({ leaseForm, walletAddress, asset, dokoRentalContract }: ICreateLease) => {
     const leaseDetails = [
-      ethers.utils.parseEther(leaseForm.rentAmount.toFixed(1)),
-      ethers.utils.parseEther(leaseForm.deposit.toFixed(1)),
+      ethers.utils.parseEther(leaseForm.rentAmount),
+      ethers.utils.parseEther(leaseForm.deposit),
       0,
       leaseForm.gracePeriod,
       leaseForm.minLeaseLength,
@@ -91,4 +74,4 @@ const leaseSlice = createSlice({
 
 // export const { getUserOwnership } = leaseSlice.actions;
 
-export const lease = leaseSlice.reducer;
+export const leases = leaseSlice.reducer;

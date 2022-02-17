@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowRight } from '@material-ui/icons';
 import { OpenseaNFTItem } from './OpenseaNFTItem';
 import { LightButton } from './LightButton';
 import { Asset } from '../store/meta-nft-collections';
-import { AssetForLease } from './landProfile/OwnershipView';
 
 interface Props {
   nfts: (Asset & { floorPrice: number })[];
@@ -13,7 +12,7 @@ interface Props {
   onPrev?: () => void;
   loading?: boolean;
   maxPage?: number;
-  onLeaseButtonClick?: (nftInfo: AssetForLease | null) => void;
+  onLeaseButtonClick?: (asset: Asset | null) => void;
 }
 
 const useStyles = makeStyles((theme) => ({

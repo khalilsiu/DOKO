@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
-import { Pair } from '../../types/interfaces';
 import { camelize, getCoordinatesFromUrl } from '../../utils/utils';
+import { Lease } from '../lease/leaseSlice';
 
 export interface Trait {
   traitType: string;
@@ -23,6 +23,7 @@ export interface Asset {
   assetContract: {
     address: string;
   };
+  lease?: Lease;
   traits: Trait[];
 }
 

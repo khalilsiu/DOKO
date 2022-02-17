@@ -1,4 +1,3 @@
-import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
 
@@ -51,7 +50,7 @@ export const GradientSVG = () => {
     </svg>
   );
 };
-export const NftTraits = ({ traits, totalSupply }: NFtTraitsProps) => {
+export const NftTraits = ({ traits }: NFtTraitsProps) => {
   const styles = useStyles();
   return (
     <Grid item container justifyContent="flex-start" spacing={3}>

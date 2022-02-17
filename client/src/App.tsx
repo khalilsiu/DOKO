@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, PropsWithChildren, Suspense } from 'react';
+import { lazy, PropsWithChildren, Suspense } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 

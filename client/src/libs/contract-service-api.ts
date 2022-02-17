@@ -6,9 +6,7 @@ const instance = axios.create({
 });
 
 export interface IGetLease {
-  walletAddress: string;
-  contractAddress: string;
-  tokenId: string;
+  lessor: string;
 }
 
 export default class ContractServiceAPI {

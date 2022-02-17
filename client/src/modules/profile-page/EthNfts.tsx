@@ -4,11 +4,8 @@ import { Grid } from '@material-ui/core';
 
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
-import { getEthAssets, getEthCollections } from './api';
-import { isSolAddress } from '../../libs/utils';
 
 import './select-search.css';
-import NftCollections from '../nft-collections';
 
 interface Props {
   data: any;

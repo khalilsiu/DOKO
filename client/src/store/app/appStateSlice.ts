@@ -1,5 +1,5 @@
 import { Color } from '@material-ui/lab';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { createLeaseToBlockchain } from '../lease/leaseSlice';
 import { fetchProfileOwnership } from '../meta-nft-collections';
 import { fetchAddressOwnership } from '../meta-nft-collections/addressOwnershipSlice';
@@ -28,6 +28,13 @@ const appStateSlice = createSlice({
   name: 'AppState',
   initialState,
   reducers: {
+    openToast(state, action: PayloadAction<{ message: string; state: Color }>) {
+      state.toast = {
+        show: true,
+        state: action.payload.state,
+        message: action.payload.message,
+      };
+    },
     closeToast(state) {
       state.toast = {
         show: false,
@@ -61,7 +68,6 @@ const appStateSlice = createSlice({
       // rejected
       .addCase(createLeaseToBlockchain.rejected, (state, action) => {
         state.isTransacting = false;
-        console.log('ERRR', action.error);
         state.toast = {
           show: true,
           state: 'error',
@@ -71,5 +77,5 @@ const appStateSlice = createSlice({
   },
 });
 
-export const { closeToast } = appStateSlice.actions;
+export const { closeToast, openToast } = appStateSlice.actions;
 export const appState = appStateSlice.reducer;

@@ -12,18 +12,19 @@ import {
 } from '@material-ui/core';
 import { RadiusInput } from '..';
 import UIModal from '../modal';
-import { AssetForLease } from './OwnershipView';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import Joi from 'joi';
-import { camelToText } from '../../utils/utils';
 import { AuthContext } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createLeaseToBlockchain, getLease } from '../../store/lease/leaseSlice';
+import { createLeaseToBlockchain } from '../../store/lease/leaseSlice';
 import { RootState } from '../../store/store';
+import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
+import { parseError } from '../../utils/joiErrors';
+import { openToast } from '../../store/app/appStateSlice';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -93,19 +94,19 @@ export const StyledSelect = withStyles({
 })(Select);
 
 interface ILeaseModal {
-  selectedAssetForLease: AssetForLease;
-  setSelectedAssetForLease?: (nftInfo: AssetForLease | null) => void;
+  selectedAssetForLease: Asset;
+  setSelectedAssetForLease?: (asset: Asset | null) => void;
   walletAddress: string;
   addressConcerned: string;
 }
 
 export interface LeaseForm {
   rentToken: AcceptedTokens;
-  rentAmount: number;
-  deposit: number;
-  gracePeriod: number;
-  minLeaseLength: number;
-  maxLeaseLength: number;
+  rentAmount: string;
+  deposit: string;
+  gracePeriod: string;
+  minLeaseLength: string;
+  maxLeaseLength: string;
   autoRegenerate: boolean;
 }
 
@@ -113,13 +114,13 @@ const schema = {
   rentToken: Joi.string()
     .valid(...tokens.map((token) => token.symbol))
     .required(),
-  rentAmount: Joi.number().min(0).required(),
-  deposit: Joi.number().min(0).required(),
-  gracePeriod: Joi.number().min(0).required(),
-  minLeaseLength: Joi.number().min(1).required(),
+  rentAmount: Joi.number().positive().required(),
+  deposit: Joi.number().positive().required(),
+  gracePeriod: Joi.number().positive().integer().required(),
+  minLeaseLength: Joi.number().min(1).integer().required(),
   maxLeaseLength: Joi.number().when('minLeaseLength', {
     is: Joi.exist(),
-    then: Joi.number().greater(Joi.ref('minLeaseLength')).required(),
+    then: Joi.number().greater(Joi.ref('minLeaseLength')).integer().required(),
   }),
   autoRegenerate: Joi.bool().required(),
 };
@@ -141,18 +142,30 @@ const LeaseModal = memo(
       loading: approveLoading,
     } = useContext(AuthContext);
     const { isTransacting } = useSelector((state: RootState) => state.appState);
-
     const theme = useTheme();
     const dispatch = useDispatch();
-    const [leaseForm, setLeaseForm] = useState<LeaseForm>({
-      rentToken: AcceptedTokens['ETH'],
-      rentAmount: 20,
-      deposit: 0,
-      gracePeriod: 0,
-      minLeaseLength: 0,
-      maxLeaseLength: 0,
-      autoRegenerate: false,
-    });
+
+    const initialState = selectedAssetForLease.lease
+      ? {
+          rentToken: selectedAssetForLease.lease?.rentToken,
+          rentAmount: (selectedAssetForLease.lease?.rentAmount).toString(),
+          deposit: (selectedAssetForLease.lease?.deposit).toString(),
+          gracePeriod: (selectedAssetForLease.lease?.gracePeriod).toString(),
+          minLeaseLength: (selectedAssetForLease.lease?.minLeaseLength).toString(),
+          maxLeaseLength: (selectedAssetForLease.lease?.maxLeaseLength).toString(),
+          autoRegenerate: selectedAssetForLease.lease?.autoRegenerate,
+        }
+      : {
+          rentToken: AcceptedTokens['ETH'],
+          rentAmount: '',
+          deposit: '',
+          gracePeriod: '',
+          minLeaseLength: '',
+          maxLeaseLength: '',
+          autoRegenerate: false,
+        };
+
+    const [leaseForm, setLeaseForm] = useState<LeaseForm>(initialState);
     const [errors, setErrors] = useState<{ [key in keyof LeaseForm]: string }>({
       rentToken: '',
       rentAmount: '',
@@ -167,10 +180,9 @@ const LeaseModal = memo(
       checkApproveForAll(walletAddress);
     }, [dclContract]);
 
-    console.log('leaseform', leaseForm);
     const approveLease = async () => {
       if (!dclContract || walletAddress !== addressConcerned) {
-        console.log('somethings wrong');
+        dispatch(openToast({ message: 'Decentraland contract instance error', state: 'error' }));
         return;
       }
       await approveDokoOnDcl();
@@ -184,8 +196,9 @@ const LeaseModal = memo(
         setErrors(newErrors);
         return;
       }
+
       if (!dokoRentalContract || walletAddress !== addressConcerned) {
-        console.log('somethings wrong');
+        dispatch(openToast({ message: 'Doko contract instance error', state: 'error' }));
         return;
       }
 
@@ -197,13 +210,7 @@ const LeaseModal = memo(
           dokoRentalContract,
         }),
       );
-      await dispatch(
-        getLease({
-          walletAddress,
-          contractAddress: selectedAssetForLease.address,
-          tokenId: selectedAssetForLease.tokenId,
-        }),
-      );
+      window.location.reload();
     };
 
     const handleChange = useCallback(
@@ -221,35 +228,10 @@ const LeaseModal = memo(
       setLeaseForm(newLeaseForm);
     }, [leaseForm]);
 
-    const parseError = (error: Joi.ValidationError) => {
-      switch (error.details[0].type) {
-        case 'number.base': {
-          return 'Please enter a number.';
-        }
-        case 'number.min': {
-          if (!error.details[0].context) {
-            return;
-          }
-          const min = error.details[0].context.limit;
-          return `Please enter a number greater than ${min}.`;
-        }
-        case 'number.greater': {
-          if (!error.details[0].context || !error.details[0].context.limit) {
-            return;
-          }
-          const field = error.details[0].context.limit.key;
-          return `Please enter a number greater than ${camelToText(field)}`;
-        }
-        default: {
-          return '';
-        }
-      }
-    };
-
-    const handleInputChange = (e) => {
+    const handleBlur = (e) => {
       const rawValue = e.target.value;
       const targetName = e.target.name;
-      const input = { [targetName]: rawValue };
+      const input = { [targetName]: parseFloat(rawValue) };
       const result = Joi.object({ [targetName]: schema[targetName] }).validate(input);
       if (result.error) {
         const newErrors = cloneDeep(errors);
@@ -260,8 +242,13 @@ const LeaseModal = memo(
       const newErrors = cloneDeep(errors);
       newErrors[targetName] = '';
       setErrors(newErrors);
+    };
+
+    const handleInputChange = (e) => {
+      const rawValue = e.target.value;
+      const targetName = e.target.name;
       const newLeaseForm = cloneDeep(leaseForm);
-      newLeaseForm[targetName] = parseInt(rawValue, 10);
+      newLeaseForm[targetName] = rawValue || '';
       setLeaseForm(newLeaseForm);
     };
 
@@ -301,7 +288,7 @@ const LeaseModal = memo(
               <div className={styles.modalContentRow} style={{ display: 'flex' }}>
                 <div style={{ flex: 1, paddingRight: '1rem' }}>
                   <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                    Lease Token
+                    Fee Token
                   </Typography>
                   <StyledSelect
                     value={leaseForm.rentToken}
@@ -321,7 +308,7 @@ const LeaseModal = memo(
                 </div>
                 <div style={{ flex: 1 }}>
                   <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                    Lease Amount
+                    Fee Per Month
                   </Typography>
                   <RadiusInput
                     fullWidth
@@ -330,6 +317,8 @@ const LeaseModal = memo(
                     name="rentAmount"
                     onChange={handleInputChange}
                     disabled={isTransacting || approveLoading}
+                    onBlur={handleBlur}
+                    value={leaseForm.rentAmount}
                   />
                   {errors.rentAmount && (
                     <Typography variant="body2" className={styles.errorMessage}>
@@ -338,47 +327,9 @@ const LeaseModal = memo(
                   )}
                 </div>
               </div>
-              <div className={styles.modalContentRow} style={{ display: 'flex' }}>
-                <div style={{ flex: 1, paddingRight: '1rem' }}>
-                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                    Deposit Amount
-                  </Typography>
-                  <RadiusInput
-                    fullWidth
-                    style={{ height: '30px' }}
-                    name="deposit"
-                    placeholder={`Deposit in ${leaseForm.rentToken}`}
-                    onChange={handleInputChange}
-                    disabled={isTransacting || approveLoading}
-                  />
-                  {errors.deposit && (
-                    <Typography variant="body2" className={styles.errorMessage}>
-                      {errors.deposit}
-                    </Typography>
-                  )}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                    Grace Period
-                  </Typography>
-                  <RadiusInput
-                    fullWidth
-                    placeholder="Late rent allowed (in days)"
-                    name="gracePeriod"
-                    style={{ height: '30px' }}
-                    onChange={handleInputChange}
-                    disabled={isTransacting || approveLoading}
-                  />
-                  {errors.gracePeriod && (
-                    <Typography variant="body2" className={styles.errorMessage}>
-                      {errors.gracePeriod}
-                    </Typography>
-                  )}
-                </div>
-              </div>
               <div className={styles.modalContentRow}>
                 <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Lease Length (in months)
+                  Lease Length - Minimum to Maximum
                 </Typography>
                 <div style={{ display: 'flex' }}>
                   <div style={{ flex: 1, paddingRight: '1rem' }}>
@@ -389,6 +340,8 @@ const LeaseModal = memo(
                       style={{ height: '30px' }}
                       onChange={handleInputChange}
                       disabled={isTransacting || approveLoading}
+                      onBlur={handleBlur}
+                      value={leaseForm.minLeaseLength}
                     />
                     {errors.minLeaseLength && (
                       <Typography variant="body2" className={styles.errorMessage}>
@@ -404,6 +357,8 @@ const LeaseModal = memo(
                       name="maxLeaseLength"
                       onChange={handleInputChange}
                       disabled={isTransacting || approveLoading}
+                      onBlur={handleBlur}
+                      value={leaseForm.maxLeaseLength}
                     />
                     {errors.maxLeaseLength && (
                       <Typography variant="body2" className={styles.errorMessage}>
@@ -413,9 +368,51 @@ const LeaseModal = memo(
                   </div>
                 </div>
               </div>
+              <div className={styles.modalContentRow} style={{ display: 'flex' }}>
+                <div style={{ flex: 1, paddingRight: '1rem' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Security Deposit
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    style={{ height: '30px' }}
+                    name="deposit"
+                    placeholder={`Deposit in ${leaseForm.rentToken}`}
+                    onChange={handleInputChange}
+                    disabled={isTransacting || approveLoading}
+                    onBlur={handleBlur}
+                    value={leaseForm.deposit}
+                  />
+                  {errors.deposit && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.deposit}
+                    </Typography>
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Grace Period for Late Fees
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    placeholder="Late rent allowed (in days)"
+                    name="gracePeriod"
+                    style={{ height: '30px' }}
+                    onBlur={handleBlur}
+                    onChange={handleInputChange}
+                    disabled={isTransacting || approveLoading}
+                    value={leaseForm.gracePeriod}
+                  />
+                  {errors.gracePeriod && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.gracePeriod}
+                    </Typography>
+                  )}
+                </div>
+              </div>
               <div className={styles.modalContentRow}>
                 <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Auto Generate
+                  Regenerate Lease
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Checkbox
@@ -424,10 +421,11 @@ const LeaseModal = memo(
                     onChange={handleCheck}
                     style={{ padding: '0 0.5rem 0 0', color: theme.palette.primary.main }}
                     disabled={isTransacting || approveLoading}
+                    value={leaseForm.autoRegenerate}
                   />
                   <Typography variant="body2" style={{ fontSize: '0.8rem' }}>
-                    When the lease ends, authorize the platform to automatically put it back on the
-                    market.
+                    When the renter terminates the lease early, allow DOKO to list the same lease
+                    back onto the market.
                   </Typography>
                 </div>
               </div>
@@ -436,12 +434,14 @@ const LeaseModal = memo(
                   variant="body2"
                   style={{ paddingBottom: '0.25rem', fontSize: '0.8rem' }}
                 >
-                  Terms:
+                  Notes:
                 </Typography>
-                <Typography variant="body2" style={{ fontSize: '0.8rem' }}>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae neque hic,
-                  dolor nostrum, fugit ipsam ab atque minus repudiandae obcaecati alias saepe,
-                  maiores sapiente officiis repellendus magnam. Inventore, qui at!
+                <Typography variant="body2" style={{ fontSize: '0.75rem' }}>
+                  All fees are sent directly to the address creating the lease so there is no need
+                  for you to claim.
+                </Typography>
+                <Typography variant="body2" style={{ fontSize: '0.75rem' }}>
+                  The smart contract is audited by PeckShield. However use at your own risk.
                 </Typography>
               </div>
             </div>

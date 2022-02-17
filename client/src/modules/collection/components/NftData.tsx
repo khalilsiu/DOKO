@@ -1,173 +1,172 @@
-import { Container, Grid, makeStyles, Theme, Typography } from '@material-ui/core';
-import { HeadCell } from '../../../components/EnhancedTable';
-import { shortenAddress } from '../../../libs/utils';
+import { Grid, makeStyles, Theme, Typography } from '@material-ui/core';
+// import { shortenAddress } from '../../../libs/utils';
 
-// mock data
-const ogFollowing = [
-  {
-    icon: '/meebits.png',
-    name: 'CryptoPunks',
-    owners: '10 owners 2% supply',
-  },
-  {
-    icon: '/meebits.png',
-    name: 'CryptoPunks',
-    owners: '10 owners 2% supply',
-  },
-  {
-    icon: '/meebits.png',
-    name: 'CryptoPunks',
-    owners: '10 owners 2% supply',
-  },
-  {
-    icon: '/meebits.png',
-    name: 'CryptoPunks',
-    owners: '10 owners 2% supply',
-  },
-  {
-    icon: '/meebits.png',
-    name: 'CryptoPunks',
-    owners: '10 owners 2% supply',
-  },
-  {
-    icon: '/meebits.png',
-    name: 'CryptoPunks',
-    owners: '10 owners 2% supply',
-  },
-];
+// // mock data
+// const ogFollowing = [
+//   {
+//     icon: '/meebits.png',
+//     name: 'CryptoPunks',
+//     owners: '10 owners 2% supply',
+//   },
+//   {
+//     icon: '/meebits.png',
+//     name: 'CryptoPunks',
+//     owners: '10 owners 2% supply',
+//   },
+//   {
+//     icon: '/meebits.png',
+//     name: 'CryptoPunks',
+//     owners: '10 owners 2% supply',
+//   },
+//   {
+//     icon: '/meebits.png',
+//     name: 'CryptoPunks',
+//     owners: '10 owners 2% supply',
+//   },
+//   {
+//     icon: '/meebits.png',
+//     name: 'CryptoPunks',
+//     owners: '10 owners 2% supply',
+//   },
+//   {
+//     icon: '/meebits.png',
+//     name: 'CryptoPunks',
+//     owners: '10 owners 2% supply',
+//   },
+// ];
 
-function createData(
-  from: string,
-  to: string,
-  token: string,
-  price: number,
-  datetime: Date,
-  link: string,
-) {
-  return {
-    from,
-    to,
-    token,
-    price,
-    datetime,
-    link,
-  };
-}
+// function createData(
+//   from: string,
+//   to: string,
+//   token: string,
+//   price: number,
+//   datetime: Date,
+//   link: string,
+// ) {
+//   return {
+//     from,
+//     to,
+//     token,
+//     price,
+//     datetime,
+//     link,
+//   };
+// }
 
-const rows = [
-  createData(
-    shortenAddress('0x2ca4570ff0cba9655e4cad7d3dbab7600958b336'),
-    shortenAddress('0x93053e20ffaa4be1d15c114c21ce0881e7fe0cf3'),
-    '#091',
-    0.381,
-    new Date(),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x8d4daba34c92e581f928fca40e018382f7a0282a'),
-    shortenAddress('0xd736900ce5669293e16029e9bfc89b0b8ba19ac0'),
-    '#092',
-    0.288,
-    new Date('2021-09-03'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x48c04ed5691981c42154c6167398f95e8f38a7ff'),
-    shortenAddress('0x4e15361fd6b4bb609fa63c81a2be19d873717870'),
-    '#094',
-    0.488,
-    new Date('2021-07-05'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0xc58bb74606b73c5043b75d7aa25ebe1d5d4e7c72'),
-    shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
-    '#104',
-    0.211,
-    new Date('2019-04-30'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x4e5b2e1dc63f6b91cb6cd759936495434c7e972f'),
-    shortenAddress('0x8d8b971126f10bae9988100a40434022860695e1'),
-    '#392',
-    0.699,
-    new Date('2014-11-02'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0xfcc21cd45758e504544cd3bb1fd9a8185bcc1070'),
-    shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
-    '#003',
-    0.123,
-    new Date('2020-05-01'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x7360401dc9c1c1e2e45e2929255ee0b276b9ab51'),
-    shortenAddress('0xda816e2122a8a39b0926bfa84edd3d42477e9efd'),
-    '#049',
-    1.381,
-    new Date('1990-09-18'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x2ca4570ff0cba9655e4cad7d3dbab7600958b336'),
-    shortenAddress('0x93053e20ffaa4be1d15c114c21ce0881e7fe0cf3'),
-    '#091',
-    0.381,
-    new Date(),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x8d4daba34c92e581f928fca40e018382f7a0282a'),
-    shortenAddress('0xd736900ce5669293e16029e9bfc89b0b8ba19ac0'),
-    '#092',
-    0.288,
-    new Date('2019-08-21'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x48c04ed5691981c42154c6167398f95e8f38a7ff'),
-    shortenAddress('0x4e15361fd6b4bb609fa63c81a2be19d873717870'),
-    '#094',
-    0.488,
-    new Date('2017-03-23'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0xc58bb74606b73c5043b75d7aa25ebe1d5d4e7c72'),
-    shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
-    '#104',
-    0.211,
-    new Date('2019-04-30'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x4e5b2e1dc63f6b91cb6cd759936495434c7e972f'),
-    shortenAddress('0x8d8b971126f10bae9988100a40434022860695e1'),
-    '#392',
-    0.699,
-    new Date('2014-11-02'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0xfcc21cd45758e504544cd3bb1fd9a8185bcc1070'),
-    shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
-    '#003',
-    0.123,
-    new Date('2020-05-01'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-  createData(
-    shortenAddress('0x7360401dc9c1c1e2e45e2929255ee0b276b9ab51'),
-    shortenAddress('0xda816e2122a8a39b0926bfa84edd3d42477e9efd'),
-    '#049',
-    1.381,
-    new Date('1990-09-18'),
-    'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
-  ),
-];
+// const rows = [
+//   createData(
+//     shortenAddress('0x2ca4570ff0cba9655e4cad7d3dbab7600958b336'),
+//     shortenAddress('0x93053e20ffaa4be1d15c114c21ce0881e7fe0cf3'),
+//     '#091',
+//     0.381,
+//     new Date(),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x8d4daba34c92e581f928fca40e018382f7a0282a'),
+//     shortenAddress('0xd736900ce5669293e16029e9bfc89b0b8ba19ac0'),
+//     '#092',
+//     0.288,
+//     new Date('2021-09-03'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x48c04ed5691981c42154c6167398f95e8f38a7ff'),
+//     shortenAddress('0x4e15361fd6b4bb609fa63c81a2be19d873717870'),
+//     '#094',
+//     0.488,
+//     new Date('2021-07-05'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0xc58bb74606b73c5043b75d7aa25ebe1d5d4e7c72'),
+//     shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
+//     '#104',
+//     0.211,
+//     new Date('2019-04-30'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x4e5b2e1dc63f6b91cb6cd759936495434c7e972f'),
+//     shortenAddress('0x8d8b971126f10bae9988100a40434022860695e1'),
+//     '#392',
+//     0.699,
+//     new Date('2014-11-02'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0xfcc21cd45758e504544cd3bb1fd9a8185bcc1070'),
+//     shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
+//     '#003',
+//     0.123,
+//     new Date('2020-05-01'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x7360401dc9c1c1e2e45e2929255ee0b276b9ab51'),
+//     shortenAddress('0xda816e2122a8a39b0926bfa84edd3d42477e9efd'),
+//     '#049',
+//     1.381,
+//     new Date('1990-09-18'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x2ca4570ff0cba9655e4cad7d3dbab7600958b336'),
+//     shortenAddress('0x93053e20ffaa4be1d15c114c21ce0881e7fe0cf3'),
+//     '#091',
+//     0.381,
+//     new Date(),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x8d4daba34c92e581f928fca40e018382f7a0282a'),
+//     shortenAddress('0xd736900ce5669293e16029e9bfc89b0b8ba19ac0'),
+//     '#092',
+//     0.288,
+//     new Date('2019-08-21'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x48c04ed5691981c42154c6167398f95e8f38a7ff'),
+//     shortenAddress('0x4e15361fd6b4bb609fa63c81a2be19d873717870'),
+//     '#094',
+//     0.488,
+//     new Date('2017-03-23'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0xc58bb74606b73c5043b75d7aa25ebe1d5d4e7c72'),
+//     shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
+//     '#104',
+//     0.211,
+//     new Date('2019-04-30'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x4e5b2e1dc63f6b91cb6cd759936495434c7e972f'),
+//     shortenAddress('0x8d8b971126f10bae9988100a40434022860695e1'),
+//     '#392',
+//     0.699,
+//     new Date('2014-11-02'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0xfcc21cd45758e504544cd3bb1fd9a8185bcc1070'),
+//     shortenAddress('0xdac17f958d2ee523a2206206994597c13d831ec7'),
+//     '#003',
+//     0.123,
+//     new Date('2020-05-01'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+//   createData(
+//     shortenAddress('0x7360401dc9c1c1e2e45e2929255ee0b276b9ab51'),
+//     shortenAddress('0xda816e2122a8a39b0926bfa84edd3d42477e9efd'),
+//     '#049',
+//     1.381,
+//     new Date('1990-09-18'),
+//     'https://etherscan.io/tx/0x765941839372dd35a612fe5bf1d05e761d16541aec26c47f588eb78e4def2f54',
+//   ),
+// ];
 
 // const highPriceData = [
 //   {
@@ -176,72 +175,72 @@ const rows = [
 //   }
 // ]
 
-const charts = [
-  {
-    title: 'Price Range',
-    data: [
-      {
-        label: 'series1',
-        data: [50, 40, 28, 51, 42, 109, 100],
-      },
-      {
-        label: 'series2',
-        data: [11, 32, 45, 32, 34, 52, 41],
-      },
-    ],
-  },
-  {
-    title: 'Total Volume',
-    data: [
-      {
-        label: 'series1',
-        data: [31, 40, 28, 51, 42, 109, 100],
-      },
-    ],
-  },
-  {
-    title: 'Transactions',
-    data: [
-      {
-        label: 'series1',
-        data: [31, 40, 28, 51, 42, 109, 100],
-      },
-    ],
-  },
-];
+// const charts = [
+//   {
+//     title: 'Price Range',
+//     data: [
+//       {
+//         label: 'series1',
+//         data: [50, 40, 28, 51, 42, 109, 100],
+//       },
+//       {
+//         label: 'series2',
+//         data: [11, 32, 45, 32, 34, 52, 41],
+//       },
+//     ],
+//   },
+//   {
+//     title: 'Total Volume',
+//     data: [
+//       {
+//         label: 'series1',
+//         data: [31, 40, 28, 51, 42, 109, 100],
+//       },
+//     ],
+//   },
+//   {
+//     title: 'Transactions',
+//     data: [
+//       {
+//         label: 'series1',
+//         data: [31, 40, 28, 51, 42, 109, 100],
+//       },
+//     ],
+//   },
+// ];
 
-const headCells: readonly HeadCell[] = [
-  {
-    id: 'from',
-    numeric: false,
-    label: 'From',
-  },
-  {
-    id: 'to',
-    numeric: false,
-    label: 'To',
-  },
-  {
-    id: 'token',
-    numeric: false,
-    label: 'Token',
-  },
-  {
-    id: 'price',
-    numeric: true,
-    label: 'Price',
-  },
-  {
-    id: 'datetime',
-    numeric: false,
-    label: 'Date',
-  },
-  {
-    id: 'link',
-    numeric: false,
-    label: 'Links',
-  },
-];
+// const headCells: readonly HeadCell[] = [
+//   {
+//     id: 'from',
+//     numeric: false,
+//     label: 'From',
+//   },
+//   {
+//     id: 'to',
+//     numeric: false,
+//     label: 'To',
+//   },
+//   {
+//     id: 'token',
+//     numeric: false,
+//     label: 'Token',
+//   },
+//   {
+//     id: 'price',
+//     numeric: true,
+//     label: 'Price',
+//   },
+//   {
+//     id: 'datetime',
+//     numeric: false,
+//     label: 'Date',
+//   },
+//   {
+//     id: 'link',
+//     numeric: false,
+//     label: 'Links',
+//   },
+// ];
 
 const useStyles = makeStyles((theme: Theme) => ({
   container: {
