@@ -13,6 +13,8 @@ import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
 import DokoRental from '../contracts/DokoRental.json';
 import DecentralandAbi from '../contracts/Decentraland.json';
+import { useDispatch } from 'react-redux';
+import { openToast } from '../store/app';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -142,7 +144,7 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
   const [dclContract, setDclContract] = useState<ethers.Contract | null>(null);
   const [dokoRentalContract, setDokoRentalContract] = useState<ethers.Contract | null>(null);
   const [isDokoApproved, setIsDokoApproved] = useState(false);
-
+  const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -150,7 +152,7 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     setDclContract(
-      new Contract('0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d', DecentralandAbi, signer),
+      new Contract(process.env.REACT_APP_DCL_LAND_ADDRESS || '', DecentralandAbi, signer),
     );
   };
 
@@ -176,10 +178,19 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
 
   const checkApproveForAll = async (walletAddress: string) => {
     if (!dclContract) {
+      dispatch(openToast({ message: 'DCL contract instance not instantiated', state: 'error' }));
       return;
     }
-    const isApprovedForAll = await dclContract.isApprovedForAll(walletAddress, DokoRental.address);
-    setIsDokoApproved(isApprovedForAll);
+    try {
+      const isApprovedForAll = await dclContract.isApprovedForAll(
+        walletAddress,
+        DokoRental.address,
+      );
+      setIsDokoApproved(isApprovedForAll);
+    } catch (e) {
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+      return;
+    }
   };
 
   const connectMetaMask = async () => {
@@ -193,7 +204,8 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
         await connect();
       }
     } catch (err) {
-      console.error('metamask connection', err);
+      dispatch(openToast({ message: `Metamask error ${(err as Error).message}`, state: 'error' }));
+      return;
     }
   };
 

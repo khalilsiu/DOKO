@@ -14,7 +14,7 @@ export const parseError = (error: Joi.ValidationError) => {
         return;
       }
       const min = error.details[0].context.limit;
-      return `Please enter a number greater than ${min}.`;
+      return `Please enter a number greater than or equal to ${min}.`;
     }
     case 'number.positive': {
       if (!error.details[0].context) {

@@ -9,6 +9,9 @@ import {
   Select,
   Input,
   useTheme,
+  Theme,
+  useMediaQuery,
+  Grid,
 } from '@material-ui/core';
 import { RadiusInput } from '..';
 import UIModal from '../modal';
@@ -38,10 +41,18 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
   },
   modal: {
+    [theme.breakpoints.down('sm')]: {
+      width: '90vw',
+    },
     width: '900px',
   },
   modalContent: {
     display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      height: '60vh',
+      overflowY: 'scroll',
+      marginBottom: '1.5rem',
+    },
   },
   modalContentLeft: {
     flex: 1,
@@ -116,7 +127,7 @@ const schema = {
     .required(),
   rentAmount: Joi.number().positive().required(),
   deposit: Joi.number().positive().required(),
-  gracePeriod: Joi.number().positive().integer().required(),
+  gracePeriod: Joi.number().positive().min(7).integer().required(),
   minLeaseLength: Joi.number().min(1).integer().required(),
   maxLeaseLength: Joi.number().when('minLeaseLength', {
     is: Joi.exist(),
@@ -144,6 +155,7 @@ const LeaseModal = memo(
     const { isTransacting } = useSelector((state: RootState) => state.appState);
     const theme = useTheme();
     const dispatch = useDispatch();
+    const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
 
     const initialState = selectedAssetForLease.lease
       ? {
@@ -271,22 +283,29 @@ const LeaseModal = memo(
         )}
         renderBody={() => (
           <div className={styles.modalContent}>
-            <div className={styles.modalContentLeft}>
-              <Typography variant="body2" className={styles.assetName}>
-                {selectedAssetForLease.name}
-              </Typography>
-              <div
-                className={styles.assetImage}
-                style={{
-                  background: `url('${selectedAssetForLease.imageOriginalUrl}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              ></div>
-            </div>
+            {mdOrAbove && (
+              <div className={styles.modalContentLeft}>
+                <Typography variant="body2" className={styles.assetName}>
+                  {selectedAssetForLease.name}
+                </Typography>
+                <div
+                  className={styles.assetImage}
+                  style={{
+                    background: `url('${selectedAssetForLease.imageOriginalUrl}')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                ></div>
+              </div>
+            )}
             <div className={styles.modalContentRight}>
-              <div className={styles.modalContentRow} style={{ display: 'flex' }}>
-                <div style={{ flex: 1, paddingRight: '1rem' }}>
+              <Grid
+                container
+                spacing={2}
+                className={styles.modalContentRow}
+                style={{ display: 'flex' }}
+              >
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
                   <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
                     Fee Token
                   </Typography>
@@ -301,12 +320,25 @@ const LeaseModal = memo(
                   >
                     {tokens.map((token) => (
                       <MenuItem key={token.symbol} value={token.symbol}>
-                        {token.symbol}
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <div
+                            style={{
+                              width: '30px',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              marginRight: '0.5rem',
+                            }}
+                          >
+                            <img src={token.icon} alt="" height="20px" />
+                          </div>
+                          {token.label}
+                        </div>
                       </MenuItem>
                     ))}
                   </StyledSelect>
-                </div>
-                <div style={{ flex: 1 }}>
+                </Grid>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
                   <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
                     Fee Per Month
                   </Typography>
@@ -325,51 +357,57 @@ const LeaseModal = memo(
                       {errors.rentAmount}
                     </Typography>
                   )}
-                </div>
-              </div>
-              <div className={styles.modalContentRow}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Lease Length - Minimum to Maximum
-                </Typography>
-                <div style={{ display: 'flex' }}>
-                  <div style={{ flex: 1, paddingRight: '1rem' }}>
-                    <RadiusInput
-                      fullWidth
-                      placeholder="Min."
-                      name="minLeaseLength"
-                      style={{ height: '30px' }}
-                      onChange={handleInputChange}
-                      disabled={isTransacting || approveLoading}
-                      onBlur={handleBlur}
-                      value={leaseForm.minLeaseLength}
-                    />
-                    {errors.minLeaseLength && (
-                      <Typography variant="body2" className={styles.errorMessage}>
-                        {errors.minLeaseLength}
-                      </Typography>
-                    )}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <RadiusInput
-                      fullWidth
-                      placeholder="Max."
-                      style={{ height: '30px' }}
-                      name="maxLeaseLength"
-                      onChange={handleInputChange}
-                      disabled={isTransacting || approveLoading}
-                      onBlur={handleBlur}
-                      value={leaseForm.maxLeaseLength}
-                    />
-                    {errors.maxLeaseLength && (
-                      <Typography variant="body2" className={styles.errorMessage}>
-                        {errors.maxLeaseLength}
-                      </Typography>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.modalContentRow} style={{ display: 'flex' }}>
-                <div style={{ flex: 1, paddingRight: '1rem' }}>
+                </Grid>
+              </Grid>
+              <Grid container spacing={2} className={styles.modalContentRow}>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Min. Lease Length
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    placeholder="Min."
+                    name="minLeaseLength"
+                    style={{ height: '30px' }}
+                    onChange={handleInputChange}
+                    disabled={isTransacting || approveLoading}
+                    onBlur={handleBlur}
+                    value={leaseForm.minLeaseLength}
+                  />
+                  {errors.minLeaseLength && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.minLeaseLength}
+                    </Typography>
+                  )}
+                </Grid>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Max. Lease Length
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    placeholder="Max."
+                    style={{ height: '30px' }}
+                    name="maxLeaseLength"
+                    onChange={handleInputChange}
+                    disabled={isTransacting || approveLoading}
+                    onBlur={handleBlur}
+                    value={leaseForm.maxLeaseLength}
+                  />
+                  {errors.maxLeaseLength && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.maxLeaseLength}
+                    </Typography>
+                  )}
+                </Grid>
+              </Grid>
+              <Grid
+                container
+                spacing={2}
+                className={styles.modalContentRow}
+                style={{ display: 'flex' }}
+              >
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
                   <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
                     Security Deposit
                   </Typography>
@@ -388,8 +426,8 @@ const LeaseModal = memo(
                       {errors.deposit}
                     </Typography>
                   )}
-                </div>
-                <div style={{ flex: 1 }}>
+                </Grid>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
                   <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
                     Grace Period for Late Fees
                   </Typography>
@@ -408,10 +446,13 @@ const LeaseModal = memo(
                       {errors.gracePeriod}
                     </Typography>
                   )}
-                </div>
-              </div>
+                </Grid>
+              </Grid>
               <div className={styles.modalContentRow}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                <Typography
+                  variant="body2"
+                  style={{ fontWeight: 'bold', paddingBottom: '0.25rem' }}
+                >
                   Regenerate Lease
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
