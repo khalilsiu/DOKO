@@ -33,7 +33,7 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
       }
     });
   useEffect(() => {
-    const socket = io(process.env.REACT_APP_CONTRACT_SERVICE_API || '');
+    const socket = io(process.env.REACT_APP_CONTRACT_SERVICE_SOCKET || '');
     setSocket(socket);
   }, []);
 
