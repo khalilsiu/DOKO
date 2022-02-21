@@ -27,6 +27,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import LeaseModal from './LeaseModal';
 import { getAsset } from '../../store/asset/assetSlice';
 import { useDispatch } from 'react-redux';
+import { WSContext } from '../../contexts/WSContext';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -150,6 +151,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     contractAddress: urlContractAddress,
     tokenId: urlTokenId,
   } = useParams<{ address: string; contractAddress: string; tokenId: string }>();
+  const { socket } = useContext(WSContext);
   const { account: walletAddress } = useMetaMask();
   const history = useHistory();
 
@@ -178,6 +180,12 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
       dispatch(getAsset({ contractAddress: urlContractAddress, assetId: urlTokenId }));
     }
   }, [urlContractAddress, urlTokenId]);
+
+  useEffect(() => {
+    if (socket && urlAddress) {
+      socket.emit('join', urlAddress);
+    }
+  }, [urlAddress]);
 
   const [selectedAssetForLease, setSelectedAssetForLease] = useState<Asset | null>(null);
   interface IRenderAssets {

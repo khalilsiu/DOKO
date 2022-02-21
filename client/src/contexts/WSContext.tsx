@@ -5,11 +5,13 @@ import { openToast } from '../store/app';
 
 interface ServerToClientEvents {
   event: (data: string) => void;
-  message: (event: 'LeaseCreated', message: string) => void;
+  LeaseCreated: (message: any) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ClientToServerEvents {}
+interface ClientToServerEvents {
+  join: (payload: any) => void;
+}
 
 type SocketIO = Socket<ServerToClientEvents, ClientToServerEvents>;
 
@@ -25,16 +27,20 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [socket, setSocket] = useState<SocketIO | null>(null);
   const dispatch = useDispatch();
   socket &&
-    socket.on('message', (event) => {
-      if (event === 'LeaseCreated') {
-        dispatch(
-          openToast({ message: 'Lease has been created', state: 'success', action: 'refresh' }),
-        );
-      }
+    socket.on('LeaseCreated', () => {
+      dispatch(
+        openToast({ message: 'Lease has been created', state: 'success', action: 'refresh' }),
+      );
     });
   useEffect(() => {
     const socket = io(process.env.REACT_APP_CONTRACT_SERVICE_SOCKET || '');
     setSocket(socket);
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+    };
   }, []);
 
   return <WSContext.Provider value={{ socket }}>{children}</WSContext.Provider>;
