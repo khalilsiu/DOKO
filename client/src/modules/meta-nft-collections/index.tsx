@@ -65,7 +65,6 @@ export const NftCollections = () => {
   const styles = useStyles();
   const metaverseSummaries = useAddressSummaries(address);
   const { openProfileModal } = useContext(CreateProfileContext);
-
   const handleClickOpen = () => {
     openProfileModal();
   };

@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinatesFromUrl } from '../../utils/utils';
-import { Lease } from '../lease/leaseSlice';
+import { Lease } from '../lease/leasesSlice';
 
 export interface Trait {
   traitType: string;

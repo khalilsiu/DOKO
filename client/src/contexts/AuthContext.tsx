@@ -148,24 +148,24 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const dokoRentalAddress = process.env.REACT_APP_DOKO_DCL_LAND_ADDRESS;
+  const dclAddress = process.env.REACT_APP_DCL_LAND_ADDRESS;
   const connectDCL = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    setDclContract(
-      new Contract(process.env.REACT_APP_DCL_LAND_ADDRESS || '', DecentralandAbi, signer),
-    );
+    setDclContract(new Contract(dclAddress || '', DecentralandAbi, signer));
   };
 
   const connectDokoRental = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    setDokoRentalContract(new Contract(DokoRental.address, DokoRental.abi, signer));
+    setDokoRentalContract(new Contract(dokoRentalAddress || '', DokoRental.abi, signer));
   };
 
   const approveDokoOnDcl = async () => {
     if (dclContract) {
       setLoading(true);
-      const result = await dclContract.setApprovalForAll(DokoRental.address, true);
+      const result = await dclContract.setApprovalForAll(dokoRentalAddress, true);
       setIsDokoApproved(result);
       setLoading(false);
     }
@@ -182,10 +182,7 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
       return;
     }
     try {
-      const isApprovedForAll = await dclContract.isApprovedForAll(
-        walletAddress,
-        DokoRental.address,
-      );
+      const isApprovedForAll = await dclContract.isApprovedForAll(walletAddress, dokoRentalAddress);
       setIsDokoApproved(isApprovedForAll);
     } catch (e) {
       dispatch(openToast({ message: (e as Error).message, state: 'error' }));

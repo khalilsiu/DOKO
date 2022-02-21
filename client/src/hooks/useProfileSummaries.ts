@@ -1,16 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import metaverses from '../constants/metaverses';
-import { Lease } from '../store/lease/leaseSlice';
-import {
-  fetchCollectionSummary,
-  MetaverseSummary,
-} from '../store/meta-nft-collections/collectionSummarySlice';
-import {
-  Asset,
-  fetchProfileOwnership,
-  Trait,
-} from '../store/meta-nft-collections/profileOwnershipSlice';
+import { Lease } from '../store/lease/leasesSlice';
+import { fetchCollectionSummary, MetaverseSummary } from '../store/summary/collectionSummarySlice';
+import { Asset, fetchProfileOwnership, Trait } from '../store/summary/profileOwnershipSlice';
 
 import { RootState } from '../store/store';
 

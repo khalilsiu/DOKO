@@ -2,7 +2,6 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "DclRental",
   "sourceName": "contracts/DclRental.sol",
-  "address": "0x31E405c5Beb270647994F234b1fE454e8d822ba3",
   "abi": [
     {
       "inputs": [

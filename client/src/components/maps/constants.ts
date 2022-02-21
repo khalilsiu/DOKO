@@ -2,7 +2,7 @@ import L from 'leaflet';
 import styled from 'styled-components';
 import { Popup } from 'react-leaflet';
 
-import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
+import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { createStyles } from '@material-ui/styles';
 
 export const marker = new L.Icon({

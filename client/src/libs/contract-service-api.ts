@@ -5,8 +5,15 @@ const instance = axios.create({
   baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
 });
 
-export interface IGetLease {
+export interface IGetLeases {
   lessor: string;
+  contractAddress?: string;
+  assetId?: string;
+}
+
+export interface IGetLease {
+  contractAddress?: string;
+  assetId?: string;
 }
 
 export default class ContractServiceAPI {
@@ -34,7 +41,7 @@ export default class ContractServiceAPI {
     return res;
   }
 
-  static async getLease(payload: IGetLease) {
+  static async getLeases(payload: IGetLeases) {
     const body = Object.keys(payload).reduce(
       (acc, key) => ({
         ...acc,
@@ -46,6 +53,21 @@ export default class ContractServiceAPI {
       {},
     );
     const res = await instance.post('lease/filter', body).then((res) => res.data);
+    return res;
+  }
+
+  static async getLease(payload: IGetLease) {
+    const body = Object.keys(payload).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: {
+          operator: '=',
+          value: payload[key],
+        },
+      }),
+      {},
+    );
+    const res = await instance.post('lease/filter', body).then((res) => res.data[0]);
     return res;
   }
 }

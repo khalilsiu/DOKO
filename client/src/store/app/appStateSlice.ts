@@ -1,16 +1,19 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { createLeaseToBlockchain } from '../lease/leaseSlice';
-import { fetchProfileOwnership } from '../meta-nft-collections';
-import { fetchAddressOwnership } from '../meta-nft-collections/addressOwnershipSlice';
+import { getAsset } from '../asset/assetSlice';
+import { createLeaseToBlockchain } from '../lease/leasesSlice';
+import { fetchProfileOwnership } from '../summary';
+import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
 
+export type ToastAction = 'refresh';
 interface AppState {
   isLoading: boolean;
   isTransacting: boolean;
   toast: {
     show: boolean;
-    state: Color | undefined;
+    state?: Color;
     message?: string;
+    action?: ToastAction;
   };
 }
 
@@ -19,8 +22,6 @@ const initialState: AppState = {
   isTransacting: false,
   toast: {
     show: false,
-    state: undefined,
-    message: undefined,
   },
 };
 
@@ -28,11 +29,16 @@ const appStateSlice = createSlice({
   name: 'AppState',
   initialState,
   reducers: {
-    openToast(state, action: PayloadAction<{ message: string; state: Color }>) {
+    openToast(
+      state,
+      action: PayloadAction<{ message: string; state: Color; action?: ToastAction }>,
+    ) {
+      const { state: toastState, message, action: toastAction } = action.payload;
       state.toast = {
         show: true,
-        state: action.payload.state,
-        message: action.payload.message,
+        state: toastState,
+        message,
+        action: toastAction,
       };
     },
     closeToast(state) {
@@ -40,6 +46,7 @@ const appStateSlice = createSlice({
         show: false,
         state: undefined,
         message: undefined,
+        action: undefined,
       };
     },
   },
@@ -55,6 +62,9 @@ const appStateSlice = createSlice({
       .addCase(fetchProfileOwnership.pending, (state) => {
         state.isLoading = true;
       })
+      .addCase(getAsset.pending, (state) => {
+        state.isLoading = true;
+      })
       // fulfilled
       .addCase(fetchAddressOwnership.fulfilled, (state) => {
         state.isLoading = false;
@@ -64,6 +74,9 @@ const appStateSlice = createSlice({
       })
       .addCase(createLeaseToBlockchain.fulfilled, (state) => {
         state.isTransacting = false;
+      })
+      .addCase(getAsset.fulfilled, (state) => {
+        state.isLoading = false;
       })
       // rejected
       .addCase(createLeaseToBlockchain.rejected, (state, action) => {

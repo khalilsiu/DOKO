@@ -10,7 +10,7 @@ import {
   useMediaQuery,
   Theme,
 } from '@material-ui/core';
-import { useState, useContext, memo } from 'react';
+import { useState, useContext, memo, useEffect } from 'react';
 import { TabPanel, OpenseaNFTItem } from '..';
 import Summary from '../../modules/nft-collections/Summary';
 import SectionLabel from '../SectionLabel';
@@ -20,8 +20,13 @@ import ListIcon from '@material-ui/icons/FormatListBulleted';
 import MapIcon from '@material-ui/icons/Map';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import RenderMaps from '../maps/RenderMaps';
-import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
+import { Asset } from '../../store/summary/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
+import { useMetaMask } from 'metamask-react';
+import { useHistory, useParams } from 'react-router-dom';
+import LeaseModal from './LeaseModal';
+import { getAsset } from '../../store/asset/assetSlice';
+import { useDispatch } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -140,8 +145,17 @@ interface IOwnershipView {
 
 const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
+  const {
+    address: urlAddress,
+    contractAddress: urlContractAddress,
+    tokenId: urlTokenId,
+  } = useParams<{ address: string; contractAddress: string; tokenId: string }>();
+  const { account: walletAddress } = useMetaMask();
+  const history = useHistory();
+
   const [tabValue, setTabValue] = useState(0);
   const styles = useStyles();
+  const dispatch = useDispatch();
   const views = metaverses.map(() => useState('list'));
   const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const paginations = metaverses.map(() => useState(1));
@@ -158,6 +172,12 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     copy[collectionIndex] = index;
     setCollectionAssetSelected(copy);
   };
+
+  useEffect(() => {
+    if (urlContractAddress && urlTokenId) {
+      dispatch(getAsset({ contractAddress: urlContractAddress, assetId: urlTokenId }));
+    }
+  }, [urlContractAddress, urlTokenId]);
 
   const [selectedAssetForLease, setSelectedAssetForLease] = useState<Asset | null>(null);
   interface IRenderAssets {
@@ -361,6 +381,13 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
           );
         })}
       </TabPanel>
+      {urlContractAddress && urlTokenId && walletAddress && (
+        <LeaseModal
+          setSelectedAssetForLease={() => history.push(`/address/${urlAddress}`)}
+          walletAddress={walletAddress}
+          addressConcerned={urlAddress}
+        />
+      )}
     </>
   );
 };

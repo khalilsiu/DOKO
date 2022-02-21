@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { appState } from './app';
-import { leases } from './lease/leaseSlice';
-import { addressOwnership, collectionSummary, profileOwnership } from './meta-nft-collections';
+import { leases } from './lease/leasesSlice';
+import { asset } from './asset/assetSlice';
+import { addressOwnership, collectionSummary, profileOwnership } from './summary';
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     collectionSummary,
     appState,
     leases,
+    asset,
   },
 });
 

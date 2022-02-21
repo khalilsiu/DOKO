@@ -14,10 +14,12 @@ import { Landing } from './modules/landing';
 import { MetaLanding } from './modules/meta-landing';
 import Snackbar from '@material-ui/core/Snackbar';
 import { Alert } from '@material-ui/lab';
-import { closeToast } from './store/app/appStateSlice';
+import { closeToast, ToastAction } from './store/app/appStateSlice';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store/store';
+import { WSContextProvider } from './contexts/WSContext';
+import { Button } from '@material-ui/core';
 
 const NftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-collections'));
 const NftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-individual'));
@@ -50,6 +52,7 @@ function App() {
   const { host } = window.location;
   const { toast } = useSelector((state: RootState) => state.appState);
   const dispatch = useDispatch();
+
   let subdomain = '';
   const arr = host.split('.');
   if (arr.length > 0 && host.indexOf('staging') !== -1) {
@@ -105,49 +108,73 @@ function App() {
   const handleToastClose = () => {
     dispatch(closeToast());
   };
+
+  const renderToastAction = (toastAction: ToastAction) => {
+    switch (toastAction) {
+      case 'refresh': {
+        return <Button onClick={() => window.location.reload()}>Refresh</Button>;
+      }
+      default: {
+        <></>;
+      }
+    }
+  };
+
   return (
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
         <AuthContextProvider>
-          <CreateProfileContextProvider>
-            <DrawerContextProvider intro={<Intro drawer />}>
-              <Header />
-              <Switch>
-                <Route path="/" exact>
-                  <MetaLanding />
-                </Route>
-                <Route path="/address/:address" exact>
-                  <RouteContainer>
-                    <MetaNftCollections />
-                  </RouteContainer>
-                </Route>
-                <Route path="/nft/:chain/:address/:id" exact>
-                  <RouteContainer>
-                    <MetaNftIndividual />
-                  </RouteContainer>
-                </Route>
-                <Route path="/collections/:address" exact>
-                  <RouteContainer>
-                    <MetaCollection />
-                  </RouteContainer>
-                </Route>
-                <Route path="/profiles" exact>
-                  <RouteContainer>
-                    <MetaProfiles />
-                  </RouteContainer>
-                </Route>
-                <Route path="/profiles/:hash" exact>
-                  <RouteContainer>
-                    <MetaProfilePage />
-                  </RouteContainer>
-                </Route>
-              </Switch>
-              <Snackbar open={toast.show} autoHideDuration={6000} onClose={handleToastClose}>
-                <Alert severity={toast.state}>{toast.message}</Alert>
-              </Snackbar>
-              <Footer />
-            </DrawerContextProvider>
-          </CreateProfileContextProvider>
+          <WSContextProvider>
+            <CreateProfileContextProvider>
+              <DrawerContextProvider intro={<Intro drawer />}>
+                <Header />
+                <Switch>
+                  <Route path="/" exact>
+                    <MetaLanding />
+                  </Route>
+                  <Route path="/address/:address" exact>
+                    <RouteContainer>
+                      <MetaNftCollections />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
+                    <RouteContainer>
+                      <MetaNftCollections />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/nft/:chain/:address/:id" exact>
+                    <RouteContainer>
+                      <MetaNftIndividual />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/collections/:address" exact>
+                    <RouteContainer>
+                      <MetaCollection />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/profiles" exact>
+                    <RouteContainer>
+                      <MetaProfiles />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/profiles/:hash" exact>
+                    <RouteContainer>
+                      <MetaProfilePage />
+                    </RouteContainer>
+                  </Route>
+                </Switch>
+                <Snackbar open={toast.show} autoHideDuration={6000} onClose={handleToastClose}>
+                  <Alert
+                    severity={toast.state}
+                    action={toast.action && renderToastAction(toast.action)}
+                  >
+                    {toast.message}
+                  </Alert>
+                </Snackbar>
+                <Footer />
+              </DrawerContextProvider>
+            </CreateProfileContextProvider>
+          </WSContextProvider>
         </AuthContextProvider>
       </BrowserRouter>
     </Suspense>

@@ -43,7 +43,7 @@ import thesandbox from '../../assets/thesandbox.png';
 import metaverses from '../../constants/metaverses';
 import { Filter } from '../../hooks/useProfileSummaries';
 import ContractServiceAPI from '../../libs/contract-service-api';
-import { parsePrice } from '../../store/meta-nft-collections/collectionSummarySlice';
+import { parsePrice } from '../../store/summary/collectionSummarySlice';
 
 type Icons = {
   [key: string]: string;

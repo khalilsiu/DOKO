@@ -45,6 +45,7 @@
     "react-select-search": "^3.0.8",
     "react-tiny-popover": "^6.0.10",
     "redux": "^4.1.2",
+    "socket.io-client": "4.4.1",
     "styled-components": "^5.3.1",
     "web-vitals": "^1.0.1",
     "web3": "^1.5.2"

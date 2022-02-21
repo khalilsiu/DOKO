@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLease } from '../store/lease/leaseSlice';
-import { fetchAddressOwnership, fetchCollectionSummary } from '../store/meta-nft-collections';
+import { getLeases } from '../store/lease/leasesSlice';
+import { fetchAddressOwnership, fetchCollectionSummary } from '../store/summary';
 import { RootState } from '../store/store';
 import { AggregatedSummary, getAggregatedSummary } from './useProfileSummaries';
 
@@ -19,7 +19,7 @@ const useAddressSummaries = (walletAddress: string) => {
 
   useEffect(() => {
     dispatch(fetchAddressOwnership(walletAddress));
-    dispatch(getLease({ lessor: walletAddress }));
+    dispatch(getLeases({ lessor: walletAddress }));
     dispatch(fetchCollectionSummary());
   }, []);
 
