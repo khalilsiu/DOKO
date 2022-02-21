@@ -23,8 +23,6 @@ import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 import { useMetaMask } from 'metamask-react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store/store';
 import { Asset } from '../store/summary';
 
 interface NFTItemProps {
@@ -44,13 +42,11 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
   const { status, account: walletAddress } = useMetaMask();
-  const asset = useSelector((state: RootState) => state.asset);
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
   const nftPath = `/nft/eth/${nft.assetContract.address}/${nft.tokenId}`;
   const leasePath = `/address/${urlAddress}/${nft.assetContract.address}/${nft.tokenId}/lease`;
-  console.log('assettttt', asset);
   // only decentraland right now
   const showLeaseButton =
     status === 'connected' &&
