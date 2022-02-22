@@ -23,7 +23,7 @@ import Joi from 'joi';
 import { AuthContext } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createLeaseToBlockchain } from '../../store/lease/leasesSlice';
+import { upsertLeaseToBlockchain } from '../../store/lease/leasesSlice';
 import { RootState } from '../../store/store';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { parseError } from '../../utils/joiErrors';
@@ -200,7 +200,7 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
     await approveDokoOnDcl();
   };
 
-  const createLease = async () => {
+  const upsertLease = async () => {
     const result = Joi.object(schema).validate(leaseForm);
     if (result.error) {
       const newErrors = cloneDeep(errors);
@@ -215,13 +215,15 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
     }
 
     await dispatch(
-      createLeaseToBlockchain({
+      upsertLeaseToBlockchain({
         leaseForm,
         walletAddress,
-        asset: asset,
+        assetId: asset.tokenId,
         dokoRentalContract,
+        isUpdate: !!asset.lease,
       }),
     );
+
     history.push(`/address/${addressConcerned}`);
   };
 
@@ -488,10 +490,10 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
             className="gradient-button"
             variant="contained"
             style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={!isDokoApproved ? approveLease : createLease}
+            onClick={!isDokoApproved ? approveLease : upsertLease}
             disabled={isTransacting || approveLoading || isLoading}
           >
-            {!isDokoApproved ? 'Approve' : 'Create'}
+            {!isDokoApproved ? 'Approve' : !asset.lease ? 'Create' : 'Update'}
           </Button>
         </div>
       )}

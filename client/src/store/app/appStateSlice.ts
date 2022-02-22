@@ -1,7 +1,7 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getAsset } from '../asset/assetSlice';
-import { createLeaseToBlockchain } from '../lease/leasesSlice';
+import { upsertLeaseToBlockchain } from '../lease/leasesSlice';
 import { fetchProfileOwnership } from '../summary';
 import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
 
@@ -56,7 +56,7 @@ const appStateSlice = createSlice({
       .addCase(fetchAddressOwnership.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createLeaseToBlockchain.pending, (state) => {
+      .addCase(upsertLeaseToBlockchain.pending, (state) => {
         state.isTransacting = true;
       })
       .addCase(fetchProfileOwnership.pending, (state) => {
@@ -72,14 +72,14 @@ const appStateSlice = createSlice({
       .addCase(fetchProfileOwnership.fulfilled, (state) => {
         state.isLoading = false;
       })
-      .addCase(createLeaseToBlockchain.fulfilled, (state) => {
+      .addCase(upsertLeaseToBlockchain.fulfilled, (state) => {
         state.isTransacting = false;
       })
       .addCase(getAsset.fulfilled, (state) => {
         state.isLoading = false;
       })
       // rejected
-      .addCase(createLeaseToBlockchain.rejected, (state, action) => {
+      .addCase(upsertLeaseToBlockchain.rejected, (state, action) => {
         state.isTransacting = false;
         state.toast = {
           show: true,
