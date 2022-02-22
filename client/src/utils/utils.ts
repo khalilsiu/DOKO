@@ -29,11 +29,11 @@ export const camelToText = (camelCase: string) => {
   return result.charAt(0).toUpperCase() + result.slice(1);
 };
 
-export const getCoordinatesFromUrl = (metaverseName: string, url: string): L.LatLngExpression => {
+export const getCoordinates = (metaverseName: string, asset: any): L.LatLngExpression => {
   switch (metaverseName) {
     case 'Cryptovoxels': {
-      const matchX = url.match(/x=([+-]?([0-9]*[.])?[0-9]+)/);
-      const matchY = url.match(/&y=([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchX = asset.image_original_url.match(/x=([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchY = asset.image_original_url.match(/&y=([+-]?([0-9]*[.])?[0-9]+)/);
       if (!matchX || !matchY) {
         // to add error handler
         return [0, 0];
@@ -41,26 +41,27 @@ export const getCoordinatesFromUrl = (metaverseName: string, url: string): L.Lat
       return [parseFloat(matchY[1]), parseFloat(matchX[1])];
     }
     case 'Decentraland': {
-      const match = url.match(/parcels\/([+-]?([0-9]*[.])?[0-9]+)\/([+-]?([0-9]*[.])?[0-9]+)/);
+      const match = asset.image_original_url.match(
+        /parcels\/([+-]?([0-9]*[.])?[0-9]+)\/([+-]?([0-9]*[.])?[0-9]+)/,
+      );
       if (!match) {
         // to add error handler
         return [0, 0];
       }
       return [parseFloat(match[3]) * 5, parseFloat(match[1]) * 5];
     }
-
     case 'The Sandbox': {
-      const matchX = url.match(/\(([+-]?([0-9]*[.])?[0-9]+)/);
-      const matchY = url.match(/, ([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchX = asset.name.match(/\(([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchY = asset.name.match(/, ([+-]?([0-9]*[.])?[0-9]+)/);
       if (!matchX || !matchY) {
         // to add error handler
         return [0, 0];
       }
-      return [parseFloat(matchY[1]) * (3 / 2), parseFloat(matchX[1]) * (3 / 2)];
+      return [parseFloat(matchY[1]), parseFloat(matchX[1])];
     }
     case 'Somnium Space VR': {
-      const matchX = url.match(/X = ([+-]?([0-9]*[.])?[0-9]+)/);
-      const matchY = url.match(/Z = ([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchX = asset.description.match(/X = ([+-]?([0-9]*[.])?[0-9]+)/);
+      const matchY = asset.description.match(/Z = ([+-]?([0-9]*[.])?[0-9]+)/);
       if (!matchX || !matchY) {
         // to add error handler
         return [0, 0];
@@ -68,7 +69,7 @@ export const getCoordinatesFromUrl = (metaverseName: string, url: string): L.Lat
       return [(parseFloat(matchY[1]) + 202.167) / 23, (parseFloat(matchX[1]) - 576.433) / 22.7356];
     }
     default: {
-      return [0, 0];
+      return [NaN, NaN];
     }
   }
 };

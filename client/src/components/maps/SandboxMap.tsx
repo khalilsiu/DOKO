@@ -12,10 +12,10 @@ const MapName = 'The Sandbox';
 const SandboxMap = ({ selected, assets }: MapsProps) => {
   const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const styles = useStyles({ smOrAbove });
-  const { latLangBounds, markerRefs, position, setMap } = useRenderMaps({
+  const { latLangBounds, markerRefs, position, setMap, ResizeMap } = useRenderMaps({
     bounds: {
-      southwest: [-350, -350],
-      northeast: [350, 350],
+      southwest: [-204, -204],
+      northeast: [203, 203],
     },
     items: assets,
     selected,
@@ -26,11 +26,12 @@ const SandboxMap = ({ selected, assets }: MapsProps) => {
     <div>
       {
         <MapContainer
+          bounds={latLangBounds}
           center={position}
-          zoom={0}
+          zoom={2}
           className={styles.map}
           whenCreated={(map) => setMap(map)}
-          minZoom={0}
+          minZoom={2}
           maxZoom={5}
           crs={L.CRS.Simple}
         >
@@ -39,6 +40,7 @@ const SandboxMap = ({ selected, assets }: MapsProps) => {
             url="/sandbox_map.png"
             bounds={latLangBounds}
           />
+          <ResizeMap />
           <RenderAssets markerRefs={markerRefs} assets={assets} />
         </MapContainer>
       }

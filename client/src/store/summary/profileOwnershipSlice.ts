@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
-import { camelize, getCoordinatesFromUrl } from '../../utils/utils';
+import { camelize, getCoordinates } from '../../utils/utils';
 import { Lease } from '../lease/leasesSlice';
 
 export interface Trait {
@@ -52,16 +52,8 @@ export const preprocess = (asset: any): Asset => {
   picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
 
-  let coordinates: L.LatLngExpression = [0, 0];
-  if (asset.collection.name === 'Decentraland') {
-    coordinates = getCoordinatesFromUrl('Decentraland', asset.image_original_url);
-  } else if (asset.collection.name === 'The Sandbox') {
-    coordinates = getCoordinatesFromUrl('The Sandbox', asset.name);
-  } else if (asset.collection.name === 'Cryptovoxels') {
-    coordinates = getCoordinatesFromUrl('Cryptovoxels', asset.image_original_url);
-  } else {
-    coordinates = getCoordinatesFromUrl('Somnium Space VR', asset.description);
-  }
+  const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
+
   return camelize({ ...picked, coordinates });
 };
 
