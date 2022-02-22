@@ -1,32 +1,94 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { fetchProfileOwnership } from '../meta-nft-collections';
-import { fetchAddressOwnership } from '../meta-nft-collections/addressOwnershipSlice';
+import { Color } from '@material-ui/lab';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { getAsset } from '../asset/assetSlice';
+import { upsertLeaseToBlockchain } from '../lease/leasesSlice';
+import { fetchProfileOwnership } from '../summary';
+import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
 
-const initialState = {
+export type ToastAction = 'refresh';
+interface AppState {
+  isLoading: boolean;
+  isTransacting: boolean;
+  toast: {
+    show: boolean;
+    state?: Color;
+    message?: string;
+    action?: ToastAction;
+  };
+}
+
+const initialState: AppState = {
   isLoading: false,
+  isTransacting: false,
+  toast: {
+    show: false,
+  },
 };
 
 const appStateSlice = createSlice({
   name: 'AppState',
   initialState,
-  reducers: {},
+  reducers: {
+    openToast(
+      state,
+      action: PayloadAction<{ message: string; state: Color; action?: ToastAction }>,
+    ) {
+      const { state: toastState, message, action: toastAction } = action.payload;
+      state.toast = {
+        show: true,
+        state: toastState,
+        message,
+        action: toastAction,
+      };
+    },
+    closeToast(state) {
+      state.toast = {
+        show: false,
+        state: undefined,
+        message: undefined,
+        action: undefined,
+      };
+    },
+  },
   extraReducers: (builder) => {
     builder
+      // pending
       .addCase(fetchAddressOwnership.pending, (state) => {
         state.isLoading = true;
+      })
+      .addCase(upsertLeaseToBlockchain.pending, (state) => {
+        state.isTransacting = true;
       })
       .addCase(fetchProfileOwnership.pending, (state) => {
         state.isLoading = true;
       })
+      .addCase(getAsset.pending, (state) => {
+        state.isLoading = true;
+      })
+      // fulfilled
       .addCase(fetchAddressOwnership.fulfilled, (state) => {
         state.isLoading = false;
       })
       .addCase(fetchProfileOwnership.fulfilled, (state) => {
         state.isLoading = false;
+      })
+      .addCase(upsertLeaseToBlockchain.fulfilled, (state) => {
+        state.isTransacting = false;
+      })
+      .addCase(getAsset.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      // rejected
+      .addCase(upsertLeaseToBlockchain.rejected, (state, action) => {
+        state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.error.message,
+        };
       });
   },
 });
 
-// export const { getUserOwnership } = appStateSlice.actions;
-
+export const { closeToast, openToast } = appStateSlice.actions;
 export const appState = appStateSlice.reducer;

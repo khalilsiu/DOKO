@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NftPagination } from '../../components';
 import SectionLabel from '../../components/SectionLabel';
-import { getSolNfts } from '../../libs/solana';
-import { isSolAddress } from '../../libs/utils';
 
 interface Props {
   data: any;
@@ -11,8 +9,8 @@ interface Props {
 export default function SolNfts({ data }: Props) {
   const [nfts, setNfts] = useState([]);
   const [page, setPage] = useState(1);
-  const [collections, setCollections] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setCollections] = useState([]);
 
   useEffect(() => {
     setNfts(data.nfts);

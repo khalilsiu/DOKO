@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useState } from 'react';
 import {
   Card,
   Grid,
@@ -14,7 +13,6 @@ import {
 import CloseIcon from '@material-ui/icons/Close';
 import BackIcon from '@material-ui/icons/ArrowBack';
 import { useCookies } from 'react-cookie';
-import { AddToHomeScreenTwoTone } from '@material-ui/icons';
 import { Meta } from '../../components';
 import Intro from '../core/Intro';
 import { ProfileItem } from './ProfileItem';
@@ -187,7 +185,7 @@ export const Profiles = () => {
   const [editProfile, setEditProfile] = useState<string>('');
   const [addressType, setAddressType] = useState('eth');
   const [newAddress, setNewAddress] = useState('');
-  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
+  const [cookies, setCookie] = useCookies(['profiles']);
 
   const handleClickOpen = () => {
     setCreateProfile(true);

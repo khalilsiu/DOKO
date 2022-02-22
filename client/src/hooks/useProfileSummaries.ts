@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import metaverses from '../constants/metaverses';
-import { MetaverseSummary } from '../store/meta-nft-collections/collectionSummarySlice';
-import { Asset, Trait } from '../store/meta-nft-collections/profileOwnershipSlice';
+import { Lease } from '../store/lease/leasesSlice';
+import { fetchCollectionSummary, MetaverseSummary } from '../store/summary/collectionSummarySlice';
+import { Asset, fetchProfileOwnership, Trait } from '../store/summary/profileOwnershipSlice';
 
 import { RootState } from '../store/store';
 
@@ -43,11 +44,25 @@ export interface AggregatedSummary {
   ownership: Asset[];
 }
 
-export function getAggregatedSummary(
-  collectionSummaries: MetaverseSummary[],
-  ownerships: Asset[][],
-  isLoading: boolean,
-) {
+interface IGetAggregatedSummary {
+  collectionSummaries: MetaverseSummary[];
+  ownerships: Asset[][];
+  leases?: Lease[];
+  isLoading: boolean;
+}
+export function getAggregatedSummary({
+  collectionSummaries,
+  ownerships,
+  leases,
+  isLoading,
+}: IGetAggregatedSummary) {
+  const addressAssetIdToLeaseMap = leases?.reduce(
+    (acc, lease) => ({
+      ...acc,
+      [`${lease.contractAddress}_${lease.assetId}`]: lease,
+    }),
+    {},
+  );
   return metaverses.map((metaverse, metaverseIndex) => {
     // get traits with floor price from collection summaries
     const traitsWithFloorPrice = metaverse.traits.map((filters, traitIndex) => ({
@@ -74,8 +89,15 @@ export function getAggregatedSummary(
         floorPrice *= size;
       }
 
+      const key = `${asset.assetContract.address}_${asset.tokenId}`;
+      let lease: Lease | undefined = undefined;
+      if (addressAssetIdToLeaseMap && addressAssetIdToLeaseMap[key]) {
+        lease = addressAssetIdToLeaseMap[key];
+      }
+
       return {
         ...asset,
+        lease,
         floorPrice,
       };
     });
@@ -93,12 +115,18 @@ export function getAggregatedSummary(
   });
 }
 
-const useProfileSummaries = () => {
+const useProfileSummaries = (addresses: string[]) => {
+  const dispatch = useDispatch();
   const profileOwnership = useSelector((state: RootState) => state.profileOwnership);
 
   const collectionSummaries = useSelector((state: RootState) => state.collectionSummary);
 
   const { isLoading } = useSelector((state: RootState) => state.appState);
+
+  useEffect(() => {
+    dispatch(fetchProfileOwnership(addresses));
+    dispatch(fetchCollectionSummary());
+  }, []);
 
   const profileSummaries = useMemo(() => {
     const aggregatedOwnerships: Asset[][] = metaverses.map((_, metaverseIndex) => {
@@ -109,7 +137,11 @@ const useProfileSummaries = () => {
       return metaverseOwnership;
     });
 
-    return getAggregatedSummary(collectionSummaries, aggregatedOwnerships, isLoading);
+    return getAggregatedSummary({
+      collectionSummaries,
+      ownerships: aggregatedOwnerships,
+      isLoading,
+    });
   }, [collectionSummaries, profileOwnership, isLoading]);
 
   return profileSummaries;

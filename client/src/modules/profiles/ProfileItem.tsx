@@ -1,5 +1,4 @@
 import { memo, MouseEvent, SyntheticEvent, useState, useEffect, useRef } from 'react';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
   Grid,
@@ -48,7 +47,7 @@ export const ProfileItem = memo(({ profile, onClickEdit, onClickDelete }: Profil
   const titleRef = useRef<any>(null);
 
   const [titleLength, setTitleLength] = useState(11);
-  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
+  const [cookies] = useCookies(['profiles']);
 
   useEffect(() => {
     function handleResize() {

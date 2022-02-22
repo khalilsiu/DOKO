@@ -44,7 +44,7 @@ import thesandbox from '../../assets/thesandbox.png';
 import metaverses from '../../constants/metaverses';
 import { Filter } from '../../hooks/useProfileSummaries';
 import ContractServiceAPI from '../../libs/contract-service-api';
-import { parsePrice } from '../../store/meta-nft-collections/collectionSummarySlice';
+import { parsePrice } from '../../store/summary/collectionSummarySlice';
 
 type Icons = {
   [key: string]: string;
@@ -361,7 +361,6 @@ export const NftIndividual = () => {
       const usdRate = isLastSale ? +res.data.last_sale.payment_token.usd_price : 0;
       let usdAmount = lastsale * usdRate;
       usdAmount = +Number.parseFloat(usdAmount.toString()).toFixed(2);
-      const _floorPrice = +res.data.collection.stats.floor_price;
       setLastSale(lastsale);
       setLastSaleUSD(usdAmount);
     } catch (e) {

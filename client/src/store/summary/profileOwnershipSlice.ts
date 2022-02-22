@@ -3,6 +3,7 @@ import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinates } from '../../utils/utils';
+import { Lease } from '../lease/leasesSlice';
 
 export interface Trait {
   traitType: string;
@@ -22,6 +23,7 @@ export interface Asset {
   assetContract: {
     address: string;
   };
+  lease?: Lease;
   traits: Trait[];
 }
 

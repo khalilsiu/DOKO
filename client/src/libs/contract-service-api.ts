@@ -1,11 +1,23 @@
 import axios from 'axios';
 import { Filter } from '../hooks/useProfileSummaries';
 
+const instance = axios.create({
+  baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
+});
+
+export interface IGetLeases {
+  lessor: string;
+  contractAddress?: string;
+  assetId?: string;
+}
+
+export interface IGetLease {
+  contractAddress?: string;
+  assetId?: string;
+}
+
 export default class ContractServiceAPI {
   static async getAssetFloorPrice(address: string, traits: Filter[]) {
-    const instance = axios.create({
-      baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
-    });
     const res = await instance
       .post('asset/floor-price', {
         address,
@@ -26,6 +38,36 @@ export default class ContractServiceAPI {
         }
         throw err;
       });
+    return res;
+  }
+
+  static async getLeases(payload: IGetLeases) {
+    const body = Object.keys(payload).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: {
+          operator: '=',
+          value: payload[key],
+        },
+      }),
+      {},
+    );
+    const res = await instance.post('lease/filter', body).then((res) => res.data);
+    return res;
+  }
+
+  static async getLease(payload: IGetLease) {
+    const body = Object.keys(payload).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: {
+          operator: '=',
+          value: payload[key],
+        },
+      }),
+      {},
+    );
+    const res = await instance.post('lease/filter', body).then((res) => res.data[0]);
     return res;
   }
 }

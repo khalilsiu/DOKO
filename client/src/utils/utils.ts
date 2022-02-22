@@ -1,5 +1,4 @@
 import { transform, isArray, camelCase, isDate, isObject, snakeCase } from 'lodash';
-import { Asset } from '../store/meta-nft-collections/profileOwnershipSlice';
 
 export const camelize = (obj: any) =>
   transform(obj, (acc: any, value, key, target) => {
@@ -24,6 +23,11 @@ export const snakeize = (obj: any) =>
       acc[snakeKey] = value;
     }
   });
+
+export const camelToText = (camelCase: string) => {
+  const result = camelCase.replace(/([A-Z])/g, ' $1');
+  return result.charAt(0).toUpperCase() + result.slice(1);
+};
 
 export const getCoordinates = (metaverseName: string, asset: any): L.LatLngExpression => {
   switch (metaverseName) {

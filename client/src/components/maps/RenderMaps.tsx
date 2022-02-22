@@ -2,7 +2,7 @@ import DecentralandMap from './DecentralandMap';
 import CryptovoxelsMap from './CryptovoxelsMap';
 import SomniumSpaceMap from './SomniumSpaceMap';
 import SandboxMap from './SandboxMap';
-import { Asset } from '../../store/meta-nft-collections/profileOwnershipSlice';
+import { Asset } from '../../store/summary/profileOwnershipSlice';
 
 interface RenderMapsProps {
   metaverseName: string;

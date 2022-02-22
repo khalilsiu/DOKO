@@ -7,7 +7,6 @@ import {
   makeStyles,
   Tab,
   Tabs,
-  Tooltip,
   Typography,
   withStyles,
   Button,
@@ -18,14 +17,11 @@ import {
 import { useCookies } from 'react-cookie';
 import { useParams, useHistory } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
-import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { TabPanel, NftPagination, Meta } from '../../components';
-import { getAddressStatus, getNFTs, indexAddress } from '../api';
-import { Filter } from './Filter';
+import { getNFTs } from '../api';
 import Intro from '../core/Intro';
 import { isSolAddress, minimizeAddress } from '../../libs/utils';
-import { AddressStatus } from './AddressStatus';
 import CopyAddress from '../../components/CopyAddress';
 import EthNfts from './EthNfts';
 import SolNfts from './SolNfts';
@@ -56,14 +52,6 @@ const CustomTab = withStyles({
     textTransform: 'none',
   },
 })(Tab);
-
-const CustomIconButton = withStyles({
-  disabled: {
-    color: '#333 !important',
-  },
-})(IconButton);
-
-let syncInterval: any;
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -168,28 +156,23 @@ const initialData = [
 ];
 
 export const NftCollections = () => {
-  const [loading, setLoading] = useState(true);
-  const [nfts, setNFTs] = useState<any[]>([]);
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
-  const [filter, setFilter] = useState<any>({});
-  const [syncStatus, setSyncStatus] = useState<any>(null);
   const [page, setPage] = useState(1);
   const [createProfile, setCreateProfile] = useState(false);
-  const isSolana = isSolAddress(address);
   const history = useHistory();
 
   const [summary, setSummary] = useState(initialData);
   const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
   const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
   const [ownedSolNfts, setOwnedSolNfts] = useState<any>([]);
-  const [ownedSolCollections, setOwnedSolCollections] = useState<any>([]);
+  const [ownedSolCollections] = useState<any>([]);
   const [ownedBscNfts, setOwnedBscNfts] = useState<any>([]);
   const [eth_loading, setEth_Loading] = useState<boolean>(true);
   const [sol_loading, setSol_Loading] = useState<boolean>(true);
   const [bsc_loading, setBsc_Loading] = useState<boolean>(true);
-  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
+  const [cookies, setCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
   const collectionFloorPrice: any = {};

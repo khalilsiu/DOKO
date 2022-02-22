@@ -1,13 +1,5 @@
-import { useEffect, useState } from 'react';
 import { Grid, Typography, withStyles, makeStyles, CircularProgress } from '@material-ui/core';
 
-import ethIcon from './assets/eth.png';
-import bscIcon from './assets/bsc.png';
-import polygonIcon from './assets/polygon.png';
-import solanaIcon from './assets/solana.png';
-import { getAllEthAssets, getFloorPrice, getNFTsCount } from './api';
-import { getSolNftsCount } from '../../libs/solana';
-import { isSolAddress } from '../../libs/utils';
 import SectionLabel from '../../components/SectionLabel';
 
 const ChainContainer = withStyles((theme) => ({

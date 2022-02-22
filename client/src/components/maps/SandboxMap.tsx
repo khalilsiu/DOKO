@@ -1,4 +1,4 @@
-import { MapContainer, ImageOverlay, MapConsumer } from 'react-leaflet';
+import { MapContainer, ImageOverlay } from 'react-leaflet';
 import L from 'leaflet';
 import { makeStyles, Theme, useMediaQuery } from '@material-ui/core';
 import { MapsProps, MapStyles, StyleProps } from './constants';

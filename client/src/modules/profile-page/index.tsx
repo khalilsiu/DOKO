@@ -7,7 +7,6 @@ import {
   makeStyles,
   Tab,
   Tabs,
-  Tooltip,
   Typography,
   withStyles,
   Button,
@@ -19,18 +18,12 @@ import {
 } from '@material-ui/core';
 import { useParams, useHistory } from 'react-router-dom';
 import CloseIcon from '@material-ui/icons/Close';
-import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { useCookies } from 'react-cookie';
-import { OpenInBrowserRounded } from '@material-ui/icons';
-import { SSL_OP_TLS_D5_BUG } from 'constants';
-import { TabPanel, NftPagination, Meta, RadiusInput } from '../../components';
-import { getAddressStatus, getNFTs, indexAddress } from '../api';
-import { Filter } from './Filter';
+import { TabPanel, NftPagination, Meta } from '../../components';
+import { getNFTs } from '../api';
 import Intro from '../core/Intro';
-import { isSolAddress, minimizeAddress } from '../../libs/utils';
-import { AddressStatus } from './AddressStatus';
-import CopyAddress from '../../components/CopyAddress';
+import { isSolAddress } from '../../libs/utils';
 import EthNfts from './EthNfts';
 import SolNfts from './SolNfts';
 import SectionLabel from '../../components/SectionLabel';
@@ -188,30 +181,25 @@ export const NftCollections = () => {
   const profile: any = JSON.parse(atob(hash));
   const styles = useStyles();
   const [tabValue, setTabValue] = useState(0);
-  const [filter, setFilter] = useState<any>({});
   const [page, setPage] = useState(1);
   const [createProfile, setCreateProfile] = useState(false);
   const [ownedEthNfts, setOwnedEthNfts] = useState<any>([]);
   const [ownedEthCollections, setOwnedEthCollections] = useState<any>([]);
   const [ownedSolNfts, setOwnedSolNfts] = useState<any>([]);
-  const [ownedSolCollections, setOwnedSolCollections] = useState<any>([]);
+  const [ownedSolCollections] = useState<any>([]);
   const [ownedBscNfts, setOwnedBscNfts] = useState<any>([]);
   const [eth_loading, setEth_Loading] = useState<boolean>(true);
   const [sol_loading, setSol_Loading] = useState<boolean>(true);
   const [bsc_loading, setBsc_Loading] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const history = useHistory();
-  const [cookies, setCookie, removeCookie] = useCookies(['profiles']);
+  const [cookies, setCookie] = useCookies(['profiles']);
   const [profileName, setProfileName] = useState('');
 
   const collectionFloorPrice: any = {};
 
   const handleClickOpen = () => {
     setCreateProfile(true);
-  };
-
-  const handleClose = () => {
-    setCreateProfile(false);
   };
 
   const handleSubmit = () => {

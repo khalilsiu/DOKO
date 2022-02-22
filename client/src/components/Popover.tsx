@@ -66,7 +66,7 @@ export const Popover = ({
   style,
 }: PropsWithChildren<Props>) => {
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
-  const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
+  const [arrowElement] = useState<HTMLElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement,

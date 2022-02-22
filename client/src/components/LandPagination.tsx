@@ -1,9 +1,7 @@
 import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
-import { SolanaNFTItem } from './SolanaNFTItem';
 import { OpenseaNFTItem } from './OpenseaNFTItem';
 import { LightButton } from './LightButton';
-import { NFTItem } from './NFTItem';
 import { Asset } from '../store/summary';
 
 interface Props {
@@ -12,10 +10,9 @@ interface Props {
   page?: number;
   onNext?: () => void;
   onPrev?: () => void;
-  isOpenSea?: boolean;
-  isSolana?: boolean;
   loading?: boolean;
   maxPage?: number;
+  onLeaseButtonClick?: (asset: Asset | null) => void;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -40,27 +37,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const NftPagination = ({
+export const LandPagination = ({
   nfts,
   page,
   total,
   onNext = () => null,
   onPrev = () => null,
-  isOpenSea = false,
-  isSolana = false,
   loading = false,
   maxPage,
+  onLeaseButtonClick,
 }: Props) => {
   const styles = useStyles();
 
   return (
     <div>
       <div className={styles.nftsContainer}>
-        {isSolana
-          ? nfts.map((nft) => <SolanaNFTItem key={nft.id} nft={nft} />)
-          : !isOpenSea && nfts?.length
-          ? nfts.map((nft) => <NFTItem key={nft.id} nft={nft} />)
-          : nfts.map((nft) => <OpenseaNFTItem nft={nft} key={nft.id} />)}
+        {nfts.map((nft) => (
+          <OpenseaNFTItem setSelectedAssetForLease={onLeaseButtonClick} nft={nft} key={nft.id} />
+        ))}
       </div>
       {loading && <CircularProgress />}
       {!loading && (!page || page <= 1) && (!nfts || nfts.length === 0) ? (
@@ -90,4 +84,4 @@ export const NftPagination = ({
   );
 };
 
-export default NftPagination;
+export default LandPagination;
