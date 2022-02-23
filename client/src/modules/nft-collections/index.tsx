@@ -78,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
   introCard: {
     position: 'sticky',
     top: 120,
+    marginRight: '30px',
   },
   itemsContainer: {
     paddingLeft: 36,

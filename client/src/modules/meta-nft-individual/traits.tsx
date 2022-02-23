@@ -6,9 +6,9 @@ interface NFtTraitsProps {
   traits: any;
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   traitFooter: {
-    marginTop: '1em',
+    marginTop: '1.2em',
     textAlign: 'center',
   },
   traitCard: {
@@ -17,13 +17,34 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    height: '125px',
     maxHeight: '125px',
     width: '100%',
     borderRadius: '20px',
     border: '1px solid white',
+    borderOpacity: '0.5',
     alignItems: 'center',
     color: 'inherit',
+  },
+  traitType: {
+    textAlign: 'center',
+    fontFamily: 'Open Sans',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: '14px',
+    lineHeight: '19px',
+    textTransform: 'uppercase',
+    color: '#FFFFFF',
+    opacity: '0.5',
+    [theme.breakpoints.down('sm')]: {
+      lineHeight: '11px',
+      fontSize: '8px',
+    },
+  },
+  value: {
+    fontWeight: 'bolder',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '10px',
+    },
   },
 }));
 
@@ -56,29 +77,15 @@ export const NftTraits = ({ traits }: NFtTraitsProps) => {
     <Grid item container justifyContent="flex-start" spacing={3}>
       <GradientSVG />
       {traits.map((trait: any, i: any) => (
-        <Grid item container lg={3} xl={3} md={4} sm={4} xs={6} key={trait.traitType + i}>
+        <Grid item container xs={3} key={trait.traitType + i}>
           <Card className={styles.traitCard}>
-            <div style={{ marginBottom: '1em' }}>
-              <Typography
-                variant="body1"
-                style={{
-                  fontFamily: 'Open Sans',
-                  fontStyle: 'normal',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  lineHeight: '19px',
-                  textTransform: 'uppercase',
-
-                  color: '#FFFFFF',
-
-                  opacity: '0.5',
-                }}
-              >
+            <div style={{ height: '50%' }}>
+              <Typography variant="body1" className={styles.traitType}>
                 {trait.traitType}
               </Typography>
             </div>
             <div className={styles.traitFooter}>
-              <Typography variant="body1" style={{ fontWeight: 'bolder' }}>
+              <Typography variant="body1" className={styles.value}>
                 {trait.value}
               </Typography>
             </div>

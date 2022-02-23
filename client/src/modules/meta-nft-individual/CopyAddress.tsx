@@ -23,7 +23,7 @@ export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
       {hasLink ? (
         <Typography variant="body1" style={{ lineHeight: 2 }}>
           <Link
-            style={{ textDecoration: 'none', color: '#61dafb' }}
+            style={{ textDecoration: 'none', color: '#43F3E5' }}
             href={`${window.origin}/address/${address}`}
           >
             {minimizeAddress(address)}
