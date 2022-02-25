@@ -23,7 +23,7 @@ import Joi from 'joi';
 import { AuthContext } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { upsertLeaseToBlockchain } from '../../store/lease/leasesSlice';
+import { upsertLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
 import { RootState } from '../../store/store';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { parseError } from '../../utils/joiErrors';
@@ -136,7 +136,7 @@ const schema = {
   autoRegenerate: Joi.bool().required(),
 };
 
-const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
+const EditLeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
   const styles = useStyles();
   const history = useHistory();
   const {
@@ -199,7 +199,6 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
     }
     await approveDokoOnDcl();
   };
-
   const upsertLease = async () => {
     const result = Joi.object(schema).validate(leaseForm);
     if (result.error) {
@@ -501,4 +500,4 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
   );
 });
 
-export default LeaseModal;
+export default EditLeaseModal;

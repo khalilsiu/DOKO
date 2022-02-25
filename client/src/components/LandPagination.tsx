@@ -5,7 +5,7 @@ import { LightButton } from './LightButton';
 import { Asset } from '../store/summary';
 
 interface Props {
-  nfts: (Asset & { floorPrice: number })[];
+  nfts: Asset[];
   total?: number;
   page?: number;
   onNext?: () => void;

@@ -5,11 +5,11 @@ export const tokens = [
     label: '[ETH] Ethereum',
     icon: '/ethereum.png',
   },
-  // {
-  //   symbol: 'WETH',
-  //   address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  //   label: '[WETH] Wapped Ethereum',
-  // },
+  {
+    symbol: 'WETH',
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    label: '[WETH] Wapped Ethereum',
+  },
   {
     symbol: 'DAI',
     address: '0x6b175474e89094c44da98b954eedeac495271d0f',

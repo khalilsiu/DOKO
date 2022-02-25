@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import metaverses from '../constants/metaverses';
-import { Lease } from '../store/lease/leasesSlice';
 import { fetchCollectionSummary, MetaverseSummary } from '../store/summary/collectionSummarySlice';
-import { Asset, fetchProfileOwnership, Trait } from '../store/summary/profileOwnershipSlice';
 
 import { RootState } from '../store/store';
+import { Lease } from '../store/lease/metaverseLeasesSlice';
+import { Trait, Asset, fetchProfileOwnership } from '../store/summary';
 
 export interface Filter {
   traitType: string;
@@ -47,7 +47,7 @@ export interface AggregatedSummary {
 interface IGetAggregatedSummary {
   collectionSummaries: MetaverseSummary[];
   ownerships: Asset[][];
-  leases?: Lease[];
+  leases?: Lease[][][];
   isLoading: boolean;
 }
 export function getAggregatedSummary({
@@ -56,14 +56,15 @@ export function getAggregatedSummary({
   leases,
   isLoading,
 }: IGetAggregatedSummary) {
-  const addressAssetIdToLeaseMap = leases?.reduce(
-    (acc, lease) => ({
-      ...acc,
-      [`${lease.contractAddress}_${lease.assetId}`]: lease,
-    }),
-    {},
-  );
   return metaverses.map((metaverse, metaverseIndex) => {
+    const metaverseLeases = leases ? leases[metaverseIndex] : [];
+    const addressAssetIdToLeaseMap = metaverseLeases.flat().reduce(
+      (acc, lease) => ({
+        ...acc,
+        [`${lease.contractAddress}_${lease.assetId}`]: lease,
+      }),
+      {},
+    );
     // get traits with floor price from collection summaries
     const traitsWithFloorPrice = metaverse.traits.map((filters, traitIndex) => ({
       filters,

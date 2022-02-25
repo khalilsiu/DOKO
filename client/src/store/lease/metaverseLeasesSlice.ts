@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ethers } from 'ethers';
-import { LeaseForm } from '../../components/landProfile/LeaseModal';
+import { LeaseForm } from '../../components/landProfile/EditLeaseModal';
 import { AcceptedTokens } from '../../constants/acceptedTokens';
-import ContractServiceAPI, { IGetLeases } from '../../libs/contract-service-api';
+import metaverses from '../../constants/metaverses';
+import ContractServiceAPI from '../../libs/contract-service-api';
 import { camelize } from '../../utils/utils';
 
 export interface Lease {
@@ -22,9 +23,11 @@ export interface Lease {
   renteeAddress: string;
   assetId: string;
   contractAddress: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const initialState: Lease[] = [];
+const initialState: Lease[][][] = metaverses.map(() => []);
 
 interface ICreateLease {
   leaseForm: LeaseForm;
@@ -35,7 +38,7 @@ interface ICreateLease {
 }
 
 export const upsertLeaseToBlockchain = createAsyncThunk(
-  'Leases/upsertLeaseToBlockchain',
+  'MetaverseLeases/upsertLeaseToBlockchain',
   async ({ leaseForm, walletAddress, assetId, dokoRentalContract, isUpdate }: ICreateLease) => {
     const leaseDetails = [
       ethers.utils.parseEther(leaseForm.rentAmount),
@@ -56,17 +59,45 @@ export const upsertLeaseToBlockchain = createAsyncThunk(
   },
 );
 
-export const getLeases = createAsyncThunk('Leases/getLesaes', async (payload: IGetLeases) => {
-  const lease = await ContractServiceAPI.getLeases(payload);
-  return camelize(lease);
-});
+export const getMetaverseLeases = createAsyncThunk(
+  'MetaverseLeases/getLesaes',
+  async (payload: any) => {
+    const metavereseLeases: Lease[][][] = [];
 
-const leasesSlice = createSlice({
-  name: 'Leases',
+    for (const metaverse of metaverses) {
+      const contractsLeases = await Promise.all(
+        metaverse.addresses.map((address) =>
+          ContractServiceAPI.getLeases({ lessor: payload.lessor, contractAddress: address }).catch(
+            (err) => {
+              if (err.response.status === 404) {
+                return [];
+              }
+            },
+          ),
+        ),
+      );
+
+      metavereseLeases.push(
+        contractsLeases.map((contractLeases) => {
+          return contractLeases.map((lease) =>
+            camelize({
+              ...lease.lease,
+            }),
+          );
+        }),
+      );
+    }
+
+    return metavereseLeases;
+  },
+);
+
+const metaverseLeasesSlice = createSlice({
+  name: 'MetaverseLeases',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(getLeases.fulfilled, (state, action) => {
+    builder.addCase(getMetaverseLeases.fulfilled, (state, action) => {
       return action.payload;
     });
   },
@@ -74,4 +105,4 @@ const leasesSlice = createSlice({
 
 // export const { getUserOwnership } = leaseSlice.actions;
 
-export const leases = leasesSlice.reducer;
+export const metaverseLeases = metaverseLeasesSlice.reducer;

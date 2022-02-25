@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinates } from '../../utils/utils';
-import { Lease } from '../lease/leasesSlice';
+import { Lease } from '../lease/metaverseLeasesSlice';
 
 export interface Trait {
   traitType: string;
@@ -11,11 +11,12 @@ export interface Trait {
 }
 
 export interface Asset {
-  floorPrice: number;
+  floorPrice?: number;
   id: string;
   tokenId: string;
   imageUrl: string;
   imageOriginalUrl: string;
+  description?: string;
   coordinates: L.LatLngExpression;
   imagePreviewUrl: string;
   imageThumbnailUrl: string;

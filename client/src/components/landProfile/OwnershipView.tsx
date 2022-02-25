@@ -24,8 +24,8 @@ import { Asset } from '../../store/summary/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
 import { useMetaMask } from 'metamask-react';
 import { useHistory, useParams } from 'react-router-dom';
-import LeaseModal from './LeaseModal';
-import { getAsset } from '../../store/asset/assetSlice';
+import EditLeaseModal from './EditLeaseModal';
+import { getAssetFromOpensea } from '../../store/asset/assetSlice';
 import { useDispatch } from 'react-redux';
 import { WSContext } from '../../contexts/WSContext';
 
@@ -118,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CustomTabs = withStyles({
+export const CustomTabs = withStyles({
   root: {
     width: '100%',
   },
@@ -127,7 +127,7 @@ const CustomTabs = withStyles({
   },
 })(Tabs);
 
-const CustomTab = withStyles({
+export const CustomTab = withStyles({
   wrapper: {
     textTransform: 'none',
   },
@@ -177,7 +177,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
 
   useEffect(() => {
     if (urlContractAddress && urlTokenId) {
-      dispatch(getAsset({ contractAddress: urlContractAddress, assetId: urlTokenId }));
+      dispatch(getAssetFromOpensea({ contractAddress: urlContractAddress, assetId: urlTokenId }));
     }
   }, [urlContractAddress, urlTokenId]);
 
@@ -390,7 +390,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
         })}
       </TabPanel>
       {urlContractAddress && urlTokenId && walletAddress && (
-        <LeaseModal
+        <EditLeaseModal
           setSelectedAssetForLease={() => history.push(`/address/${urlAddress}`)}
           walletAddress={walletAddress}
           addressConcerned={urlAddress}
