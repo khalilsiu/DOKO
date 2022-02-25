@@ -5,17 +5,18 @@ import {
   Button,
   Grid,
   Typography,
+  useMediaQuery,
   Theme,
+  useTheme,
 } from '@material-ui/core';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import LeaseCard from '../../components/rentalListing/LeaseCard';
 import RenderMaps from '../../components/maps/RenderMaps';
 import metaverses from '../../constants/metaverses';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import LeaseDetailModal from '../../components/rentalListing/LeaseDetailModal';
-import { MouseEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAssetFromServer } from '../../store/asset/assetSlice';
 import { RootState } from '../../store/store';
@@ -92,12 +93,15 @@ export const sortOptions = [
     },
   },
 ];
-const StyledButton = withStyles({
+const StyledButton = withStyles((theme: Theme) => ({
   root: {
     minWidth: '300px',
     borderWidth: '2px',
+    [theme.breakpoints.down('md')]: {
+      minWidth: '100px',
+    },
   },
-})(Button);
+}))(Button);
 
 const useStyles = makeStyles((theme: Theme) => ({
   underline: {
@@ -126,10 +130,16 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontStyle: 'italic',
     marginBottom: '0.4rem',
   },
-  leaseCardSection: { height: '100%', overflowY: 'scroll' },
-  leaseView: {
-    height: '600px',
+  leaseCardSection: {
+    height: '100%',
+    overflowY: 'scroll',
+    [theme.breakpoints.down('md')]: {
+      display: 'flex',
+      width: '100%',
+      overflowX: 'scroll',
+    },
   },
+  leaseView: {},
   sortMenu: {
     position: 'absolute',
     right: 0,
@@ -138,8 +148,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     overflow: 'hidden',
     padding: '0.5rem 0 0.5rem 0',
     backgroundColor: 'white',
-    width: '100%',
-    zIndex: 1000,
+    minWidth: 'content-fit',
+    zIndex: 10000,
   },
 }));
 
@@ -152,91 +162,100 @@ interface IRentalView {
   assets?: Asset[][];
 }
 
-const RentalView = ({
-  metaverseIndex,
-  handleSortChange,
-  sortOpen,
-  setSortOpen,
-  sortIndex,
-  assets,
-}: IRentalView) => {
-  const styles = useStyles();
-  const dispatch = useDispatch();
-  const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
-    metaverses.map(() => null),
-  );
-  const asset = useSelector((state: RootState) => state.asset);
-  const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
-    useParams<{ contractAddress: string; tokenId: string }>();
+const RentalView = forwardRef<HTMLDivElement, IRentalView>(
+  (
+    { metaverseIndex, handleSortChange, sortOpen, setSortOpen, sortIndex, assets }: IRentalView,
+    ref,
+  ) => {
+    const styles = useStyles();
+    const dispatch = useDispatch();
+    const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
+      metaverses.map(() => null),
+    );
+    const theme = useTheme();
+    const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
+    const asset = useSelector((state: RootState) => state.asset);
+    const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
+      useParams<{ contractAddress: string; tokenId: string }>();
 
-  // subcontract assets
-  const flatAssets = assets ? assets.flat() : [];
+    // subcontract assets
+    const flatAssets = assets ? assets.flat() : [];
 
-  const onAssetClick = (collectionIndex: number, index: number) => {
-    const copy = collectionAssetSelected.slice();
-    copy[collectionIndex] = index;
-    setCollectionAssetSelected(copy);
-  };
+    const onAssetClick = (collectionIndex: number, index: number) => {
+      const copy = collectionAssetSelected.slice();
+      copy[collectionIndex] = index;
+      setCollectionAssetSelected(copy);
+    };
 
-  useEffect(() => {
-    if (urlContractAddress && urlTokenId) {
-      dispatch(getAssetFromServer({ contractAddress: urlContractAddress, assetId: urlTokenId }));
-    }
-  }, [urlContractAddress, urlTokenId]);
+    useEffect(() => {
+      if (urlContractAddress && urlTokenId) {
+        dispatch(getAssetFromServer({ contractAddress: urlContractAddress, assetId: urlTokenId }));
+      }
+    }, [urlContractAddress, urlTokenId]);
 
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <div style={{ position: 'relative' }}>
-          <StyledButton
-            className="gradient-button"
-            disabled={false}
-            variant="outlined"
-            onClick={() => setSortOpen(!sortOpen)}
-            style={{}}
-          >
-            {sortOptions[sortIndex].label} <ArrowDropDownIcon />
-          </StyledButton>
-          {sortOpen && (
-            <div className={styles.sortMenu}>
-              {sortOptions.map((sort, index) => (
-                <MenuItem
-                  value={index}
-                  onClick={() => handleSortChange(metaverseIndex, index)}
-                  className={styles.menuItem}
-                  key={sort.label}
-                >
-                  {sort.label}
-                </MenuItem>
-              ))}
-            </div>
-          )}
+    return (
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ position: 'relative' }}>
+            <StyledButton
+              className="gradient-button"
+              disabled={false}
+              variant="outlined"
+              onClick={() => setSortOpen(!sortOpen)}
+              style={{}}
+            >
+              {mdOrAbove && sortOptions[sortIndex].label}
+              <ArrowDropDownIcon />
+            </StyledButton>
+            {sortOpen && (
+              <div className={styles.sortMenu} ref={ref}>
+                {sortOptions.map((sort, index) => (
+                  <MenuItem
+                    value={index}
+                    onClick={() => handleSortChange(metaverseIndex, index)}
+                    className={styles.menuItem}
+                    style={sortIndex === index ? { backgroundColor: theme.palette.grey[300] } : {}}
+                    key={sort.label}
+                  >
+                    {sort.label}
+                  </MenuItem>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-      <Typography variant="subtitle2" className={styles.resultsText}>
-        Results showing: {flatAssets.length} listings
-      </Typography>
-      <Grid container spacing={2} className={styles.leaseView}>
-        <Grid item md={4} className={styles.leaseCardSection}>
-          {flatAssets.map((asset, assetIndex) => (
-            <LeaseCard
-              key={asset.tokenId}
-              asset={asset}
-              handleClick={() => onAssetClick(metaverseIndex, assetIndex)}
+        <Typography variant="subtitle2" className={styles.resultsText}>
+          Results showing: {flatAssets.length} listings
+        </Typography>
+        <Grid container spacing={2} direction={mdOrAbove ? 'row' : 'column-reverse'}>
+          <Grid
+            item
+            md={4}
+            direction={mdOrAbove ? 'column' : 'row'}
+            className={styles.leaseCardSection}
+          >
+            {flatAssets.map((asset, assetIndex) => (
+              <div>
+                <LeaseCard
+                  asset={asset}
+                  handleClick={() => onAssetClick(metaverseIndex, assetIndex)}
+                />
+              </div>
+            ))}
+          </Grid>
+          <Grid item md={8}>
+            <RenderMaps
+              metaverseName={metaverses[metaverseIndex].label}
+              assets={flatAssets}
+              assetsSelected={collectionAssetSelected}
             />
-          ))}
+          </Grid>
         </Grid>
-        <Grid item md={8}>
-          <RenderMaps
-            metaverseName={metaverses[metaverseIndex].label}
-            assets={flatAssets}
-            assetsSelected={collectionAssetSelected}
-          />
-        </Grid>
-      </Grid>
-      {urlContractAddress && urlTokenId && <LeaseDetailModal asset={asset} />}
-    </div>
-  );
-};
+
+        {urlContractAddress && urlTokenId && <LeaseDetailModal asset={asset} />}
+      </div>
+    );
+  },
+);
 
 export default RentalView;

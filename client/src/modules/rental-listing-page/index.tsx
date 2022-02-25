@@ -1,6 +1,14 @@
-import { Grid, Hidden, Card, makeStyles, Typography } from '@material-ui/core';
+import {
+  Grid,
+  Hidden,
+  Card,
+  makeStyles,
+  Typography,
+  useMediaQuery,
+  Theme,
+} from '@material-ui/core';
 import { cloneDeep } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Meta, TabPanel } from '../../components';
 import { CustomTabs, CustomTab } from '../../components/landProfile/OwnershipView';
@@ -33,12 +41,29 @@ const RentalListingPage = () => {
   const [sortOpen, setSortOpen] = useState(false);
   const [sortStates, setSortStates] = useState(metaverses.map(() => 0));
   const metaverseAssets = useSelector((state: RootState) => state.metaverseAssets);
+  const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
+  const ref = useRef<HTMLDivElement>(null);
   const handleSortChange = (metaverseIndex: number, sortItemIndex: number) => {
     setSortOpen(false);
     const newSortStates = cloneDeep(sortStates);
     newSortStates[metaverseIndex] = sortItemIndex;
     setSortStates(newSortStates);
   };
+
+  const handleOffMenuClick = (e: MouseEvent) => {
+    if (ref.current && !ref.current.contains(e.target as Node)) {
+      setSortOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('mousedown', handleOffMenuClick);
+    }
+    return () => {
+      window.removeEventListener('mousedown', handleOffMenuClick);
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(
@@ -83,10 +108,15 @@ const RentalListingPage = () => {
               style={{ marginRight: '1rem' }}
               label={
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src={metaverses[0].icon} alt="" width="15px" />
-                  <Typography variant="body1" style={{ fontWeight: 'bold', marginLeft: '0.5rem' }}>
-                    {metaverses[0].label}
-                  </Typography>
+                  <img src={metaverses[0].icon} alt="" width={mdOrAbove ? '15px' : '25px'} />
+                  {mdOrAbove && (
+                    <Typography
+                      variant="body1"
+                      style={{ fontWeight: 'bold', marginLeft: '0.5rem' }}
+                    >
+                      {metaverses[0].label}
+                    </Typography>
+                  )}
                 </div>
               }
               value={0}
@@ -101,6 +131,7 @@ const RentalListingPage = () => {
                 setSortOpen={setSortOpen}
                 sortIndex={sortStates[index]}
                 assets={metaverseAssets[index]}
+                ref={ref}
               />
             </TabPanel>
           ))}

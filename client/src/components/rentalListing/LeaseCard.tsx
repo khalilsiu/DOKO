@@ -1,22 +1,44 @@
-import { Button, Card, CardContent, makeStyles, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, makeStyles, Typography, Theme } from '@material-ui/core';
 import eth from '../../assets/eth.png';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import ShareButton from '../ShareButton';
 import { MouseEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: Theme) => ({
   card: {
     display: 'flex',
     flexDirection: 'row',
     height: '150px',
     marginBottom: '0.6rem',
+    [theme.breakpoints.down('md')]: {
+      marginRight: '0.5rem',
+      height: '230px',
+      flexDirection: 'column',
+      width: '170px',
+    },
+  },
+  cardImage: {
+    width: '30%',
+    backgroundPosition: 'center',
+    backgroundSize: '200%',
+    [theme.breakpoints.down('md')]: {
+      height: '50%',
+      width: '100%',
+    },
   },
   cardContent: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     width: '70%',
+    '&:last-child': {
+      paddingBottom: 0,
+    },
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+      padding: '0.6rem',
+    },
   },
   cardTitle: {
     display: 'flex',
@@ -31,6 +53,9 @@ const useStyles = makeStyles(() => ({
   deposit: {
     display: 'flex',
     alignItems: 'center',
+    [theme.breakpoints.down('md')]: {
+      marginBottom: '0.5rem',
+    },
   },
   text: {
     fontWeight: 'bold',
@@ -44,6 +69,14 @@ const useStyles = makeStyles(() => ({
   rent: {
     display: 'flex',
     alignItems: 'center',
+  },
+  button: {
+    height: '30px',
+    width: '100px',
+    [theme.breakpoints.down('md')]: {
+      width: '80px',
+      padding: '0.5rem',
+    },
   },
 }));
 
@@ -69,11 +102,9 @@ const LeaseCard = ({ asset, handleClick }: ILeaseCard) => {
     <Card className={styles.card} onClick={handleClick}>
       <div
         style={{
-          width: '30%',
           backgroundImage: `url('${asset.imageOriginalUrl}')`,
-          backgroundPosition: 'center',
-          backgroundSize: '200%',
         }}
+        className={styles.cardImage}
       ></div>
       <CardContent className={styles.cardContent}>
         <div>
@@ -112,9 +143,8 @@ const LeaseCard = ({ asset, handleClick }: ILeaseCard) => {
             </Typography>
           </div>
           <Button
-            className="gradient-button"
+            className={`gradient-button ${styles.button}`}
             variant="outlined"
-            style={{ height: '30px', width: '100px' }}
             onClick={(e) => handleBtnClick(e, asset.assetContract.address, asset.tokenId)}
           >
             <span style={{ fontSize: '0.8rem' }}>Details</span>

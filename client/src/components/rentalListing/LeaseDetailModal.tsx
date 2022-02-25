@@ -2,30 +2,24 @@ import {
   Typography,
   IconButton,
   makeStyles,
-  Checkbox,
   Button,
   MenuItem,
   withStyles,
   Select,
   Input,
-  useTheme,
   Theme,
   useMediaQuery,
   Grid,
 } from '@material-ui/core';
-import { RadiusInput } from '..';
 import UIModal from '../modal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { cloneDeep } from 'lodash';
-import Joi from 'joi';
+import { useContext, useMemo, useState } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
-import { parseError } from '../../utils/joiErrors';
 import { openToast } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
 
@@ -152,14 +146,11 @@ const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
   const history = useHistory();
   const {
     dclContract,
-    dokoRentalContract,
     approveDokoOnDcl,
-    checkApproveForAll,
     isDokoApproved,
     loading: approveLoading,
   } = useContext(AuthContext);
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
-  const theme = useTheme();
   const dispatch = useDispatch();
   const [leaseLength, setLeaseLength] = useState(0);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
