@@ -20,6 +20,21 @@ const initialState: Asset = {
   traits: [],
 };
 
+interface IGetAsset {
+  contractAddress: string;
+  assetId: string;
+}
+
+export const getAssetFromOpensea = createAsyncThunk(
+  'Asset/getAssetFromOpensea',
+  async (payload: IGetAsset) => {
+    const response = await OpenSeaAPI.get(`/asset/${payload.contractAddress}/${payload.assetId}`);
+    // ... TODO GET FLOOR PRICE FROM BACKEND
+    const asset = preprocess(response.data);
+    return camelize(asset);
+  },
+);
+
 export const getAsset = createAsyncThunk('Asset/getAsset', async (payload: any) => {
   const response = await OpenSeaAPI.get(`/asset/${payload.contractAddress}/${payload.assetId}`);
   const asset = preprocess(response.data);
