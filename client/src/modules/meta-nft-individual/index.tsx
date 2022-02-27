@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Hidden, makeStyles } from '@material-ui/core';
+import { Box, CircularProgress, Grid, Hidden, makeStyles } from '@material-ui/core';
 import { ProfileCard } from './components/ProfileCard';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -12,6 +12,7 @@ const NftIndividual = React.memo(() => {
   const classes = useStyles();
   const { address, id } = useParams<{ address: string; id: string; chain: string }>();
   const asset = useAssetSliceSelector((state) => state.asset);
+  const isFetching = useAssetSliceSelector((state) => state.fetching);
   console.log('asset', asset);
 
   React.useEffect(() => {
@@ -28,7 +29,13 @@ const NftIndividual = React.memo(() => {
           </Grid>
         </Hidden>
         <Grid item className={classes.rightSection}>
-          {asset && <TitleSection asset={asset} />}
+          {isFetching ? (
+            <Box className={classes.circularProgressContainer}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <React.Fragment>{asset && <TitleSection asset={asset} />}</React.Fragment>
+          )}
         </Grid>
       </Grid>
     </React.Fragment>
@@ -40,6 +47,13 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     maxWidth: 1900,
     margin: '0 auto',
+  },
+  circularProgressContainer: {
+    display: 'flex',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   leftSection: {
     display: 'flex',

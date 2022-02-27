@@ -124,7 +124,7 @@ const assetSlice = createSlice({
         state.fetching = true;
       })
       .addCase(getAssetFromOpensea.fulfilled, (state, action) => {
-        state.fetching = true;
+        state.fetching = false;
         state.asset = action.payload;
       })
       .addCase(getAssetFromOpensea.rejected, (state) => {
