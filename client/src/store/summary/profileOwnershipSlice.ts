@@ -20,11 +20,21 @@ export interface Asset {
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
   name: string;
+  description: string;
+  ownerAddress: string;
+  creatorAddress: string;
   assetContract: {
     address: string;
   };
   lease?: Lease;
   traits: Trait[];
+  metaverseName: string | null;
+  collection: string | null;
+  tokenStandard: string | null;
+  slug: string | null;
+  externalLink: string | null;
+  lastPurchasePriceETH: number | null;
+  lastPurchasePriceUSD: number | null;
 }
 
 export interface AddressOwnership {
@@ -37,6 +47,25 @@ export interface AddressOwnership {
 
 const initialState: AddressOwnership[] = [];
 
+const getMetaverseName = (slug: string): string | null => {
+  switch (slug) {
+    case 'decentraland':
+      return 'Decentraland';
+
+    case 'cryptovoxels':
+      return 'Cryptovoxels';
+
+    case 'somnium-space':
+      return 'Somnium Space';
+
+    case 'sandbox':
+      return 'The Sandbox';
+
+    default:
+      return null;
+  }
+};
+
 export const preprocess = (asset: any): Asset => {
   const picked = pick(asset, [
     'id',
@@ -46,15 +75,43 @@ export const preprocess = (asset: any): Asset => {
     'image_thumbnail_url',
     'image_original_url',
     'name',
+    'description',
     'asset_contract',
     'traits',
+    'owner',
+    'creator',
+    'collection',
+    'external_link',
+    'last_sale',
   ]);
   picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
 
+  const slug = picked.collection.slug;
+  const metaverseName = getMetaverseName(picked.collection.slug);
+  const ownerAddress = picked.owner.address;
+  const creatorAddress = picked.creator.address;
+  const collection = picked.asset_contract?.name;
+  const tokenStandard = picked.asset_contract?.schema_name;
+  const externalLink = picked.external_link;
+  const lastPurchasePriceETH = picked.last_sale?.payment_token?.eth_price ?? null;
+  const lastPurchasePriceUSD = picked.last_sale?.payment_token?.usd_price ?? null;
+
   const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
 
-  return camelize({ ...picked, coordinates });
+  return camelize({
+    ...picked,
+    coordinates,
+    metaverseName,
+    ownerAddress,
+    creatorAddress,
+    collection,
+    tokenStandard,
+    slug,
+    externalLink,
+    lastPurchasePriceETH,
+    lastPurchasePriceUSD,
+  });
 };
 
 export const fetchAssets = async (address: string) => {

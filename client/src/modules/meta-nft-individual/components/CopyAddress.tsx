@@ -1,6 +1,7 @@
 import { Grid, Tooltip, Typography, IconButton, Link } from '@material-ui/core';
-import { useState } from 'react';
-import { minimizeAddress } from '../../libs/utils';
+import { makeStyles } from '@material-ui/styles';
+import React from 'react';
+import { minimizeAddress } from '../../../libs/utils';
 
 interface CopyAddressProps {
   address: string;
@@ -8,24 +9,23 @@ interface CopyAddressProps {
 }
 
 export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = React.useState(false);
+  const classes = useStyles();
 
-  const copy = () => {
+  const copy = React.useCallback(() => {
     if (copied) {
       return;
     }
     navigator.clipboard.writeText(address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [copied, address]);
+
   return (
     <Grid container alignItems="center">
       {hasLink ? (
         <Typography variant="body1" style={{ lineHeight: 2 }}>
-          <Link
-            style={{ textDecoration: 'none', color: '#61dafb' }}
-            href={`${window.origin}/address/${address}`}
-          >
+          <Link className={classes.link} href={`${window.origin}/address/${address}`}>
             {minimizeAddress(address)}
           </Link>
         </Typography>
@@ -42,3 +42,10 @@ export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
     </Grid>
   );
 };
+
+const useStyles = makeStyles({
+  link: {
+    color: '#43f3e5',
+    textDecoration: 'none',
+  },
+});

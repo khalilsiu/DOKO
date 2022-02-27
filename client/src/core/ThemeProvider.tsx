@@ -12,6 +12,7 @@ const darkTheme = createTheme({
     action: {
       disabled: '#666',
     },
+    divider: 'rgba(255,255,255,0.5)',
   },
   typography: {
     fontFamily: 'OpenSans',

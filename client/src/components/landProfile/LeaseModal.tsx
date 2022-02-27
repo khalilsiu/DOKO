@@ -29,6 +29,7 @@ import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { parseError } from '../../utils/joiErrors';
 import { openToast } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
+import { useAssetSliceSelector } from 'store/asset/assetSlice';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -151,7 +152,7 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-  const asset = useSelector((state: RootState) => state.asset);
+  const asset = useAssetSliceSelector((state) => state.asset);
   const initialState = {
     rentToken: AcceptedTokens['ETH'],
     rentAmount: '',
