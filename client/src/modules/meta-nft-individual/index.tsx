@@ -46,11 +46,18 @@ const useStyles = makeStyles((theme) => ({
     width: 420,
     padding: `${theme.spacing(4)}px ${theme.spacing(2)}px`,
     justifyContent: 'center',
+    alignItems: 'flex-start',
     borderRight: `1px solid ${theme.palette.divider}`,
   },
   rightSection: {
     flex: 1,
     padding: theme.spacing(4),
+    [theme.breakpoints.down('md')]: {
+      height: 'calc(100vh - 113px)',
+    },
+    [theme.breakpoints.up('md')]: {
+      height: 'calc(100vh - 168px)',
+    },
   },
 }));
 
