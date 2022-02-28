@@ -88,13 +88,13 @@ export const preprocess = (asset: any): Asset => {
     'external_link',
     'last_sale',
   ]);
-  picked.asset_contract = pick(picked.asset_contract, ['address']);
+  picked.asset_contract = pick(picked.asset_contract, ['address', 'schema_name']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
 
-  const slug = picked.collection.slug;
+  const slug = picked.collection?.slug;
   const metaverseName = getMetaverseName(picked.collection.slug);
-  const ownerAddress = picked.owner.address;
-  const creatorAddress = picked.creator.address;
+  const ownerAddress = picked.owner?.address;
+  const creatorAddress = picked.creator?.address;
   const collection = picked.asset_contract?.name;
   const tokenStandard = picked.asset_contract?.schema_name;
   const externalLink = picked.external_link;

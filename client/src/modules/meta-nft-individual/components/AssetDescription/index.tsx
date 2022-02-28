@@ -4,6 +4,8 @@ import { Asset } from 'store/summary';
 import { AssetImage } from './AssetImage';
 import { PriceSection } from './PriceSection';
 import { ParcelStats } from './ParcelStats';
+import { DescriptionSection } from './DescriptionSection';
+import { useParams } from 'react-router-dom';
 
 interface Props {
   asset: Asset;
@@ -11,7 +13,7 @@ interface Props {
 
 export const AssetDescription = React.memo<Props>(({ asset }) => {
   const classes = useStyles();
-  console.log('asset', asset);
+  const { address, id } = useParams<{ address: string; id: string; chain: string }>();
 
   return (
     <Grid className={classes.root} container>
@@ -26,6 +28,14 @@ export const AssetDescription = React.memo<Props>(({ asset }) => {
           lastPurchasePriceUsd={asset.lastPurchasePriceUsd}
         />
         <ParcelStats traits={asset.traits} />
+        <DescriptionSection
+          district="N/A"
+          tokenId={id}
+          contactAddress={address}
+          mataverseName={asset.metaverseName}
+          tokenStandard={asset.tokenStandard}
+          externalLink={asset.externalLink}
+        />
       </Grid>
     </Grid>
   );

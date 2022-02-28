@@ -51,40 +51,44 @@ interface IGetAsset {
 export const useAssetSliceSelector = <T>(func: (state: RootState['asset']) => T) =>
   useSelector((state: RootState) => func(state.asset));
 
-const fetchMetaverseFloorPrice = async (asset: Asset): Promise<[number, number]> => {
-  const metaverse = metaverses.find((metaverse) => asset.slug === metaverse.slug);
-  if (!metaverse) {
-    return [0, 0];
+const fetchMetaverseFloorPrice = async (asset: Asset): Promise<[number | null, number | null]> => {
+  try {
+    const metaverse = metaverses.find((metaverse) => asset.slug === metaverse.slug);
+    if (!metaverse) {
+      return [0, 0];
+    }
+
+    const traits = asset.traits?.length ? asset.traits : [];
+
+    const lookupTraits = traits.filter((trait) =>
+      metaverse.primaryTraitTypes.includes(trait.traitType),
+    );
+
+    const traitFilter = lookupTraits.map((trait) => ({
+      traitType: trait.traitType,
+      value: trait.value,
+      operator: '=',
+    }));
+
+    const response = await ContractServiceAPI.getAssetFloorPrice(
+      metaverse.primaryAddress,
+      traitFilter,
+    );
+
+    let floorPriceETH = parsePriceETH(response.price, response.payment_token);
+    let floorPriceUSD = parsePriceUSD(response.price, response.payment_token);
+
+    if (asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
+      const sizeTrait = asset.traits.find((trait) => trait.traitType === 'Size');
+      const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
+      floorPriceETH *= size;
+      floorPriceUSD *= size;
+    }
+
+    return [floorPriceETH, floorPriceUSD];
+  } catch (e) {
+    return [null, null];
   }
-
-  const traits = asset.traits?.length ? asset.traits : [];
-
-  const lookupTraits = traits.filter((trait) =>
-    metaverse.primaryTraitTypes.includes(trait.traitType),
-  );
-
-  const traitFilter = lookupTraits.map((trait) => ({
-    traitType: trait.traitType,
-    value: trait.value,
-    operator: '=',
-  }));
-
-  const response = await ContractServiceAPI.getAssetFloorPrice(
-    metaverse.primaryAddress,
-    traitFilter,
-  );
-
-  let floorPriceETH = parsePriceETH(response.price, response.payment_token);
-  let floorPriceUSD = parsePriceUSD(response.price, response.payment_token);
-
-  if (asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
-    const sizeTrait = asset.traits.find((trait) => trait.traitType === 'Size');
-    const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
-    floorPriceETH *= size;
-    floorPriceUSD *= size;
-  }
-
-  return [floorPriceETH, floorPriceUSD];
 };
 
 const fetchNFTOpensea = async (address: string, id: string) =>
