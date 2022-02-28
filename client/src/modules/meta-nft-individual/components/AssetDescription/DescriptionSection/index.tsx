@@ -7,14 +7,13 @@ import { MetaverseIcon } from './MetaverseIcon';
 interface Props {
   mataverseName: string | null;
   contactAddress: string;
-  district: string;
   tokenId: string;
   tokenStandard: string | null;
   externalLink: string | null;
 }
 
 export const DescriptionSection = React.memo<Props>(
-  ({ mataverseName, contactAddress, district, tokenId, tokenStandard, externalLink }) => {
+  ({ mataverseName, contactAddress, tokenId, tokenStandard, externalLink }) => {
     const classes = useStyles();
 
     return (
@@ -26,7 +25,6 @@ export const DescriptionSection = React.memo<Props>(
             <ExternalLink mataverseName={mataverseName} url={externalLink} />
           )}
         </Attribute>
-        <Attribute title="District">{district}</Attribute>
         <Attribute title="Contact Address">{contactAddress}</Attribute>
         <Attribute title="Token ID">{tokenId}</Attribute>
         <Attribute title="Token Standard">{tokenStandard ?? 'N/A'}</Attribute>
@@ -37,9 +35,7 @@ export const DescriptionSection = React.memo<Props>(
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: theme.spacing(2),
-    },
+    paddingTop: theme.spacing(2),
   },
   link: {
     marginLeft: theme.spacing(1),

@@ -36,10 +36,12 @@ export const PriceBox = React.memo<Props>(({ priceETH, priceUSD, title }) => {
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    minWidth: 240,
     paddingRight: theme.spacing(4),
     borderRight: '2px solid rgba(255,255,255,0.2)',
     [theme.breakpoints.down('lg')]: {
       paddingRight: theme.spacing(3),
+      minWidth: 220,
     },
     [theme.breakpoints.down('xs')]: {
       paddingRight: 0,

@@ -29,7 +29,6 @@ export const AssetDescription = React.memo<Props>(({ asset }) => {
         />
         <ParcelStats traits={asset.traits} />
         <DescriptionSection
-          district="N/A"
           tokenId={id}
           contactAddress={address}
           mataverseName={asset.metaverseName}

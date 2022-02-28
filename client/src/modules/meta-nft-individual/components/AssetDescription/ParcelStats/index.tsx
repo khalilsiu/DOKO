@@ -44,6 +44,14 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'flex-start',
     width: '100%',
     overflowX: 'auto',
-    maxWidth: '100%',
+    [theme.breakpoints.only('xl')]: {
+      maxWidth: 900,
+    },
+    [theme.breakpoints.only('lg')]: {
+      maxWidth: 1100,
+    },
+    [theme.breakpoints.only('md')]: {
+      maxWidth: 800,
+    },
   },
 }));

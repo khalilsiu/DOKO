@@ -15,7 +15,7 @@ export const Trait = React.memo<Props>(({ trait: { traitType, value } }) => {
         {traitType}
       </Typography>
       <Typography className={classes.value} variant="body1">
-        {value}
+        {String(value).length < 10 || isNaN(Number(value)) ? value : Number(value).toFixed(8)}
       </Typography>
     </Box>
   );
@@ -25,8 +25,8 @@ const useStyles = makeStyles((theme) => ({
   root: {
     border: 'solid 1px rgba(255,255,255,0.5)',
     borderRadius: 15,
-    minWidth: 200,
-    width: 200,
+    minWidth: 180,
+    width: 180,
     padding: theme.spacing(2),
     marginRight: theme.spacing(2),
     marginBottom: theme.spacing(2),
@@ -34,9 +34,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    '&:last-child': {
+      marginRight: '0 !important',
+    },
     [theme.breakpoints.down('lg')]: {
-      minWidth: 180,
-      width: 180,
       padding: theme.spacing(1.5),
     },
     [theme.breakpoints.down('xs')]: {
