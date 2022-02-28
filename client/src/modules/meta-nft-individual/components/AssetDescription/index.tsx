@@ -3,6 +3,7 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Asset } from 'store/summary';
 import { AssetImage } from './AssetImage';
 import { PriceSection } from './PriceSection';
+import { ParcelStats } from './ParcelStats';
 
 interface Props {
   asset: Asset;
@@ -24,6 +25,7 @@ export const AssetDescription = React.memo<Props>(({ asset }) => {
           lastPurchasePriceEth={asset.lastPurchasePriceEth}
           lastPurchasePriceUsd={asset.lastPurchasePriceUsd}
         />
+        <ParcelStats traits={asset.traits} />
       </Grid>
     </Grid>
   );

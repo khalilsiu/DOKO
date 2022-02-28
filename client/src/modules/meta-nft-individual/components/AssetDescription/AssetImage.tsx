@@ -23,7 +23,7 @@ export const AssetImage = React.memo<Props>(({ imageUrl }) => {
 const useStyles = makeStyles({
   image: {
     borderRadius: 12,
-    border: '3px solid white',
+    border: '3px solid rgba(255,255,255,0.5)',
     width: '100%',
     '& > svg': {
       width: '100%',

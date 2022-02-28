@@ -47,6 +47,7 @@ const useStyles = makeStyles({
   text: {
     lineHeight: 2,
     fontSize: 21,
+    fontWeight: 'bold',
   },
   link: {
     color: '#43f3e5',
