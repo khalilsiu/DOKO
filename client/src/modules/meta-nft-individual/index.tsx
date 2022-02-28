@@ -24,7 +24,7 @@ const NftIndividual = React.memo(() => {
     <React.Fragment>
       <MetaTag asset={asset} />
       <Grid className={classes.root} container>
-        <Hidden smDown>
+        <Hidden mdDown>
           <Grid item className={classes.leftSection}>
             <ProfileCard />
           </Grid>
@@ -66,15 +66,18 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'flex-start',
     borderRight: `1px solid ${theme.palette.divider}`,
+    [theme.breakpoints.down('lg')]: {
+      width: 290,
+    },
   },
   rightSection: {
     flex: 1,
+    width: '100%',
     padding: theme.spacing(4),
+    minHeight: 'calc(100vh - 168px)',
     [theme.breakpoints.down('md')]: {
-      height: 'calc(100vh - 113px)',
-    },
-    [theme.breakpoints.up('md')]: {
-      height: 'calc(100vh - 168px)',
+      padding: theme.spacing(2),
+      minHeight: 'calc(100vh - 113px)',
     },
   },
 }));

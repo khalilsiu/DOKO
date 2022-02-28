@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, IconButton, makeStyles, Typography } from '@material-ui/core';
+import { Box, Hidden, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { CopyAddress } from './CopyAddress';
 import { Asset } from 'store/summary';
 import PopoverShare from 'components/PopoverShare';
@@ -52,14 +52,22 @@ export const TitleSection = React.memo<Props>(({ asset }) => {
         </Box>
       </Box>
       <Box>
-        <IconButton onClick={onRefresh}>
-          <img
-            className={classes.refreshIcon}
-            src="/collection/DOKOasset_RefreshData.png"
-            alt="back"
-          />
-        </IconButton>
-        <PopoverShare address={address} tokenId={id} chain={chain} name={asset.name} />
+        <Hidden xsDown>
+          <IconButton onClick={onRefresh}>
+            <img
+              className={classes.refreshIcon}
+              src="/collection/DOKOasset_RefreshData.png"
+              alt="back"
+            />
+          </IconButton>
+        </Hidden>
+        <PopoverShare
+          onRefresh={onRefresh}
+          address={address}
+          tokenId={id}
+          chain={chain}
+          name={asset.name}
+        />
       </Box>
     </Box>
   );
@@ -72,6 +80,12 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: 'bold',
+    [theme.breakpoints.between('md', 'lg')]: {
+      fontSize: '2em',
+    },
+    [theme.breakpoints.down('md')]: {
+      fontSize: '2em',
+    },
   },
   addressBox: {
     paddingRight: theme.spacing(2),

@@ -15,10 +15,12 @@ export const ParcelStats = React.memo<Props>(({ traits }) => {
       <Typography className={classes.title} variant="h6">
         Parcel Stats
       </Typography>
-      <Box className={classes.traits}>
-        {traits.map((trait, key) => (
-          <Trait trait={trait} key={key} />
-        ))}
+      <Box>
+        <Box className={classes.traits}>
+          {traits.map((trait, key) => (
+            <Trait trait={trait} key={key} />
+          ))}
+        </Box>
       </Box>
     </Box>
   );
@@ -32,13 +34,16 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontWeight: 'bold',
     marginBottom: theme.spacing(2),
+    [theme.breakpoints.down('lg')]: {
+      fontSize: 18,
+    },
   },
   traits: {
     display: 'flex',
     flexWrap: 'nowrap',
     justifyContent: 'flex-start',
     width: '100%',
-    maxWidth: 900,
     overflowX: 'auto',
+    maxWidth: '100%',
   },
 }));

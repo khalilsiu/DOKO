@@ -1,6 +1,7 @@
-import { Grid, Link, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import React from 'react';
 import { Attribute } from './Attribute';
+import { ExternalLink } from './ExternalLink';
 import { MetaverseIcon } from './MetaverseIcon';
 
 interface Props {
@@ -17,14 +18,12 @@ export const DescriptionSection = React.memo<Props>(
     const classes = useStyles();
 
     return (
-      <Grid container>
+      <Grid className={classes.root} container spacing={2}>
         <Attribute title="Metaverse">
           <MetaverseIcon metaverseName={mataverseName} />
           {mataverseName ?? 'N/A'}
-          {externalLink && (
-            <Link className={classes.link} href={externalLink} target="_blank">
-              View on {mataverseName}
-            </Link>
+          {externalLink && mataverseName && (
+            <ExternalLink mataverseName={mataverseName} url={externalLink} />
           )}
         </Attribute>
         <Attribute title="District">{district}</Attribute>
@@ -37,6 +36,11 @@ export const DescriptionSection = React.memo<Props>(
 );
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: theme.spacing(2),
+    },
+  },
   link: {
     marginLeft: theme.spacing(1),
     fontStyle: 'italic',

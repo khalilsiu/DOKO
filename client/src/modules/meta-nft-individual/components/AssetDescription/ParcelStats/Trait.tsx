@@ -34,14 +34,32 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    [theme.breakpoints.down('lg')]: {
+      minWidth: 180,
+      width: 180,
+      padding: theme.spacing(1.5),
+    },
+    [theme.breakpoints.down('xs')]: {
+      minWidth: 100,
+      width: 100,
+      marginRight: theme.spacing(1),
+    },
   },
   label: {
     color: 'rgba(255,255,255,0.5)',
     fontWeight: 'bold',
     marginBottom: theme.spacing(2),
+    textAlign: 'center',
+    [theme.breakpoints.down('xs')]: {
+      height: 40,
+      fontSize: '0.8rem',
+    },
   },
   value: {
     color: 'white',
     fontWeight: 'bold',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: '0.8rem',
+    },
   },
 }));

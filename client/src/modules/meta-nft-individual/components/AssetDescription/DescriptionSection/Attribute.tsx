@@ -10,7 +10,7 @@ export const Attribute = React.memo<Props>(({ title, children }) => {
   const classes = useStyles();
 
   return (
-    <Grid className={classes.root} item xs={6}>
+    <Grid item xs={6}>
       <Typography className={classes.title} variant="h6">
         {title}
       </Typography>
@@ -22,15 +22,24 @@ export const Attribute = React.memo<Props>(({ title, children }) => {
 });
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginBottom: theme.spacing(2),
-  },
   title: {
     fontWeight: 'bold',
+    [theme.breakpoints.down('lg')]: {
+      fontSize: 18,
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 16,
+    },
   },
   value: {
     wordBreak: 'break-word',
     display: 'flex',
     alignItems: 'center',
+    [theme.breakpoints.down('lg')]: {
+      fontSize: 14,
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 13,
+    },
   },
 }));

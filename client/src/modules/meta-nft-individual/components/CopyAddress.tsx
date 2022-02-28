@@ -1,7 +1,6 @@
-import { Grid, Tooltip, Typography, IconButton, Link } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
 import React from 'react';
 import { minimizeAddress } from '../../../libs/utils';
+import { Grid, Tooltip, Typography, IconButton, Link, makeStyles } from '@material-ui/core';
 
 interface CopyAddressProps {
   address: string;
@@ -43,14 +42,20 @@ export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
   );
 };
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   text: {
     lineHeight: 2,
     fontSize: 21,
     fontWeight: 'bold',
+    [theme.breakpoints.down('lg')]: {
+      fontSize: 18,
+    },
+    [theme.breakpoints.down('md')]: {
+      fontSize: 14,
+    },
   },
   link: {
     color: '#43f3e5',
     textDecoration: 'none',
   },
-});
+}));

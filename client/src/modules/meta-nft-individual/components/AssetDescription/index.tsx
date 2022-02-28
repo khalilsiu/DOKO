@@ -17,10 +17,10 @@ export const AssetDescription = React.memo<Props>(({ asset }) => {
 
   return (
     <Grid className={classes.root} container>
-      <Grid className={classes.leftSection} item xs={12} sm={6} md={5}>
+      <Grid className={classes.leftSection} item xs={12} sm={3} lg={4} xl={5}>
         <AssetImage imageUrl={asset.imageUrl} />
       </Grid>
-      <Grid item xs={12} sm={6} md={7}>
+      <Grid item xs={12} sm={9} lg={8} xl={7}>
         <PriceSection
           floorPriceEth={asset.floorPriceEth}
           floorPriceUsd={asset.floorPriceUsd}
@@ -47,5 +47,8 @@ const useStyles = makeStyles((theme) => ({
   },
   leftSection: {
     paddingRight: theme.spacing(4),
+    [theme.breakpoints.down('xs')]: {
+      paddingRight: 0,
+    },
   },
 }));

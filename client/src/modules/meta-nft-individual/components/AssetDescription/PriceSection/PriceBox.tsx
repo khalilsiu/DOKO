@@ -11,7 +11,7 @@ export const PriceBox = React.memo<Props>(({ priceETH, priceUSD, title }) => {
   const classes = useStyles();
 
   return (
-    <Grid className={classes.root} item>
+    <Grid className={classes.root} item xs={12} sm={6}>
       <Typography className={classes.title} variant="h6">
         {title}
       </Typography>
@@ -38,19 +38,39 @@ const useStyles = makeStyles((theme) => ({
   root: {
     paddingRight: theme.spacing(4),
     borderRight: '2px solid rgba(255,255,255,0.2)',
+    [theme.breakpoints.down('lg')]: {
+      paddingRight: theme.spacing(3),
+    },
+    [theme.breakpoints.down('xs')]: {
+      paddingRight: 0,
+      borderRight: 'none',
+      paddingTop: theme.spacing(2),
+    },
     [`&:last-child`]: {
       paddingLeft: theme.spacing(4),
       borderRight: 'none',
+      [theme.breakpoints.down('lg')]: {
+        paddingLeft: theme.spacing(3),
+      },
+      [theme.breakpoints.down('xs')]: {
+        paddingLeft: 0,
+      },
     },
   },
   title: {
     fontWeight: 'bold',
     fontSize: 18,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 16,
+    },
   },
   ethereumIcon: {
     width: 20,
     height: 'auto',
     marginRight: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      width: 16,
+    },
   },
   row: {
     display: 'flex',
@@ -64,8 +84,26 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
     paddingRight: theme.spacing(2),
     fontSize: 36,
+    [theme.breakpoints.down('lg')]: {
+      fontSize: 28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 24,
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 32,
+    },
   },
   usdPrice: {
     fontStyle: 'italic',
+    [theme.breakpoints.down('lg')]: {
+      fontSize: 14,
+    },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 13,
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 14,
+    },
   },
 }));
