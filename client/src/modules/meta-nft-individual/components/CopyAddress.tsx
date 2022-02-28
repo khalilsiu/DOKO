@@ -24,13 +24,13 @@ export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
   return (
     <Grid container alignItems="center">
       {hasLink ? (
-        <Typography variant="body1" style={{ lineHeight: 2 }}>
+        <Typography variant="body1" className={classes.text}>
           <Link className={classes.link} href={`${window.origin}/address/${address}`}>
             {minimizeAddress(address)}
           </Link>
         </Typography>
       ) : (
-        <Typography variant="body1" style={{ lineHeight: 2 }}>
+        <Typography variant="body1" className={classes.text}>
           {minimizeAddress(address)}
         </Typography>
       )}
@@ -44,6 +44,10 @@ export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
 };
 
 const useStyles = makeStyles({
+  text: {
+    lineHeight: 2,
+    fontSize: 21,
+  },
   link: {
     color: '#43f3e5',
     textDecoration: 'none',

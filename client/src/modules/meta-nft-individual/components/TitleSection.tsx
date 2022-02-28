@@ -4,6 +4,7 @@ import { CopyAddress } from './CopyAddress';
 import { Asset } from 'store/summary';
 import PopoverShare from 'components/PopoverShare';
 import { useParams } from 'react-router-dom';
+import clsx from 'clsx';
 
 interface Props {
   asset: Asset;
@@ -26,7 +27,7 @@ export const TitleSection = React.memo<Props>(({ asset }) => {
         <Box className={classes.addresses}>
           <Box className={classes.addressBox}>
             <Box className={classes.addressType}>Creator</Box>
-            <Box>
+            <Box className={clsx({ [classes.naContainer]: !asset.creatorAddress })}>
               {asset.creatorAddress ? (
                 <CopyAddress address={asset.creatorAddress} hasLink />
               ) : (
@@ -38,7 +39,7 @@ export const TitleSection = React.memo<Props>(({ asset }) => {
           </Box>
           <Box className={classes.addressBox}>
             <Box className={classes.addressType}>Owner</Box>
-            <Box>
+            <Box className={clsx({ [classes.naContainer]: !asset.ownerAddress })}>
               {asset.ownerAddress ? (
                 <CopyAddress address={asset.ownerAddress} hasLink />
               ) : (
@@ -92,7 +93,11 @@ const useStyles = makeStyles((theme) => ({
     width: 32,
     hight: 32,
   },
+  naContainer: {
+    paddingRight: theme.spacing(2),
+  },
   na: {
     paddingTop: 8,
+    fontSize: 21,
   },
 }));

@@ -3,7 +3,6 @@ import { Grid, makeStyles } from '@material-ui/core';
 import { Asset } from 'store/summary';
 import { AssetImage } from './AssetImage';
 import { PriceSection } from './PriceSection';
-import { pick } from 'lodash';
 
 interface Props {
   asset: Asset;
@@ -20,12 +19,10 @@ export const AssetDescription = React.memo<Props>(({ asset }) => {
       </Grid>
       <Grid item xs={12} sm={6} md={7}>
         <PriceSection
-          {...pick(asset, [
-            'floorPriceEth',
-            'floorPriceUsd',
-            'lastPurchasePriceEth',
-            'lastPurchasePriceUsd',
-          ])}
+          floorPriceEth={asset.floorPriceEth}
+          floorPriceUsd={asset.floorPriceUsd}
+          lastPurchasePriceEth={asset.lastPurchasePriceEth}
+          lastPurchasePriceUsd={asset.lastPurchasePriceUsd}
         />
       </Grid>
     </Grid>

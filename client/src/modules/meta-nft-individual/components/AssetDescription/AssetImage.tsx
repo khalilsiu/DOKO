@@ -20,7 +20,7 @@ export const AssetImage = React.memo<Props>(({ imageUrl }) => {
   );
 });
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   image: {
     borderRadius: 12,
     border: '3px solid white',
@@ -35,4 +35,4 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     width: '100%',
   },
-}));
+});

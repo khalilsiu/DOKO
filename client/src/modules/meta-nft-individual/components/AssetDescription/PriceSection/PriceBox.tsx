@@ -25,7 +25,9 @@ export const PriceBox = React.memo<Props>(({ priceETH, priceUSD, title }) => {
           <Typography className={classes.ethPrice} variant="h4">
             {priceETH}
           </Typography>
-          <Typography variant="body1">(${priceUSD})</Typography>
+          <Typography className={classes.usdPrice} variant="body1">
+            (${priceUSD})
+          </Typography>
         </Box>
       </Box>
     </Grid>
@@ -35,7 +37,7 @@ export const PriceBox = React.memo<Props>(({ priceETH, priceUSD, title }) => {
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingRight: theme.spacing(4),
-    borderRight: '1px solid rgba(255,255,255,0.2)',
+    borderRight: '2px solid rgba(255,255,255,0.2)',
     [`&:last-child`]: {
       paddingLeft: theme.spacing(4),
       borderRight: 'none',
@@ -43,9 +45,10 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: 'bold',
+    fontSize: 21,
   },
   ethereumIcon: {
-    width: 22,
+    width: 24,
     height: 'auto',
     marginRight: theme.spacing(1),
   },
@@ -60,5 +63,9 @@ const useStyles = makeStyles((theme) => ({
   ethPrice: {
     fontWeight: 'bold',
     paddingRight: theme.spacing(2),
+    fontSize: 42,
+  },
+  usdPrice: {
+    fontStyle: 'italic',
   },
 }));
