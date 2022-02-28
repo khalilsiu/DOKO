@@ -15,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
   },
   shareIcon: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
   },
   shareItem: {
     '&:hover': {
@@ -77,7 +77,7 @@ export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
   return (
     <>
       <CustomIconButton onClick={handleClick}>
-        <img width={36} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
+        <img width={32} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
       </CustomIconButton>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>

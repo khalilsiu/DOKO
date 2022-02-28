@@ -5,7 +5,7 @@ import { RootState } from 'store/store';
 import ContractServiceAPI from '../../libs/contract-service-api';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize } from '../../utils/utils';
-import { Asset, parsePrice, preprocess } from '../summary';
+import { Asset, parsePriceETH, parsePriceUSD, preprocess } from '../summary';
 
 interface AssetSliceState {
   asset: Asset;
@@ -36,8 +36,10 @@ const initialState: AssetSliceState = {
     tokenStandard: null,
     slug: null,
     externalLink: null,
-    lastPurchasePriceETH: null,
-    lastPurchasePriceUSD: null,
+    lastPurchasePriceEth: null,
+    lastPurchasePriceUsd: null,
+    floorPriceUsd: null,
+    floorPriceEth: null,
   },
 };
 
@@ -49,10 +51,10 @@ interface IGetAsset {
 export const useAssetSliceSelector = <T>(func: (state: RootState['asset']) => T) =>
   useSelector((state: RootState) => func(state.asset));
 
-const fetchMetaverseFloorPrice = async (asset: Asset) => {
+const fetchMetaverseFloorPrice = async (asset: Asset): Promise<[number, number]> => {
   const metaverse = metaverses.find((metaverse) => asset.slug === metaverse.slug);
   if (!metaverse) {
-    return null;
+    return [0, 0];
   }
 
   const traits = asset.traits?.length ? asset.traits : [];
@@ -72,15 +74,17 @@ const fetchMetaverseFloorPrice = async (asset: Asset) => {
     traitFilter,
   );
 
-  let floorPrice = parsePrice(response.price, response.payment_token);
+  let floorPriceETH = parsePriceETH(response.price, response.payment_token);
+  let floorPriceUSD = parsePriceUSD(response.price, response.payment_token);
 
   if (asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
     const sizeTrait = asset.traits.find((trait) => trait.traitType === 'Size');
     const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);
-    floorPrice *= size;
+    floorPriceETH *= size;
+    floorPriceUSD *= size;
   }
 
-  return floorPrice;
+  return [floorPriceETH, floorPriceUSD];
 };
 
 const fetchNFTOpensea = async (address: string, id: string) =>
@@ -93,9 +97,9 @@ export const getAssetFromOpensea = createAsyncThunk(
       const response = await fetchNFTOpensea(contractAddress, assetId);
       const asset = preprocess(response.data);
       const lease = await ContractServiceAPI.getLease({ contractAddress, assetId });
-      const floorPrice = await fetchMetaverseFloorPrice(asset);
+      const [floorPriceETH, floorPriceUSD] = await fetchMetaverseFloorPrice(asset);
 
-      return camelize({ ...asset, lease, floorPrice });
+      return camelize({ ...asset, lease, floorPriceETH, floorPriceUSD });
     } catch (e) {
       console.error(e);
     }

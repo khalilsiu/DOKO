@@ -1,9 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
+import { parsePriceUSD } from '.';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinates } from '../../utils/utils';
 import { Lease } from '../lease/leasesSlice';
+import { parsePriceETH } from './collectionSummarySlice';
 
 export interface Trait {
   traitType: string;
@@ -11,7 +13,7 @@ export interface Trait {
 }
 
 export interface Asset {
-  floorPrice: number;
+  floorPrice: number; // TODO: remove soon
   id: string;
   tokenId: string;
   imageUrl: string;
@@ -33,8 +35,10 @@ export interface Asset {
   tokenStandard: string | null;
   slug: string | null;
   externalLink: string | null;
-  lastPurchasePriceETH: number | null;
-  lastPurchasePriceUSD: number | null;
+  lastPurchasePriceEth: number | null;
+  lastPurchasePriceUsd: number | null;
+  floorPriceUsd: number | null;
+  floorPriceEth: number | null;
 }
 
 export interface AddressOwnership {
@@ -94,8 +98,11 @@ export const preprocess = (asset: any): Asset => {
   const collection = picked.asset_contract?.name;
   const tokenStandard = picked.asset_contract?.schema_name;
   const externalLink = picked.external_link;
-  const lastPurchasePriceETH = picked.last_sale?.payment_token?.eth_price ?? null;
-  const lastPurchasePriceUSD = picked.last_sale?.payment_token?.usd_price ?? null;
+
+  const lastPurchasePriceEth =
+    parsePriceETH(picked.last_sale?.total_price, picked.last_sale?.payment_token) ?? null;
+  const lastPurchasePriceUsd =
+    parsePriceUSD(picked.last_sale?.total_price, picked.last_sale?.payment_token) ?? null;
 
   const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
 
@@ -109,8 +116,8 @@ export const preprocess = (asset: any): Asset => {
     tokenStandard,
     slug,
     externalLink,
-    lastPurchasePriceETH,
-    lastPurchasePriceUSD,
+    lastPurchasePriceEth,
+    lastPurchasePriceUsd,
   });
 };
 

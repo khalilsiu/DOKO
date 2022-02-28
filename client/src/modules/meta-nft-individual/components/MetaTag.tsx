@@ -7,6 +7,10 @@ interface Props {
 }
 
 export const MetaTag = React.memo<Props>(({ asset }) => {
+  if (!asset.id) {
+    return null;
+  }
+
   return (
     <Meta
       title={`${asset.name} | DOKO`}

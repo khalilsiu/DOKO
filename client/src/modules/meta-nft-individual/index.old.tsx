@@ -43,7 +43,7 @@ import thesandbox from '../../assets/thesandbox.png';
 import metaverses from '../../constants/metaverses';
 import { Filter } from '../../hooks/useProfileSummaries';
 import ContractServiceAPI from '../../libs/contract-service-api';
-import { parsePrice } from '../../store/summary/collectionSummarySlice';
+import { parsePriceETH } from '../../store/summary/collectionSummarySlice';
 
 type Icons = {
   [key: string]: string;
@@ -266,7 +266,7 @@ export const NftIndividual = () => {
             metaverse.primaryAddress,
             traitFilter,
           );
-          let floorPrice = parsePrice(response.price, response.payment_token);
+          let floorPrice = parsePriceETH(response.price, response.payment_token);
           if (_nft.asset_contract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297') {
             const sizeTrait = _nft.traits.find((trait) => trait.trait_type === 'Size');
             const size = parseInt((sizeTrait && sizeTrait.value) || '1', 10);

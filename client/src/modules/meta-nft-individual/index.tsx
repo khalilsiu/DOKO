@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { TitleSection } from './components/TitleSection';
 import { MetaTag } from './components/MetaTag';
 import { getAssetFromOpensea, useAssetSliceSelector } from 'store/asset/assetSlice';
+import { AssetDescription } from './components/AssetDescription';
 
 const NftIndividual = React.memo(() => {
   const dispatch = useDispatch();
@@ -21,7 +22,7 @@ const NftIndividual = React.memo(() => {
 
   return (
     <React.Fragment>
-      {asset && <MetaTag asset={asset} />}
+      <MetaTag asset={asset} />
       <Grid className={classes.root} container>
         <Hidden smDown>
           <Grid item className={classes.leftSection}>
@@ -34,7 +35,10 @@ const NftIndividual = React.memo(() => {
               <CircularProgress />
             </Box>
           ) : (
-            <React.Fragment>{asset && <TitleSection asset={asset} />}</React.Fragment>
+            <React.Fragment>
+              <TitleSection asset={asset} />
+              <AssetDescription asset={asset} />
+            </React.Fragment>
           )}
         </Grid>
       </Grid>

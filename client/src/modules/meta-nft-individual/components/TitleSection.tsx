@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
+import { Box, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { CopyAddress } from './CopyAddress';
 import { Asset } from 'store/summary';
+import PopoverShare from 'components/PopoverShare';
+import { useParams } from 'react-router-dom';
 
 interface Props {
   asset: Asset;
@@ -10,6 +11,11 @@ interface Props {
 
 export const TitleSection = React.memo<Props>(({ asset }) => {
   const classes = useStyles();
+  const { address, id, chain } = useParams<{ address: string; id: string; chain: string }>();
+
+  const onRefresh = React.useCallback(() => {
+    window.location.reload();
+  }, []);
 
   return (
     <Box className={classes.root}>
@@ -18,33 +24,61 @@ export const TitleSection = React.memo<Props>(({ asset }) => {
           {asset.name}
         </Typography>
         <Box className={classes.addresses}>
-          {asset.creatorAddress && (
+          <Box className={classes.addressBox}>
+            <Box className={classes.addressType}>Creator</Box>
             <Box>
-              <Box className={classes.addressType}>Creator</Box>
-              <Box>
+              {asset.creatorAddress ? (
                 <CopyAddress address={asset.creatorAddress} hasLink />
-              </Box>
+              ) : (
+                <Typography className={classes.na} variant="body1">
+                  N/A
+                </Typography>
+              )}
             </Box>
-          )}
-          {asset.ownerAddress && (
+          </Box>
+          <Box className={classes.addressBox}>
+            <Box className={classes.addressType}>Owner</Box>
             <Box>
-              <Box className={classes.addressType}>Owner</Box>
-              <CopyAddress address={asset.ownerAddress} hasLink />
+              {asset.ownerAddress ? (
+                <CopyAddress address={asset.ownerAddress} hasLink />
+              ) : (
+                <Typography className={classes.na} variant="body1">
+                  N/A
+                </Typography>
+              )}
             </Box>
-          )}
+          </Box>
         </Box>
+      </Box>
+      <Box>
+        <IconButton onClick={onRefresh}>
+          <img
+            className={classes.refreshIcon}
+            src="/collection/DOKOasset_RefreshData.png"
+            alt="back"
+          />
+        </IconButton>
+        <PopoverShare address={address} tokenId={id} chain={chain} name={asset.name} />
       </Box>
     </Box>
   );
 });
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
   },
   title: {
     fontWeight: 'bold',
+  },
+  addressBox: {
+    paddingRight: theme.spacing(2),
+    borderRight: '1px solid rgba(255,255,255,0.2)',
+    [`&:last-child`]: {
+      paddingLeft: theme.spacing(2),
+      borderRight: 'none',
+    },
   },
   addresses: {
     display: 'flex',
@@ -54,4 +88,11 @@ const useStyles = makeStyles({
     color: 'rgba(255,255,255,0.75)',
     fontSize: '0.8rem',
   },
-});
+  refreshIcon: {
+    width: 32,
+    hight: 32,
+  },
+  na: {
+    paddingTop: 8,
+  },
+}));
