@@ -7,6 +7,7 @@ import { TitleSection } from './components/TitleSection';
 import { MetaTag } from './components/MetaTag';
 import { getAssetFromOpensea, useAssetSliceSelector } from 'store/asset/assetSlice';
 import { AssetDescription } from './components/AssetDescription';
+import { DetailTabs } from './components/DetailTabs';
 
 const NftIndividual = React.memo(() => {
   const dispatch = useDispatch();
@@ -25,11 +26,11 @@ const NftIndividual = React.memo(() => {
       <MetaTag asset={asset} />
       <Grid className={classes.root} container>
         <Hidden mdDown>
-          <Grid item className={classes.leftSection}>
+          <Grid item className={classes.leftSection} md={12} lg={3} xl={2}>
             <ProfileCard />
           </Grid>
         </Hidden>
-        <Grid item className={classes.rightSection}>
+        <Grid item className={classes.rightSection} md={12} lg={9} xl={10}>
           {isFetching ? (
             <Box className={classes.circularProgressContainer}>
               <CircularProgress />
@@ -38,6 +39,7 @@ const NftIndividual = React.memo(() => {
             <React.Fragment>
               <TitleSection asset={asset} />
               <AssetDescription asset={asset} />
+              <DetailTabs />
             </React.Fragment>
           )}
         </Grid>
@@ -51,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     maxWidth: 1900,
     margin: '0 auto',
+    flexWrap: 'nowrap',
   },
   circularProgressContainer: {
     display: 'flex',
@@ -61,14 +64,10 @@ const useStyles = makeStyles((theme) => ({
   },
   leftSection: {
     display: 'flex',
-    width: 420,
     padding: `${theme.spacing(4)}px ${theme.spacing(2)}px`,
     justifyContent: 'center',
     alignItems: 'flex-start',
     borderRight: `1px solid ${theme.palette.divider}`,
-    [theme.breakpoints.down('lg')]: {
-      width: 290,
-    },
   },
   rightSection: {
     flex: 1,

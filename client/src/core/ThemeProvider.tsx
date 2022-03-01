@@ -1,5 +1,5 @@
-import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import { PropsWithChildren } from 'react';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 
 const darkTheme = createTheme({
   palette: {

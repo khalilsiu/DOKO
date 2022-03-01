@@ -1,11 +1,19 @@
 import React from 'react';
 import Intro from 'modules/core/Intro';
-import { Card } from '@material-ui/core';
+import { Card, makeStyles } from '@material-ui/core';
 
 export const ProfileCard = React.memo(() => {
+  const classes = useStyles();
+
   return (
-    <Card>
+    <Card className={classes.root}>
       <Intro drawer={false} />
     </Card>
   );
+});
+
+const useStyles = makeStyles({
+  root: {
+    position: 'fixed',
+  },
 });

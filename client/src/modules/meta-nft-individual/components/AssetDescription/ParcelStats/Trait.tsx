@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, makeStyles, Typography } from '@material-ui/core';
 import { Trait as TraitType } from 'store/summary';
+import { startCase } from 'lodash';
 
 interface Props {
   trait: TraitType;
@@ -12,7 +13,7 @@ export const Trait = React.memo<Props>(({ trait: { traitType, value } }) => {
   return (
     <Box className={classes.root}>
       <Typography className={classes.label} variant="body2">
-        {traitType}
+        {startCase(traitType)}
       </Typography>
       <Typography className={classes.value} variant="body1">
         {String(value).length < 10 || isNaN(Number(value)) ? value : Number(value).toFixed(8)}

@@ -80,11 +80,11 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: 'bold',
-    [theme.breakpoints.between('md', 'lg')]: {
+    [theme.breakpoints.down('lg')]: {
       fontSize: '2em',
     },
     [theme.breakpoints.down('md')]: {
-      fontSize: '2em',
+      marginTop: theme.spacing(2),
     },
   },
   addressBox: {
