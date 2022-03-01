@@ -1,5 +1,5 @@
-import { PropsWithChildren } from 'react';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import { PropsWithChildren } from 'react';
 
 const darkTheme = createTheme({
   palette: {
@@ -12,7 +12,6 @@ const darkTheme = createTheme({
     action: {
       disabled: '#666',
     },
-    divider: 'rgba(255,255,255,0.5)',
   },
   typography: {
     fontFamily: 'OpenSans',

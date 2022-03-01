@@ -1,11 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
-import { parsePriceUSD } from '.';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinates } from '../../utils/utils';
 import { Lease } from '../lease/leasesSlice';
-import { parsePriceETH } from './collectionSummarySlice';
 
 export interface Trait {
   traitType: string;
@@ -13,7 +11,7 @@ export interface Trait {
 }
 
 export interface Asset {
-  floorPrice: number; // TODO: remove soon
+  floorPrice: number;
   id: string;
   tokenId: string;
   imageUrl: string;
@@ -22,23 +20,11 @@ export interface Asset {
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
   name: string;
-  description: string;
-  ownerAddress: string;
-  creatorAddress: string;
   assetContract: {
     address: string;
   };
   lease?: Lease;
   traits: Trait[];
-  metaverseName: string | null;
-  collection: string | null;
-  tokenStandard: string | null;
-  slug: string | null;
-  externalLink: string | null;
-  lastPurchasePriceEth: number | null;
-  lastPurchasePriceUsd: number | null;
-  floorPriceUsd: number | null;
-  floorPriceEth: number | null;
 }
 
 export interface AddressOwnership {
@@ -51,25 +37,6 @@ export interface AddressOwnership {
 
 const initialState: AddressOwnership[] = [];
 
-const getMetaverseName = (slug: string): string | null => {
-  switch (slug) {
-    case 'decentraland':
-      return 'Decentraland';
-
-    case 'cryptovoxels':
-      return 'Cryptovoxels';
-
-    case 'somnium-space':
-      return 'Somnium Space';
-
-    case 'sandbox':
-      return 'The Sandbox';
-
-    default:
-      return null;
-  }
-};
-
 export const preprocess = (asset: any): Asset => {
   const picked = pick(asset, [
     'id',
@@ -79,46 +46,15 @@ export const preprocess = (asset: any): Asset => {
     'image_thumbnail_url',
     'image_original_url',
     'name',
-    'description',
     'asset_contract',
     'traits',
-    'owner',
-    'creator',
-    'collection',
-    'external_link',
-    'last_sale',
   ]);
-  picked.asset_contract = pick(picked.asset_contract, ['address', 'schema_name']);
+  picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
-
-  const slug = picked.collection?.slug;
-  const metaverseName = getMetaverseName(picked.collection.slug);
-  const ownerAddress = picked.owner?.address;
-  const creatorAddress = picked.creator?.address;
-  const collection = picked.asset_contract?.name;
-  const tokenStandard = picked.asset_contract?.schema_name;
-  const externalLink = picked.external_link;
-
-  const lastPurchasePriceEth =
-    parsePriceETH(picked.last_sale?.total_price, picked.last_sale?.payment_token) ?? null;
-  const lastPurchasePriceUsd =
-    parsePriceUSD(picked.last_sale?.total_price, picked.last_sale?.payment_token) ?? null;
 
   const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
 
-  return camelize({
-    ...picked,
-    coordinates,
-    metaverseName,
-    ownerAddress,
-    creatorAddress,
-    collection,
-    tokenStandard,
-    slug,
-    externalLink,
-    lastPurchasePriceEth,
-    lastPurchasePriceUsd,
-  });
+  return camelize({ ...picked, coordinates });
 };
 
 export const fetchAssets = async (address: string) => {

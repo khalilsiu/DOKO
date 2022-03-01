@@ -3,22 +3,26 @@ import { deserializeUnchecked, BinaryReader, BinaryWriter } from 'borsh';
 import { Connection, PublicKey, AccountInfo } from '@solana/web3.js';
 import { METADATA_SCHEMA, Metadata } from './classes';
 import { MetadataKey, StringPublicKey } from './types';
-import base58 from 'bs58';
 
-const solanaRpcUrl =
-  'https://black-fragrant-tree.solana-mainnet.quiknode.pro/580c20b14f5a8fb782624bdce35ee63037ee3d3c/';
+const base58 = require('bs58');
+
+const solanaRpcUrl = 'https://black-fragrant-tree.solana-mainnet.quiknode.pro/580c20b14f5a8fb782624bdce35ee63037ee3d3c/';
 export const solanaConnection = new Connection(solanaRpcUrl);
 const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
 const METADATA_PROGRAM_ID = 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s';
 
 const isMetadataAccount = (account: AccountInfo<Buffer>) =>
+  
   account.owner.toBase58() === METADATA_PROGRAM_ID;
 
 const isMetadataV1Account = (account: AccountInfo<Buffer>) =>
+  
   account.data[0] === MetadataKey.MetadataV1;
 
 const decodeMetadata = (buffer: Buffer): Metadata => {
-  const metadata = deserializeUnchecked(METADATA_SCHEMA, Metadata, buffer) as Metadata;
+  const metadata = deserializeUnchecked(METADATA_SCHEMA,
+    Metadata,
+    buffer) as Metadata;
 
   metadata.data.name = metadata.data.name.replace(/\0/g, '');
   metadata.data.symbol = metadata.data.symbol.replace(/\0/g, '');
@@ -28,15 +32,9 @@ const decodeMetadata = (buffer: Buffer): Metadata => {
 
 export const getTokenInfo = async (mintAddress: string) => {
   try {
-    const seed = [
-      Buffer.from('metadata'),
-      new PublicKey(METADATA_PROGRAM_ID).toBuffer(),
-      new PublicKey(mintAddress).toBuffer(),
-    ];
-    const tokenProgramAddressRes = await PublicKey.findProgramAddress(
-      seed,
-      new PublicKey(METADATA_PROGRAM_ID),
-    );
+    const seed = [Buffer.from('metadata'), (new PublicKey(METADATA_PROGRAM_ID)).toBuffer(), new PublicKey(mintAddress).toBuffer()];
+    const tokenProgramAddressRes = await PublicKey
+      .findProgramAddress(seed, new PublicKey(METADATA_PROGRAM_ID));
     const tokenAddress = tokenProgramAddressRes[0].toBase58();
     const accountInfo = await solanaConnection.getAccountInfo(new PublicKey(tokenAddress));
     if (accountInfo && accountInfo.data.length > 0) {
@@ -47,12 +45,14 @@ export const getTokenInfo = async (mintAddress: string) => {
       }
     }
   } catch (err) {
+    
     console.error(err);
   }
   return {};
 };
 
 export const getTokenAccountsByOwner = (address: string) =>
+  
   axios.post(solanaRpcUrl, {
     jsonrpc: '2.0',
     id: 1,
@@ -73,7 +73,9 @@ export const getTokenOwner = async (address: string) => {
     jsonrpc: '2.0',
     id: 1,
     method: 'getTokenLargestAccounts',
-    params: [address],
+    params: [
+      address,
+    ],
   });
   let add = '';
   res.data.result.value.forEach((data: any) => {
@@ -103,6 +105,7 @@ export const getSolanaNFTMetadata = async (NFTMetadata: Metadata) => {
       metadata,
     };
   } catch (err) {
+    
     console.error(err);
   }
   return {};
