@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { minimizeAddress } from 'libs/utils';
 import { web3 } from 'libs/web3';
 import create from 'zustand';
@@ -45,7 +46,7 @@ const parseResponseAsParcelTransactionHistories = (
   };
 
   const formatPrice = (price: string | null) => {
-    return price ? Number(Number.parseFloat(web3.utils.fromWei(price, 'ether')).toFixed(2)) : null;
+    return price ? Number(parseFloat(ethers.utils.formatEther(price)).toFixed(2)) : null;
   };
 
   return response.data.asset_events.map((assetEvent) => {
