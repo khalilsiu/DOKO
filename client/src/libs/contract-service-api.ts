@@ -18,7 +18,7 @@ export interface IGetLeases {
 
 export interface IGetLease {
   contractAddress: string;
-  assetId: string;
+  tokenId: string;
 }
 
 export default class ContractServiceAPI {
@@ -52,8 +52,8 @@ export default class ContractServiceAPI {
   }
 
   static async getLease(payload: IGetLease) {
-    const { contractAddress, assetId } = payload;
-    const body = { contractAddress, assetIds: [assetId] };
+    const { contractAddress, tokenId } = payload;
+    const body = { contractAddress, tokenIds: [tokenId] };
     const res = await instance.post('lease/filter', body).then((res) => res.data[0] || {});
     return res;
   }

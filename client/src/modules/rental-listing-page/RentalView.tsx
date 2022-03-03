@@ -20,6 +20,7 @@ import LeaseDetailModal from '../../components/rentalListing/LeaseDetailModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAssetFromServer } from '../../store/asset/assetSlice';
 import { RootState } from '../../store/store';
+import { useMetaMask } from 'metamask-react';
 
 export const sortOptions = [
   {
@@ -172,6 +173,7 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
     const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
       metaverses.map(() => null),
     );
+    const { account: walletAddress } = useMetaMask();
     const theme = useTheme();
     const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
     const asset = useSelector((state: RootState) => state.asset);
@@ -189,7 +191,7 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
 
     useEffect(() => {
       if (urlContractAddress && urlTokenId) {
-        dispatch(getAssetFromServer({ contractAddress: urlContractAddress, assetId: urlTokenId }));
+        dispatch(getAssetFromServer({ contractAddress: urlContractAddress, tokenId: urlTokenId }));
       }
     }, [urlContractAddress, urlTokenId]);
 
@@ -252,7 +254,9 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
           </Grid>
         </Grid>
 
-        {urlContractAddress && urlTokenId && <LeaseDetailModal asset={asset} />}
+        {urlContractAddress && urlTokenId && walletAddress && (
+          <LeaseDetailModal asset={asset} walletAddress={walletAddress} />
+        )}
       </div>
     );
   },

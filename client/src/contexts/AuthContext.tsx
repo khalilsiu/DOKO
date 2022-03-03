@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { createContext, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useMetaMask } from 'metamask-react';
 import Button from '@material-ui/core/Button';
@@ -11,10 +11,12 @@ import useTheme from '@material-ui/core/styles/useTheme';
 import { ethers, Contract } from 'ethers';
 import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
-import DokoRental from '../contracts/DokoRental.json';
+import DokoRentalDclLand from '../contracts/DokoRentalDclLand.json';
 import DecentralandAbi from '../contracts/Decentraland.json';
+import Erc20Token from '../contracts/Erc20Token.json';
 import { useDispatch } from 'react-redux';
 import { openToast } from '../store/app';
+import { DokoRentalContract } from '../types/contracts/dokoRentalDclLand';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -85,28 +87,22 @@ const useStyles = makeStyles((theme) => ({
 
 declare let window: any;
 
+type ConnectedContract = 'dokoRentalDclLand' | 'dclLand' | 'erc20';
 interface AuthContextValue {
-  address: string | null;
+  address?: string;
   loading: boolean;
   walletName?: WalletName;
-  connect: () => void;
-  dclContract: ethers.Contract | null;
-  dokoRentalContract: ethers.Contract | null;
-  approveDokoOnDcl: () => void;
-  isDokoApproved: boolean;
-  checkApproveForAll: (walletAddress: string) => void;
+  connect?: () => void;
+  dclLandContract: ethers.Contract | null;
+  dokoRentalDclLandContract: DokoRentalContract | null;
+  erc20Contract: ethers.Contract | null;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
-  address: null,
   loading: false,
-  connect: () => null,
-  walletName: undefined,
-  dclContract: null,
-  dokoRentalContract: null,
-  approveDokoOnDcl: () => null,
-  isDokoApproved: false,
-  checkApproveForAll: () => null,
+  dclLandContract: null,
+  dokoRentalDclLandContract: null,
+  erc20Contract: null,
 });
 
 export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) => {
@@ -131,63 +127,58 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
       },
     ];
   }
-  const [loading, setLoading] = useState(false);
   const { account, connect, status } = useMetaMask();
   const [solAccount, setSolAccount] = useState('');
   const classes = useStyles();
   const history = useHistory();
-  const [address, setAddress] = useState<string | null>('');
-  const firstTime = useRef(true);
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState('');
   const [walletName, setWalletName] = useState<WalletName>();
   const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
   const [showWalletModal, setShowWalletModal] = useState(false);
-  const [dclContract, setDclContract] = useState<ethers.Contract | null>(null);
-  const [dokoRentalContract, setDokoRentalContract] = useState<ethers.Contract | null>(null);
-  const [isDokoApproved, setIsDokoApproved] = useState(false);
-  const dispatch = useDispatch();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const dokoRentalAddress = process.env.REACT_APP_DOKO_DCL_LAND_ADDRESS;
-  const dclAddress = process.env.REACT_APP_DCL_LAND_ADDRESS;
-  const connectDCL = async () => {
+  const [dclLandContract, setDclLandContract] = useState<ethers.Contract | null>(null);
+  const [dokoRentalDclLandContract, setDokoRentalDclLandContract] =
+    useState<ethers.Contract | null>(null);
+  const [erc20Contract, setErc20Contract] = useState<ethers.Contract | null>(null);
+
+  const dokoRentalDclLandAddress = process.env.REACT_APP_DOKO_DCL_LAND_ADDRESS;
+  const dclLandAddress = process.env.REACT_APP_DCL_LAND_ADDRESS;
+  const erc20Address = process.env.REACT_APP_USDT_ADDRESS;
+
+  const contracts = useMemo(
+    () => ({
+      dokoRentalDclLand: {
+        address: dokoRentalDclLandAddress,
+        abi: DokoRentalDclLand.abi,
+        contract: dokoRentalDclLandContract,
+        setContract: setDokoRentalDclLandContract,
+      },
+      dclLand: {
+        address: dclLandAddress,
+        abi: DecentralandAbi,
+        contract: dclLandContract,
+        setContract: setDclLandContract,
+      },
+      erc20: {
+        address: erc20Address,
+        abi: Erc20Token.abi,
+        contract: erc20Contract,
+        setContract: setErc20Contract,
+      },
+    }),
+    [dokoRentalDclLandContract, dclLandContract, erc20Contract],
+  );
+
+  const connectContract = async (contractName: ConnectedContract) => {
+    const { address, abi, setContract } = contracts[contractName];
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    setDclContract(new Contract(dclAddress || '', DecentralandAbi, signer));
-  };
-
-  const connectDokoRental = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    setDokoRentalContract(new Contract(dokoRentalAddress || '', DokoRental.abi, signer));
-  };
-
-  const approveDokoOnDcl = async () => {
-    if (dclContract) {
-      setLoading(true);
-      const result = await dclContract.setApprovalForAll(dokoRentalAddress, true);
-      setIsDokoApproved(result);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    connectDCL();
-    connectDokoRental();
-  }, []);
-
-  const checkApproveForAll = async (walletAddress: string) => {
-    if (!dclContract) {
-      dispatch(openToast({ message: 'DCL contract instance not instantiated', state: 'error' }));
-      return;
-    }
-    try {
-      const isApprovedForAll = await dclContract.isApprovedForAll(walletAddress, dokoRentalAddress);
-      setIsDokoApproved(isApprovedForAll);
-    } catch (e) {
-      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
-      return;
-    }
+    setContract(new Contract(address || '', abi, signer));
   };
 
   const connectMetaMask = async () => {
@@ -244,15 +235,13 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
 
   useEffect(() => {
     setAddress(account || solAccount || '');
-
-    if ((account || solAccount) && !firstTime.current && history) {
-      history.push(`/address/${account || solAccount}`);
-    }
-
-    if (account || solAccount) {
-      firstTime.current = false;
-    }
   }, [account, solAccount, history]);
+
+  useEffect(() => {
+    connectContract('dclLand');
+    connectContract('dokoRentalDclLand');
+    connectContract('erc20');
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -261,11 +250,9 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
         walletName,
         loading,
         connect: () => setShowWalletModal(true),
-        dclContract,
-        dokoRentalContract,
-        approveDokoOnDcl,
-        isDokoApproved,
-        checkApproveForAll,
+        dclLandContract,
+        dokoRentalDclLandContract: dokoRentalDclLandContract as DokoRentalContract,
+        erc20Contract,
       }}
     >
       <>

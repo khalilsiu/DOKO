@@ -66,7 +66,7 @@ export const MetaLanding = () => {
           className="gradient-button"
           variant="outlined"
           disabled={loading}
-          onClick={() => (address ? history.push(`/address/${address}`) : connect())}
+          onClick={() => (address ? history.push(`/address/${address}`) : connect && connect())}
         >
           {address ? 'Your Profile' : 'Connect Wallet'}
         </Button>

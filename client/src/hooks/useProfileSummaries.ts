@@ -61,7 +61,7 @@ export function getAggregatedSummary({
     const addressAssetIdToLeaseMap = metaverseLeases.flat().reduce(
       (acc, lease) => ({
         ...acc,
-        [`${lease.contractAddress}_${lease.assetId}`]: lease,
+        [`${lease.contractAddress}_${lease.tokenId}`]: lease,
       }),
       {},
     );

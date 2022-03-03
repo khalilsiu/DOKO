@@ -23,11 +23,11 @@ import RenderMaps from '../maps/RenderMaps';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
 import { useMetaMask } from 'metamask-react';
-import { useHistory, useParams } from 'react-router-dom';
 import EditLeaseModal from './EditLeaseModal';
 import { getAssetFromOpensea } from '../../store/asset/assetSlice';
-import { useDispatch } from 'react-redux';
-import { WSContext } from '../../contexts/WSContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -146,15 +146,10 @@ interface IOwnershipView {
 
 const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
-  const {
-    address: urlAddress,
-    contractAddress: urlContractAddress,
-    tokenId: urlTokenId,
-  } = useParams<{ address: string; contractAddress: string; tokenId: string }>();
-  const { socket } = useContext(WSContext);
+  const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
+    useParams<{ address: string; contractAddress: string; tokenId: string }>();
   const { account: walletAddress } = useMetaMask();
-  const history = useHistory();
-
+  const asset = useSelector((state: RootState) => state.asset);
   const [tabValue, setTabValue] = useState(0);
   const styles = useStyles();
   const dispatch = useDispatch();
@@ -177,15 +172,9 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
 
   useEffect(() => {
     if (urlContractAddress && urlTokenId) {
-      dispatch(getAssetFromOpensea({ contractAddress: urlContractAddress, assetId: urlTokenId }));
+      dispatch(getAssetFromOpensea({ contractAddress: urlContractAddress, tokenId: urlTokenId }));
     }
   }, [urlContractAddress, urlTokenId]);
-
-  useEffect(() => {
-    if (socket && urlAddress) {
-      socket.emit('join', urlAddress);
-    }
-  }, [urlAddress]);
 
   const [selectedAssetForLease, setSelectedAssetForLease] = useState<Asset | null>(null);
   interface IRenderAssets {
@@ -390,11 +379,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
         })}
       </TabPanel>
       {urlContractAddress && urlTokenId && walletAddress && (
-        <EditLeaseModal
-          setSelectedAssetForLease={() => history.push(`/address/${urlAddress}`)}
-          walletAddress={walletAddress}
-          addressConcerned={urlAddress}
-        />
+        <EditLeaseModal walletAddress={walletAddress} asset={asset} />
       )}
     </>
   );

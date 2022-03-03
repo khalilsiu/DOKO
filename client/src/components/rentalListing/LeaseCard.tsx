@@ -32,12 +32,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
     width: '70%',
-    '&:last-child': {
-      paddingBottom: 0,
-    },
     [theme.breakpoints.down('md')]: {
       width: '100%',
       padding: '0.6rem',
+      '&:last-child': {
+        paddingBottom: 0,
+      },
     },
   },
   cardTitle: {
@@ -130,7 +130,7 @@ const LeaseCard = ({ asset, handleClick }: ILeaseCard) => {
             </Typography>
             <img src={eth} alt="ETH" width="8px" style={{ marginRight: '0.3rem' }} />
             <Typography className={styles.text} style={{ fontSize: '0.7rem' }} variant="body1">
-              {asset.lease?.deposit}
+              {asset.lease?.deposit.toFixed(2)}
             </Typography>
           </div>
         </div>
@@ -139,7 +139,7 @@ const LeaseCard = ({ asset, handleClick }: ILeaseCard) => {
           <div className={styles.rent}>
             <img src={eth} alt="ETH" width="10px" style={{ marginRight: '0.3rem' }} />
             <Typography className={styles.text} variant="body1">
-              {asset.lease?.rentAmount}
+              {asset.lease?.rentAmount.toFixed(2)}
             </Typography>
           </div>
           <Button

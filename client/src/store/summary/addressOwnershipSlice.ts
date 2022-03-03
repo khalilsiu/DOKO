@@ -22,14 +22,10 @@ const addressOwnershipSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      // .addCase(fetchAddressOwnership.pending, (state) => {
-      //   state.isLoading = true;
-      // })
-      .addCase(fetchAddressOwnership.fulfilled, (state, action) => ({
-        ...state,
-        ...action.payload,
-      }));
+    builder.addCase(fetchAddressOwnership.fulfilled, (state, action) => ({
+      ...state,
+      ...action.payload,
+    }));
   },
 });
 

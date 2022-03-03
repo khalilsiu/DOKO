@@ -90,6 +90,18 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
     setAnchorEl(null);
   };
 
+  const renderButtonText = () => {
+    if (nft.lease && nft.lease.isLeased) {
+      return 'Leased';
+    }
+    if (nft.lease && !nft.lease.isOpen) {
+      return 'Lease Open';
+    }
+    if (!nft.lease) {
+      return 'Create Lease';
+    }
+    return 'Update Lease';
+  };
   return (
     <>
       <div className={styles.wrapper} onClick={() => onClickCard()}>
@@ -158,7 +170,7 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
                       onClick={(e) => handleLeaseBtnClick(e)}
                     >
                       <Typography className={styles.leaseBtn} variant="caption">
-                        {nft.lease ? 'Update Lease' : 'Create Lease'}
+                        {renderButtonText()}
                       </Typography>
                     </LeaseButton>
                   </div>

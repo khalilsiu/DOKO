@@ -19,17 +19,18 @@ const initialState: Asset = {
     address: '',
   },
   traits: [],
+  owner: '',
 };
 
 interface IGetAsset {
   contractAddress: string;
-  assetId: string;
+  tokenId: string;
 }
 
 export const getAssetFromOpensea = createAsyncThunk(
   'Asset/getAssetFromOpensea',
   async (payload: IGetAsset) => {
-    const response = await OpenSeaAPI.get(`/asset/${payload.contractAddress}/${payload.assetId}`);
+    const response = await OpenSeaAPI.get(`/asset/${payload.contractAddress}/${payload.tokenId}`);
     const asset = preprocess(response.data);
     const leaseWithAsset = await ContractServiceAPI.getLease(payload);
     return camelize({ ...asset, lease: leaseWithAsset.lease });

@@ -14,14 +14,16 @@ import {
 import UIModal from '../modal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
-import { useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
-import { openToast } from '../../store/app/appStateSlice';
+import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
+import { ethers } from 'ethers';
+import { acceptLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -87,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
   },
   menu: {
     backgroundColor: 'black',
-    height: '30vh',
+    maxHeight: '30vh',
   },
 }));
 
@@ -127,8 +129,9 @@ export const StyledMenuItem = withStyles((theme: Theme) => ({
   },
 }))(MenuItem);
 
-interface IEditLeaseModal {
+interface ILeaseDetailModal {
   asset: Asset;
+  walletAddress: string;
 }
 
 export interface LeaseForm {
@@ -140,24 +143,21 @@ export interface LeaseForm {
   maxLeaseLength: string;
   autoRegenerate: boolean;
 }
+const dokoRentalDclLandAddress = process.env.REACT_APP_DOKO_DCL_LAND_ADDRESS;
 
-const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
+const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const styles = useStyles();
   const history = useHistory();
-  const {
-    dclContract,
-    approveDokoOnDcl,
-    isDokoApproved,
-    loading: approveLoading,
-  } = useContext(AuthContext);
+  const { dokoRentalDclLandContract, erc20Contract } = useContext(AuthContext);
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
-  const dispatch = useDispatch();
-  const [leaseLength, setLeaseLength] = useState(0);
+  const [finalLeaseLength, setFinalLeaseLength] = useState(0);
+  const [isApproved, setIsApproved] = useState(false);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
+  const dispatch = useDispatch();
   const assetDetails = useMemo(() => {
     const details = {
       tokenLabel: 'N.A.',
-      token: '',
+      tokenSymbol: '',
       leaseAmount: 'N.A.',
       deposit: 'N.A.',
       gracePeriod: 'N.A.',
@@ -169,33 +169,93 @@ const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
       details.leaseAmount = lease.rentAmount.toString();
       details.deposit = lease.deposit.toString();
       details.gracePeriod = lease.gracePeriod.toString();
-      setLeaseLength(lease.minLeaseLength);
-      details.leaseLengths = Array(100 - lease.minLeaseLength + 1)
+      setFinalLeaseLength(lease.minLeaseLength);
+      details.leaseLengths = Array(lease.maxLeaseLength - lease.minLeaseLength + 1)
         .fill(null)
         .map((_, i) => i + lease.minLeaseLength);
       if (token) {
         details.tokenLabel = token.label;
-        details.token = token.symbol;
+        details.tokenSymbol = token.symbol;
       }
     }
     return details;
   }, [asset]);
 
+  const requireApproval = assetDetails.tokenSymbol !== 'ETH';
+
   const handleSelectChange = (e) => {
-    setLeaseLength(e.target.value);
+    setFinalLeaseLength(e.target.value);
   };
 
-  const approveLease = async () => {
-    if (!dclContract) {
+  const purchaseLease = useCallback(async () => {
+    if (!dokoRentalDclLandContract) {
+      dispatch(openToast({ message: 'Doko contract instance error', state: 'error' }));
+      return;
+    }
+    if (asset.owner === walletAddress) {
+      dispatch(
+        openToast({ message: 'Land owner cannot purchase lease of owned asset', state: 'error' }),
+      );
+      return;
+    }
+
+    if (!asset.lease) {
+      dispatch(openToast({ message: 'Lease has not been created', state: 'error' }));
+      return;
+    }
+
+    await dispatch(
+      acceptLeaseToBlockchain({
+        assetId: asset.tokenId,
+        finalLeaseLength,
+        dokoRentalDclLandContract,
+        rentAmount: asset.lease.rentAmount,
+        rentToken: asset.lease.rentToken,
+        deposit: asset.lease.deposit,
+      }),
+    );
+
+    history.push(`/rentals`);
+  }, [asset, dokoRentalDclLandContract, walletAddress, finalLeaseLength]);
+
+  const approveToken = useCallback(async () => {
+    dispatch(startLoading());
+    if (!erc20Contract) {
       dispatch(openToast({ message: 'Decentraland contract instance error', state: 'error' }));
       return;
     }
-    await approveDokoOnDcl();
-  };
+    try {
+      const txn = await erc20Contract.approve(
+        dokoRentalDclLandAddress || '',
+        ethers.constants.MaxUint256,
+      );
+      const receipt = await txn.wait();
+      // wait for approve to resolve
+      setIsApproved(receipt);
+    } catch (e) {
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+    }
+    dispatch(stopLoading());
+  }, [erc20Contract, dokoRentalDclLandAddress]);
 
-  const purchaseLease = async () => {
-    history.push(`/address/`);
-  };
+  useEffect(() => {
+    (async () => {
+      if (erc20Contract) {
+        try {
+          dispatch(startLoading());
+          const tokensApproved = await erc20Contract.allowance(
+            walletAddress,
+            dokoRentalDclLandAddress || '',
+          );
+          // Returns number of token being approved, 0 is unapproved
+          setIsApproved(tokensApproved.gt(0));
+        } catch (e) {
+          dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+        }
+        dispatch(stopLoading());
+      }
+    })();
+  }, [erc20Contract]);
 
   return (
     <UIModal
@@ -248,7 +308,7 @@ const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
                   Lease Amount
                 </Typography>
                 <Typography variant="subtitle2" className={styles.detailItem}>
-                  {assetDetails.leaseAmount} {assetDetails.token} per month
+                  {assetDetails.leaseAmount} {assetDetails.tokenSymbol} per month
                 </Typography>
               </Grid>
             </Grid>
@@ -258,14 +318,14 @@ const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
                   Lease Length
                 </Typography>
                 <StyledSelect
-                  value={leaseLength}
+                  value={finalLeaseLength}
                   variant="outlined"
                   onChange={handleSelectChange}
                   fullWidth
                   MenuProps={{ classes: { list: styles.menu } }}
                   input={<Input className={styles.underline} />}
                   style={{ height: '30px' }}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isTransacting || isLoading}
                 >
                   {assetDetails.leaseLengths.map((leaseLength) => (
                     <StyledMenuItem key={leaseLength} value={leaseLength}>
@@ -282,7 +342,7 @@ const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
                 </Typography>
                 <div style={{ height: '30px', display: 'flex', alignItems: 'center' }}>
                   <Typography variant="subtitle2" className={styles.detailItem}>
-                    {assetDetails.deposit} {assetDetails.token}
+                    {assetDetails.deposit} {assetDetails.tokenSymbol}
                   </Typography>
                 </div>
               </Grid>
@@ -317,11 +377,11 @@ const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
           <Button
             className="gradient-button"
             variant="contained"
-            style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={!isDokoApproved ? approveLease : purchaseLease}
-            // disabled={isTransacting || approveLoading || isLoading}
+            style={{ marginRight: '0.5rem', minWidth: '150px' }}
+            onClick={requireApproval && !isApproved ? approveToken : purchaseLease}
+            disabled={isTransacting || isLoading || asset.owner === walletAddress}
           >
-            {!isDokoApproved ? 'Approve' : 'Purchase Lease'}
+            {requireApproval && !isApproved ? 'Approve' : 'Accept Lease'}
           </Button>
         </div>
       )}
@@ -329,4 +389,4 @@ const EditLeaseModal = memo(({ asset }: IEditLeaseModal) => {
   );
 });
 
-export default EditLeaseModal;
+export default LeaseDetailModal;

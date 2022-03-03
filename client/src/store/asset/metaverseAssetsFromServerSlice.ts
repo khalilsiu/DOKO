@@ -53,10 +53,12 @@ export const preprocessAssetFromServer = (assetFromServer: any) => {
     'description',
     'lease',
     'asset_contract',
+    'owner',
   ]);
   picked.asset_contract = { address: picked.address };
   delete picked.address;
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
+  picked.owner = pick(picked.owner, ['address']).address;
   const metaverse = metaverses.find((metaverse) =>
     metaverse.addresses.includes(picked.asset_contract.address),
   );

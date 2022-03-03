@@ -18,9 +18,11 @@ const useAddressSummaries = (walletAddress: string) => {
   const { isLoading } = useSelector((state: RootState) => state.appState);
 
   useEffect(() => {
-    dispatch(fetchAddressOwnership(walletAddress));
-    dispatch(getMetaverseLeases({ lessor: walletAddress }));
-    dispatch(fetchCollectionSummary());
+    if (walletAddress) {
+      dispatch(fetchAddressOwnership(walletAddress));
+      dispatch(getMetaverseLeases({ lessor: walletAddress }));
+      dispatch(fetchCollectionSummary());
+    }
   }, []);
 
   useEffect(() => {
