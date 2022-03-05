@@ -51,7 +51,6 @@ const NftIndividual = React.memo(() => {
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
-    maxWidth: 1900,
     margin: '0 auto',
     flexWrap: 'nowrap',
   },
