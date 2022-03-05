@@ -1,5 +1,4 @@
 import create from 'zustand';
-import { ethers } from 'ethers';
 import { minimizeAddress } from 'libs/utils';
 import { persist } from 'zustand/middleware';
 import OpenSeaAPI from '../../../libs/opensea-api';
