@@ -21,7 +21,10 @@ import moment from 'moment';
 interface Column {
   key: keyof ParcelTransactionHistory;
   title: string;
-  render?: (value: any) => any;
+  render?: (
+    value: ParcelTransactionHistory[keyof ParcelTransactionHistory],
+    row: ParcelTransactionHistory,
+  ) => any;
 }
 
 export const Table = React.memo(() => {
@@ -64,18 +67,14 @@ export const Table = React.memo(() => {
     const priceColumn: Column = {
       key: 'price',
       title: 'Price',
-      render(value) {
+      render(value, row) {
         if (!value) {
           return <span className={classes.italic}>N/A</span>;
         }
 
         return (
           <Box className={classes.flex}>
-            <img
-              className={classes.ethIcon}
-              src="/collection/DOKOasset_EthereumBlue.png"
-              alt="eth"
-            />
+            {row.imageURL && <img className={classes.tokenIcon} src={row.imageURL} />}
             {value}
           </Box>
         );
@@ -104,7 +103,7 @@ export const Table = React.memo(() => {
   }, [currentTab]);
 
   return (
-    <div>
+    <React.Fragment>
       <TableContainer>
         <MuiTable className={clsx({ [classes.tableContainer]: !isFetching })}>
           <TableHead className={classes.tableHead}>
@@ -133,7 +132,7 @@ export const Table = React.memo(() => {
                   <TableRow key={index}>
                     {columns.map(({ key, render }) => (
                       <TableCell key={key} className={classes.tableCell}>
-                        {typeof render === 'function' ? render(row[key]) : row[key]}
+                        {typeof render === 'function' ? render(row[key], row) : row[key]}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -153,7 +152,7 @@ export const Table = React.memo(() => {
         className={classes.pagination}
         classes={{ selectIcon: classes.paginationSelectIcon }}
       />
-    </div>
+    </React.Fragment>
   );
 });
 
@@ -173,7 +172,7 @@ const useStyles = makeStyles((theme) => ({
   bold: {
     fontWeight: 'bold',
   },
-  ethIcon: {
+  tokenIcon: {
     width: 10,
     marginRight: theme.spacing(1),
   },

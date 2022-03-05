@@ -12,6 +12,7 @@ export interface ParcelTransactionHistory {
   price: number | null;
   parcel: string;
   time: string;
+  imageURL: string | null;
 }
 
 interface ParcelTransactionHistoryStore {
@@ -48,7 +49,7 @@ const parseResponseAsParcelTransactionHistories = (
     return price ? Number(parseFloat(ethers.utils.formatEther(price)).toFixed(2)) : null;
   };
 
-  return response.data.asset_events.map((assetEvent) => {
+  return response.data.asset_events.map((assetEvent): ParcelTransactionHistory => {
     switch (currentTab) {
       case 'sales':
         return {
@@ -57,6 +58,7 @@ const parseResponseAsParcelTransactionHistories = (
           price: formatPrice(assetEvent?.total_price),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,
+          imageURL: assetEvent?.payment_token?.image_url || null,
         };
       case 'bids':
         return {
@@ -65,6 +67,7 @@ const parseResponseAsParcelTransactionHistories = (
           price: formatPrice(assetEvent?.bid_amount),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,
+          imageURL: assetEvent?.payment_token?.image_url || null,
         };
       case 'transfers':
         return {
@@ -73,6 +76,7 @@ const parseResponseAsParcelTransactionHistories = (
           price: formatPrice(assetEvent?.bid_amount),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,
+          imageURL: assetEvent?.payment_token?.image_url || null,
         };
     }
   });

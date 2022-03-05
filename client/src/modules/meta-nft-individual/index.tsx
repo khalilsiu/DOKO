@@ -15,7 +15,6 @@ const NftIndividual = React.memo(() => {
   const { address, id } = useParams<{ address: string; id: string; chain: string }>();
   const asset = useAssetSliceSelector((state) => state.asset);
   const isFetching = useAssetSliceSelector((state) => state.fetching);
-  console.log('asset', asset);
 
   React.useEffect(() => {
     dispatch(getAssetFromOpensea({ contractAddress: address, assetId: id }));
