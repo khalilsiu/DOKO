@@ -1,5 +1,6 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
 import { getAsset, getAssetFromOpensea } from '../asset/assetSlice';
 import { upsertLeaseToBlockchain } from '../lease/leasesSlice';
 import { fetchProfileOwnership } from '../summary';
@@ -87,6 +88,13 @@ const appStateSlice = createSlice({
       // rejected
       .addCase(upsertLeaseToBlockchain.rejected, (state, action) => {
         state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.error.message,
+        };
+      })
+      .addCase(fetchParcelTransactionHistory.rejected, (state, action) => {
         state.toast = {
           show: true,
           state: 'error',

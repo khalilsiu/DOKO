@@ -1,14 +1,32 @@
 import React from 'react';
 import { Box, Divider, makeStyles, Tab, Tabs } from '@material-ui/core';
 import {
+  fetchParcelTransactionHistory,
+  ParcelTransactionHistoryCategory,
   parcelTransactionHistoryEventMap,
-  useParcelTransactionHistoryStore,
-} from 'modules/meta-nft-individual/hooks/useParcelTransactionHistoryStore';
+  parcelTransactionHistorySlice,
+  useParcelTransactionHistorySliceSelector,
+} from 'store/asset/parcelTransactionHistorySlice';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 export const FilterTabs = React.memo(() => {
+  const dispatch = useDispatch();
   const classes = useStyles();
-  const currentTab = useParcelTransactionHistoryStore((state) => state.currentTab);
-  const changeTab = useParcelTransactionHistoryStore((state) => state.changeTab);
+  const { address, id } = useParams<{ address: string; id: string; chain: string }>();
+
+  const currentTab = useParcelTransactionHistorySliceSelector((state) => state.currentTab);
+  const changeTab = React.useCallback((tab: ParcelTransactionHistoryCategory) => {
+    dispatch(parcelTransactionHistorySlice.actions.changeTab(tab));
+    address &&
+      id &&
+      dispatch(
+        fetchParcelTransactionHistory({
+          contractAddress: address,
+          assetId: id,
+        }),
+      );
+  }, []);
 
   return (
     <Box className={classes.root}>

@@ -11,12 +11,14 @@ import {
   TablePagination,
   TableRow,
 } from '@material-ui/core';
-import {
-  ParcelTransactionHistory,
-  useParcelTransactionHistoryStore,
-} from 'modules/meta-nft-individual/hooks/useParcelTransactionHistoryStore';
 import clsx from 'clsx';
 import moment from 'moment';
+import {
+  ParcelTransactionHistory,
+  parcelTransactionHistorySlice,
+  useParcelTransactionHistorySliceSelector,
+} from 'store/asset/parcelTransactionHistorySlice';
+import { useDispatch } from 'react-redux';
 
 interface Column {
   key: keyof ParcelTransactionHistory;
@@ -28,23 +30,24 @@ interface Column {
 }
 
 export const Table = React.memo(() => {
+  const dispatch = useDispatch();
   const classes = useStyles();
-  const currentTab = useParcelTransactionHistoryStore((state) => state.currentTab);
-  const result = useParcelTransactionHistoryStore((state) => state.result);
-  const isFetching = useParcelTransactionHistoryStore((state) => state.fetching);
-  const currentPage = useParcelTransactionHistoryStore((state) => state.currentPage);
-  const rowsPerPage = useParcelTransactionHistoryStore((state) => state.rowsPerPage);
 
-  const setCurrentPage = useParcelTransactionHistoryStore((state) => state.setCurrentPage);
-  const setRowsPerPage = useParcelTransactionHistoryStore((state) => state.setRowsPerPage);
+  const currentTab = useParcelTransactionHistorySliceSelector((state) => state.currentTab);
+  const result = useParcelTransactionHistorySliceSelector((state) => state.result);
+  const isFetching = useParcelTransactionHistorySliceSelector((state) => state.fetching);
+  const currentPage = useParcelTransactionHistorySliceSelector((state) => state.currentPage);
+  const rowsPerPage = useParcelTransactionHistorySliceSelector((state) => state.rowsPerPage);
 
   const handleChangePage = React.useCallback((_: unknown, newPage: number) => {
-    setCurrentPage(newPage);
+    dispatch(parcelTransactionHistorySlice.actions.setCurrentPage(newPage));
   }, []);
 
   const handleChangeRowsPerPage = React.useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setCurrentPage(0);
+    dispatch(
+      parcelTransactionHistorySlice.actions.setRowsPerPage(parseInt(event.target.value, 10)),
+    );
+    dispatch(parcelTransactionHistorySlice.actions.setCurrentPage(0));
   }, []);
 
   const columns: Column[] = React.useMemo(() => {
@@ -52,7 +55,7 @@ export const Table = React.memo(() => {
       key: 'fromAddress',
       title: 'From',
       render(value) {
-        return value || <span className={classes.italic}>N/A</span>;
+        return value;
       },
     };
 
@@ -60,7 +63,7 @@ export const Table = React.memo(() => {
       key: 'toAddress',
       title: 'To',
       render(value) {
-        return value || <span className={classes.italic}>N/A</span>;
+        return value;
       },
     };
 
@@ -125,6 +128,15 @@ export const Table = React.memo(() => {
                   <CircularProgress />
                 </TableCell>
               </TableRow>
+            ) : result.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  className={clsx(classes.tableCell, classes.center)}
+                  colSpan={columns.length}
+                >
+                  No Data
+                </TableCell>
+              </TableRow>
             ) : (
               result
                 .slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage)
@@ -168,6 +180,9 @@ const useStyles = makeStyles((theme) => ({
   tableCell: {
     color: 'white',
     borderBottom: 'solid 1px rgba(255,255,255,0.5)',
+  },
+  center: {
+    textAlign: 'center',
   },
   bold: {
     fontWeight: 'bold',

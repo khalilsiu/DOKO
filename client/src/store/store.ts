@@ -3,6 +3,7 @@ import { appState } from './app';
 import { leases } from './lease/leasesSlice';
 import { asset } from './asset/assetSlice';
 import { addressOwnership, collectionSummary, profileOwnership } from './summary';
+import { parcelTransactionHistory } from './asset/parcelTransactionHistorySlice';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     appState,
     leases,
     asset,
+    parcelTransactionHistory,
   },
 });
 

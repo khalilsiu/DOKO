@@ -1,18 +1,19 @@
 import React from 'react';
 import { Box, makeStyles } from '@material-ui/core';
 import { FilterTabs } from './FilterTabs';
-import { useParcelTransactionHistoryStore } from 'modules/meta-nft-individual/hooks/useParcelTransactionHistoryStore';
 import { useParams } from 'react-router-dom';
 import { Title } from './Title';
 import { Table } from './Table';
+import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
+import { useDispatch } from 'react-redux';
 
 export const ParcelTransactionHistory = React.memo(() => {
+  const dispatch = useDispatch();
   const classes = useStyles();
   const { address, id } = useParams<{ address: string; id: string; chain: string }>();
-  const fetchParcelTransactionHistory = useParcelTransactionHistoryStore((state) => state.fetch);
 
   React.useEffect(() => {
-    fetchParcelTransactionHistory(address, id);
+    dispatch(fetchParcelTransactionHistory({ contractAddress: address, assetId: id }));
   }, [address, id]);
 
   return (
