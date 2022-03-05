@@ -1,6 +1,6 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getAsset } from '../asset/assetSlice';
+import { getAsset, getAssetFromOpensea } from '../asset/assetSlice';
 import { upsertLeaseToBlockchain } from '../lease/leasesSlice';
 import { fetchProfileOwnership } from '../summary';
 import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
@@ -65,6 +65,9 @@ const appStateSlice = createSlice({
       .addCase(getAsset.pending, (state) => {
         state.isLoading = true;
       })
+      .addCase(getAssetFromOpensea.pending, (state) => {
+        state.isLoading = true;
+      })
       // fulfilled
       .addCase(fetchAddressOwnership.fulfilled, (state) => {
         state.isLoading = false;
@@ -76,6 +79,9 @@ const appStateSlice = createSlice({
         state.isTransacting = false;
       })
       .addCase(getAsset.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(getAssetFromOpensea.fulfilled, (state) => {
         state.isLoading = false;
       })
       // rejected

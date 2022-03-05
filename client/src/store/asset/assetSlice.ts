@@ -9,11 +9,9 @@ import { Asset, parsePriceETH, parsePriceUSD, preprocess } from '../summary';
 
 interface AssetSliceState {
   asset: Asset;
-  fetching: boolean;
 }
 
 const initialState: AssetSliceState = {
-  fetching: false,
   asset: {
     floorPrice: 0,
     id: '',
@@ -125,18 +123,10 @@ const assetSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getAsset.fulfilled, (state, action) => {
-        state.fetching = false;
         state.asset = action.payload;
-      })
-      .addCase(getAssetFromOpensea.pending, (state) => {
-        state.fetching = true;
       })
       .addCase(getAssetFromOpensea.fulfilled, (state, action) => {
-        state.fetching = false;
         state.asset = action.payload;
-      })
-      .addCase(getAssetFromOpensea.rejected, (state) => {
-        state.fetching = false;
       });
   },
 });

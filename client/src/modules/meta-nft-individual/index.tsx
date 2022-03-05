@@ -2,19 +2,20 @@ import React from 'react';
 import { Box, CircularProgress, Grid, Hidden, makeStyles } from '@material-ui/core';
 import { ProfileCard } from './components/ProfileCard';
 import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { TitleSection } from './components/TitleSection';
 import { MetaTag } from './components/MetaTag';
 import { getAssetFromOpensea, useAssetSliceSelector } from 'store/asset/assetSlice';
 import { AssetDescription } from './components/AssetDescription';
 import { DetailTabs } from './components/DetailTabs';
+import { RootState } from 'store/store';
 
 const NftIndividual = React.memo(() => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const { address, id } = useParams<{ address: string; id: string; chain: string }>();
   const asset = useAssetSliceSelector((state) => state.asset);
-  const isFetching = useAssetSliceSelector((state) => state.fetching);
+  const isFetching = useSelector((state: RootState) => state.appState.isLoading);
 
   React.useEffect(() => {
     dispatch(getAssetFromOpensea({ contractAddress: address, assetId: id }));
