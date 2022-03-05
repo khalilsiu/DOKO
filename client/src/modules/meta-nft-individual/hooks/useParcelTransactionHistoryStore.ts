@@ -9,7 +9,7 @@ export type ParcelTransactionHistoryCategory = 'sales' | 'bids' | 'transfers';
 export interface ParcelTransactionHistory {
   fromAddress: string | null;
   toAddress: string | null;
-  price: number | null;
+  price: string | null;
   parcel: string;
   time: string;
   imageURL: string | null;
@@ -42,11 +42,11 @@ const parseResponseAsParcelTransactionHistories = (
   response: any,
 ): ParcelTransactionHistory[] => {
   const formatAddress = (address: string | null) => {
-    return address ? minimizeAddress(address) : null;
+    return address ? minimizeAddress(address) : 'Unknown';
   };
 
-  const formatPrice = (price: string | null) => {
-    return price ? Number(parseFloat(ethers.utils.formatEther(price)).toFixed(2)) : null;
+  const formatPrice = (price: string | null, decimals: number) => {
+    return price ? parseFloat(String(Number(price) / Math.pow(10, decimals))).toFixed(2) : null;
   };
 
   return response.data.asset_events.map((assetEvent): ParcelTransactionHistory => {
@@ -55,7 +55,7 @@ const parseResponseAsParcelTransactionHistories = (
         return {
           fromAddress: formatAddress(assetEvent?.seller?.address),
           toAddress: formatAddress(assetEvent?.winner_account?.address),
-          price: formatPrice(assetEvent?.total_price),
+          price: formatPrice(assetEvent?.total_price, assetEvent?.payment_token?.decimals),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,
           imageURL: assetEvent?.payment_token?.image_url || null,
@@ -64,7 +64,7 @@ const parseResponseAsParcelTransactionHistories = (
         return {
           fromAddress: formatAddress(assetEvent?.from_account?.address),
           toAddress: null,
-          price: formatPrice(assetEvent?.bid_amount),
+          price: formatPrice(assetEvent?.bid_amount, assetEvent?.payment_token?.decimals),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,
           imageURL: assetEvent?.payment_token?.image_url || null,
@@ -73,7 +73,7 @@ const parseResponseAsParcelTransactionHistories = (
         return {
           fromAddress: formatAddress(assetEvent?.from_account?.address),
           toAddress: formatAddress(assetEvent?.to_account?.address),
-          price: formatPrice(assetEvent?.bid_amount),
+          price: formatPrice(assetEvent?.bid_amount, assetEvent?.payment_token?.decimals),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,
           imageURL: assetEvent?.payment_token?.image_url || null,
