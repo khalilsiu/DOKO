@@ -2,8 +2,8 @@ import L from 'leaflet';
 import styled from 'styled-components';
 import { Popup } from 'react-leaflet';
 
-import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { createStyles } from '@material-ui/styles';
+import { Asset } from '../../store/summary/profileOwnershipSlice';
 
 export const marker = new L.Icon({
   iconUrl: '/marker.png',
@@ -48,6 +48,7 @@ export const MapStyles = createStyles<any, StyleProps>({
     border: '1px solid rgba(255, 255, 255, 0.5)',
     boxSizing: 'border-box',
     overflow: 'hidden',
+    borderRadius: '10px',
   },
   popupTitleContainer: {
     borderBottom: 'solid white 1px',

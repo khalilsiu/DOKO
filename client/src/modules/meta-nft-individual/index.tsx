@@ -14,11 +14,11 @@ const NftIndividual = React.memo(() => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const { address, id } = useParams<{ address: string; id: string; chain: string }>();
-  const asset = useAssetSliceSelector((state) => state.asset);
+  const asset = useAssetSliceSelector((state) => state);
   const isFetching = useSelector((state: RootState) => state.appState.isLoading);
 
   React.useEffect(() => {
-    dispatch(getAssetFromOpensea({ contractAddress: address, assetId: id }));
+    dispatch(getAssetFromOpensea({ contractAddress: address, tokenId: id }));
   }, []);
 
   return (

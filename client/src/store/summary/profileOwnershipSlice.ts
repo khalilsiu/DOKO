@@ -4,8 +4,8 @@ import { parsePriceUSD } from '.';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinates } from '../../utils/utils';
-import { Lease } from '../lease/leasesSlice';
 import { parsePriceETH } from './collectionSummarySlice';
+import { Lease } from '../lease/metaverseLeasesSlice';
 
 export interface Trait {
   traitType: string;
@@ -13,7 +13,6 @@ export interface Trait {
 }
 
 export interface Asset {
-  floorPrice: number; // TODO: remove soon
   id: string;
   tokenId: string;
   imageUrl: string;
@@ -39,6 +38,7 @@ export interface Asset {
   lastPurchasePriceUsd: number | null;
   floorPriceUsd: number | null;
   floorPriceEth: number | null;
+  owner: string;
 }
 
 export interface AddressOwnership {
@@ -90,6 +90,7 @@ export const preprocess = (asset: any): Asset => {
   ]);
   picked.asset_contract = pick(picked.asset_contract, ['address', 'schema_name']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
+  picked.owner = pick(picked.owner, ['address']).address;
 
   const slug = picked.collection?.slug;
   const metaverseName = getMetaverseName(picked.collection.slug);

@@ -1,8 +1,8 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
-import { getAsset, getAssetFromOpensea } from '../asset/assetSlice';
-import { upsertLeaseToBlockchain } from '../lease/leasesSlice';
+import { getAssetFromOpensea } from '../asset/assetSlice';
+import { acceptLeaseToBlockchain, upsertLeaseToBlockchain } from '../lease/metaverseLeasesSlice';
 import { fetchProfileOwnership } from '../summary';
 import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
 
@@ -30,6 +30,12 @@ const appStateSlice = createSlice({
   name: 'AppState',
   initialState,
   reducers: {
+    startLoading(state) {
+      state.isLoading = true;
+    },
+    stopLoading(state) {
+      state.isLoading = false;
+    },
     openToast(
       state,
       action: PayloadAction<{ message: string; state: Color; action?: ToastAction }>,
@@ -53,41 +59,75 @@ const appStateSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // pending
       .addCase(fetchAddressOwnership.pending, (state) => {
         state.isLoading = true;
       })
+      .addCase(fetchAddressOwnership.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(fetchAddressOwnership.rejected, (state, action) => {
+        state.isLoading = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.error.message,
+        };
+      })
+
       .addCase(upsertLeaseToBlockchain.pending, (state) => {
         state.isTransacting = true;
       })
-      .addCase(fetchProfileOwnership.pending, (state) => {
-        state.isLoading = true;
+      .addCase(upsertLeaseToBlockchain.fulfilled, (state) => {
+        state.isTransacting = false;
       })
-      .addCase(getAsset.pending, (state) => {
+      .addCase(upsertLeaseToBlockchain.rejected, (state, action) => {
+        state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: (action.payload && action.payload.error) || action.error.message,
+        };
+      })
+
+      .addCase(acceptLeaseToBlockchain.pending, (state) => {
+        state.isTransacting = true;
+      })
+      .addCase(acceptLeaseToBlockchain.fulfilled, (state) => {
+        state.isTransacting = false;
+      })
+      .addCase(acceptLeaseToBlockchain.rejected, (state, action) => {
+        state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.payload ? action.payload.error : action.error.message,
+        };
+      })
+
+      .addCase(fetchProfileOwnership.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(getAssetFromOpensea.pending, (state) => {
         state.isLoading = true;
       })
       // fulfilled
-      .addCase(fetchAddressOwnership.fulfilled, (state) => {
-        state.isLoading = false;
-      })
       .addCase(fetchProfileOwnership.fulfilled, (state) => {
         state.isLoading = false;
       })
-      .addCase(upsertLeaseToBlockchain.fulfilled, (state) => {
-        state.isTransacting = false;
-      })
-      .addCase(getAsset.fulfilled, (state) => {
+      .addCase(fetchProfileOwnership.rejected, (state, action) => {
         state.isLoading = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.error.message,
+        };
       })
       .addCase(getAssetFromOpensea.fulfilled, (state) => {
         state.isLoading = false;
       })
       // rejected
-      .addCase(upsertLeaseToBlockchain.rejected, (state, action) => {
-        state.isTransacting = false;
+      .addCase(getAssetFromOpensea.rejected, (state, action) => {
+        state.isLoading = false;
         state.toast = {
           show: true,
           state: 'error',
@@ -104,5 +144,5 @@ const appStateSlice = createSlice({
   },
 });
 
-export const { closeToast, openToast } = appStateSlice.actions;
+export const { closeToast, openToast, startLoading, stopLoading } = appStateSlice.actions;
 export const appState = appStateSlice.reducer;

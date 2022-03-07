@@ -17,19 +17,20 @@ import { RadiusInput } from '..';
 import UIModal from '../modal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import Joi from 'joi';
-import { AuthContext } from '../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { upsertLeaseToBlockchain } from '../../store/lease/leasesSlice';
+import { upsertLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
 import { RootState } from '../../store/store';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { parseError } from '../../utils/joiErrors';
-import { openToast } from '../../store/app/appStateSlice';
+import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
-import { useAssetSliceSelector } from 'store/asset/assetSlice';
+import { getLeaseState } from './OwnershipView';
+import { EditLeaseSchema } from './schema';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -107,9 +108,8 @@ export const StyledSelect = withStyles({
 })(Select);
 
 interface ILeaseModal {
-  setSelectedAssetForLease?: (asset: Asset | null) => void;
   walletAddress: string;
-  addressConcerned: string;
+  asset: Asset;
 }
 
 export interface LeaseForm {
@@ -122,37 +122,36 @@ export interface LeaseForm {
   autoRegenerate: boolean;
 }
 
-const schema = {
-  rentToken: Joi.string()
-    .valid(...tokens.map((token) => token.symbol))
-    .required(),
-  rentAmount: Joi.number().positive().required(),
-  deposit: Joi.number().positive().required(),
-  gracePeriod: Joi.number().positive().min(7).integer().required(),
-  minLeaseLength: Joi.number().min(1).integer().required(),
-  maxLeaseLength: Joi.number().when('minLeaseLength', {
-    is: Joi.exist(),
-    then: Joi.number().greater(Joi.ref('minLeaseLength')).integer().required(),
-  }),
-  autoRegenerate: Joi.bool().required(),
-};
+interface TransformedLeaseForm {
+  rentToken: AcceptedTokens;
+  rentAmount: number;
+  deposit: number;
+  gracePeriod: number;
+  minLeaseLength: number;
+  maxLeaseLength: number;
+  autoRegenerate: boolean;
+}
 
-const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
+const dclLandRentalAddress = process.env.REACT_APP_DCL_LAND_RENTAL_ADDRESS;
+
+const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const styles = useStyles();
   const history = useHistory();
   const {
-    dclContract,
-    dokoRentalContract,
-    approveDokoOnDcl,
-    checkApproveForAll,
-    isDokoApproved,
-    loading: approveLoading,
-  } = useContext(AuthContext);
+    contracts: { dclLandRental: dclLandRentalContract, dclLand: dclLandContract },
+    connectContract,
+  } = useContext(AuthContext) as AuthContextType;
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const theme = useTheme();
   const dispatch = useDispatch();
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-  const asset = useAssetSliceSelector((state) => state.asset);
+  const [isApproved, setIsApproved] = useState(false);
+
+  useEffect(() => {
+    connectContract('dclLandRental');
+    connectContract('dclLand');
+  }, []);
+
   const initialState = {
     rentToken: AcceptedTokens['ETH'],
     rentAmount: '',
@@ -165,19 +164,37 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
 
   const [leaseForm, setLeaseForm] = useState<LeaseForm>(initialState);
 
-  useEffect(() => {
-    if (asset && asset.lease) {
-      setLeaseForm({
-        rentToken: asset.lease?.rentToken,
-        rentAmount: (asset.lease?.rentAmount).toString(),
-        deposit: (asset.lease?.deposit).toString(),
-        gracePeriod: (asset.lease?.gracePeriod).toString(),
-        minLeaseLength: (asset.lease?.minLeaseLength).toString(),
-        maxLeaseLength: (asset.lease?.maxLeaseLength).toString(),
-        autoRegenerate: asset.lease?.autoRegenerate,
-      });
+  const leaseState = useMemo(() => getLeaseState(asset), [asset]);
+
+  const isFieldDisabled =
+    isTransacting || isLoading || leaseState === 'leased' || walletAddress !== asset.owner;
+
+  const renderButtonText = useCallback(() => {
+    if (!isApproved) {
+      return 'Approve';
     }
-  }, [asset, asset.lease]);
+    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
+      return 'Create';
+    }
+    if (leaseState === 'open') {
+      return 'Update';
+    }
+    if (leaseState === 'leased') {
+      return 'Leased';
+    }
+  }, [leaseState, isApproved]);
+
+  const convertLeaseFrom = (leaseForm: LeaseForm): TransformedLeaseForm => {
+    const { rentAmount, deposit, gracePeriod, minLeaseLength, maxLeaseLength } = leaseForm;
+    return {
+      ...leaseForm,
+      rentAmount: parseFloat(rentAmount),
+      deposit: parseFloat(deposit),
+      gracePeriod: parseInt(gracePeriod, 10),
+      minLeaseLength: parseInt(minLeaseLength, 10),
+      maxLeaseLength: parseInt(maxLeaseLength, 10),
+    };
+  };
 
   const [errors, setErrors] = useState<{ [key in keyof LeaseForm]: string }>({
     rentToken: '',
@@ -190,19 +207,60 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
   });
 
   useEffect(() => {
-    checkApproveForAll(walletAddress);
-  }, [dclContract]);
+    if (asset && asset.lease && leaseState !== 'completed') {
+      setLeaseForm({
+        rentToken: asset.lease?.rentToken,
+        rentAmount: (asset.lease?.rentAmount).toString(),
+        deposit: (asset.lease?.deposit).toString(),
+        gracePeriod: (asset.lease?.gracePeriod).toString(),
+        minLeaseLength: (asset.lease?.minLeaseLength).toString(),
+        maxLeaseLength: (asset.lease?.maxLeaseLength).toString(),
+        autoRegenerate: asset.lease?.autoRegenerate,
+      });
+    }
+  }, [asset, asset.lease, leaseState]);
 
-  const approveLease = async () => {
-    if (!dclContract || walletAddress !== addressConcerned) {
-      dispatch(openToast({ message: 'Decentraland contract instance error', state: 'error' }));
+  useEffect(() => {
+    (async () => {
+      if (dclLandContract) {
+        try {
+          dispatch(startLoading());
+          const isApproved = await dclLandContract.isApprovedForAll(
+            walletAddress,
+            dclLandRentalAddress || '',
+          );
+          setIsApproved(isApproved);
+        } catch (e) {
+          dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+        }
+        dispatch(stopLoading());
+      }
+    })();
+  }, [dclLandContract, walletAddress, dclLandRentalAddress]);
+
+  // can be moved into hooks
+  const approveLease = useCallback(async () => {
+    dispatch(startLoading());
+    if (!dclLandContract) {
+      dispatch(
+        openToast({ message: 'Decentraland contract initialization error', state: 'error' }),
+      );
       return;
     }
-    await approveDokoOnDcl();
-  };
+    try {
+      const txn = await dclLandContract.setApprovalForAll(dclLandRentalAddress || '', true);
+      const receipt = await txn.wait();
+      setIsApproved(!!receipt);
+    } catch (e) {
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+    }
+    dispatch(stopLoading());
+  }, [dclLandContract, dclLandRentalAddress]);
 
-  const upsertLease = async () => {
-    const result = Joi.object(schema).validate(leaseForm);
+  const upsertLease = useCallback(async () => {
+    const result = Joi.object(EditLeaseSchema).validate(convertLeaseFrom(leaseForm), {
+      convert: false,
+    });
     if (result.error) {
       const newErrors = cloneDeep(errors);
       newErrors[result.error.details[0].path[0]] = parseError(result.error);
@@ -210,8 +268,13 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
       return;
     }
 
-    if (!dokoRentalContract || walletAddress !== addressConcerned) {
-      dispatch(openToast({ message: 'Doko contract instance error', state: 'error' }));
+    if (!dclLandRentalContract) {
+      dispatch(openToast({ message: 'Land rental contract initialization error', state: 'error' }));
+      return;
+    }
+
+    if (walletAddress !== asset.owner) {
+      dispatch(openToast({ message: 'Only land owner can create lease', state: 'error' }));
       return;
     }
 
@@ -220,13 +283,13 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
         leaseForm,
         walletAddress,
         assetId: asset.tokenId,
-        dokoRentalContract,
+        dclLandRentalContract,
         isUpdate: !!asset.lease,
       }),
     );
 
-    history.push(`/address/${addressConcerned}`);
-  };
+    history.push(`/address/${asset.owner}`);
+  }, [leaseForm, walletAddress, asset, dclLandRentalContract, errors]);
 
   const handleChange = useCallback(
     (e) => {
@@ -243,29 +306,35 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
     setLeaseForm(newLeaseForm);
   }, [leaseForm]);
 
-  const handleBlur = (e) => {
-    const rawValue = e.target.value;
-    const targetName = e.target.name;
-    const input = { [targetName]: parseFloat(rawValue) };
-    const result = Joi.object({ [targetName]: schema[targetName] }).validate(input);
-    if (result.error) {
+  const handleBlur = useCallback(
+    (e) => {
+      const rawValue = e.target.value;
+      const targetName = e.target.name;
+      const input = { [targetName]: parseFloat(rawValue) };
+      const result = Joi.object({ [targetName]: EditLeaseSchema[targetName] }).validate(input);
+      if (result.error) {
+        const newErrors = cloneDeep(errors);
+        newErrors[targetName] = parseError(result.error);
+        setErrors(newErrors);
+        return;
+      }
       const newErrors = cloneDeep(errors);
-      newErrors[targetName] = parseError(result.error);
+      newErrors[targetName] = '';
       setErrors(newErrors);
-      return;
-    }
-    const newErrors = cloneDeep(errors);
-    newErrors[targetName] = '';
-    setErrors(newErrors);
-  };
+    },
+    [errors],
+  );
 
-  const handleInputChange = (e) => {
-    const rawValue = e.target.value;
-    const targetName = e.target.name;
-    const newLeaseForm = cloneDeep(leaseForm);
-    newLeaseForm[targetName] = rawValue || '';
-    setLeaseForm(newLeaseForm);
-  };
+  const handleInputChange = useCallback(
+    (e) => {
+      const rawValue = e.target.value;
+      const targetName = e.target.name;
+      const newLeaseForm = cloneDeep(leaseForm);
+      newLeaseForm[targetName] = rawValue || '';
+      setLeaseForm(newLeaseForm);
+    },
+    [leaseForm],
+  );
 
   return (
     <UIModal
@@ -278,7 +347,7 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
           </Typography>
           <IconButton
             style={{ color: 'white' }}
-            onClick={() => history.push(`/address/${addressConcerned}`)}
+            onClick={() => history.push(`/address/${asset.owner}`)}
           >
             <CloseIcon fontSize="medium" />
           </IconButton>
@@ -319,7 +388,7 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
                   onChange={handleChange}
                   input={<Input className={styles.underline} />}
                   style={{ height: '30px' }}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isFieldDisabled}
                 >
                   {tokens.map((token) => (
                     <MenuItem key={token.symbol} value={token.symbol}>
@@ -351,9 +420,10 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
                   style={{ height: '30px' }}
                   name="rentAmount"
                   onChange={handleInputChange}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isFieldDisabled}
                   onBlur={handleBlur}
                   value={leaseForm.rentAmount}
+                  type="number"
                 />
                 {errors.rentAmount && (
                   <Typography variant="body2" className={styles.errorMessage}>
@@ -373,9 +443,10 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
                   name="minLeaseLength"
                   style={{ height: '30px' }}
                   onChange={handleInputChange}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isFieldDisabled}
                   onBlur={handleBlur}
                   value={leaseForm.minLeaseLength}
+                  type="number"
                 />
                 {errors.minLeaseLength && (
                   <Typography variant="body2" className={styles.errorMessage}>
@@ -393,9 +464,10 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
                   style={{ height: '30px' }}
                   name="maxLeaseLength"
                   onChange={handleInputChange}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isFieldDisabled}
                   onBlur={handleBlur}
                   value={leaseForm.maxLeaseLength}
+                  type="number"
                 />
                 {errors.maxLeaseLength && (
                   <Typography variant="body2" className={styles.errorMessage}>
@@ -420,9 +492,10 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
                   name="deposit"
                   placeholder={`Deposit in ${leaseForm.rentToken}`}
                   onChange={handleInputChange}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isFieldDisabled}
                   onBlur={handleBlur}
                   value={leaseForm.deposit}
+                  type="number"
                 />
                 {errors.deposit && (
                   <Typography variant="body2" className={styles.errorMessage}>
@@ -441,8 +514,9 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
                   style={{ height: '30px' }}
                   onBlur={handleBlur}
                   onChange={handleInputChange}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isFieldDisabled}
                   value={leaseForm.gracePeriod}
+                  type="number"
                 />
                 {errors.gracePeriod && (
                   <Typography variant="body2" className={styles.errorMessage}>
@@ -461,7 +535,7 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
                   checked={leaseForm.autoRegenerate}
                   onChange={handleCheck}
                   style={{ padding: '0 0.5rem 0 0', color: theme.palette.primary.main }}
-                  disabled={isTransacting || approveLoading || isLoading}
+                  disabled={isFieldDisabled}
                   value={leaseForm.autoRegenerate}
                 />
                 <Typography variant="body2" style={{ fontSize: '0.8rem' }}>
@@ -491,10 +565,10 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
             className="gradient-button"
             variant="contained"
             style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={!isDokoApproved ? approveLease : upsertLease}
-            disabled={isTransacting || approveLoading || isLoading}
+            onClick={!isApproved ? approveLease : upsertLease}
+            disabled={isFieldDisabled}
           >
-            {!isDokoApproved ? 'Approve' : !asset.lease ? 'Create' : 'Update'}
+            {renderButtonText()}
           </Button>
         </div>
       )}
@@ -502,4 +576,4 @@ const LeaseModal = memo(({ addressConcerned, walletAddress }: ILeaseModal) => {
   );
 });
 
-export default LeaseModal;
+export default EditLeaseModal;

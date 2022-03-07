@@ -6,44 +6,39 @@ import ContractServiceAPI from '../../libs/contract-service-api';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize } from '../../utils/utils';
 import { Asset, parsePriceETH, parsePriceUSD, preprocess } from '../summary';
+import { preprocessAssetFromServer } from './metaverseAssetsFromServerSlice';
 
-interface AssetSliceState {
-  asset: Asset;
-}
-
-const initialState: AssetSliceState = {
-  asset: {
-    floorPrice: 0,
-    id: '',
-    tokenId: '',
-    imageUrl: '',
-    imageOriginalUrl: '',
-    coordinates: [0, 0],
-    imagePreviewUrl: '',
-    imageThumbnailUrl: '',
-    name: '',
-    description: '',
-    ownerAddress: '',
-    creatorAddress: '',
-    assetContract: {
-      address: '',
-    },
-    traits: [],
-    metaverseName: null,
-    collection: null,
-    tokenStandard: null,
-    slug: null,
-    externalLink: null,
-    lastPurchasePriceEth: null,
-    lastPurchasePriceUsd: null,
-    floorPriceUsd: null,
-    floorPriceEth: null,
+const initialState: Asset = {
+  id: '',
+  tokenId: '',
+  imageUrl: '',
+  imageOriginalUrl: '',
+  coordinates: [0, 0],
+  imagePreviewUrl: '',
+  imageThumbnailUrl: '',
+  name: '',
+  description: '',
+  ownerAddress: '',
+  creatorAddress: '',
+  assetContract: {
+    address: '',
   },
+  traits: [],
+  metaverseName: null,
+  collection: null,
+  tokenStandard: null,
+  slug: null,
+  externalLink: null,
+  lastPurchasePriceEth: null,
+  lastPurchasePriceUsd: null,
+  floorPriceUsd: null,
+  floorPriceEth: null,
+  owner: '',
 };
 
 interface IGetAsset {
   contractAddress: string;
-  assetId: string;
+  tokenId: string;
 }
 
 export const useAssetSliceSelector = <T>(func: (state: RootState['asset']) => T) =>
@@ -59,7 +54,7 @@ const fetchMetaverseFloorPrice = async (asset: Asset): Promise<[number | null, n
     const traits = asset.traits?.length ? asset.traits : [];
 
     const lookupTraits = traits.filter((trait) =>
-      metaverse.primaryTraitTypes.includes(trait.traitType),
+      (metaverse.primaryTraitTypes as string[]).includes(trait.traitType),
     );
 
     const traitFilter = lookupTraits.map((trait) => ({
@@ -88,17 +83,16 @@ const fetchMetaverseFloorPrice = async (asset: Asset): Promise<[number | null, n
     return [null, null];
   }
 };
-
 const fetchNFTOpensea = async (address: string, id: string) =>
   OpenSeaAPI.get(`/asset/${address}/${id}`);
 
 export const getAssetFromOpensea = createAsyncThunk(
   'Asset/getAssetFromOpensea',
-  async ({ contractAddress, assetId }: IGetAsset) => {
+  async ({ contractAddress, tokenId }: IGetAsset) => {
     try {
-      const response = await fetchNFTOpensea(contractAddress, assetId);
+      const response = await fetchNFTOpensea(contractAddress, tokenId);
       const asset = preprocess(response.data);
-      const lease = await ContractServiceAPI.getLease({ contractAddress, assetId });
+      const lease = await ContractServiceAPI.getLease({ contractAddress, tokenId });
       const [floorPriceETH, floorPriceUSD] = await fetchMetaverseFloorPrice(asset);
 
       return camelize({ ...asset, lease, floorPriceETH, floorPriceUSD });
@@ -108,13 +102,13 @@ export const getAssetFromOpensea = createAsyncThunk(
   },
 );
 
-export const getAsset = createAsyncThunk('Asset/getAsset', async (payload: any) => {
-  const response = await OpenSeaAPI.get(`/asset/${payload.contractAddress}/${payload.assetId}`);
-  const asset = preprocess(response.data);
-  const lease = await ContractServiceAPI.getLease(payload);
-
-  return camelize({ ...asset, lease });
-});
+export const getAssetFromServer = createAsyncThunk(
+  'Asset/getAssetFromServer',
+  async (payload: IGetAsset) => {
+    const leaseWithAsset = await ContractServiceAPI.getLease(payload);
+    return preprocessAssetFromServer(leaseWithAsset);
+  },
+);
 
 const assetSlice = createSlice({
   name: 'Asset',
@@ -122,11 +116,11 @@ const assetSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getAsset.fulfilled, (state, action) => {
-        state.asset = action.payload;
-      })
       .addCase(getAssetFromOpensea.fulfilled, (state, action) => {
-        state.asset = action.payload;
+        return action.payload;
+      })
+      .addCase(getAssetFromServer.fulfilled, (state, action) => {
+        return action.payload;
       });
   },
 });

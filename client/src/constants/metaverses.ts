@@ -2,6 +2,7 @@ import decentraland from '../assets/decentraland.png';
 import cryptovoxels from '../assets/cryptovoxels.png';
 import thesandbox from '../assets/thesandbox.png';
 import somnium from '../assets/somnium.png';
+import DclLandAbi from '../contracts/DclLand.json';
 
 const cryptovoxelsIslands = [
   'Origin City',
@@ -49,6 +50,15 @@ const metaverses = [
       '0x959e104e1a4db6317fa58f8295f586e1a978c297',
     ],
     traits: [[]],
+    contracts: [
+      {
+        label: 'DCL Land',
+        symbol: 'dclLand',
+        // for testnet purpose
+        address: process.env.REACT_APP_DCL_LAND_ADDRESS || '',
+        abi: DclLandAbi,
+      },
+    ],
   },
   {
     icon: thesandbox,
@@ -59,6 +69,7 @@ const metaverses = [
     addresses: ['0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a'],
     traits: [[]],
     primaryTraitTypes: [],
+    contracts: [],
   },
   {
     icon: cryptovoxels,
@@ -78,8 +89,8 @@ const metaverses = [
         },
       ]),
     ],
+    contracts: [],
   },
-
   {
     icon: somnium,
     name: 'somnium-space',
@@ -98,6 +109,7 @@ const metaverses = [
         },
       ]),
     ],
+    contracts: [],
   },
 ];
 

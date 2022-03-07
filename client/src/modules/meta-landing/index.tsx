@@ -9,7 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Link from '@material-ui/core/Link';
 import Meta from '../../components/Meta';
-import { AuthContext } from '../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 
 export const MetaLanding = () => {
   const images = [
@@ -20,7 +20,7 @@ export const MetaLanding = () => {
   ];
 
   const styles = useStyles();
-  const { connect, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext) as AuthContextType;
   const history = useHistory();
   const [snackBar, setSnackBar] = useState(true);
   const handleClose = () => {
@@ -66,7 +66,7 @@ export const MetaLanding = () => {
           className="gradient-button"
           variant="outlined"
           disabled={loading}
-          onClick={() => (address ? history.push(`/address/${address}`) : connect())}
+          onClick={() => (address ? history.push(`/address/${address}`) : connect && connect())}
         >
           {address ? 'Your Profile' : 'Connect Wallet'}
         </Button>

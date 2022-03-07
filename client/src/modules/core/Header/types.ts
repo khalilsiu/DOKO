@@ -4,6 +4,6 @@ export interface ToolbarItemsProps {
   setSearch: Dispatch<SetStateAction<string>>;
   search: string;
   loading: boolean;
-  address: string | null;
-  connect: () => void;
+  address?: string;
+  connect?: () => void;
 }

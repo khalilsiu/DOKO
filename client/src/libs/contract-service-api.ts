@@ -5,15 +5,20 @@ const instance = axios.create({
   baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
 });
 
+export interface SortOption {
+  field: string;
+  order: string;
+}
 export interface IGetLeases {
-  lessor: string;
-  contractAddress?: string;
-  assetId?: string;
+  lessor?: string;
+  contractAddress: string;
+  isOpen?: boolean;
+  sort?: SortOption[];
 }
 
 export interface IGetLease {
-  contractAddress?: string;
-  assetId?: string;
+  contractAddress: string;
+  tokenId: string;
 }
 
 export default class ContractServiceAPI {
@@ -42,32 +47,23 @@ export default class ContractServiceAPI {
   }
 
   static async getLeases(payload: IGetLeases) {
-    const body = Object.keys(payload).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: {
-          operator: '=',
-          value: payload[key],
-        },
-      }),
-      {},
-    );
-    const res = await instance.post('lease/filter', body).then((res) => res.data);
+    const res = await instance.post('lease/filter', payload).then((res) => res.data);
     return res;
   }
 
   static async getLease(payload: IGetLease) {
-    const body = Object.keys(payload).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: {
-          operator: '=',
-          value: payload[key],
+    const { contractAddress, tokenId } = payload;
+    const body = {
+      contractAddress,
+      tokenIds: [tokenId],
+      sort: [
+        {
+          field: 'created_at',
+          order: 'desc',
         },
-      }),
-      {},
-    );
-    const res = await instance.post('lease/filter', body).then((res) => res.data[0]);
+      ],
+    };
+    const res = await instance.post('lease/filter', body).then((res) => res.data[0] || {});
     return res;
   }
 }
