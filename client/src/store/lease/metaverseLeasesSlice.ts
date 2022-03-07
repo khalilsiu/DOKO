@@ -112,9 +112,12 @@ export const acceptLeaseToBlockchain = createAsyncThunk<
         throw new Error(`${rentToken} not an accepted token.`);
       }
 
-      const options = rentToken === AcceptedTokens['ETH'] && {
-        value: ethers.utils.parseUnits(payment.toString(), token.decimals),
-      };
+      const options =
+        rentToken === AcceptedTokens['ETH']
+          ? {
+              value: ethers.utils.parseUnits(payment.toString(), token.decimals),
+            }
+          : null;
       // does not wait for txn to resolve
       await dclLandRentalContract.acceptLease(assetId, finalLeaseLength, options);
     } catch (e: any) {
