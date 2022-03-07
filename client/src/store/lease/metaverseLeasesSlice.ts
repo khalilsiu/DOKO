@@ -112,7 +112,7 @@ export const acceptLeaseToBlockchain = createAsyncThunk<
         throw new Error(`${rentToken} not an accepted token.`);
       }
 
-      const options = rentToken === 'ETH' && {
+      const options = rentToken === AcceptedTokens['ETH'] && {
         value: ethers.utils.parseUnits(payment.toString(), token.decimals),
       };
       // does not wait for txn to resolve
