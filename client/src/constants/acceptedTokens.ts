@@ -11,13 +11,10 @@ export const tokens = [
   },
   {
     symbol: 'USDT',
-    address:
-      process.env.NODE_ENV === 'development'
-        ? process.env.REACT_APP_USDT_ADDRESS || ''
-        : '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    address: process.env.REACT_APP_USDT_ADDRESS || '',
     label: '[USDT] Tether',
     icon: '/usdt.png',
-    decimals: process.env.NODE_ENV === 'development' ? 18 : 6,
+    decimals: parseInt(process.env.REACT_APP_USDT_DECIMALS || '18', 10),
     abi: Erc20Token.abi,
   },
   // {
