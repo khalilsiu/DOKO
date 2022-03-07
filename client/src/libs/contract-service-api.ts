@@ -53,7 +53,16 @@ export default class ContractServiceAPI {
 
   static async getLease(payload: IGetLease) {
     const { contractAddress, tokenId } = payload;
-    const body = { contractAddress, tokenIds: [tokenId] };
+    const body = {
+      contractAddress,
+      tokenIds: [tokenId],
+      sort: [
+        {
+          field: 'created_at',
+          order: 'desc',
+        },
+      ],
+    };
     const res = await instance.post('lease/filter', body).then((res) => res.data[0] || {});
     return res;
   }

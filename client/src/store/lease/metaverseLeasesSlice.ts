@@ -5,12 +5,9 @@ import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import metaverses from '../../constants/metaverses';
 import ContractServiceAPI from '../../libs/contract-service-api';
 import { ThunkError } from '../../types';
-import {
-  DokoRentalContract,
-  LeaseDetails,
-  LeasePayload,
-} from '../../types/contracts/dokoRentalDclLand';
+import { LeaseDetails, LeasePayload } from '../../types/contracts/dokoRentalDclLand';
 import { camelize } from '../../utils/utils';
+import { Asset } from '../summary';
 
 export interface Lease {
   rentAmount: number;
@@ -20,7 +17,7 @@ export interface Lease {
   minLeaseLength: number;
   maxLeaseLength: number;
   finalLeaseLength: number;
-  dateSigned: Date;
+  dateSigned: string;
   rentToken: AcceptedTokens;
   isOpen: boolean;
   isLeased: boolean;
@@ -39,14 +36,14 @@ interface IUpsertLease {
   leaseForm: LeaseForm;
   walletAddress: string;
   assetId: string;
-  dokoRentalDclLandContract: DokoRentalContract;
+  dclLandRentalContract: ethers.Contract;
   isUpdate: boolean;
 }
 
 interface IAcceptLease {
   assetId: string;
   finalLeaseLength: number;
-  dokoRentalDclLandContract: DokoRentalContract;
+  dclLandRentalContract: ethers.Contract;
   rentAmount: number;
   deposit: number;
   rentToken: AcceptedTokens;
@@ -59,7 +56,7 @@ export const upsertLeaseToBlockchain = createAsyncThunk<
 >(
   'MetaverseLeases/upsertLeaseToBlockchain',
   async (
-    { leaseForm, walletAddress, assetId, dokoRentalDclLandContract, isUpdate }: IUpsertLease,
+    { leaseForm, walletAddress, assetId, dclLandRentalContract, isUpdate }: IUpsertLease,
     { rejectWithValue },
   ) => {
     try {
@@ -83,7 +80,7 @@ export const upsertLeaseToBlockchain = createAsyncThunk<
         assetId,
       ];
       // does not wait for txn to resolve
-      await dokoRentalDclLandContract.createLease(lease, leaseDetails, isUpdate);
+      await dclLandRentalContract.createLease(lease, leaseDetails, isUpdate);
     } catch (e: any) {
       // pass custom error message to reducer
       const message = e.data && e.data.message ? e.data.message : e.message;
@@ -99,17 +96,15 @@ export const acceptLeaseToBlockchain = createAsyncThunk<
 >(
   'MetaverseLeases/acceptLeaseToBlockchain',
   async (
-    {
-      assetId,
-      finalLeaseLength,
-      dokoRentalDclLandContract,
-      rentAmount,
-      deposit,
-      rentToken,
-    }: IAcceptLease,
-    { rejectWithValue },
+    { assetId, finalLeaseLength, dclLandRentalContract }: IAcceptLease,
+    { rejectWithValue, getState },
   ) => {
     try {
+      const { asset } = getState() as { asset: Asset };
+      if (!asset.lease) {
+        throw new Error('Thunk error: Lease does not exist for asset');
+      }
+      const { rentAmount, deposit, rentToken } = asset.lease;
       const payment = rentAmount + deposit;
       const token = tokens.find((token) => token.symbol === AcceptedTokens[rentToken]);
       if (!token) {
@@ -117,9 +112,11 @@ export const acceptLeaseToBlockchain = createAsyncThunk<
       }
       const options = { value: ethers.utils.parseUnits(payment.toString(), token.decimals) };
       // does not wait for txn to resolve
-      await dokoRentalDclLandContract.acceptLease(assetId, finalLeaseLength, options);
-    } catch (e) {
-      return rejectWithValue({ error: (e as any).data.message } as ThunkError);
+      await dclLandRentalContract.acceptLease(assetId, finalLeaseLength, options);
+    } catch (e: any) {
+      console.log(e);
+      const message = (e.data && e.data.message) ?? e.toString();
+      return rejectWithValue({ error: message } as ThunkError);
     }
   },
 );

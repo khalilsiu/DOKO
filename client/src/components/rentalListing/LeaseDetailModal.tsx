@@ -15,7 +15,7 @@ import UIModal from '../modal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
@@ -143,17 +143,26 @@ export interface LeaseForm {
   maxLeaseLength: string;
   autoRegenerate: boolean;
 }
-const dokoRentalDclLandAddress = process.env.REACT_APP_DOKO_DCL_LAND_ADDRESS;
+const dclLandRentalAddress = process.env.REACT_APP_DCL_LAND_RENTAL_ADDRESS;
 
 const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const styles = useStyles();
   const history = useHistory();
-  const { dokoRentalDclLandContract, erc20Contract } = useContext(AuthContext);
+  const {
+    contracts: { USDT: usdtContract, dclLandRental: dclLandRentalContract },
+    connectContract,
+  } = useContext(AuthContext) as AuthContextType;
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const [finalLeaseLength, setFinalLeaseLength] = useState(0);
   const [isApproved, setIsApproved] = useState(false);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    connectContract('USDT');
+    connectContract('dclLandRental');
+  }, []);
+
   const assetDetails = useMemo(() => {
     const details = {
       tokenLabel: 'N.A.',
@@ -188,8 +197,8 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   };
 
   const purchaseLease = useCallback(async () => {
-    if (!dokoRentalDclLandContract) {
-      dispatch(openToast({ message: 'Doko contract instance error', state: 'error' }));
+    if (!dclLandRentalContract) {
+      dispatch(openToast({ message: 'Land rental contract initialization error', state: 'error' }));
       return;
     }
     if (asset.owner === walletAddress) {
@@ -208,7 +217,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
       acceptLeaseToBlockchain({
         assetId: asset.tokenId,
         finalLeaseLength,
-        dokoRentalDclLandContract,
+        dclLandRentalContract,
         rentAmount: asset.lease.rentAmount,
         rentToken: asset.lease.rentToken,
         deposit: asset.lease.deposit,
@@ -216,17 +225,19 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
     );
 
     history.push(`/rentals`);
-  }, [asset, dokoRentalDclLandContract, walletAddress, finalLeaseLength]);
+  }, [asset, dclLandRentalContract, walletAddress, finalLeaseLength]);
 
   const approveToken = useCallback(async () => {
     dispatch(startLoading());
-    if (!erc20Contract) {
-      dispatch(openToast({ message: 'Decentraland contract instance error', state: 'error' }));
+    if (!usdtContract) {
+      dispatch(
+        openToast({ message: 'Decentraland contract initialization error', state: 'error' }),
+      );
       return;
     }
     try {
-      const txn = await erc20Contract.approve(
-        dokoRentalDclLandAddress || '',
+      const txn = await usdtContract.approve(
+        dclLandRentalAddress || '',
         ethers.constants.MaxUint256,
       );
       const receipt = await txn.wait();
@@ -236,16 +247,16 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
       dispatch(openToast({ message: (e as Error).message, state: 'error' }));
     }
     dispatch(stopLoading());
-  }, [erc20Contract, dokoRentalDclLandAddress]);
+  }, [usdtContract, dclLandRentalAddress]);
 
   useEffect(() => {
     (async () => {
-      if (erc20Contract) {
+      if (usdtContract) {
         try {
           dispatch(startLoading());
-          const tokensApproved = await erc20Contract.allowance(
+          const tokensApproved = await usdtContract.allowance(
             walletAddress,
-            dokoRentalDclLandAddress || '',
+            dclLandRentalAddress || '',
           );
           // Returns number of token being approved, 0 is unapproved
           setIsApproved(tokensApproved.gt(0));
@@ -255,7 +266,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
         dispatch(stopLoading());
       }
     })();
-  }, [erc20Contract]);
+  }, [usdtContract]);
 
   return (
     <UIModal
@@ -319,6 +330,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
                 </Typography>
                 <StyledSelect
                   value={finalLeaseLength}
+                  defaultValue=""
                   variant="outlined"
                   onChange={handleSelectChange}
                   fullWidth

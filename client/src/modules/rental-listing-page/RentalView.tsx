@@ -134,9 +134,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   leaseCardSection: {
     height: '100%',
     overflowY: 'scroll',
-    [theme.breakpoints.down('md')]: {
+    display: 'flex',
+    flexDirection: 'column',
+    [theme.breakpoints.down('sm')]: {
       display: 'flex',
       width: '100%',
+      flexDirection: 'row',
       overflowX: 'scroll',
     },
   },
@@ -230,12 +233,7 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
           Results showing: {flatAssets.length} listings
         </Typography>
         <Grid container spacing={2} direction={mdOrAbove ? 'row' : 'column-reverse'}>
-          <Grid
-            item
-            md={4}
-            direction={mdOrAbove ? 'column' : 'row'}
-            className={styles.leaseCardSection}
-          >
+          <Grid item md={4} className={styles.leaseCardSection}>
             {flatAssets.map((asset, assetIndex) => (
               <div>
                 <LeaseCard

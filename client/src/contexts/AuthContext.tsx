@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useMetaMask } from 'metamask-react';
 import Button from '@material-ui/core/Button';
@@ -11,12 +11,11 @@ import useTheme from '@material-ui/core/styles/useTheme';
 import { ethers, Contract } from 'ethers';
 import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
-import DokoRentalDclLand from '../contracts/DokoRentalDclLand.json';
-import DecentralandAbi from '../contracts/Decentraland.json';
-import Erc20Token from '../contracts/Erc20Token.json';
 import { useDispatch } from 'react-redux';
 import { openToast } from '../store/app';
-import { DokoRentalContract } from '../types/contracts/dokoRentalDclLand';
+import { rentalContracts } from '../constants/contracts';
+import { tokens } from '../constants/acceptedTokens';
+import metaverses from '../constants/metaverses';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -87,23 +86,19 @@ const useStyles = makeStyles((theme) => ({
 
 declare let window: any;
 
-type ConnectedContract = 'dokoRentalDclLand' | 'dclLand' | 'erc20';
-interface AuthContextValue {
-  address?: string;
+type ContractNames = 'dclLandRental' | 'dclLand' | 'USDT';
+
+type Contracts = { [key in ContractNames]: ethers.Contract | null };
+export interface AuthContextType {
+  address: string;
   loading: boolean;
-  walletName?: WalletName;
-  connect?: () => void;
-  dclLandContract: ethers.Contract | null;
-  dokoRentalDclLandContract: DokoRentalContract | null;
-  erc20Contract: ethers.Contract | null;
+  walletName: WalletName | null;
+  connect: () => void;
+  connectContract: (symbol: ContractNames) => void;
+  contracts: Contracts;
 }
 
-export const AuthContext = createContext<AuthContextValue>({
-  loading: false,
-  dclLandContract: null,
-  dokoRentalDclLandContract: null,
-  erc20Contract: null,
-});
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) => {
   let wallets: Wallet[] = [
@@ -137,48 +132,41 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
 
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState('');
-  const [walletName, setWalletName] = useState<WalletName>();
+  const [walletName, setWalletName] = useState<WalletName | null>(null);
   const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | null>(null);
 
-  const [dclLandContract, setDclLandContract] = useState<ethers.Contract | null>(null);
-  const [dokoRentalDclLandContract, setDokoRentalDclLandContract] =
-    useState<ethers.Contract | null>(null);
-  const [erc20Contract, setErc20Contract] = useState<ethers.Contract | null>(null);
+  const [contracts, setContracts] = useState<Contracts>({
+    dclLandRental: null,
+    dclLand: null,
+    USDT: null,
+  });
 
-  const dokoRentalDclLandAddress = process.env.REACT_APP_DOKO_DCL_LAND_ADDRESS;
-  const dclLandAddress = process.env.REACT_APP_DCL_LAND_ADDRESS;
-  const erc20Address = process.env.REACT_APP_USDT_ADDRESS;
-
-  const contracts = useMemo(
-    () => ({
-      dokoRentalDclLand: {
-        address: dokoRentalDclLandAddress,
-        abi: DokoRentalDclLand.abi,
-        contract: dokoRentalDclLandContract,
-        setContract: setDokoRentalDclLandContract,
-      },
-      dclLand: {
-        address: dclLandAddress,
-        abi: DecentralandAbi,
-        contract: dclLandContract,
-        setContract: setDclLandContract,
-      },
-      erc20: {
-        address: erc20Address,
-        abi: Erc20Token.abi,
-        contract: erc20Contract,
-        setContract: setErc20Contract,
-      },
-    }),
-    [dokoRentalDclLandContract, dclLandContract, erc20Contract],
-  );
-
-  const connectContract = async (contractName: ConnectedContract) => {
-    const { address, abi, setContract } = contracts[contractName];
+  useEffect(() => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    setContract(new Contract(address || '', abi, signer));
+    setSigner(signer);
+  }, []);
+
+  const connectContract = (symbol: ContractNames) => {
+    const metaverseContracts = metaverses.map((metaverse) => metaverse.contracts).flat();
+    const contract = [...tokens, ...rentalContracts, ...metaverseContracts].find(
+      (contract) => contract.symbol === symbol,
+    );
+    if (!contract) {
+      dispatch(openToast({ message: `${contract} not found`, state: 'error' }));
+      return;
+    }
+    if (!signer) {
+      dispatch(openToast({ message: `Signer is not initialized`, state: 'error' }));
+      return;
+    }
+
+    setContracts((state) => ({
+      ...state,
+      [symbol]: new Contract(contract.address || '', contract.abi, signer),
+    }));
   };
 
   const connectMetaMask = async () => {
@@ -237,12 +225,6 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
     setAddress(account || solAccount || '');
   }, [account, solAccount, history]);
 
-  useEffect(() => {
-    connectContract('dclLand');
-    connectContract('dokoRentalDclLand');
-    connectContract('erc20');
-  }, []);
-
   return (
     <AuthContext.Provider
       value={{
@@ -250,9 +232,8 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
         walletName,
         loading,
         connect: () => setShowWalletModal(true),
-        dclLandContract,
-        dokoRentalDclLandContract: dokoRentalDclLandContract as DokoRentalContract,
-        erc20Contract,
+        connectContract,
+        contracts,
       }}
     >
       <>

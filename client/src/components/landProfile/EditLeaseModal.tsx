@@ -17,10 +17,10 @@ import { RadiusInput } from '..';
 import UIModal from '../modal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import Joi from 'joi';
-import { AuthContext } from '../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { upsertLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
@@ -30,6 +30,7 @@ import { parseError } from '../../utils/joiErrors';
 import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
 import { EditLeaseSchema } from './schema';
+import { getLeaseState } from './OwnershipView';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -131,17 +132,26 @@ interface TransformedLeaseForm {
   autoRegenerate: boolean;
 }
 
-const dokoRentalDclLandAddress = process.env.REACT_APP_DOKO_DCL_LAND_ADDRESS;
+const dclLandRentalAddress = process.env.REACT_APP_DCL_LAND_RENTAL_ADDRESS;
 
 const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const styles = useStyles();
   const history = useHistory();
-  const { dclLandContract, dokoRentalDclLandContract } = useContext(AuthContext);
+  const {
+    contracts: { dclLandRental: dclLandRentalContract, dclLand: dclLandContract },
+    connectContract,
+  } = useContext(AuthContext) as AuthContextType;
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const theme = useTheme();
   const dispatch = useDispatch();
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const [isApproved, setIsApproved] = useState(false);
+
+  useEffect(() => {
+    connectContract('dclLandRental');
+    connectContract('dclLand');
+  }, []);
+
   const initialState = {
     rentToken: AcceptedTokens['ETH'],
     rentAmount: '',
@@ -154,27 +164,25 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
 
   const [leaseForm, setLeaseForm] = useState<LeaseForm>(initialState);
 
-  const isFieldDisabled =
-    isTransacting ||
-    isLoading ||
-    (asset.lease && (asset.lease.isLeased || !asset.lease.isOpen)) ||
-    walletAddress !== asset.owner;
+  const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
-  const renderButtonText = () => {
-    if (asset.lease && asset.lease.isLeased) {
-      return 'Leased';
-    }
-    if (asset.lease && !asset.lease.isOpen) {
-      return 'Not Open';
-    }
+  const isFieldDisabled =
+    isTransacting || isLoading || leaseState === 'leased' || walletAddress !== asset.owner;
+
+  const renderButtonText = useCallback(() => {
     if (!isApproved) {
       return 'Approve';
     }
-    if (!asset.lease) {
+    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
       return 'Create';
     }
-    return 'Update';
-  };
+    if (leaseState === 'open') {
+      return 'Update';
+    }
+    if (leaseState === 'leased') {
+      return 'Leased';
+    }
+  }, [leaseState, isApproved]);
 
   const convertLeaseFrom = (leaseForm: LeaseForm): TransformedLeaseForm => {
     const { rentAmount, deposit, gracePeriod, minLeaseLength, maxLeaseLength } = leaseForm;
@@ -199,7 +207,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   });
 
   useEffect(() => {
-    if (asset && asset.lease) {
+    if (asset && asset.lease && leaseState !== 'completed') {
       setLeaseForm({
         rentToken: asset.lease?.rentToken,
         rentAmount: (asset.lease?.rentAmount).toString(),
@@ -210,7 +218,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
         autoRegenerate: asset.lease?.autoRegenerate,
       });
     }
-  }, [asset, asset.lease]);
+  }, [asset, asset.lease, leaseState]);
 
   useEffect(() => {
     (async () => {
@@ -219,7 +227,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
           dispatch(startLoading());
           const isApproved = await dclLandContract.isApprovedForAll(
             walletAddress,
-            dokoRentalDclLandAddress || '',
+            dclLandRentalAddress || '',
           );
           setIsApproved(isApproved);
         } catch (e) {
@@ -228,23 +236,26 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
         dispatch(stopLoading());
       }
     })();
-  }, [dclLandContract, walletAddress, dokoRentalDclLandAddress]);
+  }, [dclLandContract, walletAddress, dclLandRentalAddress]);
 
+  // can be moved into hooks
   const approveLease = useCallback(async () => {
     dispatch(startLoading());
     if (!dclLandContract) {
-      dispatch(openToast({ message: 'Decentraland contract instance error', state: 'error' }));
+      dispatch(
+        openToast({ message: 'Decentraland contract initialization error', state: 'error' }),
+      );
       return;
     }
     try {
-      const txn = await dclLandContract.setApprovalForAll(dokoRentalDclLandAddress || '', true);
+      const txn = await dclLandContract.setApprovalForAll(dclLandRentalAddress || '', true);
       const receipt = await txn.wait();
       setIsApproved(!!receipt);
     } catch (e) {
       dispatch(openToast({ message: (e as Error).message, state: 'error' }));
     }
     dispatch(stopLoading());
-  }, [dclLandContract, dokoRentalDclLandAddress]);
+  }, [dclLandContract, dclLandRentalAddress]);
 
   const upsertLease = useCallback(async () => {
     const result = Joi.object(EditLeaseSchema).validate(convertLeaseFrom(leaseForm), {
@@ -257,8 +268,8 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       return;
     }
 
-    if (!dokoRentalDclLandContract) {
-      dispatch(openToast({ message: 'Doko contract instance error', state: 'error' }));
+    if (!dclLandRentalContract) {
+      dispatch(openToast({ message: 'Land rental contract initialization error', state: 'error' }));
       return;
     }
 
@@ -272,13 +283,13 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
         leaseForm,
         walletAddress,
         assetId: asset.tokenId,
-        dokoRentalDclLandContract,
+        dclLandRentalContract,
         isUpdate: !!asset.lease,
       }),
     );
 
     history.push(`/address/${asset.owner}`);
-  }, [leaseForm, walletAddress, asset, dokoRentalDclLandContract, errors]);
+  }, [leaseForm, walletAddress, asset, dclLandRentalContract, errors]);
 
   const handleChange = useCallback(
     (e) => {

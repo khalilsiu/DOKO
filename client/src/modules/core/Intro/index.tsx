@@ -5,7 +5,7 @@ import IconButton from '@material-ui/core/IconButton';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import { useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { AuthContext } from '../../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../../contexts/AuthContext';
 import { DrawerContext } from '../../../contexts/DrawerContext';
 
 const socialLinks = [
@@ -28,7 +28,7 @@ interface Props {
 }
 
 const Intro = ({ drawer = false }: Props) => {
-  const { connect, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext) as AuthContextType;
   const { toggle } = useContext(DrawerContext);
 
   const styles = useStyles();

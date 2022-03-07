@@ -1,3 +1,5 @@
+import Erc20Token from '../contracts/Erc20Token.json';
+
 export const tokens = [
   {
     symbol: 'ETH',
@@ -5,6 +7,18 @@ export const tokens = [
     label: '[ETH] Ethereum',
     icon: '/ethereum.png',
     decimals: 18,
+    abi: [],
+  },
+  {
+    symbol: 'USDT',
+    address:
+      process.env.NODE_ENV === 'development'
+        ? process.env.REACT_APP_USDT_ADDRESS || ''
+        : '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    label: '[USDT] Tether',
+    icon: '/usdt.png',
+    decimals: process.env.NODE_ENV === 'development' ? 18 : 6,
+    abi: Erc20Token.abi,
   },
   // {
   //   symbol: 'WETH',
@@ -26,16 +40,6 @@ export const tokens = [
   //   icon: '/usdc.png',
   //   decimals: 6,
   // },
-  {
-    symbol: 'USDT',
-    address:
-      process.env.NODE_ENV === 'development'
-        ? process.env.REACT_APP_USDT_ADDRESS || ''
-        : '0xdac17f958d2ee523a2206206994597c13d831ec7',
-    label: '[USDT] Tether',
-    icon: '/usdt.png',
-    decimals: process.env.NODE_ENV === 'development' ? 18 : 6,
-  },
   // {
   //   symbol: 'MANA',
   //   address: '0x0f5d2fb29fb7d3cfee444a200298f468908cc942',
@@ -47,9 +51,9 @@ export const tokens = [
 
 export enum AcceptedTokens {
   ETH = 'ETH',
-  WETH = 'WETH',
-  DAI = 'DAI',
-  USDC = 'USDC',
   USDT = 'USDT',
-  MANA = 'MANA',
+  // WETH = 'WETH',
+  // DAI = 'DAI',
+  // USDC = 'USDC',
+  // MANA = 'MANA',
 }

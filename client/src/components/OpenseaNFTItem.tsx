@@ -1,4 +1,4 @@
-import { useState, MouseEvent, SyntheticEvent, memo } from 'react';
+import { useState, MouseEvent, SyntheticEvent, memo, useCallback, useMemo } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -24,6 +24,7 @@ import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 import { useMetaMask } from 'metamask-react';
 import { Asset } from '../store/summary';
+import { getLeaseState } from './landProfile/OwnershipView';
 
 interface NFTItemProps {
   nft: Asset;
@@ -90,18 +91,21 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
     setAnchorEl(null);
   };
 
-  const renderButtonText = () => {
-    if (nft.lease && nft.lease.isLeased) {
-      return 'Leased';
-    }
-    if (nft.lease && !nft.lease.isOpen) {
-      return 'Lease Open';
-    }
-    if (!nft.lease) {
+  const leaseState = useMemo(() => getLeaseState(nft), [nft]);
+
+  const renderButtonText = useCallback(() => {
+    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
       return 'Create Lease';
     }
-    return 'Update Lease';
-  };
+    if (leaseState === 'open') {
+      return 'Update Lease';
+    }
+    if (leaseState === 'leased') {
+      return 'Leased';
+    }
+    return 'Error';
+  }, [leaseState]);
+
   return (
     <>
       <div className={styles.wrapper} onClick={() => onClickCard()}>

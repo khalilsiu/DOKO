@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'row',
     height: '150px',
     marginBottom: '0.6rem',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       marginRight: '0.5rem',
       height: '230px',
       flexDirection: 'column',
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: '30%',
     backgroundPosition: 'center',
     backgroundSize: '200%',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       height: '50%',
       width: '100%',
     },
@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
     width: '70%',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       width: '100%',
       padding: '0.6rem',
       '&:last-child': {
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   deposit: {
     display: 'flex',
     alignItems: 'center',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       marginBottom: '0.5rem',
     },
   },
@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   button: {
     height: '30px',
     width: '100px',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       width: '80px',
       padding: '0.5rem',
     },

@@ -18,7 +18,7 @@ export type LeaseDetails = [
 
 export type LeasePayload = [string, string, string];
 
-export interface DokoRentalContract extends ethers.Contract {
+export interface DclLandRentalContract extends ethers.Contract {
   acceptLease: (
     assetId: string,
     finalLeaseLength: number,
