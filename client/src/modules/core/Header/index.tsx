@@ -5,7 +5,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import withStyles from '@material-ui/core/styles/withStyles';
-import { AuthContext } from '../../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../../contexts/AuthContext';
 import { LargeScreen } from './LargeScreen';
 import { SmallScreen } from './SmallScreen';
 
@@ -55,7 +55,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export const Header = () => {
-  const { connect, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext) as AuthContextType;
   const styles = useStyles();
   const [search, setSearch] = useState('');
 

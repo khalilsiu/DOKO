@@ -23,11 +23,11 @@ import RenderMaps from '../maps/RenderMaps';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
 import { useMetaMask } from 'metamask-react';
-import { useHistory, useParams } from 'react-router-dom';
-import LeaseModal from './LeaseModal';
-import { getAsset } from '../../store/asset/assetSlice';
-import { useDispatch } from 'react-redux';
-import { WSContext } from '../../contexts/WSContext';
+import EditLeaseModal from './EditLeaseModal';
+import { getAssetFromOpensea } from '../../store/asset/assetSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -118,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CustomTabs = withStyles({
+export const CustomTabs = withStyles({
   root: {
     width: '100%',
   },
@@ -127,7 +127,7 @@ const CustomTabs = withStyles({
   },
 })(Tabs);
 
-const CustomTab = withStyles({
+export const CustomTab = withStyles({
   wrapper: {
     textTransform: 'none',
   },
@@ -144,17 +144,43 @@ interface IOwnershipView {
   metaverseSummaries: AggregatedSummary[];
 }
 
+export const isLeaseCompleted = (asset: Asset) => {
+  if (!asset.lease) {
+    return null;
+  }
+  const dateSigned = new Date(asset.lease.dateSigned);
+
+  dateSigned.setMonth(dateSigned.getMonth() + asset.lease.finalLeaseLength);
+
+  return Date.now() > dateSigned.getTime();
+};
+
+export const getLeaseState = (asset: Asset) => {
+  if (!asset.lease) {
+    return 'toBeCreated';
+  }
+
+  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && isLeaseCompleted(asset)) {
+    return 'completed';
+  }
+
+  if (asset.lease && asset.lease.isOpen && !asset.lease.isLeased) {
+    return 'open';
+  }
+
+  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased) {
+    return 'leased';
+  }
+
+  return 'unknown';
+};
+
 const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
-  const {
-    address: urlAddress,
-    contractAddress: urlContractAddress,
-    tokenId: urlTokenId,
-  } = useParams<{ address: string; contractAddress: string; tokenId: string }>();
-  const { socket } = useContext(WSContext);
+  const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
+    useParams<{ address: string; contractAddress: string; tokenId: string }>();
   const { account: walletAddress } = useMetaMask();
-  const history = useHistory();
-
+  const asset = useSelector((state: RootState) => state.asset);
   const [tabValue, setTabValue] = useState(0);
   const styles = useStyles();
   const dispatch = useDispatch();
@@ -177,15 +203,9 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
 
   useEffect(() => {
     if (urlContractAddress && urlTokenId) {
-      dispatch(getAsset({ contractAddress: urlContractAddress, assetId: urlTokenId }));
+      dispatch(getAssetFromOpensea({ contractAddress: urlContractAddress, tokenId: urlTokenId }));
     }
   }, [urlContractAddress, urlTokenId]);
-
-  useEffect(() => {
-    if (socket && urlAddress) {
-      socket.emit('join', urlAddress);
-    }
-  }, [urlAddress]);
 
   const [selectedAssetForLease, setSelectedAssetForLease] = useState<Asset | null>(null);
   interface IRenderAssets {
@@ -390,11 +410,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
         })}
       </TabPanel>
       {urlContractAddress && urlTokenId && walletAddress && (
-        <LeaseModal
-          setSelectedAssetForLease={() => history.push(`/address/${urlAddress}`)}
-          walletAddress={walletAddress}
-          addressConcerned={urlAddress}
-        />
+        <EditLeaseModal walletAddress={walletAddress} asset={asset} />
       )}
     </>
   );

@@ -9,6 +9,13 @@ export const parseError = (error: Joi.ValidationError) => {
     case 'number.base': {
       return 'Please enter a number.';
     }
+    case 'number.precision': {
+      if (!error.details[0].context) {
+        return;
+      }
+      const limit = error.details[0].context.limit;
+      return `Please enter a number with decimal places fewer than ${limit}.`;
+    }
     case 'number.min': {
       if (!error.details[0].context) {
         return;

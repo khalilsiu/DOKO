@@ -45,7 +45,12 @@ const useRenderMaps = ({ bounds, items, selected, center }: IProps) => {
   useEffect(() => {
     if (!map) return;
     map.closePopup();
-    if (markerRefs && selected !== null && markerRefs.current[selected].ref) {
+    if (
+      markerRefs &&
+      selected !== null &&
+      markerRefs.current[selected] &&
+      markerRefs.current[selected].ref
+    ) {
       const coords = markerRefs.current[selected].position;
       const popup = markerRefs.current[selected].ref?.getPopup();
       if (!popup) return;

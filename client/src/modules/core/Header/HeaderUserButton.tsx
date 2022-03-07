@@ -6,9 +6,9 @@ import { useState } from 'react';
 import { minimizeAddress } from '../../../libs/utils';
 
 interface Props {
-  address: string | null;
+  address?: string;
   loading: boolean;
-  connect: () => void;
+  connect?: () => void;
 }
 
 const useStyles = makeStyles(() => ({
@@ -48,7 +48,7 @@ export const HeaderUserButton = ({ address, loading, connect }: Props) => {
       className="gradient-button"
       disabled={loading}
       variant="outlined"
-      onClick={() => connect()}
+      onClick={() => connect && connect()}
     >
       Connect Wallet
     </Button>

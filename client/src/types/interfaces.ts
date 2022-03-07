@@ -11,3 +11,7 @@ export interface Wallet {
 }
 
 export type Pair<T, K> = [T, K];
+
+export interface ThunkError {
+  error: string;
+}

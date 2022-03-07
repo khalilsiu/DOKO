@@ -1,4 +1,4 @@
-import { useState, MouseEvent, SyntheticEvent, memo } from 'react';
+import { useState, MouseEvent, SyntheticEvent, memo, useCallback, useMemo } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -24,9 +24,10 @@ import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 import { useMetaMask } from 'metamask-react';
 import { Asset } from '../store/summary';
+import { getLeaseState } from './landProfile/OwnershipView';
 
 interface NFTItemProps {
-  nft: Asset & { floorPrice: number };
+  nft: Asset;
   onClick?: () => void;
   setSelectedAssetForLease?: (asset: Asset | null) => void;
   selectedAssetForLease?: Asset | null;
@@ -90,6 +91,21 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
     setAnchorEl(null);
   };
 
+  const leaseState = useMemo(() => getLeaseState(nft), [nft]);
+
+  const renderButtonText = useCallback(() => {
+    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
+      return 'Create Lease';
+    }
+    if (leaseState === 'open') {
+      return 'Update Lease';
+    }
+    if (leaseState === 'leased') {
+      return 'Leased';
+    }
+    return 'Error';
+  }, [leaseState]);
+
   return (
     <>
       <div className={styles.wrapper} onClick={() => onClickCard()}>
@@ -144,7 +160,7 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
                 <img className={styles.networkIcon} src={eth} alt="ETH" />
 
                 <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
-                  {nft.floorPrice.toFixed(2) || 'N.A.'}
+                  {nft.floorPrice ? nft.floorPrice.toFixed(2) : 'N.A.'}
                 </Typography>
               </Grid>
               <div style={{ display: 'flex' }}>
@@ -158,7 +174,7 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
                       onClick={(e) => handleLeaseBtnClick(e)}
                     >
                       <Typography className={styles.leaseBtn} variant="caption">
-                        {nft.lease ? 'Update Lease' : 'Create Lease'}
+                        {renderButtonText()}
                       </Typography>
                     </LeaseButton>
                   </div>

@@ -254,11 +254,11 @@ export const NftIndividual = () => {
         // just for a quick fix...
         const metaverse = metaverses.find((metaverse) => _nft.collection.slug === metaverse.slug);
         if (metaverse) {
-          const lookupTraits = _traits.filter((trait) =>
-            metaverse.primaryTraitTypes.includes(trait.trait_type),
+          const lookupTraits: Filter[] = _traits.filter((trait) =>
+            (metaverse.primaryTraitTypes as string[]).includes(trait.trait_type as string),
           );
           traitFilter = lookupTraits.map((trait) => ({
-            traitType: trait.trait_type,
+            traitType: trait.traitType,
             value: trait.value,
             operator: '=',
           }));

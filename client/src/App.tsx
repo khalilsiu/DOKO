@@ -30,6 +30,11 @@ const ProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/pro
 const MetaNftCollections = lazy(
   () => import(/* webpackPrefetch: true */ './modules/meta-nft-collections'),
 );
+
+const RentalListingPage = lazy(
+  () => import(/* webpackPrefetch: true */ './modules/rental-listing-page'),
+);
+
 const MetaNftIndividual = lazy(
   () => import(/* webpackPrefetch: true */ './modules/meta-nft-individual'),
 );
@@ -140,6 +145,16 @@ function App() {
                   <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
                     <RouteContainer>
                       <MetaNftCollections />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/rentals" exact>
+                    <RouteContainer>
+                      <RentalListingPage />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/rentals/:contractAddress/:tokenId/lease" exact>
+                    <RouteContainer>
+                      <RentalListingPage />
                     </RouteContainer>
                   </Route>
                   <Route path="/nft/:chain/:address/:id" exact>

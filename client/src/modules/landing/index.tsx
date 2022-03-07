@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 
 import Meta from '../../components/Meta';
-import { AuthContext } from '../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 
 export const Landing = () => {
   const images = [
@@ -20,7 +20,7 @@ export const Landing = () => {
   ];
 
   const styles = useStyles();
-  const { connect, loading, address } = useContext(AuthContext);
+  const { connect, loading, address } = useContext(AuthContext) as AuthContextType;
   const history = useHistory();
 
   return (
@@ -42,7 +42,7 @@ export const Landing = () => {
           className="gradient-button"
           variant="outlined"
           disabled={loading}
-          onClick={() => (address ? history.push(`/address/${address}`) : connect())}
+          onClick={() => (address ? history.push(`/address/${address}`) : connect && connect())}
         >
           {address ? 'Your Profile' : 'Connect Wallet'}
         </Button>

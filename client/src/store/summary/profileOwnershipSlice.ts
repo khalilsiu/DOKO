@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinates } from '../../utils/utils';
-import { Lease } from '../lease/leasesSlice';
+import { Lease } from '../lease/metaverseLeasesSlice';
 
 export interface Trait {
   traitType: string;
@@ -11,11 +11,12 @@ export interface Trait {
 }
 
 export interface Asset {
-  floorPrice: number;
+  floorPrice?: number;
   id: string;
   tokenId: string;
   imageUrl: string;
   imageOriginalUrl: string;
+  description?: string;
   coordinates: L.LatLngExpression;
   imagePreviewUrl: string;
   imageThumbnailUrl: string;
@@ -25,6 +26,7 @@ export interface Asset {
   };
   lease?: Lease;
   traits: Trait[];
+  owner: string;
 }
 
 export interface AddressOwnership {
@@ -48,12 +50,13 @@ export const preprocess = (asset: any): Asset => {
     'name',
     'asset_contract',
     'traits',
+    'owner',
   ]);
   picked.asset_contract = pick(picked.asset_contract, ['address']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
+  picked.owner = pick(picked.owner, ['address']).address;
 
   const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
-
   return camelize({ ...picked, coordinates });
 };
 
