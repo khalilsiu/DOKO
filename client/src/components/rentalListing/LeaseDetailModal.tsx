@@ -201,7 +201,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
       dispatch(openToast({ message: 'Land rental contract initialization error', state: 'error' }));
       return;
     }
-    if (asset.owner === walletAddress) {
+    if (asset.ownerAddress === walletAddress) {
       dispatch(
         openToast({ message: 'Land owner cannot purchase lease of owned asset', state: 'error' }),
       );
@@ -391,7 +391,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
             variant="contained"
             style={{ marginRight: '0.5rem', minWidth: '150px' }}
             onClick={requireApproval && !isApproved ? approveToken : purchaseLease}
-            disabled={isTransacting || isLoading || asset.owner === walletAddress}
+            disabled={isTransacting || isLoading || asset.ownerAddress === walletAddress}
           >
             {requireApproval && !isApproved ? 'Approve' : 'Accept Lease'}
           </Button>

@@ -38,7 +38,6 @@ export interface Asset {
   lastPurchasePriceUsd: number | null;
   floorPriceUsd: number | null;
   floorPriceEth: number | null;
-  owner: string;
 }
 
 export interface AddressOwnership {
@@ -90,7 +89,6 @@ export const preprocess = (asset: any): Asset => {
   ]);
   picked.asset_contract = pick(picked.asset_contract, ['address', 'schema_name']);
   picked.traits = picked.traits.map((trait) => pick(trait, ['trait_type', 'value']));
-  picked.owner = pick(picked.owner, ['address']).address;
 
   const slug = picked.collection?.slug;
   const metaverseName = getMetaverseName(picked.collection.slug);

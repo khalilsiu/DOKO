@@ -33,7 +33,6 @@ const initialState: Asset = {
   lastPurchasePriceUsd: null,
   floorPriceUsd: null,
   floorPriceEth: null,
-  owner: '',
 };
 
 interface IGetAsset {
