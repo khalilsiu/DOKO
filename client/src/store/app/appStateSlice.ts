@@ -1,5 +1,6 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
 import { getAssetFromOpensea } from '../asset/assetSlice';
 import { acceptLeaseToBlockchain, upsertLeaseToBlockchain } from '../lease/metaverseLeasesSlice';
 import { fetchProfileOwnership } from '../summary';
@@ -106,6 +107,10 @@ const appStateSlice = createSlice({
       .addCase(fetchProfileOwnership.pending, (state) => {
         state.isLoading = true;
       })
+      .addCase(getAssetFromOpensea.pending, (state) => {
+        state.isLoading = true;
+      })
+      // fulfilled
       .addCase(fetchProfileOwnership.fulfilled, (state) => {
         state.isLoading = false;
       })
@@ -117,15 +122,19 @@ const appStateSlice = createSlice({
           message: action.error.message,
         };
       })
-
-      .addCase(getAssetFromOpensea.pending, (state) => {
-        state.isLoading = true;
-      })
       .addCase(getAssetFromOpensea.fulfilled, (state) => {
         state.isLoading = false;
       })
+      // rejected
       .addCase(getAssetFromOpensea.rejected, (state, action) => {
         state.isLoading = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.error.message,
+        };
+      })
+      .addCase(fetchParcelTransactionHistory.rejected, (state, action) => {
         state.toast = {
           show: true,
           state: 'error',

@@ -1,8 +1,10 @@
 import { useState, memo, SyntheticEvent, MouseEvent } from 'react';
-import { IconButton, MenuItem, makeStyles, withStyles, Menu } from '@material-ui/core';
+import { IconButton, MenuItem, makeStyles, withStyles, Menu, Hidden } from '@material-ui/core';
 
 import facebook from '../assets/facebook.png';
 import twitter from '../assets/twitter.png';
+import { MoreVert as MoreVertIcon } from '@material-ui/icons';
+import { Refresh as RefreshIcon } from '@material-ui/icons';
 
 const CustomIconButton = withStyles({
   root: {
@@ -15,8 +17,8 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
   },
   shareIcon: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
   },
   shareItem: {
     '&:hover': {
@@ -32,6 +34,13 @@ const useStyles = makeStyles((theme) => ({
     color: '#b3b3b3',
     textAlign: 'center',
   },
+  moreButton: {
+    backgroundColor: 'white !important',
+    color: 'black',
+  },
+  refreshIcon: {
+    marginRight: theme.spacing(2),
+  },
 }));
 
 interface Props {
@@ -39,9 +48,10 @@ interface Props {
   chain: string;
   address: string;
   tokenId: string;
+  onRefresh?: () => void;
 }
 
-export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
+export const PopoverShare = memo(({ name, chain, address, tokenId, onRefresh }: Props) => {
   const styles = useStyles();
 
   const share = (e: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
@@ -76,10 +86,24 @@ export const PopoverShare = memo(({ name, chain, address, tokenId }: Props) => {
 
   return (
     <>
-      <CustomIconButton onClick={handleClick}>
-        <img width={36} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
-      </CustomIconButton>
+      <Hidden xsDown>
+        <CustomIconButton onClick={handleClick}>
+          <img width={32} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
+        </CustomIconButton>
+      </Hidden>
+      <Hidden smUp>
+        <IconButton size="small" className={styles.moreButton} onClick={handleClick}>
+          <MoreVertIcon />
+        </IconButton>
+      </Hidden>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+        <Hidden smUp>
+          <MenuItem className={styles.shareItem} onClick={onRefresh}>
+            <RefreshIcon className={styles.refreshIcon} />
+            Refresh
+          </MenuItem>
+        </Hidden>
+
         <MenuItem className={styles.shareItem} onClick={(e) => share(e, 'facebook')}>
           <img src={facebook} alt="facebook" />
           Share on Facebook

@@ -24,9 +24,8 @@ import { Asset } from '../../store/summary/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
 import { useMetaMask } from 'metamask-react';
 import EditLeaseModal from './EditLeaseModal';
-import { getAssetFromOpensea } from '../../store/asset/assetSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
+import { getAssetFromOpensea, useAssetSliceSelector } from '../../store/asset/assetSlice';
+import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
@@ -180,7 +179,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
     useParams<{ address: string; contractAddress: string; tokenId: string }>();
   const { account: walletAddress } = useMetaMask();
-  const asset = useSelector((state: RootState) => state.asset);
+  const asset = useAssetSliceSelector((state) => state);
   const [tabValue, setTabValue] = useState(0);
   const styles = useStyles();
   const dispatch = useDispatch();

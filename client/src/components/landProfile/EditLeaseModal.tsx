@@ -29,8 +29,8 @@ import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { parseError } from '../../utils/joiErrors';
 import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
-import { EditLeaseSchema } from './schema';
 import { getLeaseState } from './OwnershipView';
+import { EditLeaseSchema } from './schema';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -167,7 +167,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
   const isFieldDisabled =
-    isTransacting || isLoading || leaseState === 'leased' || walletAddress !== asset.owner;
+    isTransacting || isLoading || leaseState === 'leased' || walletAddress !== asset.ownerAddress;
 
   const renderButtonText = useCallback(() => {
     if (!isApproved) {
@@ -273,7 +273,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       return;
     }
 
-    if (walletAddress !== asset.owner) {
+    if (walletAddress !== asset.ownerAddress) {
       dispatch(openToast({ message: 'Only land owner can create lease', state: 'error' }));
       return;
     }
@@ -288,7 +288,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       }),
     );
 
-    history.push(`/address/${asset.owner}`);
+    history.push(`/address/${asset.ownerAddress}`);
   }, [leaseForm, walletAddress, asset, dclLandRentalContract, errors]);
 
   const handleChange = useCallback(
@@ -347,7 +347,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
           </Typography>
           <IconButton
             style={{ color: 'white' }}
-            onClick={() => history.push(`/address/${asset.owner}`)}
+            onClick={() => history.push(`/address/${asset.ownerAddress}`)}
           >
             <CloseIcon fontSize="medium" />
           </IconButton>

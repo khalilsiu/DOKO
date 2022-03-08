@@ -5,17 +5,19 @@ import { metaverseAssets } from './asset/metaverseAssetsFromServerSlice';
 import { dclStats } from './stats/dclStatsSlice';
 import { metaverseLeases } from './lease/metaverseLeasesSlice';
 import { addressOwnership, collectionSummary, profileOwnership } from './summary';
+import { parcelTransactionHistory } from './asset/parcelTransactionHistorySlice';
 
 const store = configureStore({
   reducer: {
+    asset,
+    appState,
     addressOwnership,
     profileOwnership,
     collectionSummary,
-    appState,
     metaverseLeases,
-    asset,
     metaverseAssets,
     dclStats,
+    parcelTransactionHistory,
   },
 });
 

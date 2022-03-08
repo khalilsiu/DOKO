@@ -48,9 +48,10 @@ const ResponsiveToolbar = withStyles((theme) => ({
   },
 }))(Toolbar);
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   headerContainer: {
     transition: 'background linear 0.1s',
+    borderBottom: `solid 1px ${theme.palette.divider}`,
   },
 }));
 

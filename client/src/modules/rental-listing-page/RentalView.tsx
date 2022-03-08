@@ -17,9 +17,8 @@ import metaverses from '../../constants/metaverses';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import { useParams } from 'react-router-dom';
 import LeaseDetailModal from '../../components/rentalListing/LeaseDetailModal';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAssetFromServer } from '../../store/asset/assetSlice';
-import { RootState } from '../../store/store';
+import { useDispatch } from 'react-redux';
+import { getAssetFromServer, useAssetSliceSelector } from '../../store/asset/assetSlice';
 import { useMetaMask } from 'metamask-react';
 
 export const sortOptions = [
@@ -179,7 +178,7 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
     const { account: walletAddress } = useMetaMask();
     const theme = useTheme();
     const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-    const asset = useSelector((state: RootState) => state.asset);
+    const asset = useAssetSliceSelector((state) => state);
     const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
       useParams<{ contractAddress: string; tokenId: string }>();
 
