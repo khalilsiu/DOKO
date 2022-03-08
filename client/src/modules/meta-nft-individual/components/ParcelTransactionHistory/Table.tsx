@@ -99,7 +99,7 @@ export const Table = React.memo(() => {
       case 'sales':
         return [fromAddressColumn, toAddressColumn, priceColumn, parcel, timeColumn];
       case 'bids':
-        return [fromAddressColumn, parcel, timeColumn];
+        return [fromAddressColumn, priceColumn, parcel, timeColumn];
       case 'transfers':
         return [fromAddressColumn, toAddressColumn, parcel, timeColumn];
     }
