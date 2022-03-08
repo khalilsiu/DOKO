@@ -3,12 +3,12 @@ import { Box, CircularProgress, Grid, Hidden, makeStyles } from '@material-ui/co
 import { ProfileCard } from './components/ProfileCard';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { TitleSection } from './components/TitleSection';
 import { MetaTag } from './components/MetaTag';
 import { getAssetFromOpensea, useAssetSliceSelector } from 'store/asset/assetSlice';
 import { AssetDescription } from './components/AssetDescription';
 import { DetailTabs } from './components/DetailTabs';
 import { RootState } from 'store/store';
+import { TitleSection } from './components/TitleSection';
 
 const NftIndividual = React.memo(() => {
   const dispatch = useDispatch();
