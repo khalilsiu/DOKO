@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { MetaMaskProvider } from 'metamask-react';
-import { MoralisProvider } from 'react-moralis';
 import { HelmetProvider } from 'react-helmet-async';
 import 'leaflet/dist/leaflet.css';
 import './index.scss';
@@ -10,7 +9,6 @@ import { CookiesProvider } from 'react-cookie';
 import { Provider } from 'react-redux';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { config } from './config';
 import ThemeProvider from './core/ThemeProvider';
 import store from './store/store';
 
@@ -21,10 +19,8 @@ ReactDOM.render(
         <MetaMaskProvider>
           <ThemeProvider>
             <CookiesProvider>
-              <MoralisProvider appId={config.moralisApplicationId} serverUrl={config.moralisServerUrl}>
-                <CssBaseline />
-                <App />
-              </MoralisProvider>
+              <CssBaseline />
+              <App />
             </CookiesProvider>
           </ThemeProvider>
         </MetaMaskProvider>

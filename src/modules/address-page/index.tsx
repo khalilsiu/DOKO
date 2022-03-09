@@ -3,11 +3,12 @@ import { Card, Grid, Hidden, IconButton, makeStyles, Typography } from '@materia
 import { useParams } from 'react-router-dom';
 import { Meta } from '../../components';
 import Intro from '../core/Intro';
-import { minimizeAddress } from '../../libs/utils';
+
 import CopyAddress from '../../components/CopyAddress';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import useAddressSummaries from '../../hooks/summary/useAddressSummaries';
 import OwnershipView from '../../components/landProfile/OwnershipView';
+import { minimizeAddress } from '../../utils/utils';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {

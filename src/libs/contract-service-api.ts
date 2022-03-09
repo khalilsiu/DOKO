@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { Filter } from 'hooks/summary/aggregateMetaverseSummaries';
+import { Filter } from '../hooks/summary/aggregateMetaverseSummaries';
 
 const instance = axios.create({
-  baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
+  baseURL: process.env.REACT_APP_HOLDINGS_SERVICE_API,
 });
 
 export interface SortOption {

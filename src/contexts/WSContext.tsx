@@ -50,7 +50,7 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
         );
       });
   useEffect(() => {
-    const socket = io(process.env.REACT_APP_CONTRACT_SERVICE_SOCKET || '', {
+    const socket = io(process.env.REACT_APP_HOLDINGS_SERVICE_SOCKET || '', {
       secure: true,
       transports: ['flashsocket', 'polling', 'websocket'],
     });

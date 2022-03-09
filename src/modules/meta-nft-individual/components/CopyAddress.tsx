@@ -1,6 +1,6 @@
 import React from 'react';
-import { minimizeAddress } from '../../../libs/utils';
 import { Grid, Tooltip, Typography, IconButton, Link, makeStyles } from '@material-ui/core';
+import { minimizeAddress } from '../../../utils/utils';
 
 interface CopyAddressProps {
   address: string;

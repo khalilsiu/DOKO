@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { minimizeAddress } from 'libs/utils';
 import { useSelector } from 'react-redux';
-import { openToast } from 'store/app/appStateSlice';
-import { RootState } from 'store/store';
 import OpenSeaAPI from '../../libs/opensea-api';
+import { minimizeAddress } from '../../utils/utils';
+import { openToast } from '../app/appStateSlice';
+import { RootState } from '../store';
 
 export type ParcelTransactionHistoryCategory = 'sales' | 'bids' | 'transfers';
 

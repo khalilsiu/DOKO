@@ -1,5 +1,5 @@
 import OpenSeaAPI from '../../libs/opensea-api';
-import { formatTx, sortTxsByDates } from '../../libs/utils';
+import { formatTx, sortTxsByDates } from '../../utils/utils';
 
 export const fetchNFTOpensea = async (address: string, id: string) => OpenSeaAPI.get(`/asset/${address}/${id}`);
 

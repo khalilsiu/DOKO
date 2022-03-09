@@ -1,9 +1,8 @@
 import { MetaverseSummary } from '../../store/summary/metaverseSummary';
 import { Lease } from '../../store/lease/metaverseLeasesSlice';
-import { Trait, Asset } from 'store/summary/profileOwnershipSlice';
 import { keyBy } from 'lodash';
-import metaverses from 'constants/metaverses';
-
+import { Asset, Trait } from '../../store/summary/profileOwnershipSlice';
+import metaverses from '../../constants/metaverses';
 export interface Filter {
   traitType: string;
   value: any;

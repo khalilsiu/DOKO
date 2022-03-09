@@ -20,7 +20,6 @@ import { Button } from '@material-ui/core';
 const AddressPage = lazy(() => import(/* webpackPrefetch: true */ './modules/address-page'));
 const RentalListingPage = lazy(() => import(/* webpackPrefetch: true */ './modules/rental-listing-page'));
 const MetaNftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-nft-individual'));
-const MetaCollection = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-collection'));
 const MetaProfiles = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profiles'));
 const MetaProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profile-page'));
 
@@ -86,11 +85,6 @@ function App() {
                   <Route path="/nft/:chain/:address/:id" exact>
                     <RouteContainer>
                       <MetaNftIndividual />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/collections/:address" exact>
-                    <RouteContainer>
-                      <MetaCollection />
                     </RouteContainer>
                   </Route>
                   <Route path="/profiles" exact>

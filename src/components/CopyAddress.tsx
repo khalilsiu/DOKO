@@ -1,6 +1,6 @@
 import { Grid, Tooltip, Typography, IconButton } from '@material-ui/core';
 import { memo, useState } from 'react';
-import { minimizeAddress } from '../libs/utils';
+import { minimizeAddress } from '../utils/utils';
 
 interface Props {
   address: string;

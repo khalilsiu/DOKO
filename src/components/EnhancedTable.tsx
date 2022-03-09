@@ -18,7 +18,7 @@ import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import { useState, useEffect, useMemo, ChangeEvent, MouseEvent } from 'react';
 import dateFormat from 'dateformat';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
-import { isValidHttpUrl } from '../libs/utils';
+import { isValidHttpUrl } from '../utils/utils';
 
 interface StyleProps {
   page?: number;

@@ -1,5 +1,5 @@
 import { Grid, Typography } from '@material-ui/core';
-import { formatPrice } from '../libs/utils';
+import { formatPrice } from '../utils/utils';
 
 interface Props {
   title: string;
