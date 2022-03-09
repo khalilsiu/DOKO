@@ -13,7 +13,7 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ClearIcon from '@material-ui/icons/Clear';
 import SearchIcon from '@material-ui/icons/Search';
 import { DataGrid } from '@mui/x-data-grid';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { forwardRef } from 'react';
 import { RadiusInput } from '../../components';
 import { DclStats } from '../../store/stats/dclStatsSlice';
@@ -174,6 +174,19 @@ const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats, isLoading }: 
   useEffect(() => {
     setRows(stats);
   }, [stats]);
+
+  const columnsDisplayed = useMemo(() => {
+    return columns.filter(
+      (column) =>
+        // show all columns when timeframe selected is all
+        timeframeSelected === 'all' ||
+        // always show coordinates column
+        column.field === 'coordinates' ||
+        // show columns corresponding to timeframe selected
+        column.field.includes(timeframeSelected),
+    );
+  }, [columns, timeframeSelected]);
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -220,12 +233,7 @@ const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats, isLoading }: 
       <DataGrid
         className={styles.statsTable}
         rows={rows}
-        columns={columns.filter(
-          (column) =>
-            timeframeSelected === 'all' ||
-            column.field === 'coordinates' ||
-            column.field.includes(timeframeSelected),
-        )}
+        columns={columnsDisplayed}
         componentsProps={{
           toolbar: {
             value: searchText,
