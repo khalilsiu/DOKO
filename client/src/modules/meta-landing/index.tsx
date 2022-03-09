@@ -10,6 +10,8 @@ import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Link from '@material-ui/core/Link';
 import Meta from '../../components/Meta';
 import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store/store';
 
 export const MetaLanding = () => {
   const images = [
@@ -20,7 +22,9 @@ export const MetaLanding = () => {
   ];
 
   const styles = useStyles();
-  const { connect, loading, address } = useContext(AuthContext) as AuthContextType;
+  const { connect, address } = useContext(AuthContext) as AuthContextType;
+  const { isLoading } = useSelector((state: RootState) => state.appState);
+
   const history = useHistory();
   const [snackBar, setSnackBar] = useState(true);
   const handleClose = () => {
@@ -65,7 +69,7 @@ export const MetaLanding = () => {
           style={{ marginTop: 48, minWidth: 160 }}
           className="gradient-button"
           variant="outlined"
-          disabled={loading}
+          disabled={isLoading}
           onClick={() => (address ? history.push(`/address/${address}`) : connect && connect())}
         >
           {address ? 'Your Profile' : 'Connect Wallet'}

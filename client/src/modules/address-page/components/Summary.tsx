@@ -1,6 +1,6 @@
 import { Grid, Typography, withStyles, makeStyles, CircularProgress } from '@material-ui/core';
 
-import SectionLabel from '../../components/SectionLabel';
+import SectionLabel from 'components/SectionLabel';
 
 const ChainContainer = withStyles((theme) => ({
   root: {

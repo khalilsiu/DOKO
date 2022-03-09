@@ -91,10 +91,10 @@ export const getAssetFromOpensea = createAsyncThunk(
     try {
       const response = await fetchNFTOpensea(contractAddress, tokenId);
       const asset = preprocess(response.data);
-      const lease = await ContractServiceAPI.getLease({ contractAddress, tokenId });
+      const assetWithLease = await ContractServiceAPI.getLease({ contractAddress, tokenId });
       const [floorPriceETH, floorPriceUSD] = await fetchMetaverseFloorPrice(asset);
 
-      return camelize({ ...asset, lease, floorPriceETH, floorPriceUSD });
+      return camelize({ ...asset, lease: assetWithLease.lease, floorPriceETH, floorPriceUSD });
     } catch (e) {
       console.error(e);
     }

@@ -8,6 +8,8 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import { AuthContext, AuthContextType } from '../../../contexts/AuthContext';
 import { LargeScreen } from './LargeScreen';
 import { SmallScreen } from './SmallScreen';
+import { RootState } from 'store/store';
+import { useSelector } from 'react-redux';
 
 interface Props {
   /**
@@ -56,7 +58,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Header = () => {
-  const { connect, loading, address } = useContext(AuthContext) as AuthContextType;
+  const { connect, address } = useContext(AuthContext) as AuthContextType;
+  const { isLoading } = useSelector((state: RootState) => state.appState);
   const styles = useStyles();
   const [search, setSearch] = useState('');
 
@@ -65,10 +68,10 @@ export const Header = () => {
       <AppBar position="sticky" color="transparent" className={styles.headerContainer}>
         <ResponsiveToolbar>
           <Hidden smDown>
-            <LargeScreen {...{ connect, loading, address, search, setSearch }} />
+            <LargeScreen {...{ connect, loading: isLoading, address, search, setSearch }} />
           </Hidden>
           <Hidden mdUp>
-            <SmallScreen {...{ connect, loading, address, search, setSearch }} />
+            <SmallScreen {...{ connect, loading: isLoading, address, search, setSearch }} />
           </Hidden>
         </ResponsiveToolbar>
       </AppBar>

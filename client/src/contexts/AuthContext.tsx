@@ -1,5 +1,4 @@
-import { createContext, PropsWithChildren, useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { createContext, PropsWithChildren, useCallback, useEffect, useState } from 'react';
 import { useMetaMask } from 'metamask-react';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -12,7 +11,7 @@ import { ethers, Contract } from 'ethers';
 import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
 import { useDispatch } from 'react-redux';
-import { openToast } from '../store/app';
+import { openToast, startLoading, stopLoading } from '../store/app';
 import { rentalContracts } from '../constants/contracts';
 import { tokens } from '../constants/acceptedTokens';
 import metaverses from '../constants/metaverses';
@@ -91,46 +90,28 @@ type ContractNames = 'dclLandRental' | 'dclLand' | 'USDT';
 type Contracts = { [key in ContractNames]: ethers.Contract | null };
 export interface AuthContextType {
   address: string;
-  loading: boolean;
   walletName: WalletName | null;
   connect: () => void;
   connectContract: (symbol: ContractNames) => void;
   contracts: Contracts;
 }
+const wallets: Wallet[] = [
+  {
+    icon: '/DOKO_Metamasklogo_asset.png',
+    label: 'MetaMask Wallet',
+    name: WalletName.METAMASK,
+  },
+];
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) => {
-  let wallets: Wallet[] = [
-    {
-      icon: '/DOKO_Metamasklogo_asset.png',
-      label: 'MetaMask Wallet',
-      name: WalletName.METAMASK,
-    },
-  ];
-  if (nft) {
-    wallets = [
-      {
-        icon: '/DOKO_Metamasklogo_asset.png',
-        label: 'MetaMask Wallet',
-        name: WalletName.METAMASK,
-      },
-      {
-        icon: '/DOKO_Phantomlogo_asset.png',
-        label: 'Phantom Wallet',
-        name: WalletName.PHANTOM,
-      },
-    ];
-  }
+export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
   const { account, connect, status } = useMetaMask();
-  const [solAccount, setSolAccount] = useState('');
   const classes = useStyles();
-  const history = useHistory();
   const theme = useTheme();
   const dispatch = useDispatch();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState('');
   const [walletName, setWalletName] = useState<WalletName | null>(null);
   const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
@@ -169,7 +150,7 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
     }));
   };
 
-  const connectMetaMask = async () => {
+  const connectMetaMask = useCallback(async () => {
     try {
       if (isMobile) {
         if (status === 'unavailable') {
@@ -183,54 +164,35 @@ export const AuthContextProvider = ({ children, nft }: PropsWithChildren<any>) =
       dispatch(openToast({ message: `Metamask error ${(err as Error).message}`, state: 'error' }));
       return;
     }
-  };
-
-  const connectPhantom = async () => {
-    if (!window.solana || !window.solana.isPhantom) {
-      window.open('https://phantom.app/', '_blank');
-      return;
-    }
-    try {
-      await window.solana.connect();
-      setSolAccount(window.solana.publicKey.toString());
-    } catch (err) {
-      console.error('phantom connection', err);
-    }
-  };
+  }, [isMobile, status, window]);
 
   const login = async (wallet: WalletName) => {
-    setLoading(true);
-
+    dispatch(startLoading());
     switch (wallet) {
       case WalletName.METAMASK:
         setWalletName(WalletName.METAMASK);
         await connectMetaMask();
         break;
-      case WalletName.PHANTOM:
-        setWalletName(WalletName.PHANTOM);
-        await connectPhantom();
-        break;
       default:
         break;
     }
-    setLoading(false);
+    dispatch(stopLoading());
   };
 
-  const connectWallet = () => {
+  const connectWallet = useCallback(() => {
     setShowWalletModal(false);
     login(walletSelected.name);
-  };
+  }, [walletSelected]);
 
   useEffect(() => {
-    setAddress(account || solAccount || '');
-  }, [account, solAccount, history]);
+    setAddress(account || '');
+  }, [account]);
 
   return (
     <AuthContext.Provider
       value={{
         address,
         walletName,
-        loading,
         connect: () => setShowWalletModal(true),
         connectContract,
         contracts,

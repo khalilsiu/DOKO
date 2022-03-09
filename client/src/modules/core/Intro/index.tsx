@@ -7,6 +7,8 @@ import { useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { AuthContext, AuthContextType } from '../../../contexts/AuthContext';
 import { DrawerContext } from '../../../contexts/DrawerContext';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store/store';
 
 const socialLinks = [
   {
@@ -28,7 +30,9 @@ interface Props {
 }
 
 const Intro = ({ drawer = false }: Props) => {
-  const { connect, loading, address } = useContext(AuthContext) as AuthContextType;
+  const { connect, address } = useContext(AuthContext) as AuthContextType;
+  const { isLoading } = useSelector((state: RootState) => state.appState);
+
   const { toggle } = useContext(DrawerContext);
 
   const styles = useStyles();
@@ -75,7 +79,7 @@ const Intro = ({ drawer = false }: Props) => {
               </Link>
             ) : (
               <Button
-                disabled={loading}
+                disabled={isLoading}
                 variant="outlined"
                 className={`gradient-button ${styles.aboutDokoButton}`}
                 onClick={() => connect && connect()}

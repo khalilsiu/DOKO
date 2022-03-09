@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import { useState, useContext, memo, useEffect } from 'react';
 import { TabPanel, OpenseaNFTItem } from '..';
-import Summary from '../../modules/nft-collections/Summary';
+
 import SectionLabel from '../SectionLabel';
 import metaverses from '../../constants/metaverses';
 import { AggregatedSummary } from '../../hooks/useProfileSummaries';
@@ -27,6 +27,7 @@ import EditLeaseModal from './EditLeaseModal';
 import { getAssetFromOpensea, useAssetSliceSelector } from '../../store/asset/assetSlice';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import Summary from 'modules/address-page/components/Summary';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {

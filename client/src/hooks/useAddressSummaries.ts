@@ -23,7 +23,7 @@ const useAddressSummaries = (walletAddress: string) => {
       dispatch(getMetaverseLeases({ lessor: walletAddress }));
       dispatch(fetchCollectionSummary());
     }
-  }, []);
+  }, [walletAddress]);
 
   useEffect(() => {
     setAddressSummaries(

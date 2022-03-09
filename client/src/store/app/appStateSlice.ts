@@ -107,10 +107,6 @@ const appStateSlice = createSlice({
       .addCase(fetchProfileOwnership.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getAssetFromOpensea.pending, (state) => {
-        state.isLoading = true;
-      })
-      // fulfilled
       .addCase(fetchProfileOwnership.fulfilled, (state) => {
         state.isLoading = false;
       })
@@ -122,10 +118,13 @@ const appStateSlice = createSlice({
           message: action.error.message,
         };
       })
+
+      .addCase(getAssetFromOpensea.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(getAssetFromOpensea.fulfilled, (state) => {
         state.isLoading = false;
       })
-      // rejected
       .addCase(getAssetFromOpensea.rejected, (state, action) => {
         state.isLoading = false;
         state.toast = {
@@ -134,6 +133,7 @@ const appStateSlice = createSlice({
           message: action.error.message,
         };
       })
+
       .addCase(fetchParcelTransactionHistory.rejected, (state, action) => {
         state.toast = {
           show: true,

@@ -63,6 +63,7 @@ const useStyles = makeStyles((theme) => ({
 export const NftCollections = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
+  console.log(address);
   const metaverseSummaries = useAddressSummaries(address);
   const { openProfileModal } = useContext(CreateProfileContext);
   const handleClickOpen = () => {
@@ -72,7 +73,7 @@ export const NftCollections = () => {
   return (
     <>
       <Meta
-        title={`${address} - Profile | DOKO`}
+        title="Address | DOKO"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
         image="/DOKO_LOGO.png"
