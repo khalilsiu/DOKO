@@ -66,4 +66,9 @@ export default class ContractServiceAPI {
     const res = await instance.post('lease/filter', body).then((res) => res.data[0] || {});
     return res;
   }
+
+  static async getDclStats() {
+    const res = await instance.get('/stats/dcl').then((res) => res.data);
+    return res;
+  }
 }

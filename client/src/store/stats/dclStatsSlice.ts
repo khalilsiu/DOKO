@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../libs/api';
+import ContractServiceAPI from 'libs/contract-service-api';
 
 export interface DclStats {
   id: number;
@@ -21,8 +21,7 @@ export interface DclStats {
 const initialState: DclStats[] = [];
 
 export const getDclStats = createAsyncThunk('DclStats/getDclStats', async () => {
-  const response = await api.get('/stats/dcl');
-  return response.data;
+  return await ContractServiceAPI.getDclStats();
 });
 
 const dclStatsSlice = createSlice({
