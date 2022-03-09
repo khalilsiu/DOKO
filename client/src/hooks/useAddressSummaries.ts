@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { fetchAddressOwnership } from 'store/summary/addressOwnershipSlice';
+import { fetchCollectionSummary } from 'store/summary/collectionSummarySlice';
 import { getMetaverseLeases } from '../store/lease/metaverseLeasesSlice';
-import { fetchAddressOwnership, fetchCollectionSummary } from '../store/summary';
 import { RootState } from '../store/store';
 import { AggregatedSummary, getAggregatedSummary } from './useProfileSummaries';
 

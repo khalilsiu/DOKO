@@ -1,9 +1,9 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
+import { fetchProfileOwnership } from 'store/summary/profileOwnershipSlice';
 import { getAssetFromOpensea } from '../asset/assetSlice';
 import { acceptLeaseToBlockchain, upsertLeaseToBlockchain } from '../lease/metaverseLeasesSlice';
-import { fetchProfileOwnership } from '../summary';
 import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
 
 export type ToastAction = 'refresh';

@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { appState } from './app';
 import { asset } from './asset/assetSlice';
 import { metaverseAssets } from './asset/metaverseAssetsFromServerSlice';
 import { metaverseLeases } from './lease/metaverseLeasesSlice';
-import { addressOwnership, collectionSummary, profileOwnership } from './summary';
 import { parcelTransactionHistory } from './asset/parcelTransactionHistorySlice';
+import { appState } from './app/appStateSlice';
+import { addressOwnership } from './summary/addressOwnershipSlice';
+import { collectionSummary } from './summary/collectionSummarySlice';
+import { profileOwnership } from './summary/profileOwnershipSlice';
 
 const store = configureStore({
   reducer: {

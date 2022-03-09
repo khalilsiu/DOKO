@@ -1,11 +1,11 @@
 import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
-import { Asset } from 'store/summary';
 import { AssetImage } from './AssetImage';
 import { PriceSection } from './PriceSection';
 import { ParcelStats } from './ParcelStats';
 import { DescriptionSection } from './DescriptionSection';
 import { useParams } from 'react-router-dom';
+import { Asset } from 'store/summary/profileOwnershipSlice';
 
 interface Props {
   asset: Asset;

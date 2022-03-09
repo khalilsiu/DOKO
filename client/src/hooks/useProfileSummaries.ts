@@ -5,7 +5,7 @@ import { fetchCollectionSummary, MetaverseSummary } from '../store/summary/colle
 
 import { RootState } from '../store/store';
 import { Lease } from '../store/lease/metaverseLeasesSlice';
-import { Trait, Asset, fetchProfileOwnership } from '../store/summary';
+import { Trait, fetchProfileOwnership, Asset } from 'store/summary/profileOwnershipSlice';
 
 export interface Filter {
   traitType: string;

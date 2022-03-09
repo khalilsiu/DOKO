@@ -23,8 +23,8 @@ import twitter from './assets/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 import { useMetaMask } from 'metamask-react';
-import { Asset } from '../store/summary';
 import { getLeaseState } from './landProfile/OwnershipView';
+import { Asset } from 'store/summary/profileOwnershipSlice';
 
 interface NFTItemProps {
   nft: Asset;

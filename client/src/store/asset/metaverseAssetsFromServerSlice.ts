@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ContractServiceAPI, { SortOption } from '../../libs/contract-service-api';
 import { camelize, getCoordinates } from '../../utils/utils';
 import { pick } from 'lodash';
-import { Asset } from '../summary';
 import metaverses from '../../constants/metaverses';
+import { Asset } from 'store/summary/profileOwnershipSlice';
 
 const initialState: Asset[][][] = [];
 

@@ -11,10 +11,11 @@ import { ethers, Contract } from 'ethers';
 import UIModal from '../components/modal';
 import { Wallet, WalletName } from '../types';
 import { useDispatch } from 'react-redux';
-import { openToast, startLoading, stopLoading } from '../store/app';
+
 import { rentalContracts } from '../constants/contracts';
 import { tokens } from '../constants/acceptedTokens';
 import metaverses from '../constants/metaverses';
+import { openToast, startLoading, stopLoading } from 'store/app/appStateSlice';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {

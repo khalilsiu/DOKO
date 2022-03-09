@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ethers } from 'ethers';
+import { Asset } from 'store/summary/profileOwnershipSlice';
 import { LeaseForm } from '../../components/landProfile/EditLeaseModal';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import metaverses from '../../constants/metaverses';
@@ -7,7 +8,6 @@ import ContractServiceAPI from '../../libs/contract-service-api';
 import { ThunkError } from '../../types';
 import { LeaseDetails, LeasePayload } from '../../types/contracts/dokoRentalDclLand';
 import { camelize } from '../../utils/utils';
-import { Asset } from '../summary';
 
 export interface Lease {
   rentAmount: number;

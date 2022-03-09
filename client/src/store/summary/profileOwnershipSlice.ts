@@ -1,10 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { pick } from 'lodash';
-import { parsePriceUSD } from '.';
 import metaverses from '../../constants/metaverses';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize, getCoordinates } from '../../utils/utils';
-import { parsePriceETH } from './collectionSummarySlice';
+import { parsePriceETH, parsePriceUSD } from './collectionSummarySlice';
 import { Lease } from '../lease/metaverseLeasesSlice';
 
 export interface Trait {

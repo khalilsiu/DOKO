@@ -4,7 +4,7 @@ import { SolanaNFTItem } from './SolanaNFTItem';
 import { OpenseaNFTItem } from './OpenseaNFTItem';
 import { LightButton } from './LightButton';
 import { NFTItem } from './NFTItem';
-import { Asset } from '../store/summary';
+import { Asset } from 'store/summary/profileOwnershipSlice';
 
 interface Props {
   nfts: (Asset & { floorPrice: number })[];

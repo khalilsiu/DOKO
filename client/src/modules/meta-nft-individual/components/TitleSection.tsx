@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Hidden, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { CopyAddress } from './CopyAddress';
-import { Asset } from 'store/summary';
 import PopoverShare from 'components/PopoverShare';
 import { useParams } from 'react-router-dom';
 import clsx from 'clsx';
+import { Asset } from 'store/summary/profileOwnershipSlice';
 
 interface Props {
   asset: Asset;

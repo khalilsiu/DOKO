@@ -2,10 +2,12 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import metaverses from 'constants/metaverses';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
+import { parsePriceETH, parsePriceUSD } from 'store/summary/collectionSummarySlice';
+import { Asset, preprocess } from 'store/summary/profileOwnershipSlice';
 import ContractServiceAPI from '../../libs/contract-service-api';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize } from '../../utils/utils';
-import { Asset, parsePriceETH, parsePriceUSD, preprocess } from '../summary';
+
 import { preprocessAssetFromServer } from './metaverseAssetsFromServerSlice';
 
 const initialState: Asset = {
