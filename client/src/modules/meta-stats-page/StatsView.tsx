@@ -20,6 +20,7 @@ import { DclStats } from '../../store/stats/dclStatsSlice';
 
 interface IStatsView {
   stats: DclStats[];
+  isLoading: boolean;
 }
 
 interface QuickSearchToolbarProps {
@@ -145,7 +146,7 @@ const QuickSearchToolbar = (props: QuickSearchToolbarProps) => (
   />
 );
 
-const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats }: IStatsView) => {
+const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats, isLoading }: IStatsView) => {
   const styles = useStyles();
   const theme = useTheme();
   const [timeframeOpen, setTimeframeOpen] = useState(false);
@@ -248,6 +249,7 @@ const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats }: IStatsView)
         }}
         pageSize={40}
         columnBuffer={10}
+        loading={isLoading}
       />
     </div>
   );

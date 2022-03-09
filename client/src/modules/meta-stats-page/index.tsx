@@ -27,6 +27,7 @@ const MetaStatsPage = () => {
   const styles = useStyles();
   const dispatch = useDispatch();
   const dclStats = useSelector((state: RootState) => state.dclStats);
+  const { isLoading } = useSelector((state: RootState) => state.appState);
   useEffect(() => {
     dispatch(getDclStats());
   }, []);
@@ -59,7 +60,7 @@ const MetaStatsPage = () => {
               this data, feel free to DM us on Twitter or Discord. Hope it helps!
             </Typography>
           </div>
-          <StatsView stats={dclStats} />
+          <StatsView stats={dclStats} isLoading={isLoading} />
         </Grid>
       </Grid>
     </>
