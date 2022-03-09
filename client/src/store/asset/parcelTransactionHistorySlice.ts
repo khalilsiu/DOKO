@@ -19,7 +19,6 @@ export interface ParcelTransactionHistory {
 interface ParcelTransactionHistoryState {
   fetching: boolean;
   currentTab: ParcelTransactionHistoryCategory;
-  offset: number;
   limit: number;
   currentPage: number;
   rowsPerPage: number;
@@ -28,7 +27,6 @@ interface ParcelTransactionHistoryState {
 
 const initialState: ParcelTransactionHistoryState = {
   currentTab: 'sales',
-  offset: 0,
   limit: 100,
   currentPage: 0,
   rowsPerPage: 5,
@@ -91,8 +89,7 @@ export const fetchParcelTransactionHistory = createAsyncThunk(
   'ParcelTransactionHistory/fetch',
   async ({ contractAddress, assetId }: { contractAddress: string; assetId: string }, thunkAPI) => {
     try {
-      const { offset, limit, currentTab } = (thunkAPI.getState() as RootState)
-        .parcelTransactionHistory;
+      const { limit, currentTab } = (thunkAPI.getState() as RootState).parcelTransactionHistory;
       const address = contractAddress;
       const tokenId = assetId;
 
@@ -102,7 +99,6 @@ export const fetchParcelTransactionHistory = createAsyncThunk(
 
       const response = await OpenSeaAPI.get('/events', {
         params: {
-          offset,
           limit,
           only_opensea: false,
           asset_contract_address: address,
