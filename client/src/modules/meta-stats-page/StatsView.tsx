@@ -34,20 +34,6 @@ const escapeRegExp = (value: string): string => {
 };
 
 const useStyles = makeStyles((theme: Theme) => ({
-  underline: {
-    '&:before': {
-      borderBottom: 'none',
-    },
-    '&:after': {
-      borderBottom: 'none',
-    },
-    '&:focus': {
-      borderBottom: 'none',
-    },
-    '&:hover:not(.Mui-disabled):before': {
-      borderBottom: 'none',
-    },
-  },
   menuItem: {
     backgroundColor: 'white',
     '&:hover': {
