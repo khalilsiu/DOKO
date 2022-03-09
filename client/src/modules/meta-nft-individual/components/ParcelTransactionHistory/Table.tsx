@@ -39,16 +39,22 @@ export const Table = React.memo(() => {
   const currentPage = useParcelTransactionHistorySliceSelector((state) => state.currentPage);
   const rowsPerPage = useParcelTransactionHistorySliceSelector((state) => state.rowsPerPage);
 
-  const handleChangePage = React.useCallback((_: unknown, newPage: number) => {
-    dispatch(parcelTransactionHistorySlice.actions.setCurrentPage(newPage));
-  }, []);
+  const { setCurrentPage, setRowsPerPage } = parcelTransactionHistorySlice.actions;
 
-  const handleChangeRowsPerPage = React.useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    dispatch(
-      parcelTransactionHistorySlice.actions.setRowsPerPage(parseInt(event.target.value, 10)),
-    );
-    dispatch(parcelTransactionHistorySlice.actions.setCurrentPage(0));
-  }, []);
+  const handleChangePage = React.useCallback(
+    (_: unknown, newPage: number) => {
+      dispatch(setCurrentPage(newPage));
+    },
+    [dispatch, setCurrentPage],
+  );
+
+  const handleChangeRowsPerPage = React.useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      dispatch(setRowsPerPage(parseInt(event.target.value, 10)));
+      dispatch(setCurrentPage(0));
+    },
+    [dispatch, setRowsPerPage, setRowsPerPage],
+  );
 
   const columns: Column[] = React.useMemo(() => {
     const fromAddressColumn: Column = {

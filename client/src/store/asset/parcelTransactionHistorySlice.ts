@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { minimizeAddress } from 'libs/utils';
 import { useSelector } from 'react-redux';
-import { openToast } from 'store/app/appStateSlice';
 import { RootState } from 'store/store';
 import OpenSeaAPI from '../../libs/opensea-api';
 
@@ -88,39 +87,34 @@ const parseResponseAsParcelTransactionHistories = (
 export const fetchParcelTransactionHistory = createAsyncThunk(
   'ParcelTransactionHistory/fetch',
   async ({ contractAddress, assetId }: { contractAddress: string; assetId: string }, thunkAPI) => {
-    try {
-      const { limit, currentTab } = (thunkAPI.getState() as RootState).parcelTransactionHistory;
-      const address = contractAddress;
-      const tokenId = assetId;
+    const { limit, currentTab } = (thunkAPI.getState() as RootState).parcelTransactionHistory;
+    const address = contractAddress;
+    const tokenId = assetId;
 
-      if (!address || !tokenId) {
-        return;
-      }
-
-      const response = await OpenSeaAPI.get('/events', {
-        params: {
-          limit,
-          only_opensea: false,
-          asset_contract_address: address,
-          token_id: tokenId,
-          event_type: parcelTransactionHistoryEventMap[currentTab],
-        },
-      });
-
-      const result: ParcelTransactionHistory[] = parseResponseAsParcelTransactionHistories(
-        currentTab,
-        response,
-      );
-
-      return {
-        result,
-        fetching: false,
-        currentPage: 0,
-      };
-    } catch (error: any) {
-      thunkAPI.dispatch(openToast({ message: error.message, state: 'error' }));
-      throw error;
+    if (!address || !tokenId) {
+      return;
     }
+
+    const response = await OpenSeaAPI.get('/events', {
+      params: {
+        limit,
+        only_opensea: false,
+        asset_contract_address: address,
+        token_id: tokenId,
+        event_type: parcelTransactionHistoryEventMap[currentTab],
+      },
+    });
+
+    const result: ParcelTransactionHistory[] = parseResponseAsParcelTransactionHistories(
+      currentTab,
+      response,
+    );
+
+    return {
+      result,
+      fetching: false,
+      currentPage: 0,
+    };
   },
 );
 
