@@ -21,7 +21,7 @@ export interface DclStats {
 const initialState: DclStats[] = [];
 
 export const getDclStats = createAsyncThunk('DclStats/getDclStats', async () => {
-  return await ContractServiceAPI.getDclStats();
+  return await ContractServiceAPI.getStats('decentraland');
 });
 
 const dclStatsSlice = createSlice({
