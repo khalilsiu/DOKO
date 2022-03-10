@@ -17,10 +17,10 @@ export const AssetDescription = React.memo<Props>(({ asset }) => {
 
   return (
     <Grid className={classes.root} container>
-      <Grid className={classes.leftSection} item xs={12} sm={3} lg={4} xl={5}>
+      <Grid className={classes.leftSection} item xs={12} sm={2} md={3} lg={4} xl={5}>
         <AssetImage imageUrl={asset.imageUrl} />
       </Grid>
-      <Grid item xs={12} sm={9} lg={8} xl={7}>
+      <Grid item xs={12} sm={10} md={9} lg={8} xl={7}>
         <PriceSection
           floorPriceEth={asset.floorPriceEth}
           floorPriceUsd={asset.floorPriceUsd}
