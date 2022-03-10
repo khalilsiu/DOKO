@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Metaverse } from 'constants/metaverses';
 import { Filter } from '../hooks/useProfileSummaries';
 
 const instance = axios.create({
@@ -64,6 +65,17 @@ export default class ContractServiceAPI {
       ],
     };
     const res = await instance.post('lease/filter', body).then((res) => res.data[0] || {});
+    return res;
+  }
+
+  static async getStats(metaverse: Metaverse) {
+    const res = await instance
+      .get('/stats', {
+        params: {
+          metaverse,
+        },
+      })
+      .then((res) => res.data);
     return res;
   }
 }

@@ -1,6 +1,7 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
+import { getDclStats } from 'store/stats/dclStatsSlice';
 import { getAssetFromOpensea } from '../asset/assetSlice';
 import { acceptLeaseToBlockchain, upsertLeaseToBlockchain } from '../lease/metaverseLeasesSlice';
 import { fetchProfileOwnership } from '../summary';
@@ -109,6 +110,12 @@ const appStateSlice = createSlice({
       })
       .addCase(getAssetFromOpensea.pending, (state) => {
         state.isLoading = true;
+      })
+      .addCase(getDclStats.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getDclStats.fulfilled, (state) => {
+        state.isLoading = false;
       })
       // fulfilled
       .addCase(fetchProfileOwnership.fulfilled, (state) => {

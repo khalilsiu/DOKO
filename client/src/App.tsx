@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store/store';
 import { WSContextProvider } from './contexts/WSContext';
 import { Button } from '@material-ui/core';
+import MetaStatsPage from './modules/meta-stats-page';
 
 const NftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-collections'));
 const NftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-individual'));
@@ -175,6 +176,11 @@ function App() {
                   <Route path="/profiles/:hash" exact>
                     <RouteContainer>
                       <MetaProfilePage />
+                    </RouteContainer>
+                  </Route>
+                  <Route path="/dcl-stats" exact>
+                    <RouteContainer>
+                      <MetaStatsPage />
                     </RouteContainer>
                   </Route>
                 </Switch>
