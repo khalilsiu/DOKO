@@ -9,18 +9,21 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import { AuthContext, AuthContextType } from 'contexts/AuthContext';
 import { DrawerContext } from 'contexts/DrawerContext';
+import twitterIcon from 'assets/socials/twitter-black-small.png';
+import discordIcon from 'assets/socials/discord.png';
+import mediumIcon from 'assets/socials/medium.png';
 
 const socialLinks = [
   {
-    image: '/social/Twitter.png',
+    image: twitterIcon,
     link: 'https://twitter.com/doko_metaverse',
   },
   {
-    image: '/social/Discord.png',
+    image: discordIcon,
     link: 'https://discord.gg/cNvKMpbU5C',
   },
   {
-    image: '/social/Medium.png',
+    image: mediumIcon,
     link: 'https://medium.com/doko-one',
   },
 ];

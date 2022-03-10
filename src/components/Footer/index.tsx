@@ -3,18 +3,21 @@ import Typography from '@material-ui/core/Typography';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { memo } from 'react';
+import twitterIcon from 'assets/socials/twitter-black-small.png';
+import discordIcon from 'assets/socials/discord.png';
+import mediumIcon from 'assets/socials/medium.png';
 
 const socialLinks = [
   {
-    image: '/social/Twitter.png',
+    image: twitterIcon,
     link: 'https://twitter.com/doko_metaverse',
   },
   {
-    image: '/social/Discord.png',
+    image: discordIcon,
     link: 'https://discord.gg/cNvKMpbU5C',
   },
   {
-    image: '/social/Medium.png',
+    image: mediumIcon,
     link: 'https://medium.com/doko-one',
   },
 ];

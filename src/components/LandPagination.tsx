@@ -1,6 +1,6 @@
 import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/core';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
-import { OpenseaNFTItem } from './OpenseaNFTItem';
+import { LandCard } from './LandCard';
 import { LightButton } from './LightButton';
 import { Asset } from 'store/summary/profileOwnershipSlice';
 
@@ -53,7 +53,7 @@ export const LandPagination = ({
     <div>
       <div className={styles.nftsContainer}>
         {nfts.map((nft) => (
-          <OpenseaNFTItem setSelectedAssetForLease={onLeaseButtonClick} nft={nft} key={nft.id} />
+          <LandCard setSelectedAssetForLease={onLeaseButtonClick} nft={nft} key={nft.id} />
         ))}
       </div>
       {loading && <CircularProgress />}

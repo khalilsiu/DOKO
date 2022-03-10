@@ -3,8 +3,8 @@ import { Grid, Typography } from '@material-ui/core';
 
 import eth from '../../assets/tokens/eth-small.png';
 import bsc from '../../assets/tokens/bsc-small.png';
-import polygon from '../../assets/polygon-small.png';
-import solana from '../../assets/solana-small.png';
+import polygon from '../../assets//chains/polygon-small.png';
+import solana from '../../assets//chains/solana-small.png';
 
 interface AddressProps {
   address: [string, string];

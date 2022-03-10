@@ -13,6 +13,10 @@ import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import metaverses from 'constants/metaverses';
+import dashboardIcon from 'assets/app/LandingPage/dashboard.png';
+import analysisIcon from 'assets/app/LandingPage/analysis.png';
+import lendingIcon from 'assets/app/LandingPage/lending.png';
+import rentalIcon from 'assets/app/LandingPage/rental.png';
 
 export const LandingPage = () => {
   const styles = useStyles();
@@ -96,7 +100,7 @@ export const LandingPage = () => {
           spacing={10}
         >
           <div className={styles.whatYouCanDoImage}>
-            <img src="meta-landing/dashboard.png" alt="" />
+            <img src={dashboardIcon} alt="" />
           </div>
           <div>
             <Grid wrap="nowrap" container alignItems="center" spacing={6}>
@@ -120,7 +124,7 @@ export const LandingPage = () => {
           spacing={10}
         >
           <div className={styles.whatYouCanDoImage}>
-            <img src="meta-landing/analysis.png" alt="" />
+            <img src={analysisIcon} alt="" />
           </div>
           <div>
             <Grid wrap="nowrap" container alignItems="center" spacing={6}>
@@ -144,7 +148,7 @@ export const LandingPage = () => {
           spacing={10}
         >
           <div className={styles.whatYouCanDoImage}>
-            <img src="meta-landing/lending.png" alt="" />
+            <img src={lendingIcon} alt="" />
           </div>
           <div>
             <Grid container wrap="nowrap" alignItems="center" spacing={6}>
@@ -168,7 +172,7 @@ export const LandingPage = () => {
           spacing={10}
         >
           <div className={styles.whatYouCanDoImage}>
-            <img src="meta-landing/rental.png" alt="" />
+            <img src={rentalIcon} alt="" />
           </div>
           <div>
             <Grid wrap="nowrap" container alignItems="center" spacing={6}>

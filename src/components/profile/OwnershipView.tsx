@@ -27,8 +27,9 @@ import { useParams } from 'react-router-dom';
 import Summary from 'modules/address-page/components/Summary';
 import { AggregatedSummary } from 'hooks/summary/aggregateMetaverseSummaries';
 import { RootState } from 'store/store';
-import OpenseaNFTItem from 'components/OpenseaNFTItem';
+import OpenseaNFTItem from 'components/LandCard';
 import { TabPanel } from 'components/TabPanel';
+import ethBlueIcon from 'assets/tokens/eth-blue.png';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -273,7 +274,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
               <Grid item className={styles.chainInfo}>
                 <Typography style={{ fontSize: 14 }}>Total Floor Price</Typography>
                 <Grid container alignItems="center">
-                  <img style={{ marginRight: 8 }} src="/collection/EthereumBlue.png" width={10} alt="ETH" />
+                  <img style={{ marginRight: 8 }} src={ethBlueIcon} width={10} alt="ETH" />
                   <Typography style={{ fontSize: 18, fontWeight: 700 }}>
                     {metaverseSummaries.reduce((floorPrice, collection) => floorPrice + collection.price, 0).toFixed(3)}
                   </Typography>

@@ -41,6 +41,8 @@ const cryptovoxelsIslands = [
 
 const somniumParcelSizes = ['S', 'M', 'XL'];
 
+export type Metaverse = 'decentraland' | 'cryptovoxel' | 'sandbox' | 'somnium-space';
+
 const metaverses = [
   {
     icon: decentralandIcon,

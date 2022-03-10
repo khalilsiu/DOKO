@@ -1,4 +1,5 @@
 import { Grid, Typography, withStyles, makeStyles, CircularProgress } from '@material-ui/core';
+import ethBlueIcon from 'assets/tokens/eth-blue.png';
 
 import SectionLabel from 'components/SectionLabel';
 
@@ -63,7 +64,7 @@ export const Summary = ({ data }: Props) => {
                   >
                     {item.available ? (
                       <Grid container alignItems="center">
-                        <img style={{ marginRight: 8 }} src="/collection/EthereumBlue.png" width={10} alt="ETH" />
+                        <img style={{ marginRight: 8 }} src={ethBlueIcon} width={10} alt="ETH" />
                         {parseFloat(`${item.price}`).toFixed(3)}
                       </Grid>
                     ) : (

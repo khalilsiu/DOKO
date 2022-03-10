@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Grid, makeStyles, Typography } from '@material-ui/core';
+import ethBlueIcon from 'assets/tokens/eth-blue.png';
 
 interface Props {
   title: string;
@@ -16,7 +17,7 @@ export const PriceBox = React.memo<Props>(({ priceETH, priceUSD, title }) => {
         {title}
       </Typography>
       <Box className={classes.row}>
-        <img className={classes.ethereumIcon} src="/collection/EthereumBlue.png" alt="eth" />
+        <img className={classes.ethereumIcon} src={ethBlueIcon} alt="eth" />
         <Box className={classes.priceValueRow}>
           <Typography className={classes.ethPrice} variant="h4">
             {priceETH || 'N/A'}
