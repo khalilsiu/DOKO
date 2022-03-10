@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { appState } from './app';
 import { addressOwnership, collectionSummary, profileOwnership } from './meta-nft-collections';
+import { dclStats } from './stats/dclStatsSlice';
 
 const store = configureStore({
   reducer: {
@@ -8,6 +9,7 @@ const store = configureStore({
     profileOwnership,
     collectionSummary,
     appState,
+    dclStats,
   },
 });
 

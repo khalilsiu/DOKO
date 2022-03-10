@@ -1,11 +1,12 @@
 import axios from 'axios';
+import { Metaverse } from '../constants/metaverses';
 import { Filter } from '../hooks/useProfileSummaries';
 
+const instance = axios.create({
+  baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
+});
 export default class ContractServiceAPI {
   static async getAssetFloorPrice(address: string, traits: Filter[]) {
-    const instance = axios.create({
-      baseURL: process.env.REACT_APP_CONTRACT_SERVICE_API,
-    });
     const res = await instance
       .post('asset/floor-price', {
         address,
@@ -26,6 +27,17 @@ export default class ContractServiceAPI {
         }
         throw err;
       });
+    return res;
+  }
+
+  static async getStats(metaverse: Metaverse) {
+    const res = await instance
+      .get('/stats', {
+        params: {
+          metaverse,
+        },
+      })
+      .then((res) => res.data);
     return res;
   }
 }

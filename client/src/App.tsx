@@ -12,6 +12,7 @@ import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
 import { Landing } from './modules/landing';
 import { MetaLanding } from './modules/meta-landing';
+import MetaStatsPage from './modules/meta-stats-page';
 
 const NftCollections = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-collections'));
 const NftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/nft-individual'));
@@ -128,6 +129,11 @@ function App() {
                 <Route path="/profiles/:hash" exact>
                   <RouteContainer>
                     <MetaProfilePage />
+                  </RouteContainer>
+                </Route>
+                <Route path="/dcl-stats" exact>
+                  <RouteContainer>
+                    <MetaStatsPage />
                   </RouteContainer>
                 </Route>
               </Switch>
