@@ -339,7 +339,7 @@ export default function EnhancedTable({
               onRequestSort={handleRequestSort}
             />
             <TableBody>
-              {filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+              {filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                 <TableRow hover role="checkbox" tabIndex={-1}>
                   {Object.keys(row).map((key) => {
                     const isNumber = typeof row[key] === 'number';
@@ -354,7 +354,7 @@ export default function EnhancedTable({
                           <Typography variant="body1">{dateFormat(row[key], 'dd/mm/yyyy, HH:mm')}</Typography>
                         ) : isValidUrl ? (
                           <a href={row[key] as string} target="_blank" rel="noopener noreferrer">
-                            <img height={20} src="/DOKOasset_EtherScan.png" alt="" style={{ marginRight: '1rem' }} />
+                            <img height={20} src="/EtherScan.png" alt="" style={{ marginRight: '1rem' }} />
                           </a>
                         ) : priceHeaderIds.includes(key) ? (
                           <div style={{ display: 'flex', alignItems: 'center' }}>

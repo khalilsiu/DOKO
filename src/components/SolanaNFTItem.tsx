@@ -15,12 +15,12 @@ import {
 } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
-import eth from './assets/eth.png';
+import eth from './assets/tokens/eth.png';
 import bsc from './assets/bsc.png';
 import polygon from './assets/polygon.png';
 import solana from './assets/solana.png';
-import facebook from './assets/facebook.png';
-import twitter from './assets/twitter.png';
+import facebook from './assets/socials/facebook.png';
+import twitter from './assets/socials/twitter.png';
 import NoImage from './assets/NoImage.png';
 import loading from './assets/loading.gif';
 

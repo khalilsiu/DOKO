@@ -24,15 +24,15 @@ export interface Asset {
   };
   lease?: Lease;
   traits: Trait[];
-  metaverseName: string | null;
-  collection: string | null;
-  tokenStandard: string | null;
-  slug: string | null;
-  externalLink: string | null;
-  lastPurchasePriceEth: number | null;
-  lastPurchasePriceUsd: number | null;
-  floorPriceUsd: number | null;
-  floorPriceEth: number | null;
+  metaverseName: string;
+  collection: string;
+  tokenStandard: string;
+  slug: string;
+  externalLink: string;
+  lastPurchasePriceEth: number;
+  lastPurchasePriceUsd: number;
+  floorPriceInUsd: number;
+  floorPriceInEth: number;
 }
 
 export interface AddressOwnership {

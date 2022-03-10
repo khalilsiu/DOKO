@@ -13,7 +13,7 @@ export default function PriceField({ title, value }: Props) {
     <>
       <Typography variant="subtitle2">{title}</Typography>
       <Grid container alignItems="center" style={{ width: 'unset' }}>
-        <img height={24} src="/collection/DOKOasset_EthereumBlue.png" alt="" />
+        <img height={24} src="/collection/EthereumBlue.png" alt="" />
         <Typography style={{ marginLeft: 8, fontWeight: 700 }} variant="h5">
           {disp}
         </Typography>

@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   Grid,
 } from '@material-ui/core';
-import UIModal from '../modal';
+import UIModal from '../UIModal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';

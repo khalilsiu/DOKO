@@ -1,7 +1,11 @@
-import decentraland from '../assets/decentraland.png';
-import cryptovoxels from '../assets/cryptovoxels.png';
-import thesandbox from '../assets/thesandbox.png';
-import somnium from '../assets/somnium.png';
+import decentralandIcon from '../assets/metaverses/decentraland-icon.png';
+import cryptovoxelsIcon from '../assets/metaverses/cryptovoxels-icon.png';
+import theSandBoxIcon from '../assets/metaverses/thesandbox-icon.png';
+import somniumSpaceIcon from '../assets/metaverses/somniumspace-icon.png';
+import decentraland from '../assets/metaverses/decentraland.png';
+import cryptovoxels from '../assets/metaverses/cryptovoxels.png';
+import theSandBox from '../assets/metaverses/thesandbox.png';
+import somniumSpace from '../assets/metaverses/somniumspace.png';
 import DclLandAbi from '../contracts/DclLand.json';
 
 const cryptovoxelsIslands = [
@@ -39,7 +43,8 @@ const somniumParcelSizes = ['S', 'M', 'XL'];
 
 const metaverses = [
   {
-    icon: decentraland,
+    icon: decentralandIcon,
+    image: decentraland,
     name: 'decentraland',
     label: 'Decentraland',
     slug: 'decentraland',
@@ -58,7 +63,8 @@ const metaverses = [
     ],
   },
   {
-    icon: thesandbox,
+    icon: theSandBoxIcon,
+    image: theSandBox,
     name: 'the-sandbox',
     label: 'The Sandbox',
     slug: 'sandbox',
@@ -69,7 +75,8 @@ const metaverses = [
     contracts: [],
   },
   {
-    icon: cryptovoxels,
+    icon: cryptovoxelsIcon,
+    image: cryptovoxels,
     name: 'cryptovoxels',
     label: 'Cryptovoxels',
     slug: 'cryptovoxels',
@@ -89,7 +96,8 @@ const metaverses = [
     contracts: [],
   },
   {
-    icon: somnium,
+    icon: somniumSpaceIcon,
+    image: somniumSpace,
     name: 'somnium-space',
     label: 'Somnium Space VR',
     slug: 'somnium-space',

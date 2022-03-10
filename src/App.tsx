@@ -1,14 +1,12 @@
 import { lazy, PropsWithChildren, Suspense } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import Intro from './modules/core/Intro';
-import Header from './modules/core/Header';
-import Footer from './modules/core/Footer';
+import Footer from './components/Footer';
 import { AuthContextProvider } from './contexts/AuthContext';
 import { CreateProfileContextProvider } from './contexts/CreateProfileContext';
 import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
-import { MetaLanding } from './modules/meta-landing';
+import { LandingPage } from './modules/landing-page';
 import Snackbar from '@material-ui/core/Snackbar';
 import { Alert } from '@material-ui/lab';
 import { closeToast, ToastAction } from './store/app/appStateSlice';
@@ -16,12 +14,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store/store';
 import { WSContextProvider } from './contexts/WSContext';
 import { Button } from '@material-ui/core';
+import Header from 'components/Header';
+import Intro from 'components/Intro';
 
 const AddressPage = lazy(() => import(/* webpackPrefetch: true */ './modules/address-page'));
 const RentalListingPage = lazy(() => import(/* webpackPrefetch: true */ './modules/rental-listing-page'));
-const MetaNftIndividual = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-nft-individual'));
-const MetaProfiles = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profiles'));
-const MetaProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/meta-profile-page'));
+const MetaIndividualLandPage = lazy(() => import(/* webpackPrefetch: true */ './modules/individual-land-page'));
+const ProfilesPage = lazy(() => import(/* webpackPrefetch: true */ './modules/profiles-page'));
+const ProfilePage = lazy(() => import(/* webpackPrefetch: true */ './modules/profile-page'));
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
@@ -60,7 +60,7 @@ function App() {
                 <Header />
                 <Switch>
                   <Route path="/" exact>
-                    <MetaLanding />
+                    <LandingPage />
                   </Route>
                   <Route path="/address/:address" exact>
                     <RouteContainer>
@@ -84,17 +84,17 @@ function App() {
                   </Route>
                   <Route path="/nft/:chain/:address/:id" exact>
                     <RouteContainer>
-                      <MetaNftIndividual />
+                      <MetaIndividualLandPage />
                     </RouteContainer>
                   </Route>
                   <Route path="/profiles" exact>
                     <RouteContainer>
-                      <MetaProfiles />
+                      <ProfilesPage />
                     </RouteContainer>
                   </Route>
                   <Route path="/profiles/:hash" exact>
                     <RouteContainer>
-                      <MetaProfilePage />
+                      <ProfilePage />
                     </RouteContainer>
                   </Route>
                 </Switch>

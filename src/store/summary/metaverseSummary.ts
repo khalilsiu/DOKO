@@ -2,12 +2,16 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import metaverses from '../../constants/metaverses';
 import ContractServiceAPI from '../../libs/contract-service-api';
 
+interface FloorPrice {
+  floorPriceInEth: number;
+  floorPriceInUsd: number;
+}
 export interface MetaverseSummary {
-  traits: number[];
+  traits: FloorPrice[];
 }
 
 const initialState: MetaverseSummary[] = metaverses.map((metaverse) => ({
-  traits: metaverse.traits.map(() => 0),
+  traits: metaverse.traits.map(() => ({ floorPriceInEth: 0, floorPriceInUsd: 0 })),
 }));
 
 export const parsePriceETH = (price: string, payment_token: any): number => {
@@ -21,13 +25,16 @@ export const parsePriceUSD = (price: string, payment_token: any): number => {
 };
 
 export const fetchMetaverseSummary = createAsyncThunk('MetaverseSummary/fetchMetaverseSummary', async () => {
-  const metaverseFloorPrices: number[][] = [];
+  const metaverseFloorPrices: FloorPrice[][] = [];
   for (const metaverse of metaverses) {
-    const traitFloorPrices: number[] = [];
+    const traitFloorPrices: FloorPrice[] = [];
     for (const trait of metaverse.traits) {
       const response = await ContractServiceAPI.getAssetFloorPrice(metaverse.primaryAddress, trait);
       const { price, payment_token } = response;
-      traitFloorPrices.push(parsePriceETH(price, payment_token));
+      traitFloorPrices.push({
+        floorPriceInEth: parsePriceETH(price, payment_token),
+        floorPriceInUsd: parsePriceUSD(price, payment_token),
+      });
     }
     metaverseFloorPrices.push(traitFloorPrices);
   }

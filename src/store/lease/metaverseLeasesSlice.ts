@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ethers } from 'ethers';
 import { Asset } from 'store/summary/profileOwnershipSlice';
-import { LeaseForm } from '../../components/landProfile/EditLeaseModal';
+import { LeaseForm } from '../../components/profile/EditLeaseModal';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import metaverses from '../../constants/metaverses';
 import ContractServiceAPI from '../../libs/contract-service-api';
@@ -103,7 +103,6 @@ export const acceptLeaseToBlockchain = createAsyncThunk<void, IAcceptLease, { re
       // does not wait for txn to resolve
       await dclLandRentalContract.acceptLease(assetId, finalLeaseLength, options);
     } catch (e: any) {
-      console.log(e);
       const message = (e.data && e.data.message) ?? e.toString();
       return rejectWithValue({ error: message } as ThunkError);
     }

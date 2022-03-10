@@ -1,13 +1,14 @@
 import { Grid, Hidden, Card, makeStyles, Typography, useMediaQuery, Theme } from '@material-ui/core';
+import Intro from 'components/Intro';
+import Meta from 'components/Meta';
+import { TabPanel } from 'components/TabPanel';
 import { cloneDeep } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Meta, TabPanel } from '../../components';
-import { CustomTabs, CustomTab } from '../../components/landProfile/OwnershipView';
+import { CustomTabs, CustomTab } from '../../components/profile/OwnershipView';
 import metaverses from '../../constants/metaverses';
 import { getMetaverseAssetsFromServer } from '../../store/asset/metaverseAssetsFromServerSlice';
 import { RootState } from '../../store/store';
-import Intro from '../core/Intro';
 import RentalView, { sortOptions } from './RentalView';
 
 const useStyles = makeStyles((theme) => ({

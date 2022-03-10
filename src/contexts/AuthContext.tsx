@@ -8,11 +8,11 @@ import CloseIcon from '@material-ui/icons/Close';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import useTheme from '@material-ui/core/styles/useTheme';
 import { ethers, Contract } from 'ethers';
-import UIModal from '../components/modal';
+import UIModal from '../components/UIModal';
 import { Wallet, WalletName } from '../types';
 import { useDispatch } from 'react-redux';
 
-import { rentalContracts } from '../constants/contracts';
+import { rentalContracts } from '../constants/rentals';
 import { tokens } from '../constants/acceptedTokens';
 import metaverses from '../constants/metaverses';
 import { openToast, startLoading, stopLoading } from 'store/app/appStateSlice';

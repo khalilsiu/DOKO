@@ -63,12 +63,7 @@ export const Summary = ({ data }: Props) => {
                   >
                     {item.available ? (
                       <Grid container alignItems="center">
-                        <img
-                          style={{ marginRight: 8 }}
-                          src="/collection/DOKOasset_EthereumBlue.png"
-                          width={10}
-                          alt="ETH"
-                        />
+                        <img style={{ marginRight: 8 }} src="/collection/EthereumBlue.png" width={10} alt="ETH" />
                         {parseFloat(`${item.price}`).toFixed(3)}
                       </Grid>
                     ) : (

@@ -1,14 +1,14 @@
 import { useContext } from 'react';
 import { Card, Grid, Hidden, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
-import { Meta } from '../../components';
-import Intro from '../core/Intro';
 
 import CopyAddress from '../../components/CopyAddress';
 import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import useAddressSummaries from '../../hooks/summary/useAddressSummaries';
-import OwnershipView from '../../components/landProfile/OwnershipView';
+import OwnershipView from '../../components/profile/OwnershipView';
 import { minimizeAddress } from '../../utils/utils';
+import Intro from 'components/Intro';
+import Meta from 'components/Meta';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -61,10 +61,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const NftCollections = () => {
+export const AddressPage = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
-  console.log(address);
   const metaverseSummaries = useAddressSummaries(address);
   const { openProfileModal } = useContext(CreateProfileContext);
   const handleClickOpen = () => {
@@ -114,4 +113,4 @@ export const NftCollections = () => {
   );
 };
 
-export default NftCollections;
+export default AddressPage;

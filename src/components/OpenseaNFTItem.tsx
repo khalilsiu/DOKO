@@ -17,14 +17,16 @@ import {
 } from '@material-ui/core';
 import { useHistory, useParams } from 'react-router-dom';
 
-import eth from './assets/eth.png';
-import facebook from './assets/facebook.png';
-import twitter from './assets/twitter.png';
-import NoImage from './assets/NoImage.png';
-import loading from './assets/loading.gif';
+import eth from '../assets/tokens/eth.png';
+import facebook from '../assets/socials/facebook.png';
+import twitter from '../assets/socials/twitter.png';
+import NoImage from '../assets/NoImage.png';
+import loading from '../assets/loading.gif';
 import { useMetaMask } from 'metamask-react';
-import { getLeaseState } from './landProfile/OwnershipView';
+import { getLeaseState } from './profile/OwnershipView';
 import { Asset } from 'store/summary/profileOwnershipSlice';
+import activeShareIcon from 'assets/socials/active-share.png';
+import inactiveShareIcon from 'assets/socials/inactive-share.png';
 
 interface NFTItemProps {
   nft: Asset;
@@ -48,6 +50,7 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
   const [error, setError] = useState(false);
   const nftPath = `/nft/eth/${nft.assetContract.address}/${nft.tokenId}`;
   const leasePath = `/address/${urlAddress}/${nft.assetContract.address}/${nft.tokenId}/lease`;
+
   // only decentraland right now
   const showLeaseButton =
     status === 'connected' &&
@@ -158,7 +161,7 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
                 <img className={styles.networkIcon} src={eth} alt="ETH" />
 
                 <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
-                  {nft.floorPriceEth ? nft.floorPriceEth.toFixed(2) : 'N.A.'}
+                  {nft.floorPriceInEth ? nft.floorPriceInEth.toFixed(2) : 'N.A.'}
                 </Typography>
               </Grid>
               <div style={{ display: 'flex' }}>
@@ -185,9 +188,9 @@ export const OpenseaNFTItem = memo(({ nft, onClick }: NFTItemProps) => {
                     style={{ padding: 0 }}
                   >
                     {shareActive ? (
-                      <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
+                      <img className={styles.shareIcon} src={activeShareIcon} alt="share" />
                     ) : (
-                      <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
+                      <img className={styles.shareIcon} src={inactiveShareIcon} alt="share" />
                     )}
                   </IconButton>
                   <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>

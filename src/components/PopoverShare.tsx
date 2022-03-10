@@ -1,8 +1,8 @@
 import { useState, memo, SyntheticEvent, MouseEvent } from 'react';
 import { IconButton, MenuItem, makeStyles, withStyles, Menu, Hidden } from '@material-ui/core';
 
-import facebook from '../assets/facebook.png';
-import twitter from '../assets/twitter.png';
+import facebook from '../assets/socials/facebook.png';
+import twitter from '../assets/socials/twitter.png';
 import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 import { Refresh as RefreshIcon } from '@material-ui/icons';
 
@@ -85,7 +85,7 @@ export const PopoverShare = memo(({ name, chain, address, tokenId, onRefresh }: 
     <>
       <Hidden xsDown>
         <CustomIconButton onClick={handleClick}>
-          <img width={32} src="/collection/DOKOasset_ShareWhiteCircle.png" alt="" />
+          <img width={32} src="/collection/ShareWhiteCircle.png" alt="" />
         </CustomIconButton>
       </Hidden>
       <Hidden smUp>

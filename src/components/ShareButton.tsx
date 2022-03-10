@@ -1,7 +1,7 @@
 import { IconButton, makeStyles, Menu, MenuItem } from '@material-ui/core';
 import { SyntheticEvent, useState, MouseEvent } from 'react';
-import facebook from './assets/facebook.png';
-import twitter from './assets/twitter.png';
+import facebook from '../assets/socials/facebook.png';
+import twitter from '../assets/socials/twitter.png';
 
 const useStyles = makeStyles((theme) => ({
   shareIcon: {

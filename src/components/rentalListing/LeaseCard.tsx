@@ -1,5 +1,5 @@
 import { Button, Card, CardContent, makeStyles, Typography, Theme } from '@material-ui/core';
-import eth from '../../assets/eth.png';
+import eth from '../../assets/tokens/eth.png';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import ShareButton from '../ShareButton';
 import { MouseEvent } from 'react';

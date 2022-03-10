@@ -27,15 +27,15 @@ const initialState: Asset = {
     address: '',
   },
   traits: [],
-  metaverseName: null,
-  collection: null,
-  tokenStandard: null,
-  slug: null,
-  externalLink: null,
-  lastPurchasePriceEth: null,
-  lastPurchasePriceUsd: null,
-  floorPriceUsd: null,
-  floorPriceEth: null,
+  metaverseName: '',
+  collection: '',
+  tokenStandard: '',
+  slug: '',
+  externalLink: '',
+  lastPurchasePriceEth: 0,
+  lastPurchasePriceUsd: 0,
+  floorPriceInUsd: 0,
+  floorPriceInEth: 0,
 };
 
 interface IGetAsset {
@@ -92,13 +92,13 @@ export const getAssetFromOpensea = createAsyncThunk(
         contractAddress,
         tokenId,
       });
-      const [floorPriceETH, floorPriceUSD] = await fetchMetaverseFloorPrice(asset);
+      const [floorPriceInEth, floorPriceInUsd] = await fetchMetaverseFloorPrice(asset);
 
       return camelize({
         ...asset,
         lease: assetWithLease.lease,
-        floorPriceETH,
-        floorPriceUSD,
+        floorPriceInEth,
+        floorPriceInUsd,
       });
     } catch (e) {
       console.error(e);
