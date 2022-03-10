@@ -14,12 +14,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store/store';
 import { WSContextProvider } from './contexts/WSContext';
 import { Button } from '@material-ui/core';
-<<<<<<< HEAD:src/App.tsx
 import Header from 'components/Header';
 import Intro from 'components/Intro';
-=======
 import MetaStatsPage from './modules/meta-stats-page';
->>>>>>> e262d56dc533d3f974edd4102923ae9253e8d5e0:client/src/App.tsx
 
 const AddressPage = lazy(() => import(/* webpackPrefetch: true */ './modules/address-page'));
 const RentalListingPage = lazy(() => import(/* webpackPrefetch: true */ './modules/rental-listing-page'));

@@ -1,10 +1,6 @@
 import axios from 'axios';
-<<<<<<< HEAD:src/libs/contract-service-api.ts
 import { Filter } from '../hooks/summary/aggregateMetaverseSummaries';
-=======
 import { Metaverse } from 'constants/metaverses';
-import { Filter } from '../hooks/useProfileSummaries';
->>>>>>> e262d56dc533d3f974edd4102923ae9253e8d5e0:client/src/libs/contract-service-api.ts
 
 const instance = axios.create({
   baseURL: process.env.REACT_APP_HOLDINGS_SERVICE_API,

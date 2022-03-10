@@ -2,6 +2,8 @@ import { IconButton, makeStyles, Menu, MenuItem } from '@material-ui/core';
 import { SyntheticEvent, useState, MouseEvent } from 'react';
 import facebook from '../assets/socials/facebook.png';
 import twitter from '../assets/socials/twitter.png';
+import activeShareIcon from 'assets/socials/active-share.png';
+import inactiveShareIcon from 'assets/socials/inactive-share.png';
 
 const useStyles = makeStyles((theme) => ({
   shareIcon: {
@@ -53,9 +55,9 @@ const ShareButton = () => {
         style={{ padding: 0 }}
       >
         {shareActive ? (
-          <img className={styles.shareIcon} src="/icons/active-share.png" alt="share" />
+          <img className={styles.shareIcon} src={activeShareIcon} alt="share" />
         ) : (
-          <img className={styles.shareIcon} src="/icons/inactive-share.png" alt="share" />
+          <img className={styles.shareIcon} src={inactiveShareIcon} alt="share" />
         )}
       </IconButton>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>

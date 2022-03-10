@@ -13,9 +13,9 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ClearIcon from '@material-ui/icons/Clear';
 import SearchIcon from '@material-ui/icons/Search';
 import { DataGrid } from '@mui/x-data-grid';
+import RadiusInput from 'components/RadiusInput';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { forwardRef } from 'react';
-import { RadiusInput } from '../../components';
 import { DclStats } from '../../store/stats/dclStatsSlice';
 
 interface IStatsView {
@@ -213,11 +213,7 @@ const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats, isLoading }: 
                   value={index}
                   onClick={() => handleTimeframeChange(timeframe.id)}
                   className={styles.menuItem}
-                  style={
-                    timeframe.id === timeframeSelected
-                      ? { backgroundColor: theme.palette.grey[300] }
-                      : {}
-                  }
+                  style={timeframe.id === timeframeSelected ? { backgroundColor: theme.palette.grey[300] } : {}}
                   key={timeframe.id}
                 >
                   {timeframe.label}

@@ -20,6 +20,7 @@ import polygon from '../../assets//chains/polygon-small.png';
 import solana from '../../assets//chains/solana-small.png';
 import Intro from 'components/Intro';
 import Meta from 'components/Meta';
+import addAddressIcon from 'assets/app/ProfilesPage/addAddress.png';
 
 type Icons = {
   [key: string]: string;
@@ -370,7 +371,7 @@ export const Profiles = () => {
         {cookies.profiles?.[editProfile].address.length < 6 && (
           <Grid container>
             <Button className={styles.buttons} onClick={() => setAddAddress(true)}>
-              <img src="/addAddress.png" alt="add address" />
+              <img src={addAddressIcon} alt="add address" />
             </Button>
           </Grid>
         )}

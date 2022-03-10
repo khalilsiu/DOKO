@@ -1,11 +1,13 @@
 import Erc20Token from '../contracts/Erc20Token.json';
+import ethIcon from 'assets/tokens/eth.png';
+import usdtIcon from 'assets/tokens/usdt.png';
 
 export const tokens = [
   {
     symbol: 'ETH',
     address: '0x0000000000000000000000000000000000000000',
     label: '[ETH] Ethereum',
-    icon: '/ethereum.png',
+    icon: ethIcon,
     decimals: 18,
     abi: [],
   },
@@ -13,7 +15,7 @@ export const tokens = [
     symbol: 'USDT',
     address: process.env.REACT_APP_USDT_ADDRESS || '',
     label: '[USDT] Tether',
-    icon: '/usdt.png',
+    icon: usdtIcon,
     decimals: parseInt(process.env.REACT_APP_USDT_DECIMALS || '18', 10),
     abi: Erc20Token.abi,
   },

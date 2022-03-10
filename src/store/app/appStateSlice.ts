@@ -1,11 +1,8 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
-<<<<<<< HEAD:src/store/app/appStateSlice.ts
 import { fetchProfileOwnership } from 'store/summary/profileOwnershipSlice';
-=======
 import { getDclStats } from 'store/stats/dclStatsSlice';
->>>>>>> e262d56dc533d3f974edd4102923ae9253e8d5e0:client/src/store/app/appStateSlice.ts
 import { getAssetFromOpensea } from '../asset/assetSlice';
 import { acceptLeaseToBlockchain, upsertLeaseToBlockchain } from '../lease/metaverseLeasesSlice';
 import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
@@ -115,11 +112,7 @@ const appStateSlice = createSlice({
       .addCase(fetchProfileOwnership.pending, (state) => {
         state.isLoading = true;
       })
-<<<<<<< HEAD:src/store/app/appStateSlice.ts
-=======
-      .addCase(getAssetFromOpensea.pending, (state) => {
-        state.isLoading = true;
-      })
+
       .addCase(getDclStats.pending, (state) => {
         state.isLoading = true;
       })
@@ -127,7 +120,6 @@ const appStateSlice = createSlice({
         state.isLoading = false;
       })
       // fulfilled
->>>>>>> e262d56dc533d3f974edd4102923ae9253e8d5e0:client/src/store/app/appStateSlice.ts
       .addCase(fetchProfileOwnership.fulfilled, (state) => {
         state.isLoading = false;
       })
