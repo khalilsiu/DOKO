@@ -9,6 +9,11 @@ on:
     branches:
     - development
 
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: doko-client-staging
+  RUN_REGION: asia-southeast1
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   setup-build-deploy:
