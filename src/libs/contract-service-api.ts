@@ -6,6 +6,8 @@ const instance = axios.create({
   baseURL: process.env.REACT_APP_HOLDINGS_SERVICE_API,
 });
 
+console.log('process.env.REACT_APP_HOLDINGS_SERVICE_API', process.env.REACT_APP_HOLDINGS_SERVICE_API);
+
 export interface SortOption {
   field: string;
   order: string;
