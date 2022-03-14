@@ -6,18 +6,18 @@ steps:
         '-t',
         'gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA',
         '--build-arg=REACT_APP_DCL_LAND_ADDRESS=$_REACT_APP_DCL_LAND_ADDRESS',
-        '--build-arg=_REACT_APP_DCL_LAND_RENTAL_ADDRESS=$__REACT_APP_DCL_LAND_RENTAL_ADDRESS',
-        '--build-arg=__REACT_APP_HOLDINGS_SERVICE_API=$___REACT_APP_HOLDINGS_SERVICE_API',
-        '--build-arg=__REACT_APP_HOLDINGS_SERVICE_SOCKET=$___REACT_APP_HOLDINGS_SERVICE_SOCKET',
-        '--build-arg=__REACT_APP_USDT_ADDRESS=$___REACT_APP_USDT_ADDRESS',
-        '--build-arg=__REACT_APP_USDT_DECIMALS=$___REACT_APP_USDT_DECIMALS',
+        '--build-arg=REACT_APP_DCL_LAND_RENTAL_ADDRESS=$_REACT_APP_DCL_LAND_RENTAL_ADDRESS',
+        '--build-arg=REACT_APP_HOLDINGS_SERVICE_API=$_REACT_APP_HOLDINGS_SERVICE_API',
+        '--build-arg=REACT_APP_HOLDINGS_SERVICE_SOCKET=$_REACT_APP_HOLDINGS_SERVICE_SOCKET',
+        '--build-arg=REACT_APP_USDT_ADDRESS=$_REACT_APP_USDT_ADDRESS',
+        '--build-arg=REACT_APP_USDT_DECIMALS=$_REACT_APP_USDT_DECIMALS',
         '.',
       ]
   # push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA']
+    args: ['push', 'gcr.io/$_PROJECT_ID/$_SERVICE_NAME:$_GITHUB_SHA']
 images:
-  - 'gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA'
+  - 'gcr.io/$_PROJECT_ID/$_SERVICE_NAME:$_GITHUB_SHA'
 timeout: 1200s
 substitutions:
   _REACT_APP_DCL_LAND_ADDRESS: "0x4e16a43aF849aa8F7aCB35bFFeFdc968853B16D6"
@@ -26,3 +26,7 @@ substitutions:
   _REACT_APP_HOLDINGS_SERVICE_SOCKET: https://holdings-service-stg-df63favl7q-as.a.run.app
   _REACT_APP_USDT_ADDRESS: "0xFab46E002BbF0b4509813474841E0716E6730136"
   _REACT_APP_USDT_DECIMALS: "18"
+  _PROJECT_ID: ""
+  _SERVICE_NAME: ""
+  _GITHUB_SHA: ""
+
