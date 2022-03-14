@@ -5,5 +5,5 @@ export interface ToolbarItemsProps {
   search: string;
   loading: boolean;
   address?: string;
-  connect?: () => void;
+  connect: () => void;
 }

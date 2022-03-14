@@ -1,12 +1,11 @@
 import { createContext, PropsWithChildren, useCallback, useEffect, useState } from 'react';
-import { useMetaMask } from 'metamask-react';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import CloseIcon from '@material-ui/icons/Close';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import useTheme from '@material-ui/core/styles/useTheme';
+// import useMediaQuery from '@material-ui/core/useMediaQuery';
+// import useTheme from '@material-ui/core/styles/useTheme';
 import { ethers, Contract } from 'ethers';
 import UIModal from '../components/UIModal';
 import { Wallet, WalletName } from '../types';
@@ -15,7 +14,179 @@ import { useDispatch } from 'react-redux';
 import { rentalContracts } from '../constants/rentals';
 import { tokens } from '../constants/acceptedTokens';
 import metaverses from '../constants/metaverses';
-import { openToast, startLoading, stopLoading } from 'store/app/appStateSlice';
+import { openToast } from 'store/app/appStateSlice';
+import { injected } from 'config/injected';
+import { useWeb3React } from '@web3-react/core';
+
+declare let window: any;
+
+type ContractNames = 'dclLandRental' | 'dclLand' | 'USDT';
+
+type Contracts = { [key in ContractNames]: ethers.Contract | null };
+export interface AuthContextType {
+  connectContract: (symbol: ContractNames) => void;
+  contracts: Contracts;
+  isActive: boolean;
+  address: string;
+  connect: () => void;
+  disconnect: () => Promise<void>;
+}
+const wallets: Wallet[] = [
+  {
+    icon: '/DOKO_Metamasklogo_asset.png',
+    label: 'MetaMask Wallet',
+    name: WalletName.METAMASK,
+  },
+];
+
+export const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  // const theme = useTheme();
+  // const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [address, setAddress] = useState('');
+  const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | null>(null);
+  const { account, active, error, activate, deactivate } = useWeb3React();
+  const [isActive, setIsActive] = useState(false);
+
+  const connect = async () => {
+    try {
+      await activate(injected);
+    } catch (e) {
+      dispatch(openToast({ message: `Error on connecting to Metamask ${e}`, state: 'error' }));
+    }
+  };
+
+  const disconnect = async () => {
+    try {
+      await deactivate();
+    } catch (e) {
+      dispatch(openToast({ message: `Error on disconnecting from App ${e}`, state: 'error' }));
+    }
+  };
+
+  const login = useCallback(async () => {
+    await connect();
+    setShowWalletModal(false);
+  }, []);
+
+  // check when app is connected to metamask as
+  const handleIsActive = useCallback(async () => {
+    const isAuthorized = await injected.isAuthorized();
+    if (isAuthorized && !active && !error) {
+      await activate(injected);
+    }
+  }, [active, injected, error]);
+
+  useEffect(() => {
+    handleIsActive();
+  }, [active, injected, error]);
+
+  useEffect(() => {
+    if (account) {
+      setAddress(account.toLowerCase());
+    }
+  }, [account]);
+
+  useEffect(() => {
+    setIsActive(active);
+  }, [active]);
+
+  const [contracts, setContracts] = useState<Contracts>({
+    dclLandRental: null,
+    dclLand: null,
+    USDT: null,
+  });
+
+  useEffect(() => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    setSigner(signer);
+  }, []);
+
+  const connectContract = (symbol: ContractNames) => {
+    const metaverseContracts = metaverses.map((metaverse) => metaverse.contracts).flat();
+    const contract = [...tokens, ...rentalContracts, ...metaverseContracts].find(
+      (contract) => contract.symbol === symbol,
+    );
+    if (!contract) {
+      dispatch(openToast({ message: `${contract} not found`, state: 'error' }));
+      return;
+    }
+    if (!signer) {
+      dispatch(openToast({ message: `Signer is not initialized`, state: 'error' }));
+      return;
+    }
+
+    setContracts((state) => ({
+      ...state,
+      [symbol]: new Contract(contract.address || '', contract.abi, signer),
+    }));
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        address,
+        connect: () => setShowWalletModal(true),
+        disconnect,
+        isActive,
+        connectContract,
+        contracts,
+      }}
+    >
+      <>
+        {children}
+        <UIModal
+          modalOpen={showWalletModal}
+          renderHeader={() => (
+            <div className={classes.modalHeader}>
+              <Typography variant="h6" style={{ fontWeight: 'bold' }}>
+                Connect Wallet
+              </Typography>
+              <IconButton style={{ color: 'white' }} onClick={() => setShowWalletModal(false)}>
+                <CloseIcon fontSize="medium" />
+              </IconButton>
+            </div>
+          )}
+          renderBody={() => (
+            <div className={classes.modalContent}>
+              {wallets.map((wallet) => (
+                <div
+                  className={`${classes.walletContainer} 
+                ${walletSelected.name === wallet.name && classes.walletSelected}`}
+                  key={wallet.label}
+                  onClick={() => setWalletSelected(wallet)}
+                  onKeyDown={() => setWalletSelected(wallet)}
+                >
+                  <img src={wallet.icon} alt="" className={classes.walletImage} />
+
+                  <Typography variant="subtitle2" className={classes.walletName}>
+                    {wallet.label}
+                  </Typography>
+                </div>
+              ))}
+            </div>
+          )}
+          renderFooter={() => (
+            <div className={classes.modalFooter}>
+              <Button className={classes.modalButton} variant="outlined" onClick={login}>
+                <Typography variant="body1" style={{ fontWeight: 'bold' }}>
+                  Connect Wallet
+                </Typography>
+              </Button>
+            </div>
+          )}
+        />
+      </>
+    </AuthContext.Provider>
+  );
+};
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -83,176 +254,3 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-
-declare let window: any;
-
-type ContractNames = 'dclLandRental' | 'dclLand' | 'USDT';
-
-type Contracts = { [key in ContractNames]: ethers.Contract | null };
-export interface AuthContextType {
-  address: string;
-  walletName: WalletName | null;
-  connect: () => void;
-  connectContract: (symbol: ContractNames) => void;
-  contracts: Contracts;
-}
-const wallets: Wallet[] = [
-  {
-    icon: '/DOKO_Metamasklogo_asset.png',
-    label: 'MetaMask Wallet',
-    name: WalletName.METAMASK,
-  },
-];
-
-export const AuthContext = createContext<AuthContextType | null>(null);
-
-export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
-  const all = useMetaMask();
-  const { account, connect, status } = all;
-  const classes = useStyles();
-  const theme = useTheme();
-  const dispatch = useDispatch();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const [address, setAddress] = useState('');
-  const [walletName, setWalletName] = useState<WalletName | null>(null);
-  const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | null>(null);
-
-  const [contracts, setContracts] = useState<Contracts>({
-    dclLandRental: null,
-    dclLand: null,
-    USDT: null,
-  });
-
-  console.log(window.ethereum);
-  console.log(window.ethereum.isMetaMask);
-  console.log(all);
-
-  useEffect(() => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    setSigner(signer);
-  }, []);
-
-  const connectContract = (symbol: ContractNames) => {
-    const metaverseContracts = metaverses.map((metaverse) => metaverse.contracts).flat();
-    const contract = [...tokens, ...rentalContracts, ...metaverseContracts].find(
-      (contract) => contract.symbol === symbol,
-    );
-    if (!contract) {
-      dispatch(openToast({ message: `${contract} not found`, state: 'error' }));
-      return;
-    }
-    if (!signer) {
-      dispatch(openToast({ message: `Signer is not initialized`, state: 'error' }));
-      return;
-    }
-
-    setContracts((state) => ({
-      ...state,
-      [symbol]: new Contract(contract.address || '', contract.abi, signer),
-    }));
-  };
-
-  const connectMetaMask = useCallback(async () => {
-    try {
-      if (isMobile) {
-        if (status === 'unavailable') {
-          window.location.href = 'https://metamask.app.link/dapp/doko.one';
-        }
-        await connect();
-      } else {
-        await connect();
-      }
-    } catch (err) {
-      dispatch(
-        openToast({
-          message: `Metamask error ${(err as Error).message}`,
-          state: 'error',
-        }),
-      );
-      return;
-    }
-  }, [isMobile, status, window]);
-
-  const login = async (wallet: WalletName) => {
-    dispatch(startLoading());
-    switch (wallet) {
-      case WalletName.METAMASK:
-        setWalletName(WalletName.METAMASK);
-        await connectMetaMask();
-        break;
-      default:
-        break;
-    }
-    dispatch(stopLoading());
-  };
-
-  const connectWallet = useCallback(() => {
-    setShowWalletModal(false);
-    login(walletSelected.name);
-  }, [walletSelected]);
-
-  useEffect(() => {
-    setAddress(account || '');
-  }, [account]);
-
-  return (
-    <AuthContext.Provider
-      value={{
-        address,
-        walletName,
-        connect: () => setShowWalletModal(true),
-        connectContract,
-        contracts,
-      }}
-    >
-      <>
-        {children}
-        <UIModal
-          modalOpen={showWalletModal}
-          renderHeader={() => (
-            <div className={classes.modalHeader}>
-              <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-                Connect Wallet
-              </Typography>
-              <IconButton style={{ color: 'white' }} onClick={() => setShowWalletModal(false)}>
-                <CloseIcon fontSize="medium" />
-              </IconButton>
-            </div>
-          )}
-          renderBody={() => (
-            <div className={classes.modalContent}>
-              {wallets.map((wallet) => (
-                <div
-                  className={`${classes.walletContainer} 
-                ${walletSelected.name === wallet.name && classes.walletSelected}`}
-                  key={wallet.label}
-                  onClick={() => setWalletSelected(wallet)}
-                  onKeyDown={() => setWalletSelected(wallet)}
-                >
-                  <img src={wallet.icon} alt="" className={classes.walletImage} />
-
-                  <Typography variant="subtitle2" className={classes.walletName}>
-                    {wallet.label}
-                  </Typography>
-                </div>
-              ))}
-            </div>
-          )}
-          renderFooter={() => (
-            <div className={classes.modalFooter}>
-              <Button className={classes.modalButton} variant="outlined" onClick={() => connectWallet()}>
-                <Typography variant="body1" style={{ fontWeight: 'bold' }}>
-                  Connect Wallet
-                </Typography>
-              </Button>
-            </div>
-          )}
-        />
-      </>
-    </AuthContext.Provider>
-  );
-};

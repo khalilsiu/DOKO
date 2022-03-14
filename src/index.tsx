@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { MetaMaskProvider } from 'metamask-react';
+
 import { HelmetProvider } from 'react-helmet-async';
 import 'leaflet/dist/leaflet.css';
 import './index.scss';
@@ -11,19 +11,25 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import ThemeProvider from './core/ThemeProvider';
 import store from './store/store';
+import Web3 from 'web3';
+import { Web3ReactProvider } from '@web3-react/core';
+
+function getLibrary(provider: any) {
+  return new Web3(provider);
+}
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <HelmetProvider>
-        <MetaMaskProvider>
+        <Web3ReactProvider getLibrary={getLibrary}>
           <ThemeProvider>
             <CookiesProvider>
               <CssBaseline />
               <App />
             </CookiesProvider>
           </ThemeProvider>
-        </MetaMaskProvider>
+        </Web3ReactProvider>
       </HelmetProvider>
     </Provider>
   </React.StrictMode>,

@@ -1,23 +1,3 @@
-// interface AppConfig {
-//   polygon_provider: string;
-//   moralisServerUrl: string;
-//   moralisApplicationId: string;
-//   moralisApiKey: string;
-//   testAccount: string;
-//   apiUrl: string;
-// }
-
-// export const config: AppConfig = {
-//   polygon_provider: process.env.REACT_APP_POLYGON_PROVIDER || '',
-//   moralisServerUrl: process.env.REACT_APP_MORALIS_SERVER_URL || '',
-//   moralisApplicationId: process.env.REACT_APP_MORALIS_APPLICATION_ID || '',
-//   moralisApiKey: process.env.REACT_APP_MORALIS_API_KEY || '',
-//   testAccount: '0x4ec741b83ec1f0b491152904b1b8383c2975031a',
-//   apiUrl: process.env.REACT_APP_API_URL || '',
-// };
-
-// export default config;
-
 interface AppConfig {
   provider: string;
   holdingsServiceUrl: string;
@@ -37,7 +17,5 @@ export const config: AppConfig = {
   usdtAddress: process.env.REACT_APP_USDT_ADDRESS || '',
   usdtDecimals: parseInt(process.env.REACT_APP_USDT_DECIMALS || '0', 10),
 };
-
-console.log('CONFIG', config);
 
 export default config;
