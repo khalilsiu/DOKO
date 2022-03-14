@@ -114,13 +114,12 @@ const assetSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      .addCase(getAssetFromOpensea.fulfilled, (_, action) => {
+    builder.addMatcher(
+      (_) => [getAssetFromOpensea.fulfilled, getAssetFromServer.fulfilled].includes(_.type),
+      (_, action) => {
         return action.payload;
-      })
-      .addCase(getAssetFromServer.fulfilled, (_, action) => {
-        return action.payload;
-      });
+      },
+    );
   },
 });
 

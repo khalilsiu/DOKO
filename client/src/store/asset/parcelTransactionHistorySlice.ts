@@ -16,21 +16,27 @@ export interface ParcelTransactionHistory {
 }
 
 interface ParcelTransactionHistoryState {
+  fetchCalled: boolean;
   fetching: boolean;
   currentTab: ParcelTransactionHistoryCategory;
   limit: number;
-  currentPage: number;
-  rowsPerPage: number;
   result: ParcelTransactionHistory[];
+  nextCursor: string | null;
+}
+
+interface FetchParcelTransactionHistoryParams {
+  contractAddress: string;
+  assetId: string;
+  refetch?: boolean;
 }
 
 const initialState: ParcelTransactionHistoryState = {
   currentTab: 'sales',
-  limit: 100,
-  currentPage: 0,
-  rowsPerPage: 5,
+  limit: 5,
   result: [],
+  fetchCalled: false,
   fetching: false,
+  nextCursor: null,
 };
 
 export const parcelTransactionHistoryEventMap: Record<ParcelTransactionHistoryCategory, string> = {
@@ -86,8 +92,9 @@ const parseResponseAsParcelTransactionHistories = (
 
 export const fetchParcelTransactionHistory = createAsyncThunk(
   'ParcelTransactionHistory/fetch',
-  async ({ contractAddress, assetId }: { contractAddress: string; assetId: string }, thunkAPI) => {
-    const { limit, currentTab } = (thunkAPI.getState() as RootState).parcelTransactionHistory;
+  async ({ contractAddress, assetId, refetch }: FetchParcelTransactionHistoryParams, thunkAPI) => {
+    const { limit, currentTab, nextCursor } = (thunkAPI.getState() as RootState)
+      .parcelTransactionHistory;
     const address = contractAddress;
     const tokenId = assetId;
 
@@ -102,6 +109,7 @@ export const fetchParcelTransactionHistory = createAsyncThunk(
         asset_contract_address: address,
         token_id: tokenId,
         event_type: parcelTransactionHistoryEventMap[currentTab],
+        cursor: refetch ? undefined : nextCursor,
       },
     });
 
@@ -112,8 +120,8 @@ export const fetchParcelTransactionHistory = createAsyncThunk(
 
     return {
       result,
-      fetching: false,
-      currentPage: 0,
+      refetch,
+      nextCursor: response.data?.next || null,
     };
   },
 );
@@ -126,12 +134,6 @@ export const parcelTransactionHistorySlice = createSlice({
   name: 'ParcelTransactionHistory',
   initialState,
   reducers: {
-    setCurrentPage: (state, { payload: currentPage }) => {
-      state.currentPage = currentPage;
-    },
-    setRowsPerPage: (state, { payload: rowsPerPage }) => {
-      state.rowsPerPage = rowsPerPage;
-    },
     changeTab: (state, { payload: tab }) => {
       state.currentTab = tab;
     },
@@ -139,12 +141,17 @@ export const parcelTransactionHistorySlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchParcelTransactionHistory.pending, (state) => {
+        state.fetchCalled = true;
         state.fetching = true;
       })
       .addCase(fetchParcelTransactionHistory.fulfilled, (state, action) => {
         state.fetching = false;
-        state.currentPage = 0;
-        state.result = action.payload?.result || [];
+        state.nextCursor = action.payload?.nextCursor;
+        if (action.payload?.refetch) {
+          state.result = action.payload?.result || [];
+        } else {
+          state.result = state.result.concat(action.payload?.result || []);
+        }
       })
       .addCase(fetchParcelTransactionHistory.rejected, (state) => {
         state.fetching = false;

@@ -1,6 +1,7 @@
-import React, { ChangeEvent } from 'react';
+import React from 'react';
 import {
   Box,
+  Button,
   CircularProgress,
   makeStyles,
   Table as MuiTable,
@@ -8,17 +9,17 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import moment from 'moment';
 import {
+  fetchParcelTransactionHistory,
   ParcelTransactionHistory,
-  parcelTransactionHistorySlice,
   useParcelTransactionHistorySliceSelector,
 } from 'store/asset/parcelTransactionHistorySlice';
 import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 interface Column {
   key: keyof ParcelTransactionHistory;
@@ -30,31 +31,18 @@ interface Column {
 }
 
 export const Table = React.memo(() => {
-  const dispatch = useDispatch();
   const classes = useStyles();
 
+  const dispatch = useDispatch();
+  const { address, id } = useParams<{ address: string; id: string }>();
   const currentTab = useParcelTransactionHistorySliceSelector((state) => state.currentTab);
   const result = useParcelTransactionHistorySliceSelector((state) => state.result);
   const isFetching = useParcelTransactionHistorySliceSelector((state) => state.fetching);
-  const currentPage = useParcelTransactionHistorySliceSelector((state) => state.currentPage);
-  const rowsPerPage = useParcelTransactionHistorySliceSelector((state) => state.rowsPerPage);
+  const hasNext = useParcelTransactionHistorySliceSelector((state) => Boolean(state.nextCursor));
 
-  const { setCurrentPage, setRowsPerPage } = parcelTransactionHistorySlice.actions;
-
-  const handleChangePage = React.useCallback(
-    (_: unknown, newPage: number) => {
-      dispatch(setCurrentPage(newPage));
-    },
-    [dispatch, setCurrentPage],
-  );
-
-  const handleChangeRowsPerPage = React.useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      dispatch(setRowsPerPage(parseInt(event.target.value, 10)));
-      dispatch(setCurrentPage(0));
-    },
-    [dispatch, setRowsPerPage, setRowsPerPage],
-  );
+  const fetchMore = React.useCallback(() => {
+    dispatch(fetchParcelTransactionHistory({ contractAddress: address, assetId: id }));
+  }, [address, id]);
 
   const columns: Column[] = React.useMemo(() => {
     const fromAddressColumn: Column = {
@@ -114,7 +102,10 @@ export const Table = React.memo(() => {
   return (
     <React.Fragment>
       <TableContainer>
-        <MuiTable className={clsx({ [classes.tableContainer]: !isFetching })}>
+        <MuiTable
+          className={classes.tableContainer}
+          style={{ opacity: isFetching ? 0.5 : 1, filter: isFetching ? 'blur(1px)' : 'none' }}
+        >
           <TableHead className={classes.tableHead}>
             <TableRow>
               {columns.map(({ title, key }) => (
@@ -125,16 +116,7 @@ export const Table = React.memo(() => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isFetching ? (
-              <TableRow>
-                <TableCell
-                  className={clsx(classes.tableCell, classes.loadingCell)}
-                  colSpan={columns.length}
-                >
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
-            ) : result.length === 0 ? (
+            {result.length === 0 ? (
               <TableRow>
                 <TableCell
                   className={clsx(classes.tableCell, classes.center)}
@@ -144,32 +126,43 @@ export const Table = React.memo(() => {
                 </TableCell>
               </TableRow>
             ) : (
-              result
-                .slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage)
-                .map((row, index) => (
-                  <TableRow key={index}>
-                    {columns.map(({ key, render }) => (
-                      <TableCell key={key} className={classes.tableCell}>
-                        {typeof render === 'function' ? render(row[key], row) : row[key]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+              result.map((row, index) => (
+                <TableRow key={index}>
+                  {columns.map(({ key, render }) => (
+                    <TableCell key={key} className={classes.tableCell}>
+                      {typeof render === 'function' ? render(row[key], row) : row[key]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             )}
           </TableBody>
         </MuiTable>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={result.length}
-        rowsPerPage={rowsPerPage}
-        page={currentPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        className={classes.pagination}
-        classes={{ selectIcon: classes.paginationSelectIcon }}
-      />
+
+      {(hasNext || isFetching) && (
+        <Box className={classes.loadMoreButtonContainer}>
+          <Button
+            className={classes.loadMoreButton}
+            fullWidth
+            size="large"
+            variant="contained"
+            color="primary"
+            onClick={fetchMore}
+            disabled={isFetching}
+          >
+            {isFetching && (
+              <CircularProgress
+                className={classes.loadMoreButtonProgress}
+                size={20}
+                thickness={6}
+                color="inherit"
+              />
+            )}
+            {isFetching ? 'Loading More' : 'Load More'}
+          </Button>
+        </Box>
+      )}
     </React.Fragment>
   );
 });
@@ -214,5 +207,16 @@ const useStyles = makeStyles((theme) => ({
   },
   paginationSelectIcon: {
     color: 'white',
+  },
+  loadMoreButtonContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  loadMoreButton: {
+    marginTop: theme.spacing(2),
+    maxWidth: 200,
+  },
+  loadMoreButtonProgress: {
+    marginRight: theme.spacing(1),
   },
 }));
