@@ -38,4 +38,6 @@ export const config: AppConfig = {
   usdtDecimals: parseInt(process.env.REACT_APP_USDT_DECIMALS || '0', 10),
 };
 
+console.log('CONFIG', config);
+
 export default config;
