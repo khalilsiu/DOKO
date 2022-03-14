@@ -107,7 +107,8 @@ const wallets: Wallet[] = [
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
-  const { account, connect, status } = useMetaMask();
+  const all = useMetaMask();
+  const { account, connect, status } = all;
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -127,6 +128,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
 
   console.log(window.ethereum);
   console.log(window.ethereum.isMetaMask);
+  console.log(all);
 
   useEffect(() => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
