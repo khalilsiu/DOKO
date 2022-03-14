@@ -4,7 +4,7 @@ steps:
       [
         'build',
         '-t',
-        'gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA',
+        'gcr.io/wallettracker-328605/doko-client-staging:latest',
         '--build-arg=REACT_APP_DCL_LAND_ADDRESS=$_REACT_APP_DCL_LAND_ADDRESS',
         '--build-arg=REACT_APP_DCL_LAND_RENTAL_ADDRESS=$_REACT_APP_DCL_LAND_RENTAL_ADDRESS',
         '--build-arg=REACT_APP_HOLDINGS_SERVICE_API=$_REACT_APP_HOLDINGS_SERVICE_API',
