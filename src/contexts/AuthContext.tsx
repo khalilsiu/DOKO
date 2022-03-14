@@ -125,6 +125,9 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
     USDT: null,
   });
 
+  console.log(window.ethereum);
+  console.log(window.ethereum.isMetaMask);
+
   useEffect(() => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
