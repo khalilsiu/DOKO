@@ -85,7 +85,7 @@ const Intro = ({ drawer = false }: Props) => {
                 disabled={isLoading}
                 variant="outlined"
                 className={`gradient-button ${styles.aboutDokoButton}`}
-                onClick={() => connect && connect()}
+                onClick={() => connect()}
               >
                 Connect Wallet
               </Button>

@@ -32,6 +32,7 @@ import { useHistory } from 'react-router-dom';
 import { getLeaseState } from './OwnershipView';
 import { EditLeaseSchema } from './schema';
 import RadiusInput from 'components/RadiusInput';
+import config from 'config';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -133,7 +134,7 @@ interface TransformedLeaseForm {
   autoRegenerate: boolean;
 }
 
-const dclLandRentalAddress = process.env.REACT_APP_DCL_LAND_RENTAL_ADDRESS;
+const dclLandRentalAddress = config.dclLandRentalAddress;
 
 const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const styles = useStyles();

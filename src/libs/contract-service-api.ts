@@ -1,12 +1,11 @@
 import axios from 'axios';
 import { Filter } from '../hooks/summary/aggregateMetaverseSummaries';
 import { Metaverse } from 'constants/metaverses';
+import config from 'config';
 
 const instance = axios.create({
-  baseURL: process.env.REACT_APP_HOLDINGS_SERVICE_API,
+  baseURL: config.holdingsServiceUrl,
 });
-
-console.log('process.env.REACT_APP_HOLDINGS_SERVICE_API', process.env.REACT_APP_HOLDINGS_SERVICE_API);
 
 export interface SortOption {
   field: string;

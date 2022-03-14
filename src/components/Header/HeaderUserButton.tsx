@@ -7,7 +7,7 @@ import { minimizeAddress } from 'utils/utils';
 interface Props {
   address?: string;
   loading: boolean;
-  connect?: () => void;
+  connect: () => void;
 }
 
 const useStyles = makeStyles(() => ({
@@ -47,7 +47,7 @@ export const HeaderUserButton = ({ address, loading, connect }: Props) => {
       className="gradient-button"
       disabled={loading}
       variant="outlined"
-      onClick={() => connect && connect()}
+      onClick={() => connect()}
     >
       Connect Wallet
     </Button>
