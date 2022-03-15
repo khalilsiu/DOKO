@@ -12,6 +12,10 @@ import { DrawerContext } from 'contexts/DrawerContext';
 import twitterIcon from 'assets/socials/twitter-black-small.png';
 import discordIcon from 'assets/socials/discord.png';
 import mediumIcon from 'assets/socials/medium.png';
+import CollectionsIcon from 'assets/app/collections-icon.png';
+import ManageProfileImage from 'assets/app/manage-profile.png';
+import DOKOLogoBlackImage from 'assets/doko/doko-logo-black.png';
+import RobotImage from 'assets/app/robot.png';
 
 const socialLinks = [
   {
@@ -76,7 +80,7 @@ const Intro = ({ drawer = false }: Props) => {
             {address ? (
               <Link style={{ textDecoration: 'none' }} to={`/address/${address}`}>
                 <Button className={styles.profileButton}>
-                  <img width={16} src="/CollectionsIcon.png" alt="" />
+                  <img width={16} src={CollectionsIcon} />
                   <span style={{ marginLeft: 12, color: 'white' }}>Your Address</span>
                 </Button>
               </Link>
@@ -93,14 +97,14 @@ const Intro = ({ drawer = false }: Props) => {
           </Grid>
           <Grid item>
             <Button className={styles.aboutDokoButton} onClick={() => history.push('/profiles')}>
-              <img width={16} src="/manageProfile.png" alt="" />
+              <img width={16} src={ManageProfileImage} />
               <span style={{ marginLeft: 12 }}>Manage Profile(s)</span>
             </Button>
           </Grid>
           <Grid item>
             <a style={{ textDecoration: 'none' }} href={link} target="_blank" rel="noreferrer">
               <Button className={styles.aboutDokoButton}>
-                <img width={16} src="/DOKO_LOGO_BLACK.png" alt="" />
+                <img width={16} src={DOKOLogoBlackImage} />
                 <span style={{ marginLeft: 12 }}>About DOKO</span>
               </Button>
             </a>
@@ -113,7 +117,7 @@ const Intro = ({ drawer = false }: Props) => {
           {socialLinks.map((s) => (
             <Grid item key={s.image}>
               <a rel="noreferrer" href={s.link} target="_blank">
-                <img width={28} src={s.image} alt="" />
+                <img width={28} src={s.image} />
               </a>
             </Grid>
           ))}
@@ -135,7 +139,7 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.primary.main,
     width: 160,
     height: 160,
-    background: 'url(/Robot.png)',
+    background: `url("${RobotImage}")`,
     backgroundPosition: 'center',
     backgroundSize: 'cover',
     marginBottom: 24,

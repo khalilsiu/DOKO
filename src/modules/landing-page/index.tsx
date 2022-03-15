@@ -13,10 +13,11 @@ import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import metaverses from 'constants/metaverses';
-import dashboardIcon from 'assets/app/LandingPage/dashboard.png';
-import analysisIcon from 'assets/app/LandingPage/analysis.png';
-import lendingIcon from 'assets/app/LandingPage/lending.png';
-import rentalIcon from 'assets/app/LandingPage/rental.png';
+import dashboardIcon from 'assets/app/landing-page/dashboard.png';
+import analysisIcon from 'assets/app/landing-page/analysis.png';
+import lendingIcon from 'assets/app/landing-page/lending.png';
+import rentalIcon from 'assets/app/landing-page/rental.png';
+import DOKOLogo from 'assets/doko/doko-logo.png';
 
 export const LandingPage = () => {
   const styles = useStyles();
@@ -48,7 +49,7 @@ export const LandingPage = () => {
         title="DOKO, Metaverse Real Estate Portfolio Manager"
         description="The Metaverse Real Estate Portfolio Manager that allows you to display, manage and trade your metaverse real estates"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Container maxWidth="lg" className={styles.landingTopSection}>
         <Snackbar
@@ -83,7 +84,7 @@ export const LandingPage = () => {
               </Grid>
             ))}
           </Grid>
-          {/* <img className="beta-image" src="BetaVersion.png" alt="" /> */}
+          {/* <img className="beta-image" src={require('assets/app/beta-version.png')} alt="" /> */}
         </Container>
       </section>
 

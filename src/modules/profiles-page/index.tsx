@@ -14,13 +14,15 @@ import CloseIcon from '@material-ui/icons/Close';
 import BackIcon from '@material-ui/icons/ArrowBack';
 import { useCookies } from 'react-cookie';
 import { ProfileItem } from './ProfileItem';
-import eth from '../../assets/tokens/eth-small.png';
-import bsc from '../../assets/tokens/bsc-small.png';
-import polygon from '../../assets//chains/polygon-small.png';
-import solana from '../../assets//chains/solana-small.png';
+import eth from 'assets/tokens/eth-small.png';
+import bsc from 'assets/tokens/bsc-small.png';
+import polygon from 'assets/chains/polygon-small.png';
+import solana from 'assets/chains/solana-small.png';
 import Intro from 'components/Intro';
 import Meta from 'components/Meta';
-import addAddressIcon from 'assets/app/ProfilesPage/addAddress.png';
+import addAddressIcon from 'assets/app/profiles-page/addAddress.png';
+import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
+import DOKOLogo from 'assets/doko/doko-logo.png';
 
 type Icons = {
   [key: string]: string;
@@ -260,7 +262,7 @@ export const Profiles = () => {
           </Grid>
           <Hidden xsDown>
             <Button className={styles.createProfileButton} onClick={handleClickOpen}>
-              <img src="/createProfileButton.png" alt="Create Profile" />
+              <img src={CreateProfileButtonImage} alt="Create Profile" />
             </Button>
           </Hidden>
         </Grid>
@@ -474,7 +476,7 @@ export const Profiles = () => {
         title="Manage Profile(s)"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>

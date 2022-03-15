@@ -4,19 +4,17 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import CloseIcon from '@material-ui/icons/Close';
-// import useMediaQuery from '@material-ui/core/useMediaQuery';
-// import useTheme from '@material-ui/core/styles/useTheme';
 import { ethers, Contract } from 'ethers';
-import UIModal from '../components/UIModal';
-import { Wallet, WalletName } from '../types';
+import UIModal from 'components/UIModal';
+import { Wallet, WalletName } from 'types';
 import { useDispatch } from 'react-redux';
-
-import { rentalContracts } from '../constants/rentals';
-import { tokens } from '../constants/acceptedTokens';
-import metaverses from '../constants/metaverses';
+import { rentalContracts } from 'constants/rentals';
+import { tokens } from 'constants/acceptedTokens';
+import metaverses from 'constants/metaverses';
 import { openToast } from 'store/app/appStateSlice';
 import { injected } from 'config/injected';
 import { useWeb3React } from '@web3-react/core';
+import DOKOMetamaskLogoAsset from 'assets/doko/doko-metamask-logo-asset.png';
 
 declare let window: any;
 
@@ -33,7 +31,7 @@ export interface AuthContextType {
 }
 const wallets: Wallet[] = [
   {
-    icon: '/DOKO_Metamasklogo_asset.png',
+    icon: DOKOMetamaskLogoAsset,
     label: 'MetaMask Wallet',
     name: WalletName.METAMASK,
   },
@@ -164,7 +162,7 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
                   onClick={() => setWalletSelected(wallet)}
                   onKeyDown={() => setWalletSelected(wallet)}
                 >
-                  <img src={wallet.icon} alt="" className={classes.walletImage} />
+                  <img src={wallet.icon} className={classes.walletImage} />
 
                   <Typography variant="subtitle2" className={classes.walletName}>
                     {wallet.label}

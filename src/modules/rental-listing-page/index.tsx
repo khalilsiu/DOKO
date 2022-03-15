@@ -3,13 +3,14 @@ import Intro from 'components/Intro';
 import Meta from 'components/Meta';
 import { TabPanel } from 'components/TabPanel';
 import { cloneDeep } from 'lodash';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CustomTabs, CustomTab } from '../../components/profile/OwnershipView';
-import metaverses from '../../constants/metaverses';
-import { getMetaverseAssetsFromServer } from '../../store/asset/metaverseAssetsFromServerSlice';
-import { RootState } from '../../store/store';
+import { CustomTabs, CustomTab } from 'components/profile/OwnershipView';
+import metaverses from 'constants/metaverses';
+import { getMetaverseAssetsFromServer } from 'store/asset/metaverseAssetsFromServerSlice';
+import { RootState } from 'store/store';
 import RentalView, { sortOptions } from './RentalView';
+import DOKOLogo from 'assets/doko/doko-logo.png';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -67,7 +68,7 @@ const RentalListingPage = () => {
         title="Rentals | DOKO"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>

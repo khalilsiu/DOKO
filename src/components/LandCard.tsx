@@ -16,12 +16,11 @@ import {
   withStyles,
 } from '@material-ui/core';
 import { useHistory, useParams } from 'react-router-dom';
-
-import eth from '../assets/tokens/eth.png';
-import facebook from '../assets/socials/facebook.png';
-import twitter from '../assets/socials/twitter.png';
-import NoImage from '../assets//app/NoImage.png';
-import loading from '../assets//app/loading.gif';
+import eth from 'assets/tokens/eth.png';
+import facebook from 'assets/socials/facebook.png';
+import twitter from 'assets/socials/twitter.png';
+import NoImage from 'assets/app/no-image.png';
+import loading from 'assets/app/loading.gif';
 import { getLeaseState } from './profile/OwnershipView';
 import { Asset } from 'store/summary/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';

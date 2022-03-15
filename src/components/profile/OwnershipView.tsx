@@ -12,15 +12,15 @@ import {
 } from '@material-ui/core';
 import { useState, useContext, memo, useEffect } from 'react';
 import SectionLabel from '../SectionLabel';
-import metaverses from '../../constants/metaverses';
+import metaverses from 'constants/metaverses';
 import ListIcon from '@material-ui/icons/FormatListBulleted';
 import MapIcon from '@material-ui/icons/Map';
-import { CreateProfileContext } from '../../contexts/CreateProfileContext';
+import { CreateProfileContext } from 'contexts/CreateProfileContext';
 import RenderMaps from '../maps/RenderMaps';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
+import { Asset } from 'store/summary/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
 import EditLeaseModal from './EditLeaseModal';
-import { getAssetFromOpensea, useAssetSliceSelector } from '../../store/asset/assetSlice';
+import { getAssetFromOpensea, useAssetSliceSelector } from 'store/asset/assetSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import Summary from 'modules/address-page/components/Summary';
@@ -30,6 +30,7 @@ import OpenseaNFTItem from 'components/LandCard';
 import { TabPanel } from 'components/TabPanel';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
 import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -247,7 +248,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
       <Grid item style={{ width: '100%' }}>
         <Hidden xsDown>
           <Button className={styles.createProfileButton} onClick={handleClickOpen}>
-            <img src="/createProfileButton.png" alt="Create Profile" />
+            <img src={CreateProfileButtonImage} alt="Create Profile" />
           </Button>
         </Hidden>
         <CustomTabs

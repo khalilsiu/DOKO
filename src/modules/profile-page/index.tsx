@@ -12,16 +12,17 @@ import {
   MenuItem,
 } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
-import { PopoverShare } from '../../components/PopoverShare';
-import eth from '../../assets/tokens/eth-small.png';
-import bsc from '../../assets/tokens/bsc-small.png';
-import polygon from '../../assets//chains/polygon-small.png';
-import solana from '../../assets//chains/solana-small.png';
-import OwnershipView from '../../components/profile/OwnershipView';
-import useProfileSummaries from '../../hooks/summary/useProfileSummaries';
-import { CreateProfileContext } from '../../contexts/CreateProfileContext';
+import { PopoverShare } from 'components/PopoverShare';
+import eth from 'assets/tokens/eth-small.png';
+import bsc from 'assets/tokens/bsc-small.png';
+import polygon from 'assets/chains/polygon-small.png';
+import solana from 'assets/chains/solana-small.png';
+import OwnershipView from 'components/profile/OwnershipView';
+import useProfileSummaries from 'hooks/summary/useProfileSummaries';
+import { CreateProfileContext } from 'contexts/CreateProfileContext';
 import Intro from 'components/Intro';
 import Meta from 'components/Meta';
+import DOKOLogo from 'assets/doko/doko-logo.png';
 
 type Icons = {
   [key: string]: string;
@@ -171,7 +172,7 @@ export const ProfilePage = () => {
         title={`${profile.name} - Profile | DOKO`}
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>
