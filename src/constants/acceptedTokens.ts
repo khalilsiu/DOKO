@@ -1,6 +1,7 @@
 import Erc20Token from '../contracts/Erc20Token.json';
 import ethIcon from 'assets/tokens/eth.png';
 import usdtIcon from 'assets/tokens/usdt.png';
+import config from 'config';
 
 export const tokens = [
   {
@@ -13,10 +14,10 @@ export const tokens = [
   },
   {
     symbol: 'USDT',
-    address: process.env.REACT_APP_USDT_ADDRESS || '',
+    address: config.usdtAddress,
     label: '[USDT] Tether',
     icon: usdtIcon,
-    decimals: parseInt(process.env.REACT_APP_USDT_DECIMALS || '18', 10),
+    decimals: config.usdtDecimals,
     abi: Erc20Token.abi,
   },
   // {

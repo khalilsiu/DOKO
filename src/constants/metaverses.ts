@@ -7,6 +7,7 @@ import cryptovoxels from '../assets/metaverses/cryptovoxels.png';
 import theSandBox from '../assets/metaverses/thesandbox.png';
 import somniumSpace from '../assets/metaverses/somniumspace.png';
 import DclLandAbi from '../contracts/DclLand.json';
+import config from 'config';
 
 const cryptovoxelsIslands = [
   'Origin City',
@@ -59,7 +60,7 @@ const metaverses = [
         label: 'DCL Land',
         symbol: 'dclLand',
         // for testnet purpose
-        address: process.env.REACT_APP_DCL_LAND_ADDRESS || '',
+        address: config.dclLandAddress,
         abi: DclLandAbi,
       },
     ],
