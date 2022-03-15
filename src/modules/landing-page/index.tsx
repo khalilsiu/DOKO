@@ -9,7 +9,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Link from '@material-ui/core/Link';
 import Meta from '../../components/Meta';
-import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
+import { AuthContext } from '../../contexts/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import metaverses from 'constants/metaverses';
@@ -21,7 +21,7 @@ import DOKOLogo from 'assets/doko/doko-logo.png';
 
 export const LandingPage = () => {
   const styles = useStyles();
-  const { connect, address } = useContext(AuthContext) as AuthContextType;
+  const { connect, address } = useContext(AuthContext);
   const { isLoading } = useSelector((state: RootState) => state.appState);
 
   const history = useHistory();

@@ -29,7 +29,7 @@ import { RootState } from 'store/store';
 import OpenseaNFTItem from 'components/LandCard';
 import { TabPanel } from 'components/TabPanel';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
-import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import { AuthContext } from 'contexts/AuthContext';
 import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
 
 const useStyles = makeStyles((theme) => ({
@@ -182,7 +182,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
   const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
     useParams<{ address: string; contractAddress: string; tokenId: string }>();
-  const { address: walletAddress } = useContext(AuthContext) as AuthContextType;
+  const { address: walletAddress } = useContext(AuthContext);
   const asset = useAssetSliceSelector((state) => state);
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);

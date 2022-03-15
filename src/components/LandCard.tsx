@@ -25,7 +25,7 @@ import { getLeaseState } from './profile/OwnershipView';
 import { Asset } from 'store/summary/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
-import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import { AuthContext } from 'contexts/AuthContext';
 
 interface NFTItemProps {
   nft: Asset;
@@ -43,7 +43,7 @@ const LeaseButton = withStyles({
 export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
-  const { isActive, address: walletAddress } = useContext(AuthContext) as AuthContextType;
+  const { isActive, address: walletAddress } = useContext(AuthContext);
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);

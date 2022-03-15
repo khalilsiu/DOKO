@@ -17,6 +17,7 @@ import { Button } from '@material-ui/core';
 import Header from 'components/Header';
 import Intro from 'components/Intro';
 import MetaStatsPage from './modules/meta-stats-page';
+import { ContractContextProvider } from 'contexts/ContractContext';
 
 const AddressPage = lazy(() => import(/* webpackPrefetch: true */ './modules/address-page'));
 const RentalListingPage = lazy(() => import(/* webpackPrefetch: true */ './modules/rental-listing-page'));
@@ -55,64 +56,66 @@ function App() {
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
         <AuthContextProvider>
-          <WSContextProvider>
-            <CreateProfileContextProvider>
-              <DrawerContextProvider intro={<Intro drawer />}>
-                <Header />
-                <Switch>
-                  <Route path="/" exact>
-                    <LandingPage />
-                  </Route>
-                  <Route path="/address/:address" exact>
-                    <RouteContainer>
-                      <AddressPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
-                    <RouteContainer>
-                      <AddressPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/rentals" exact>
-                    <RouteContainer>
-                      <RentalListingPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/rentals/:contractAddress/:tokenId/lease" exact>
-                    <RouteContainer>
-                      <RentalListingPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/nft/:chain/:address/:id" exact>
-                    <RouteContainer>
-                      <MetaIndividualLandPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/profiles" exact>
-                    <RouteContainer>
-                      <ProfilesPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/profiles/:hash" exact>
-                    <RouteContainer>
-                      <ProfilePage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/dcl-stats" exact>
-                    <RouteContainer>
-                      <MetaStatsPage />
-                    </RouteContainer>
-                  </Route>
-                </Switch>
-                <Snackbar open={toast.show} autoHideDuration={6000} onClose={handleToastClose}>
-                  <Alert severity={toast.state} action={toast.action && renderToastAction(toast.action)}>
-                    {toast.message}
-                  </Alert>
-                </Snackbar>
-                <Footer />
-              </DrawerContextProvider>
-            </CreateProfileContextProvider>
-          </WSContextProvider>
+          <ContractContextProvider>
+            <WSContextProvider>
+              <CreateProfileContextProvider>
+                <DrawerContextProvider intro={<Intro drawer />}>
+                  <Header />
+                  <Switch>
+                    <Route path="/" exact>
+                      <LandingPage />
+                    </Route>
+                    <Route path="/address/:address" exact>
+                      <RouteContainer>
+                        <AddressPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
+                      <RouteContainer>
+                        <AddressPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/rentals" exact>
+                      <RouteContainer>
+                        <RentalListingPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/rentals/:contractAddress/:tokenId/lease" exact>
+                      <RouteContainer>
+                        <RentalListingPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/nft/:chain/:address/:id" exact>
+                      <RouteContainer>
+                        <MetaIndividualLandPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/profiles" exact>
+                      <RouteContainer>
+                        <ProfilesPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/profiles/:hash" exact>
+                      <RouteContainer>
+                        <ProfilePage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/dcl-stats" exact>
+                      <RouteContainer>
+                        <MetaStatsPage />
+                      </RouteContainer>
+                    </Route>
+                  </Switch>
+                  <Snackbar open={toast.show} autoHideDuration={6000} onClose={handleToastClose}>
+                    <Alert severity={toast.state} action={toast.action && renderToastAction(toast.action)}>
+                      {toast.message}
+                    </Alert>
+                  </Snackbar>
+                  <Footer />
+                </DrawerContextProvider>
+              </CreateProfileContextProvider>
+            </WSContextProvider>
+          </ContractContextProvider>
         </AuthContextProvider>
       </BrowserRouter>
     </Suspense>

@@ -7,7 +7,7 @@ import { useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
-import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import { AuthContext } from 'contexts/AuthContext';
 import { DrawerContext } from 'contexts/DrawerContext';
 import twitterIcon from 'assets/socials/twitter-black-small.png';
 import discordIcon from 'assets/socials/discord.png';
@@ -37,7 +37,7 @@ interface Props {
 }
 
 const Intro = ({ drawer = false }: Props) => {
-  const { connect, address } = useContext(AuthContext) as AuthContextType;
+  const { connect, address } = useContext(AuthContext);
   const { isLoading } = useSelector((state: RootState) => state.appState);
 
   const { toggle } = useContext(DrawerContext);
