@@ -131,6 +131,14 @@ export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
     setSigner(signer);
   }, []);
 
+  useEffect(() => {
+    if (signer) {
+      connectContract('dclLandRental');
+      connectContract('dclLand');
+      connectContract('USDT');
+    }
+  }, [signer]);
+
   const connectContract = (symbol: ContractNames) => {
     const metaverseContracts = metaverses.map((metaverse) => metaverse.contracts).flat();
     const contract = [...tokens, ...rentalContracts, ...metaverseContracts].find(

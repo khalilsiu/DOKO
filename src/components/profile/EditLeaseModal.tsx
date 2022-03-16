@@ -140,18 +140,12 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const history = useHistory();
   const {
     contracts: { dclLandRental: dclLandRentalContract, dclLand: dclLandContract },
-    connectContract,
   } = useContext(AuthContext) as AuthContextType;
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const theme = useTheme();
   const dispatch = useDispatch();
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const [isApproved, setIsApproved] = useState(false);
-
-  useEffect(() => {
-    connectContract('dclLandRental');
-    connectContract('dclLand');
-  }, []);
 
   const initialState = {
     rentToken: AcceptedTokens['ETH'],
@@ -167,7 +161,12 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
 
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
-  const isFieldDisabled = isTransacting || isLoading || leaseState === 'leased' || walletAddress !== asset.ownerAddress;
+  const isFieldDisabled =
+    isTransacting ||
+    isLoading ||
+    leaseState === 'toBeTerminated' ||
+    leaseState === 'toBeCanceled' ||
+    walletAddress !== asset.ownerAddress;
 
   const renderButtonText = useCallback(() => {
     if (!isApproved) {
@@ -178,9 +177,6 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     }
     if (leaseState === 'open') {
       return 'Update';
-    }
-    if (leaseState === 'leased') {
-      return 'Leased';
     }
   }, [leaseState, isApproved]);
 

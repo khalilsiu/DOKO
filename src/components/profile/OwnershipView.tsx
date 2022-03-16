@@ -30,6 +30,7 @@ import { RootState } from 'store/store';
 import OpenseaNFTItem from 'components/LandCard';
 import { TabPanel } from 'components/TabPanel';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
+import ConfirmModal from 'components/ConfirmModal';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -157,6 +158,27 @@ export const isLeaseCompleted = (asset: Asset) => {
   return Date.now() > dateSigned.getTime();
 };
 
+export const isRentOverDue = (asset: Asset) => {
+  if (!asset.lease) {
+    return null;
+  }
+
+  if (asset.lease.isOpen && !asset.lease.isLeased) {
+    return false;
+  }
+
+  if (asset.lease.monthsPaid > asset.lease.finalLeaseLength) {
+    return false;
+  }
+
+  const dateSigned = new Date(asset.lease.dateSigned);
+
+  dateSigned.setMonth(dateSigned.getMonth() + asset.lease.monthsPaid);
+  dateSigned.setDate(dateSigned.getDate() + asset.lease.gracePeriod);
+
+  return Date.now() > dateSigned.getTime();
+};
+
 export const getLeaseState = (asset: Asset) => {
   if (!asset.lease) {
     return 'toBeCreated';
@@ -170,8 +192,12 @@ export const getLeaseState = (asset: Asset) => {
     return 'open';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased) {
-    return 'leased';
+  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && isRentOverDue(asset)) {
+    return 'toBeTerminated';
+  }
+
+  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && !isRentOverDue(asset)) {
+    return 'toBeCanceled';
   }
 
   return 'unknown';
@@ -185,6 +211,11 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const asset = useAssetSliceSelector((state) => state);
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmModalHeader, setConfirmModalHeader] = useState('');
+  const [confirmModalBody, setConfirmModalBody] = useState('');
+  const [confirmModalAction, setConfirmModalAction] = useState<any>(null);
+
   const styles = useStyles();
   const dispatch = useDispatch();
   const views = metaverses.map(() => useState('list'));
@@ -202,6 +233,13 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     const copy = collectionAssetSelected.slice();
     copy[collectionIndex] = index;
     setCollectionAssetSelected(copy);
+  };
+
+  const onActionButtonClick = (headerText: string, bodyText: string, action: () => void) => {
+    setConfirmModalHeader(headerText);
+    setConfirmModalBody(bodyText);
+    setConfirmModalAction(action);
+    setIsConfirmModalOpen(true);
   };
 
   useEffect(() => {
@@ -230,6 +268,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
                 key={nft.id}
                 nft={nft}
                 onClick={() => onAssetClick(metaverseIndex, nftIndex)}
+                onActionButtonClick={onActionButtonClick}
                 setSelectedAssetForLease={setSelectedAssetForLease}
                 selectedAssetForLease={selectedAssetForLease}
               />
@@ -358,6 +397,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
               <div key={`${metaverse.name}listview`} style={view === 'list' ? {} : { display: 'none' }}>
                 <LandPagination
                   onLeaseButtonClick={setSelectedAssetForLease}
+                  onActionButtonClick={onActionButtonClick}
                   loading={isLoading}
                   nfts={metaverse.ownership.slice((page - 1) * 4, page * 4)}
                   page={page}
@@ -414,6 +454,13 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
       {urlContractAddress && urlTokenId && walletAddress && (
         <EditLeaseModal walletAddress={walletAddress} asset={asset} />
       )}
+      <ConfirmModal
+        modalOpen={isConfirmModalOpen}
+        closeModal={() => setIsConfirmModalOpen(false)}
+        headerText={confirmModalHeader}
+        bodyText={confirmModalBody}
+        action={confirmModalAction}
+      />
     </>
   );
 };

@@ -150,19 +150,12 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const history = useHistory();
   const {
     contracts: { USDT: usdtContract, dclLandRental: dclLandRentalContract },
-    connectContract,
   } = useContext(AuthContext) as AuthContextType;
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const [finalLeaseLength, setFinalLeaseLength] = useState(0);
   const [isApproved, setIsApproved] = useState(false);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    connectContract('USDT');
-    connectContract('dclLandRental');
-  }, []);
-
   const assetDetails = useMemo(() => {
     const details = {
       tokenLabel: 'N.A.',
