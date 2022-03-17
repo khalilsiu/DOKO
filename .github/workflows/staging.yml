@@ -39,12 +39,7 @@ jobs:
       - name: Build
         run: |-
           gcloud builds submit \
-            --substitutions=_REACT_APP_DCL_LAND_ADDRESS="0x4e16a43aF849aa8F7aCB35bFFeFdc968853B16D6" \
-            --substitutions=_REACT_APP_DCL_LAND_RENTAL_ADDRESS="0x343Cf8720F05c1429Eb8a43D3Cd8Fa83c09CF204" \
-            --substitutions=_REACT_APP_HOLDINGS_SERVICE_API=https://holdings-service-stg-df63favl7q-as.a.run.app \
-            --substitutions=_REACT_APP_HOLDINGS_SERVICE_SOCKET=https://holdings-service-stg-df63favl7q-as.a.run.app \
-            --substitutions=_REACT_APP_USDT_ADDRESS="0xFab46E002BbF0b4509813474841E0716E6730136" \
-            --substitutions=_SERVICE=doko-client-staging \
+            --substitutions=_REACT_APP_DCL_LAND_ADDRESS="0x4e16a43aF849aa8F7aCB35bFFeFdc968853B16D6",_REACT_APP_DCL_LAND_RENTAL_ADDRESS="0x343Cf8720F05c1429Eb8a43D3Cd8Fa83c09CF204",_REACT_APP_HOLDINGS_SERVICE_API=https://holdings-service-stg-df63favl7q-as.a.run.app,_REACT_APP_HOLDINGS_SERVICE_SOCKET=https://holdings-service-stg-df63favl7q-as.a.run.app,_REACT_APP_USDT_ADDRESS="0xFab46E002BbF0b4509813474841E0716E6730136",_SERVICE=doko-client-staging \
             --timeout=20m
       # Deploy image to Cloud Run
       - name: Deploy
