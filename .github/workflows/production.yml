@@ -39,16 +39,7 @@ jobs:
     - name: Build
       run: |-
         gcloud builds submit \
-          --substitutions=_SKIP_PREFLIGHT_CHECK=1 \
-          --substitutions=_REACT_APP_DEFAULT_WEB3_PROVIDER=https://mainnet.infura.io/v3/c567961fd5e6427b8f20575180a31787 \
-          --substitutions=_REACT_APP_POLYGON_PROVIDER=https://polygon-mainnet.infura.io/v3/c567961fd5e6427b8f20575180a31787 \
-          --substitutions=_NODE_ENV=production \
-          --substitutions=_REACT_APP_MORALIS_SERVER_URL=https://aqho5ffgvcnl.bigmoralis.com:2053/server \
-          --substitutions=_REACT_APP_MORALIS_APPLICATION_ID=EDNVamX6PUBpWYEe85Up5l4O7FxsVkbZ9ch1vaVe \
-          --substitutions=_REACT_APP_MORALIS_API_KEY=f50VqTEOHQxCtiETP2xYDlhA9n1wqiZfmAQAsTpfcJNksapuS2RR6ohCwezlTZN7 \
-          --substitutions=_REACT_APP_API_URL=https://doko.one \
-          --substitutions=_REACT_APP_CONTRACT_SERVICE_API=https://holdings-service-df63favl7q-df.a.run.app \
-          --substitutions=_SERVICE=doko-client \
+          --substitutions=_REACT_APP_DCL_LAND_ADDRESS="0x4e16a43aF849aa8F7aCB35bFFeFdc968853B16D6",_REACT_APP_DCL_LAND_RENTAL_ADDRESS="0x343Cf8720F05c1429Eb8a43D3Cd8Fa83c09CF204",_REACT_APP_HOLDINGS_SERVICE_API=https://holdings-service-df63favl7q-df.a.run.app,_REACT_APP_HOLDINGS_SERVICE_SOCKET=https://holdings-service-df63favl7q-df.a.run.app,_REACT_APP_USDT_ADDRESS="0xFab46E002BbF0b4509813474841E0716E6730136",_SERVICE=doko-client \
           --timeout=20m  
     # Deploy image to Cloud Run
     - name: Deploy
