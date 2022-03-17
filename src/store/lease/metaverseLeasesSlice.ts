@@ -54,11 +54,6 @@ interface ILandlordTerminate {
   dclLandRentalContract: ethers.Contract;
 }
 
-interface ILandlordCancel {
-  assetId: string;
-  dclLandRentalContract: ethers.Contract;
-}
-
 export const upsertLeaseToBlockchain = createAsyncThunk<void, IUpsertLease, { rejectValue: ThunkError }>(
   'MetaverseLeases/upsertLeaseToBlockchain',
   async ({ leaseForm, walletAddress, assetId, dclLandRentalContract, isUpdate }: IUpsertLease, { rejectWithValue }) => {
@@ -129,23 +124,6 @@ export const landlordTerminateToBlockchain = createAsyncThunk<void, ILandlordTer
       }
       // does not wait for txn to resolve
       await dclLandRentalContract.landlordTerminateLease(assetId);
-    } catch (e: any) {
-      const message = (e.data && e.data.message) ?? e.toString();
-      return rejectWithValue({ error: message } as ThunkError);
-    }
-  },
-);
-
-export const landlordCancelToBlockchain = createAsyncThunk<void, ILandlordCancel, { rejectValue: ThunkError }>(
-  'MetaverseLeases/landlordCancelToBlockchain',
-  async ({ assetId, dclLandRentalContract }: ILandlordCancel, { rejectWithValue, getState }) => {
-    try {
-      const { asset } = getState() as { asset: Asset };
-      if (!asset.lease) {
-        throw new Error('Thunk error: Lease does not exist for asset');
-      }
-      // does not wait for txn to resolve
-      await dclLandRentalContract.landlordCancelLease(assetId);
     } catch (e: any) {
       const message = (e.data && e.data.message) ?? e.toString();
       return rejectWithValue({ error: message } as ThunkError);

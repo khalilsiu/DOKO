@@ -197,7 +197,7 @@ export const getLeaseState = (asset: Asset) => {
   }
 
   if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && !isRentOverDue(asset)) {
-    return 'toBeCanceled';
+    return 'leased';
   }
 
   return 'unknown';

@@ -28,7 +28,7 @@ import { Asset } from 'store/summary/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
 import { useDispatch } from 'react-redux';
-import { landlordCancelToBlockchain, landlordTerminateToBlockchain } from 'store/lease/metaverseLeasesSlice';
+import { landlordTerminateToBlockchain } from 'store/lease/metaverseLeasesSlice';
 import { AuthContext } from 'contexts/AuthContext';
 import { AuthContextType } from 'contexts/AuthContext';
 import { openToast } from 'store/app/appStateSlice';
@@ -97,31 +97,19 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
       return;
     }
 
-    if (leaseState === 'toBeTerminated') {
-      dispatch(
-        landlordTerminateToBlockchain({
-          assetId: nft.tokenId,
-          dclLandRentalContract,
-        }),
-      );
-      return;
-    }
-
-    if (leaseState === 'toBeCanceled') {
-      dispatch(
-        landlordCancelToBlockchain({
-          assetId: nft.tokenId,
-          dclLandRentalContract,
-        }),
-      );
-    }
+    dispatch(
+      landlordTerminateToBlockchain({
+        assetId: nft.tokenId,
+        dclLandRentalContract,
+      }),
+    );
   };
 
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     const actionText = renderActionText();
-    if (leaseState === 'toBeTerminated' || 'toBeCanceled') {
-      onActionButtonClick(actionText, `Are you sure you want to ${actionText.toLowerCase()}`, action);
+    if (leaseState === 'toBeTerminated') {
+      onActionButtonClick(actionText, `Are you sure you want to ${actionText.toLowerCase()}?`, action);
       return;
     }
     history.push(leasePath);
@@ -152,8 +140,8 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
     if (leaseState === 'toBeTerminated') {
       return 'Terminate Lease';
     }
-    if (leaseState === 'toBeCanceled') {
-      return 'Cancel Lease';
+    if (leaseState === 'leased') {
+      return 'Leased';
     }
     return 'Error';
   }, [leaseState]);

@@ -26,5 +26,4 @@ export interface DclLandRentalContract extends ethers.Contract {
   ) => Promise<ContractTransaction>;
   createLease: (lease: LeasePayload, leaseDetails: LeaseDetails, isUpdate: boolean) => Promise<ContractTransaction>;
   landlordTerminateLease: (assetId: string) => Promise<ContractTransaction>;
-  landlordCancelLease: (assetId: string) => Promise<ContractTransaction>;
 }

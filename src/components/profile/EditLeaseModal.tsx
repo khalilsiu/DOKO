@@ -165,7 +165,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     isTransacting ||
     isLoading ||
     leaseState === 'toBeTerminated' ||
-    leaseState === 'toBeCanceled' ||
+    leaseState === 'leased' ||
     walletAddress !== asset.ownerAddress;
 
   const renderButtonText = useCallback(() => {
