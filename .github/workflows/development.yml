@@ -2,13 +2,6 @@
 
 name: Build and Deploy to Cloud Run
 
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches:
-    - development
-
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME: doko-client-development
