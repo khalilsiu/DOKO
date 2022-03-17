@@ -40,6 +40,7 @@ jobs:
           --substitutions=_REACT_APP_HOLDINGS_SERVICE_API=https://holdings-service-stg-df63favl7q-as.a.run.app \
           --substitutions=_REACT_APP_HOLDINGS_SERVICE_SOCKET=https://holdings-service-stg-df63favl7q-as.a.run.app \
           --substitutions=_REACT_APP_USDT_ADDRESS=0xFab46E002BbF0b4509813474841E0716E6730136 \
+          --substitutions=_SERVICE=doko-client-development \
           --timeout=20m  
     # Deploy image to Cloud Run
     - name: Deploy
