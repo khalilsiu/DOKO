@@ -28,12 +28,7 @@ const useStyles = makeStyles((theme) => ({
     width: '900px',
   },
   modalContent: {
-    display: 'flex',
-    [theme.breakpoints.down('sm')]: {
-      height: '60vh',
-      overflowY: 'scroll',
-      marginBottom: '1.5rem',
-    },
+    padding: '1.5rem',
   },
 }));
 

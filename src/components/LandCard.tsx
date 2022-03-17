@@ -1,4 +1,4 @@
-import { useState, MouseEvent, SyntheticEvent, memo, useCallback, useMemo, useContext } from 'react';
+import { useState, MouseEvent, SyntheticEvent, memo, useCallback, useMemo } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -27,16 +27,11 @@ import { getLeaseState } from './profile/OwnershipView';
 import { Asset } from 'store/summary/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
-import { useDispatch } from 'react-redux';
-import { landlordTerminateToBlockchain } from 'store/lease/metaverseLeasesSlice';
-import { AuthContext } from 'contexts/AuthContext';
-import { AuthContextType } from 'contexts/AuthContext';
-import { openToast } from 'store/app/appStateSlice';
 
 interface NFTItemProps {
   nft: Asset;
   onClick?: () => void;
-  onActionButtonClick: (headerText: string, bodyText: string, action: () => void) => void;
+  onActionButtonClick: (headerText: string, bodyText: string, assetId: string) => void;
   setSelectedAssetForLease?: (asset: Asset | null) => void;
   selectedAssetForLease?: Asset | null;
 }
@@ -49,10 +44,6 @@ const LeaseButton = withStyles({
 
 export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProps) => {
   const history = useHistory();
-  const dispatch = useDispatch();
-  const {
-    contracts: { dclLandRental: dclLandRentalContract },
-  } = useContext(AuthContext) as AuthContextType;
   const { address: urlAddress } = useParams<{ address: string }>();
   const { status, account: walletAddress } = useMetaMask();
   const styles = useStyles();
@@ -86,30 +77,12 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
       history.push(nftPath);
     });
 
-  const action = () => {
-    if (!dclLandRentalContract) {
-      dispatch(
-        openToast({
-          message: 'Land rental contract initialization error',
-          state: 'error',
-        }),
-      );
-      return;
-    }
-
-    dispatch(
-      landlordTerminateToBlockchain({
-        assetId: nft.tokenId,
-        dclLandRentalContract,
-      }),
-    );
-  };
-
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     const actionText = renderActionText();
-    if (leaseState === 'toBeTerminated') {
-      onActionButtonClick(actionText, `Are you sure you want to ${actionText.toLowerCase()}?`, action);
+    if (leaseState === 'toBeTerminated' || leaseState === 'leased') {
+      console.log(nft);
+      onActionButtonClick(actionText, `Are you sure you want to ${actionText.toLowerCase()}?`, nft.tokenId);
       return;
     }
     history.push(leasePath);

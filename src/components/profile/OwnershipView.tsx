@@ -10,7 +10,7 @@ import {
   useMediaQuery,
   Theme,
 } from '@material-ui/core';
-import { useState, useContext, memo, useEffect } from 'react';
+import { useState, useContext, memo, useEffect, useCallback } from 'react';
 import SectionLabel from '../SectionLabel';
 import metaverses from '../../constants/metaverses';
 import ListIcon from '@material-ui/icons/FormatListBulleted';
@@ -31,6 +31,9 @@ import OpenseaNFTItem from 'components/LandCard';
 import { TabPanel } from 'components/TabPanel';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
 import ConfirmModal from 'components/ConfirmModal';
+import { openToast, startLoading, stopLoading } from 'store/app/appStateSlice';
+import { landlordTerminateToBlockchain } from 'store/lease/metaverseLeasesSlice';
+import { AuthContext, AuthContextType } from 'contexts/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -205,6 +208,9 @@ export const getLeaseState = (asset: Asset) => {
 
 const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
+  const {
+    contracts: { dclLandRental: dclLandRentalContract },
+  } = useContext(AuthContext) as AuthContextType;
   const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
     useParams<{ address: string; contractAddress: string; tokenId: string }>();
   const { account: walletAddress } = useMetaMask();
@@ -212,9 +218,9 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmModalTargetId, setConfirmModalTargetId] = useState('');
   const [confirmModalHeader, setConfirmModalHeader] = useState('');
   const [confirmModalBody, setConfirmModalBody] = useState('');
-  const [confirmModalAction, setConfirmModalAction] = useState<any>(null);
 
   const styles = useStyles();
   const dispatch = useDispatch();
@@ -235,10 +241,34 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     setCollectionAssetSelected(copy);
   };
 
-  const onActionButtonClick = (headerText: string, bodyText: string, action: () => void) => {
+  const confirmModalAction = useCallback(async () => {
+    dispatch(startLoading());
+    if (!dclLandRentalContract) {
+      dispatch(
+        openToast({
+          message: 'Land rental contract initialization error',
+          state: 'error',
+        }),
+      );
+      return;
+    }
+
+    console.log('inside action');
+    await dispatch(
+      landlordTerminateToBlockchain({
+        assetId: confirmModalTargetId,
+        dclLandRentalContract,
+      }),
+    );
+    dispatch(stopLoading());
+    setIsConfirmModalOpen(false);
+  }, [dclLandRentalContract, confirmModalTargetId]);
+
+  const onActionButtonClick = (headerText: string, bodyText: string, assetId: string) => {
     setConfirmModalHeader(headerText);
     setConfirmModalBody(bodyText);
-    setConfirmModalAction(action);
+    setConfirmModalTargetId(assetId);
+    console.log('HI');
     setIsConfirmModalOpen(true);
   };
 
