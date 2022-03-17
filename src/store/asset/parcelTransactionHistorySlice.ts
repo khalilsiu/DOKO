@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
+import { RootState } from 'store/store';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { minimizeAddress } from '../../utils/utils';
-import { openToast } from '../app/appStateSlice';
-import { RootState } from '../store';
 
 export type ParcelTransactionHistoryCategory = 'sales' | 'bids' | 'transfers';
 
@@ -17,23 +16,27 @@ export interface ParcelTransactionHistory {
 }
 
 interface ParcelTransactionHistoryState {
+  fetchCalled: boolean;
   fetching: boolean;
   currentTab: ParcelTransactionHistoryCategory;
-  offset: number;
   limit: number;
-  currentPage: number;
-  rowsPerPage: number;
   result: ParcelTransactionHistory[];
+  nextCursor: string | null;
+}
+
+interface FetchParcelTransactionHistoryParams {
+  contractAddress: string;
+  assetId: string;
+  refetch?: boolean;
 }
 
 const initialState: ParcelTransactionHistoryState = {
   currentTab: 'sales',
-  offset: 0,
-  limit: 100,
-  currentPage: 0,
-  rowsPerPage: 5,
+  limit: 5,
   result: [],
+  fetchCalled: false,
   fetching: false,
+  nextCursor: null,
 };
 
 export const parcelTransactionHistoryEventMap: Record<ParcelTransactionHistoryCategory, string> = {
@@ -89,38 +92,33 @@ const parseResponseAsParcelTransactionHistories = (
 
 export const fetchParcelTransactionHistory = createAsyncThunk(
   'ParcelTransactionHistory/fetch',
-  async ({ contractAddress, assetId }: { contractAddress: string; assetId: string }, thunkAPI) => {
-    try {
-      const { offset, limit, currentTab } = (thunkAPI.getState() as RootState).parcelTransactionHistory;
-      const address = contractAddress;
-      const tokenId = assetId;
+  async ({ contractAddress, assetId, refetch }: FetchParcelTransactionHistoryParams, thunkAPI) => {
+    const { limit, currentTab, nextCursor } = (thunkAPI.getState() as RootState).parcelTransactionHistory;
+    const address = contractAddress;
+    const tokenId = assetId;
 
-      if (!address || !tokenId) {
-        return;
-      }
-
-      const response = await OpenSeaAPI.get('/events', {
-        params: {
-          offset,
-          limit,
-          only_opensea: false,
-          asset_contract_address: address,
-          token_id: tokenId,
-          event_type: parcelTransactionHistoryEventMap[currentTab],
-        },
-      });
-
-      const result: ParcelTransactionHistory[] = parseResponseAsParcelTransactionHistories(currentTab, response);
-
-      return {
-        result,
-        fetching: false,
-        currentPage: 0,
-      };
-    } catch (error: any) {
-      thunkAPI.dispatch(openToast({ message: error.message, state: 'error' }));
-      throw error;
+    if (!address || !tokenId) {
+      return;
     }
+
+    const response = await OpenSeaAPI.get('/events', {
+      params: {
+        limit,
+        only_opensea: false,
+        asset_contract_address: address,
+        token_id: tokenId,
+        event_type: parcelTransactionHistoryEventMap[currentTab],
+        cursor: refetch ? undefined : nextCursor,
+      },
+    });
+
+    const result: ParcelTransactionHistory[] = parseResponseAsParcelTransactionHistories(currentTab, response);
+
+    return {
+      result,
+      refetch,
+      nextCursor: response.data?.next || null,
+    };
   },
 );
 
@@ -132,12 +130,6 @@ export const parcelTransactionHistorySlice = createSlice({
   name: 'ParcelTransactionHistory',
   initialState,
   reducers: {
-    setCurrentPage: (state, { payload: currentPage }) => {
-      state.currentPage = currentPage;
-    },
-    setRowsPerPage: (state, { payload: rowsPerPage }) => {
-      state.rowsPerPage = rowsPerPage;
-    },
     changeTab: (state, { payload: tab }) => {
       state.currentTab = tab;
     },
@@ -145,12 +137,17 @@ export const parcelTransactionHistorySlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchParcelTransactionHistory.pending, (state) => {
+        state.fetchCalled = true;
         state.fetching = true;
       })
       .addCase(fetchParcelTransactionHistory.fulfilled, (state, action) => {
         state.fetching = false;
-        state.currentPage = 0;
-        state.result = action.payload?.result || [];
+        state.nextCursor = action.payload?.nextCursor;
+        if (action.payload?.refetch) {
+          state.result = action.payload?.result || [];
+        } else {
+          state.result = state.result.concat(action.payload?.result || []);
+        }
       })
       .addCase(fetchParcelTransactionHistory.rejected, (state) => {
         state.fetching = false;

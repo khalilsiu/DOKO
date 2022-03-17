@@ -26,11 +26,11 @@ const IndividualLandPage = React.memo(() => {
       <MetaTag asset={asset} />
       <Grid className={classes.root} container>
         <Hidden mdDown>
-          <Grid item className={classes.leftSection} md={12} lg={3} xl={2}>
+          <Grid item className={classes.leftSection}>
             <ProfileCard />
           </Grid>
         </Hidden>
-        <Grid item className={classes.rightSection} md={12} lg={9} xl={10}>
+        <Grid item className={classes.rightSection}>
           {isFetching ? (
             <Box className={classes.circularProgressContainer}>
               <CircularProgress />
@@ -67,9 +67,11 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'flex-start',
     borderRight: `1px solid ${theme.palette.divider}`,
+    width: '300px',
   },
   rightSection: {
     flex: 1,
+    flexGrow: 1,
     width: '100%',
     padding: theme.spacing(4),
     minHeight: 'calc(100vh - 168px)',
