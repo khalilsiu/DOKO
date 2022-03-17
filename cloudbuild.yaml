@@ -1,0 +1,48 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'gcr.io/wallettracker-328605/$_SERVICE:latest',
+        '--build-arg=REACT_APP_DCL_LAND_ADDRESS=$_REACT_APP_DCL_LAND_ADDRESS',
+        '--build-arg=REACT_APP_DCL_LAND_RENTAL_ADDRESS=$_REACT_APP_DCL_LAND_RENTAL_ADDRESS',
+        '--build-arg=REACT_APP_HOLDINGS_SERVICE_API=$_REACT_APP_HOLDINGS_SERVICE_API',
+        '--build-arg=REACT_APP_HOLDINGS_SERVICE_SOCKET=$_REACT_APP_HOLDINGS_SERVICE_SOCKET',
+        '--build-arg=REACT_APP_USDT_ADDRESS=$_REACT_APP_USDT_ADDRESS',
+        '--build-arg=REACT_APP_USDT_DECIMALS=$_REACT_APP_USDT_DECIMALS',
+        '--build-arg=SKIP_PREFLIGHT_CHECK=$_SKIP_PREFLIGHT_CHECK',
+        '--build-arg=REACT_APP_DEFAULT_WEB3_PROVIDER=$_REACT_APP_DEFAULT_WEB3_PROVIDER',
+        '--build-arg=REACT_APP_POLYGON_PROVIDER=$_REACT_APP_DEFAULT_WEB3_PROVIDER',
+        '--build-arg=NODE_ENV=$_NODE_ENV',
+        '--build-arg=REACT_APP_MORALIS_SERVER_URL=$_REACT_APP_MORALIS_SERVER_URL',
+        '--build-arg=REACT_APP_MORALIS_APPLICATION_ID=$_REACT_APP_MORALIS_APPLICATION_ID',
+        '--build-arg=REACT_APP_MORALIS_API_KEY=$_REACT_APP_MORALIS_API_KEY',
+        '--build-arg=REACT_APP_API_URL=$_REACT_APP_API_URL',
+        '--build-arg=REACT_APP_CONTRACT_SERVICE_API=$_REACT_APP_CONTRACT_SERVICE_API',
+        '.',
+      ]
+  # push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/wallettracker-328605/$_SERVICE:latest']
+images:
+  - 'gcr.io/wallettracker-328605/$_SERVICE:latest'
+timeout: 1200s
+substitutions:
+  _REACT_APP_DCL_LAND_ADDRESS: "0x4e16a43aF849aa8F7aCB35bFFeFdc968853B16D6"
+  _REACT_APP_DCL_LAND_RENTAL_ADDRESS: "0x44CC4baf873c9943a4Bba23cef38Ac9179dA06BF"
+  _REACT_APP_HOLDINGS_SERVICE_API: https://holdings-service-stg-df63favl7q-as.a.run.app
+  _REACT_APP_HOLDINGS_SERVICE_SOCKET: https://holdings-service-stg-df63favl7q-as.a.run.app
+  _REACT_APP_USDT_ADDRESS: "0xFab46E002BbF0b4509813474841E0716E6730136"
+  _REACT_APP_USDT_DECIMALS: "18"
+  _SERVICE: ''
+  _SKIP_PREFLIGHT_CHECK: true
+  _REACT_APP_DEFAULT_WEB3_PROVIDER: https://mainnet.infura.io/v3/c567961fd5e6427b8f20575180a31787
+  _REACT_APP_POLYGON_PROVIDER: https://polygon-mainnet.infura.io/v3/c567961fd5e6427b8f20575180a31787
+  _NODE_ENV: production
+  _REACT_APP_MORALIS_SERVER_URL: https://aqho5ffgvcnl.bigmoralis.com:2053/server
+  _REACT_APP_MORALIS_APPLICATION_ID: EDNVamX6PUBpWYEe85Up5l4O7FxsVkbZ9ch1vaVe
+  _REACT_APP_MORALIS_API_KEY: f50VqTEOHQxCtiETP2xYDlhA9n1wqiZfmAQAsTpfcJNksapuS2RR6ohCwezlTZN7
+  _REACT_APP_API_URL: https://doko.one
+  _REACT_APP_CONTRACT_SERVICE_API: https://holdings-service-df63favl7q-df.a.run.app
+
