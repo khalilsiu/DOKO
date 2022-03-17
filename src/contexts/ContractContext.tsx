@@ -30,9 +30,17 @@ export const ContractContextProvider = React.memo(({ children }) => {
   });
 
   React.useEffect(() => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    setSigner(signer);
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      setSigner(signer);
+    } catch (e: any) {
+      console.log(e.reason);
+      if (e.reason === 'missing provider') {
+        // User has not installed Google Chrome Metamask extension yet
+        window.location.href = 'https://metamask.app.link/dapp/doko.one';
+      }
+    }
   }, []);
 
   const connectContract = React.useCallback(
