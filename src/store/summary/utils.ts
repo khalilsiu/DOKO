@@ -53,8 +53,12 @@ export const processAssetFromOpensea = (asset: any): Asset => {
   const tokenStandard = picked.asset_contract?.schema_name;
   const externalLink = picked.external_link;
 
-  const lastPurchasePriceEth = parsePriceETH(picked.last_sale?.total_price, picked.last_sale?.payment_token) ?? null;
-  const lastPurchasePriceUsd = parsePriceUSD(picked.last_sale?.total_price, picked.last_sale?.payment_token) ?? null;
+  const lastPurchasePriceEth = picked?.last_sale
+    ? parsePriceETH(picked.last_sale?.total_price, picked.last_sale?.payment_token)
+    : null;
+  const lastPurchasePriceUsd = picked?.last_sale
+    ? parsePriceUSD(picked.last_sale?.total_price, picked.last_sale?.payment_token)
+    : null;
 
   const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
 

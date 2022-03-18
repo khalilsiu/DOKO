@@ -92,6 +92,7 @@ export const getAssetFromOpensea = createAsyncThunk(
         contractAddress,
         tokenId,
       });
+
       const [floorPriceInEth, floorPriceInUsd] = await fetchMetaverseFloorPrice(asset);
 
       return camelize({
