@@ -3,13 +3,12 @@ import metaverses from 'constants/metaverses';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import { parsePriceETH, parsePriceUSD } from 'store/summary/metaverseSummary';
-import { Asset } from 'store/summary/profileOwnershipSlice';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 import { processAssetFromOpensea } from 'store/summary/utils';
 import ContractServiceAPI from '../../libs/contract-service-api';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize } from '../../utils/utils';
-
-import { preprocessAssetFromServer } from './metaverseAssetsFromServerSlice';
+import { preprocessAssetFromServer } from 'store/assets/listingsSlice';
 
 const initialState: Asset = {
   id: '',
@@ -88,7 +87,7 @@ export const getAssetFromOpensea = createAsyncThunk(
     try {
       const response = await fetchNFTOpensea(contractAddress, tokenId);
       const asset = processAssetFromOpensea(response.data);
-      const assetWithLease = await ContractServiceAPI.getLease({
+      const assetWithLease = await ContractServiceAPI.getLeasedAsset({
         contractAddress,
         tokenId,
       });
@@ -107,7 +106,7 @@ export const getAssetFromOpensea = createAsyncThunk(
 );
 
 export const getAssetFromServer = createAsyncThunk('Asset/getAssetFromServer', async (payload: IGetAsset) => {
-  const leaseWithAsset = await ContractServiceAPI.getLease(payload);
+  const leaseWithAsset = await ContractServiceAPI.getLeasedAsset(payload);
   return preprocessAssetFromServer(leaseWithAsset);
 });
 

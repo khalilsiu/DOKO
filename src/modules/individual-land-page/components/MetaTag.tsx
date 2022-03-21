@@ -1,6 +1,6 @@
 import Meta from 'components/Meta';
 import React from 'react';
-import { Asset } from 'store/summary/profileOwnershipSlice';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 
 interface Props {
   asset: Asset;

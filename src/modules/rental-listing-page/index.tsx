@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CustomTabs, CustomTab } from '../../components/profile/OwnershipView';
 import metaverses from '../../constants/metaverses';
-import { getMetaverseAssetsFromServer } from '../../store/asset/metaverseAssetsFromServerSlice';
+import { getListings } from '../../store/assets/listingsSlice';
 import { RootState } from '../../store/store';
 import RentalView, { sortOptions } from './RentalView';
 
@@ -33,7 +33,7 @@ const RentalListingPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const [sortOpen, setSortOpen] = useState(false);
   const [sortStates, setSortStates] = useState(metaverses.map(() => 0));
-  const metaverseAssets = useSelector((state: RootState) => state.metaverseAssets);
+  const listings = useSelector((state: RootState) => state.listings);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const ref = useRef<HTMLDivElement>(null);
   const handleSortChange = (metaverseIndex: number, sortItemIndex: number) => {
@@ -59,7 +59,11 @@ const RentalListingPage = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getMetaverseAssetsFromServer(sortStates.map((sortItem) => sortOptions[sortItem].value)));
+    dispatch(
+      getListings({
+        sortOptions: sortStates.map((sortItem) => sortOptions[sortItem].value),
+      }),
+    );
   }, [sortStates]);
   return (
     <>
@@ -118,7 +122,7 @@ const RentalListingPage = () => {
                 sortOpen={sortOpen}
                 setSortOpen={setSortOpen}
                 sortIndex={sortStates[index]}
-                assets={metaverseAssets[index]}
+                assets={listings[index]}
                 ref={ref}
               />
             </TabPanel>

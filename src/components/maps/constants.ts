@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Popup } from 'react-leaflet';
 
 import { createStyles } from '@material-ui/styles';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
+import { Asset } from '../../store/profile/profileOwnershipSlice';
 
 export const marker = new L.Icon({
   iconUrl: '/marker.png',

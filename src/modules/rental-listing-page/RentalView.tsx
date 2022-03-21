@@ -11,12 +11,12 @@ import {
 } from '@material-ui/core';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { forwardRef, useContext, useEffect, useState } from 'react';
-import LeaseCard from '../../components/rentalListing/LeaseCard';
+import LeaseCard from '../../components/rentals/LeaseCard';
 import RenderMaps from '../../components/maps/RenderMaps';
 import metaverses from '../../constants/metaverses';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
+import { Asset } from '../../store/profile/profileOwnershipSlice';
 import { useParams } from 'react-router-dom';
-import LeaseDetailModal from '../../components/rentalListing/LeaseDetailModal';
+import LeaseDetailModal from '../../components/rentals/LeaseDetailModal';
 import { useDispatch } from 'react-redux';
 import { getAssetFromServer, useAssetSliceSelector } from '../../store/asset/assetSlice';
 import { AuthContext, AuthContextType } from 'contexts/AuthContext';
@@ -245,13 +245,13 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
             <RenderMaps
               metaverseName={metaverses[metaverseIndex].label}
               assets={flatAssets}
-              assetsSelected={collectionAssetSelected}
+              assetSelected={collectionAssetSelected[metaverseIndex]}
             />
           </Grid>
         </Grid>
 
         {urlContractAddress && urlTokenId && walletAddress && (
-          <LeaseDetailModal asset={asset} walletAddress={walletAddress} />
+          <LeaseDetailModal asset={asset} walletAddress={walletAddress} mode="lease" />
         )}
       </div>
     );

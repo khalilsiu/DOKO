@@ -4,7 +4,7 @@ import { CopyAddress } from './CopyAddress';
 import PopoverShare from 'components/PopoverShare';
 import { useParams } from 'react-router-dom';
 import clsx from 'clsx';
-import { Asset } from 'store/summary/profileOwnershipSlice';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 
 interface Props {
   asset: Asset;

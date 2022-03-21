@@ -14,25 +14,26 @@ import {
   Grid,
 } from '@material-ui/core';
 
-import UIModal from '../UIModal';
+import UIModal from '../../../components/UIModal';
 import CloseIcon from '@material-ui/icons/Close';
-import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
+import { AcceptedTokens, tokens } from '../../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import Joi from 'joi';
-import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
+import { AuthContext, AuthContextType } from '../../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { upsertLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
-import { RootState } from '../../store/store';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
-import { parseError } from '../../utils/joiErrors';
-import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
+import { upsertLease } from '../../../store/lease/leasesSlice';
+import { RootState } from '../../../store/store';
+import { Asset } from '../../../store/profile/profileOwnershipSlice';
+import { parseError } from '../../../utils/joiErrors';
+import { openToast, startLoading, stopLoading } from '../../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
-import { getLeaseState } from './OwnershipView';
+
 import { EditLeaseSchema } from './schema';
 import RadiusInput from 'components/RadiusInput';
 import config from 'config';
+import { getLeaseState } from 'components/profile/OwnershipView';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -237,7 +238,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   }, [dclLandContract, walletAddress, dclLandRentalAddress]);
 
   // can be moved into hooks
-  const approveLease = useCallback(async () => {
+  const handleApproveLease = useCallback(async () => {
     dispatch(startLoading());
     if (!dclLandContract) {
       dispatch(
@@ -258,7 +259,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     dispatch(stopLoading());
   }, [dclLandContract, dclLandRentalAddress]);
 
-  const upsertLease = useCallback(async () => {
+  const handleUpsertLease = useCallback(async () => {
     const result = Joi.object(EditLeaseSchema).validate(convertLeaseFrom(leaseForm), {
       convert: false,
     });
@@ -269,31 +270,10 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       return;
     }
 
-    if (!dclLandRentalContract) {
-      dispatch(
-        openToast({
-          message: 'Land rental contract initialization error',
-          state: 'error',
-        }),
-      );
-      return;
-    }
-
-    if (walletAddress !== asset.ownerAddress) {
-      dispatch(
-        openToast({
-          message: 'Only land owner can create lease',
-          state: 'error',
-        }),
-      );
-      return;
-    }
-
     await dispatch(
-      upsertLeaseToBlockchain({
+      upsertLease({
         leaseForm,
-        walletAddress,
-        assetId: asset.tokenId,
+        operator: walletAddress,
         dclLandRentalContract,
         isUpdate: !!asset.lease,
       }),
@@ -572,7 +552,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
             className="gradient-button"
             variant="contained"
             style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={!isApproved ? approveLease : upsertLease}
+            onClick={!isApproved ? handleApproveLease : handleUpsertLease}
             disabled={isFieldDisabled}
           >
             {renderButtonText()}

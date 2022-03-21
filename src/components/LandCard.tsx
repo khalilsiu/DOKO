@@ -22,17 +22,16 @@ import facebook from '../assets/socials/facebook.png';
 import twitter from '../assets/socials/twitter.png';
 import NoImage from '../assets//app/NoImage.png';
 import loading from '../assets//app/loading.gif';
-import { getLeaseState } from './profile/OwnershipView';
-import { Asset } from 'store/summary/profileOwnershipSlice';
+import { getLeaseState, LeaseMode } from './profile/OwnershipView';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
 import { AuthContext, AuthContextType } from 'contexts/AuthContext';
 
-interface NFTItemProps {
-  nft: Asset;
+interface ILandCard {
+  asset: Asset;
   onClick?: () => void;
-  setSelectedAssetForLease?: (asset: Asset | null) => void;
-  selectedAssetForLease?: Asset | null;
+  mode: LeaseMode;
 }
 
 const LeaseButton = withStyles({
@@ -41,30 +40,32 @@ const LeaseButton = withStyles({
   },
 })(Button);
 
-export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
+export const LandCard = memo(({ asset, onClick, mode }: ILandCard) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
   const { isActive, address: walletAddress } = useContext(AuthContext) as AuthContextType;
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
-  const nftPath = `/nft/eth/${nft.assetContract.address}/${nft.tokenId}`;
-  const leasePath = `/address/${urlAddress}/${nft.assetContract.address}/${nft.tokenId}/lease`;
+  const assetPath = `/asset/eth/${asset.assetContract.address}/${asset.tokenId}`;
+  const buttonPath = `/address/${urlAddress}/${asset.assetContract.address}/${asset.tokenId}/${
+    mode === 'lease' ? 'lease' : 'rent'
+  }`;
 
   // only decentraland right now
   const showLeaseButton =
     isActive &&
     walletAddress === urlAddress &&
-    (nft.assetContract.address === '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d' ||
-      nft.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297');
+    (asset.assetContract.address === '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d' ||
+      asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297');
 
   const share = (event: MouseEvent<HTMLElement>, type: 'facebook' | 'twitter') => {
     event.stopPropagation();
-    const url = `${window.origin}${nftPath}`;
-    const name = nft.name.replace('#', '');
+    const url = `${window.origin}${assetPath}`;
+    const name = asset.name.replace('#', '');
     const link = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=Check out ${name} on DOKO now!`,
-      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_nft now!`,
+      twitter: `https://twitter.com/intent/tweet?url=${url}&text=Check out ${name} on @doko_asset now!`,
       instagram: '',
     };
     window.open(link[type], '_blank');
@@ -73,12 +74,12 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
   const onClickCard =
     onClick ||
     (() => {
-      history.push(nftPath);
+      history.push(assetPath);
     });
 
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
-    history.push(leasePath);
+    history.push(buttonPath);
   };
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -94,7 +95,7 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
     setAnchorEl(null);
   };
 
-  const leaseState = useMemo(() => getLeaseState(nft), [nft]);
+  const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
   const renderButtonText = useCallback(() => {
     if (leaseState === 'toBeCreated' || leaseState === 'completed') {
@@ -115,12 +116,12 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
         <Card className={styles.card}>
           <CardContent className={styles.cardContent}>
             <Grid container alignItems="center" style={{ flex: 1 }}>
-              {nft.imageUrl && !error ? (
+              {asset.imageUrl && !error ? (
                 <LazyLoadImage
                   className={styles.image}
                   alt=""
                   width="100%"
-                  src={nft.imagePreviewUrl}
+                  src={asset.imagePreviewUrl}
                   placeholder={<img src={loading} alt="" />}
                   effect="opacity"
                   onError={() => setError(true)}
@@ -144,7 +145,7 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
                       <Typography className={styles.notAvailableText}>due to host error</Typography>
                     </div>
                   ) : (
-                    <Typography className={styles.notAvailableText}>The NFT doesn not have an image</Typography>
+                    <Typography className={styles.notAvailableText}>The asset doesn not have an image</Typography>
                   )}
                 </Grid>
               )}
@@ -152,8 +153,8 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
           </CardContent>
           <Grid container direction="column" justifyContent="space-between" wrap="nowrap">
             <Box>
-              <Typography className={styles.nftName} variant="caption">
-                {nft.name || '-'}
+              <Typography className={styles.assetName} variant="caption">
+                {asset.name || '-'}
               </Typography>
             </Box>
             <CardActions className={styles.cardActions}>
@@ -161,7 +162,7 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
                 <img className={styles.networkIcon} src={eth} alt="ETH" />
 
                 <Typography style={{ fontWeight: 'bold', color: '#333' }} variant="body2">
-                  {nft.floorPriceInEth ? nft.floorPriceInEth.toFixed(2) : 'N.A.'}
+                  {asset.floorPriceInEth ? asset.floorPriceInEth.toFixed(2) : 'N.A.'}
                 </Typography>
               </Grid>
               <div style={{ display: 'flex' }}>
@@ -257,7 +258,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
-  nftName: {
+  assetName: {
     marginBottom: '0.5rem',
     fontWeight: 'bold',
     color: '#333',

@@ -1,10 +1,32 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { Lease } from '../lease/metaverseLeasesSlice';
-import { fetchAssets } from './utils';
+import { AcceptedTokens } from 'constants/acceptedTokens';
+import ContractServiceAPI from 'libs/contract-service-api';
+import { fetchMetaverseAssets } from 'store/summary/utils';
 
 export interface Trait {
   traitType: string;
   value: string;
+}
+
+export interface Lease {
+  rentAmount: number;
+  deposit: number;
+  monthsPaid: number;
+  gracePeriod: number;
+  minLeaseLength: number;
+  maxLeaseLength: number;
+  finalLeaseLength: number;
+  dateSigned: string;
+  rentToken: AcceptedTokens;
+  isOpen: boolean;
+  isLeased: boolean;
+  autoRegenerate: boolean;
+  lessor: string;
+  lessee: string;
+  tokenId: string;
+  contractAddress: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Asset {
@@ -40,6 +62,8 @@ export interface AddressOwnership {
   // no count needed, can be inferred from nfts.length
   // price should be another domain not User
   assets: Asset[][];
+  leasedAssets: Asset[][];
+  rentedAssets: Asset[][];
   address: string;
 }
 
@@ -47,13 +71,21 @@ const initialState: AddressOwnership[] = [];
 
 export const fetchProfileOwnership = createAsyncThunk(
   'ProfileOwnership/fetchProfileOwnership',
-  async (addresses: string[]): Promise<AddressOwnership[]> =>
-    Promise.all(
-      addresses.map(async (address) => ({
+  async (addresses: string[]): Promise<AddressOwnership[]> => {
+    const profile: AddressOwnership[] = [];
+    for (const address of addresses) {
+      const assets = await fetchMetaverseAssets(address);
+      const leasedAssets = await ContractServiceAPI.getLeasedAssets({ lessor: address });
+      const rentedAssets = await ContractServiceAPI.getLeasedAssets({ lessee: address });
+      profile.push({
+        assets,
+        leasedAssets,
+        rentedAssets,
         address,
-        assets: await fetchAssets(address),
-      })),
-    ),
+      });
+    }
+    return profile;
+  },
 );
 
 const profileOwnershipSlice = createSlice({

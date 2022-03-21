@@ -2,10 +2,11 @@ import { CircularProgress, Grid, makeStyles, Typography } from '@material-ui/cor
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
 import { LandCard } from './LandCard';
 import { LightButton } from './LightButton';
-import { Asset } from 'store/summary/profileOwnershipSlice';
+import { Asset } from 'store/profile/profileOwnershipSlice';
+import { LeaseMode } from './profile/OwnershipView';
 
 interface Props {
-  nfts: Asset[];
+  assets: Asset[];
   total?: number;
   page?: number;
   onNext?: () => void;
@@ -13,10 +14,11 @@ interface Props {
   loading?: boolean;
   maxPage?: number;
   onLeaseButtonClick?: (asset: Asset | null) => void;
+  mode: LeaseMode;
 }
 
 const useStyles = makeStyles((theme) => ({
-  nftsContainer: {
+  assetsContainer: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gridAutoRows: '1fr',
@@ -38,26 +40,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const LandPagination = ({
-  nfts,
+  assets,
   page,
   total,
   onNext = () => null,
   onPrev = () => null,
   loading = false,
   maxPage,
-  onLeaseButtonClick,
+  mode,
 }: Props) => {
   const styles = useStyles();
 
   return (
     <div>
-      <div className={styles.nftsContainer}>
-        {nfts.map((nft) => (
-          <LandCard setSelectedAssetForLease={onLeaseButtonClick} nft={nft} key={nft.id} />
+      <div className={styles.assetsContainer}>
+        {assets.map((asset) => (
+          <LandCard asset={asset} key={asset.id} mode={mode} />
         ))}
       </div>
       {loading && <CircularProgress />}
-      {!loading && (!page || page <= 1) && (!nfts || nfts.length === 0) ? (
+      {!loading && (!page || page <= 1) && (!assets || assets.length === 0) ? (
         <Typography style={{ marginLeft: 24 }}>No Items</Typography>
       ) : (
         <Grid container justifyContent="space-between" style={{ marginTop: 20 }}>

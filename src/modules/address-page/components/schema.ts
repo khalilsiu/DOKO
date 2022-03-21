@@ -1,6 +1,7 @@
 import Joi from 'joi';
-import { tokens } from '../../constants/acceptedTokens';
+
 import { ethers } from 'ethers';
+import { tokens } from 'constants/acceptedTokens';
 
 const decimalValidation = (schema: Joi.StringSchema) => {
   let newSchema = schema;

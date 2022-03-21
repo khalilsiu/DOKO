@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { Card, Grid, Hidden, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
 
@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const AddressPage = () => {
+const AddressPage = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const metaverseSummaries = useAddressSummaries(address);
@@ -113,4 +113,4 @@ export const AddressPage = () => {
   );
 };
 
-export default AddressPage;
+export default memo(AddressPage);

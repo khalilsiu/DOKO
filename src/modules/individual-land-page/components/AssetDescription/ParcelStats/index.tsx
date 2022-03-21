@@ -1,6 +1,6 @@
 import { Box, makeStyles, Typography } from '@material-ui/core';
 import React from 'react';
-import { Trait as TraitType } from 'store/summary/profileOwnershipSlice';
+import { Trait as TraitType } from 'store/profile/profileOwnershipSlice';
 import { Trait } from './Trait';
 
 interface Props {

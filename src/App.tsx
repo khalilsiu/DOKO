@@ -68,7 +68,7 @@ function App() {
                       <AddressPage />
                     </RouteContainer>
                   </Route>
-                  <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
+                  <Route path="/address/:address/:contractAddress/:tokenId/:mode" exact>
                     <RouteContainer>
                       <AddressPage />
                     </RouteContainer>
@@ -83,7 +83,7 @@ function App() {
                       <RentalListingPage />
                     </RouteContainer>
                   </Route>
-                  <Route path="/nft/:chain/:address/:id" exact>
+                  <Route path="/asset/:chain/:address/:id" exact>
                     <RouteContainer>
                       <MetaIndividualLandPage />
                     </RouteContainer>

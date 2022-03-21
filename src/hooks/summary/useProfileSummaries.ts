@@ -1,10 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import metaverses from '../../constants/metaverses';
 import { fetchMetaverseSummary } from '../../store/summary/metaverseSummary';
 import { RootState } from '../../store/store';
-import { fetchProfileOwnership, Asset } from 'store/summary/profileOwnershipSlice';
-import { aggregateMetaverseSummaries } from './aggregateMetaverseSummaries';
+import { fetchProfileOwnership, Asset } from 'store/profile/profileOwnershipSlice';
+import { aggregateSummaries } from './aggregateSummaries';
 
 const useProfileSummaries = (addresses: string[]) => {
   const dispatch = useDispatch();
@@ -20,17 +19,21 @@ const useProfileSummaries = (addresses: string[]) => {
   }, []);
 
   const profileSummaries = useMemo(() => {
-    const aggregatedOwnerships: Asset[][] = metaverses.map((_, metaverseIndex) => {
-      const metaverseOwnership: Asset[] = [];
-      profileOwnership.forEach((profile) => {
-        metaverseOwnership.push(...profile.assets[metaverseIndex]);
-      });
-      return metaverseOwnership;
+    const profileAssets: Asset[][] = [];
+    const profileLeasedAssets: Asset[][] = [];
+    const profileRentedAssets: Asset[][] = [];
+
+    profileOwnership.forEach((addressOwnership) => {
+      profileAssets.push(...addressOwnership.assets);
+      profileLeasedAssets.push(...addressOwnership.leasedAssets);
+      profileRentedAssets.push(...addressOwnership.rentedAssets);
     });
 
-    return aggregateMetaverseSummaries({
+    return aggregateSummaries({
       metaverseSummaries,
-      metaverseOwnerships: aggregatedOwnerships,
+      metaverseAssets: profileAssets,
+      metaverseLeasedAssets: profileLeasedAssets,
+      metaverseRentedAssets: profileRentedAssets,
     });
   }, [metaverseSummaries, profileOwnership, isLoading]);
 

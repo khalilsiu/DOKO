@@ -5,7 +5,7 @@ import { PriceSection } from './PriceSection';
 import { ParcelStats } from './ParcelStats';
 import { DescriptionSection } from './DescriptionSection';
 import { useParams } from 'react-router-dom';
-import { Asset } from 'store/summary/profileOwnershipSlice';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 
 interface Props {
   asset: Asset;
