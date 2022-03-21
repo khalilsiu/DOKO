@@ -252,7 +252,6 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
       return;
     }
 
-    console.log('inside action');
     await dispatch(
       landlordTerminateToBlockchain({
         assetId: confirmModalTargetId,
@@ -267,7 +266,6 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     setConfirmModalHeader(headerText);
     setConfirmModalBody(bodyText);
     setConfirmModalTargetId(assetId);
-    console.log('HI');
     setIsConfirmModalOpen(true);
   };
 
