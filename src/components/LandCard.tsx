@@ -1,4 +1,4 @@
-import { useState, MouseEvent, SyntheticEvent, memo, useCallback, useMemo } from 'react';
+import { useState, MouseEvent, SyntheticEvent, memo, useCallback, useMemo, useContext } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import {
@@ -22,11 +22,11 @@ import facebook from '../assets/socials/facebook.png';
 import twitter from '../assets/socials/twitter.png';
 import NoImage from '../assets//app/NoImage.png';
 import loading from '../assets//app/loading.gif';
-import { useMetaMask } from 'metamask-react';
 import { getLeaseState } from './profile/OwnershipView';
 import { Asset } from 'store/summary/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
+import { AuthContext, AuthContextType } from 'contexts/AuthContext';
 
 interface NFTItemProps {
   nft: Asset;
@@ -45,7 +45,7 @@ const LeaseButton = withStyles({
 export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProps) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
-  const { status, account: walletAddress } = useMetaMask();
+  const { isActive, address: walletAddress } = useContext(AuthContext) as AuthContextType;
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
@@ -54,7 +54,7 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
 
   // only decentraland right now
   const showLeaseButton =
-    status === 'connected' &&
+    isActive &&
     walletAddress === urlAddress &&
     (nft.assetContract.address === '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d' ||
       nft.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297');

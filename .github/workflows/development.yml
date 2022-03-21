@@ -1,18 +1,14 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build and Deploy to Cloud Run
-
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches:
-      - development
+name: Development
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  SERVICE_NAME: doko-client-staging
+  SERVICE_NAME: doko-client-development
   RUN_REGION: asia-southeast1
+
+on:
+  workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -39,7 +35,7 @@ jobs:
       - name: Build
         run: |-
           gcloud builds submit \
-            --substitutions=_REACT_APP_DCL_LAND_ADDRESS="0x4e16a43aF849aa8F7aCB35bFFeFdc968853B16D6",_REACT_APP_DCL_LAND_RENTAL_ADDRESS="0x343Cf8720F05c1429Eb8a43D3Cd8Fa83c09CF204",_REACT_APP_HOLDINGS_SERVICE_API=https://holdings-service-stg-df63favl7q-as.a.run.app,_REACT_APP_HOLDINGS_SERVICE_SOCKET=https://holdings-service-stg-df63favl7q-as.a.run.app,_REACT_APP_USDT_ADDRESS="0xFab46E002BbF0b4509813474841E0716E6730136",_SERVICE=doko-client-staging \
+            --substitutions=_REACT_APP_DCL_LAND_ADDRESS="0x4e16a43aF849aa8F7aCB35bFFeFdc968853B16D6",_REACT_APP_DCL_LAND_RENTAL_ADDRESS="0x343Cf8720F05c1429Eb8a43D3Cd8Fa83c09CF204",_REACT_APP_HOLDINGS_SERVICE_API=https://holdings-service-stg-df63favl7q-as.a.run.app,_REACT_APP_HOLDINGS_SERVICE_SOCKET=https://holdings-service-stg-df63favl7q-as.a.run.app,_REACT_APP_USDT_ADDRESS="0xFab46E002BbF0b4509813474841E0716E6730136",_SERVICE=doko-client-development \
             --timeout=20m
       # Deploy image to Cloud Run
       - name: Deploy
@@ -47,7 +43,7 @@ jobs:
           gcloud run deploy "$SERVICE_NAME" \
             --quiet \
             --region "$RUN_REGION" \
-            --image "gcr.io/wallettracker-328605/doko-client-staging:latest" \
+            --image "gcr.io/wallettracker-328605/doko-client-development:latest" \
             --platform "managed" \
             --port 80 \
             --allow-unauthenticated

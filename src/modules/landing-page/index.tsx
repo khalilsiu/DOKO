@@ -1,13 +1,10 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import Snackbar from '@material-ui/core/Snackbar';
-import SnackbarContent from '@material-ui/core/SnackbarContent';
-import Link from '@material-ui/core/Link';
 import Meta from '../../components/Meta';
 import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { useSelector } from 'react-redux';
@@ -20,27 +17,9 @@ import rentalIcon from 'assets/app/LandingPage/rental.png';
 
 export const LandingPage = () => {
   const styles = useStyles();
+  const history = useHistory();
   const { connect, address } = useContext(AuthContext) as AuthContextType;
   const { isLoading } = useSelector((state: RootState) => state.appState);
-
-  const history = useHistory();
-  const [snackBar, setSnackBar] = useState(true);
-  const handleClose = () => {
-    setSnackBar(false);
-  };
-
-  const message = (
-    <div>
-      <Typography>
-        {
-          "We are expanding our product offering to metaverse real estate. To visit DOKO's NFT Dashboard, click here to visit "
-        }
-        <Link href="https://nft.doko.one" underline="always" style={{ color: '#00b0ff' }}>
-          nft.doko.one
-        </Link>
-      </Typography>
-    </div>
-  );
 
   return (
     <>
@@ -51,14 +30,6 @@ export const LandingPage = () => {
         image="/DOKO_LOGO.png"
       />
       <Container maxWidth="lg" className={styles.landingTopSection}>
-        <Snackbar
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          open={snackBar}
-          onClose={handleClose}
-          className={styles.snackBar}
-        >
-          <SnackbarContent message={message} />
-        </Snackbar>
         <h1 className={styles.landingTopTitle}>All Your Metaverse Real Estate in One Place</h1>
         <h3 className={styles.landingTopMiddleText}>
           Manage your real estate from supported metaverse under one single dashboard

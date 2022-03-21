@@ -24,6 +24,7 @@ import { openToast, startLoading, stopLoading } from '../../store/app/appStateSl
 import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { acceptLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
+import config from 'config';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -143,7 +144,7 @@ export interface LeaseForm {
   maxLeaseLength: string;
   autoRegenerate: boolean;
 }
-const dclLandRentalAddress = process.env.REACT_APP_DCL_LAND_RENTAL_ADDRESS;
+const dclLandRentalAddress = config.dclLandRentalAddress;
 
 const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const styles = useStyles();

@@ -32,6 +32,7 @@ import { useHistory } from 'react-router-dom';
 import { getLeaseState } from './OwnershipView';
 import { EditLeaseSchema } from './schema';
 import RadiusInput from 'components/RadiusInput';
+import config from 'config';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -125,15 +126,15 @@ export interface LeaseForm {
 
 interface TransformedLeaseForm {
   rentToken: AcceptedTokens;
-  rentAmount: number;
-  deposit: number;
+  rentAmount: string;
+  deposit: string;
   gracePeriod: number;
   minLeaseLength: number;
   maxLeaseLength: number;
   autoRegenerate: boolean;
 }
 
-const dclLandRentalAddress = process.env.REACT_APP_DCL_LAND_RENTAL_ADDRESS;
+const dclLandRentalAddress = config.dclLandRentalAddress;
 
 const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const styles = useStyles();
@@ -184,8 +185,8 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     const { rentAmount, deposit, gracePeriod, minLeaseLength, maxLeaseLength } = leaseForm;
     return {
       ...leaseForm,
-      rentAmount: parseFloat(rentAmount),
-      deposit: parseFloat(deposit),
+      rentAmount,
+      deposit,
       gracePeriod: parseInt(gracePeriod, 10),
       minLeaseLength: parseInt(minLeaseLength, 10),
       maxLeaseLength: parseInt(maxLeaseLength, 10),
@@ -316,7 +317,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     (e) => {
       const rawValue = e.target.value;
       const targetName = e.target.name;
-      const input = { [targetName]: parseFloat(rawValue) };
+      const input = { [targetName]: rawValue };
       const result = Joi.object({
         [targetName]: EditLeaseSchema[targetName],
       }).validate(input);

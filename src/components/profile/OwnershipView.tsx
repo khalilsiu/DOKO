@@ -19,7 +19,6 @@ import { CreateProfileContext } from '../../contexts/CreateProfileContext';
 import RenderMaps from '../maps/RenderMaps';
 import { Asset } from '../../store/summary/profileOwnershipSlice';
 import LandPagination from '../LandPagination';
-import { useMetaMask } from 'metamask-react';
 import EditLeaseModal from './EditLeaseModal';
 import { getAssetFromOpensea, useAssetSliceSelector } from '../../store/asset/assetSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -213,7 +212,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   } = useContext(AuthContext) as AuthContextType;
   const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
     useParams<{ address: string; contractAddress: string; tokenId: string }>();
-  const { account: walletAddress } = useMetaMask();
+  const { address: walletAddress } = useContext(AuthContext) as AuthContextType;
   const asset = useAssetSliceSelector((state) => state);
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);

@@ -1,10 +1,11 @@
+import config from 'config';
 import DclLandRental from '../contracts/DclLandRental.json';
 
 export const rentalContracts = [
   {
     label: 'DCL Land Rental Contract',
     symbol: 'dclLandRental',
-    address: process.env.REACT_APP_DCL_LAND_RENTAL_ADDRESS || '',
+    address: config.dclLandRentalAddress,
     abi: DclLandRental.abi,
   },
 ];

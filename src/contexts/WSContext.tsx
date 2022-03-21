@@ -1,8 +1,9 @@
-import { useMetaMask } from 'metamask-react';
-import { createContext, PropsWithChildren, useEffect, useState } from 'react';
+import config from 'config';
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { io, Socket } from 'socket.io-client';
 import { openToast } from 'store/app/appStateSlice';
+import { AuthContext, AuthContextType } from './AuthContext';
 
 interface ServerToClientEvents {
   event: (data: string) => void;
@@ -28,7 +29,7 @@ export const WSContext = createContext<WSContextValue>({
 
 export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [socket, setSocket] = useState<SocketIO | null>(null);
-  const { account } = useMetaMask();
+  const { address } = useContext(AuthContext) as AuthContextType;
   const dispatch = useDispatch();
   socket &&
     socket
@@ -60,7 +61,7 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
         );
       });
   useEffect(() => {
-    const socket = io(process.env.REACT_APP_HOLDINGS_SERVICE_SOCKET || '', {
+    const socket = io(config.holdingsServiceSocketUrl || '', {
       secure: true,
       transports: ['flashsocket', 'polling', 'websocket'],
     });
@@ -73,10 +74,10 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
   }, []);
 
   useEffect(() => {
-    if (account && socket) {
-      socket.emit('join', account);
+    if (address && socket) {
+      socket.emit('join', address);
     }
-  }, [account]);
+  }, [address]);
 
   return <WSContext.Provider value={{ socket }}>{children}</WSContext.Provider>;
 };
