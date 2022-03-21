@@ -80,7 +80,11 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     const actionText = renderActionText();
-    if (leaseState === 'toBeTerminated' || leaseState === 'leased') {
+    if (leaseState === 'leased') {
+      // TODO: detail modal pop up?
+      return;
+    }
+    if (leaseState === 'toBeTerminated') {
       onActionButtonClick(actionText, `Are you sure you want to ${actionText.toLowerCase()}?`, nft.tokenId);
       return;
     }
