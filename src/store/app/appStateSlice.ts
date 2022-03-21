@@ -7,7 +7,8 @@ import { getAssetFromOpensea } from '../asset/assetSlice';
 import { acceptLeaseToBlockchain, upsertLeaseToBlockchain } from '../lease/metaverseLeasesSlice';
 import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
 
-export type ToastAction = 'refresh';
+export type ToastAction = 'refresh' | 'install-metamask';
+
 interface AppState {
   isLoading: boolean;
   isTransacting: boolean;
@@ -47,18 +48,16 @@ const appStateSlice = createSlice({
     ) {
       const { state: toastState, message, action: toastAction } = action.payload;
       state.toast = {
+        message,
         show: true,
         state: toastState,
-        message,
         action: toastAction,
       };
     },
     closeToast(state) {
       state.toast = {
+        ...state.toast,
         show: false,
-        state: undefined,
-        message: undefined,
-        action: undefined,
       };
     },
   },

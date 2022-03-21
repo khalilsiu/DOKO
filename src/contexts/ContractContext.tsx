@@ -1,12 +1,11 @@
-import { Contract, ethers } from 'ethers';
 import React from 'react';
+import { Contract, ethers } from 'ethers';
 import metaverses from 'constants/metaverses';
 import { tokens } from 'constants/acceptedTokens';
 import { rentalContracts } from 'constants/rentals';
 import { useDispatch } from 'react-redux';
 import { openToast } from 'store/app/appStateSlice';
-
-declare let window: any;
+import { AuthContext } from './AuthContext';
 
 type ContractNames = 'dclLandRental' | 'dclLand' | 'USDT';
 
@@ -21,27 +20,13 @@ export const ContractContext = React.createContext<ContractContextType>(null as 
 
 export const ContractContextProvider = React.memo(({ children }) => {
   const dispatch = useDispatch();
-  const [signer, setSigner] = React.useState<ethers.providers.JsonRpcSigner | null>(null);
+  const { signer } = React.useContext(AuthContext);
 
   const [contracts, setContracts] = React.useState<Contracts>({
     dclLandRental: null,
     dclLand: null,
     USDT: null,
   });
-
-  React.useEffect(() => {
-    try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      setSigner(signer);
-    } catch (e: any) {
-      console.log(e.reason);
-      if (e.reason === 'missing provider') {
-        // User has not installed Google Chrome Metamask extension yet
-        window.location.href = 'https://metamask.app.link/dapp/doko.one';
-      }
-    }
-  }, []);
 
   const connectContract = React.useCallback(
     (symbol: ContractNames) => {

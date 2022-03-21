@@ -1,3 +1,4 @@
+import React from 'react';
 import { lazy, PropsWithChildren, Suspense } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -7,17 +8,12 @@ import { CreateProfileContextProvider } from './contexts/CreateProfileContext';
 import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
 import { LandingPage } from './modules/landing-page';
-import Snackbar from '@material-ui/core/Snackbar';
-import { Alert } from '@material-ui/lab';
-import { closeToast, ToastAction } from './store/app/appStateSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from './store/store';
 import { WSContextProvider } from './contexts/WSContext';
-import { Button } from '@material-ui/core';
 import Header from 'components/Header';
 import Intro from 'components/Intro';
 import MetaStatsPage from './modules/meta-stats-page';
 import { ContractContextProvider } from 'contexts/ContractContext';
+import { GlobalSnackbar } from 'components/Footer/GlobalSnackbar';
 
 const AddressPage = lazy(() => import(/* webpackPrefetch: true */ './modules/address-page'));
 const RentalListingPage = lazy(() => import(/* webpackPrefetch: true */ './modules/rental-listing-page'));
@@ -34,24 +30,7 @@ const RouteContainer = ({ children }: PropsWithChildren<any>) => {
   return <div className={styles.offset}>{children}</div>;
 };
 
-function App() {
-  const { toast } = useSelector((state: RootState) => state.appState);
-  const dispatch = useDispatch();
-  const handleToastClose = () => {
-    dispatch(closeToast());
-  };
-
-  const renderToastAction = (toastAction: ToastAction) => {
-    switch (toastAction) {
-      case 'refresh': {
-        return <Button onClick={() => window.location.reload()}>Refresh</Button>;
-      }
-      default: {
-        <></>;
-      }
-    }
-  };
-
+const App = React.memo(() => {
   return (
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
@@ -106,12 +85,8 @@ function App() {
                       </RouteContainer>
                     </Route>
                   </Switch>
-                  <Snackbar open={toast.show} autoHideDuration={6000} onClose={handleToastClose}>
-                    <Alert severity={toast.state} action={toast.action && renderToastAction(toast.action)}>
-                      {toast.message}
-                    </Alert>
-                  </Snackbar>
                   <Footer />
+                  <GlobalSnackbar />
                 </DrawerContextProvider>
               </CreateProfileContextProvider>
             </WSContextProvider>
@@ -120,6 +95,6 @@ function App() {
       </BrowserRouter>
     </Suspense>
   );
-}
+});
 
 export default App;
