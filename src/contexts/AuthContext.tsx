@@ -44,7 +44,7 @@ export const AuthContextProvider = React.memo(({ children }) => {
   const showInstallMetamaskToastOrElseRedirect = React.useCallback(
     (autoRedirect = false) => {
       if (DeviceCheckUtil.isMobile()) {
-        if (autoRedirect) window.location.href = ThirdPartyURL.downloadMetamask;
+        if (autoRedirect) window.location.href = ThirdPartyURL.downloadMetamask();
       } else {
         dispatch(
           openToast({

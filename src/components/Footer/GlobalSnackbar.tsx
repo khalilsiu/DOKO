@@ -15,7 +15,7 @@ export const GlobalSnackbar = React.memo(() => {
   }, []);
 
   const downloadMetamask = React.useCallback(() => {
-    window.open(ThirdPartyURL.downloadMetamask);
+    window.open(ThirdPartyURL.downloadMetamask());
   }, []);
 
   const renderToastAction = React.useCallback(
