@@ -48,7 +48,7 @@ export const AuthContextProvider = React.memo(({ children }) => {
       } else {
         dispatch(
           openToast({
-            message: 'You has not installed Google Chrome Metamask extension yet.',
+            message: 'Please install Metamask wallet extension in Chrome to connect.',
             state: 'error',
             action: 'install-metamask',
           }),

@@ -59,10 +59,10 @@ const useStyles = makeStyles((theme) => ({
   },
   titleContainer: {
     marginBottom: 12,
-    [theme.breakpoints.down('xs')]: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   titleText: {
     fontWeight: 'bolder',
@@ -246,27 +246,21 @@ export const Profiles = () => {
   const renderProfileList = () => (
     <div>
       <Grid className={styles.itemsContainer} container direction="column" alignItems="flex-start">
-        <Hidden smUp>
-          <Grid container direction="row" alignItems="center" justifyContent="flex-end" wrap="nowrap">
-            <IconButton onClick={handleClickOpen}>
-              <img src={CreateProfileIcon} alt="share" />
-            </IconButton>
-          </Grid>
-        </Hidden>
-        <Grid container justifyContent="space-between" alignItems="center" className={styles.titleContainer}>
-          <Grid item xs={12} md="auto">
-            <Grid container direction="column">
-              <Typography className={styles.titleText} variant="h3" style={{ fontWeight: 'bolder' }}>
-                Manage Profile(s)
-              </Typography>
-            </Grid>
-          </Grid>
+        <div className={styles.titleContainer}>
+          <Typography className={styles.titleText} variant="h3" style={{ fontWeight: 'bolder' }}>
+            Manage Profile(s)
+          </Typography>
           <Hidden xsDown>
             <Button className={styles.createProfileButton} onClick={handleClickOpen}>
               <img src={CreateProfileButtonImage} alt="Create Profile" />
             </Button>
           </Hidden>
-        </Grid>
+          <Hidden smUp>
+            <IconButton onClick={handleClickOpen}>
+              <img src={CreateProfileIcon} alt="share" />
+            </IconButton>
+          </Hidden>
+        </div>
         <Grid container alignItems="center" style={{ paddingBottom: 40 }}>
           <Typography className={styles.descriptionText}>
             This is where you can view, edit or delete each of your created and saved profiles.
