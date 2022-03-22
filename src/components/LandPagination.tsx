@@ -13,7 +13,7 @@ interface Props {
   loading?: boolean;
   maxPage?: number;
   onLeaseButtonClick?: (asset: Asset | null) => void;
-  onActionButtonClick: (headerText: string, bodyText: string, assetId: string) => void;
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
 }
 
 const useStyles = makeStyles((theme) => ({

@@ -31,7 +31,7 @@ import { AuthContext, AuthContextType } from 'contexts/AuthContext';
 interface NFTItemProps {
   nft: Asset;
   onClick?: () => void;
-  onActionButtonClick: (headerText: string, bodyText: string, assetId: string) => void;
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
   setSelectedAssetForLease?: (asset: Asset | null) => void;
   selectedAssetForLease?: Asset | null;
 }
@@ -85,7 +85,12 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
       return;
     }
     if (leaseState === 'toBeTerminated') {
-      onActionButtonClick(actionText, `Are you sure you want to ${actionText.toLowerCase()}?`, nft.tokenId);
+      onActionButtonClick(
+        actionText,
+        `Are you sure you want to ${actionText.toLowerCase()}?`,
+        nft.assetContract.address,
+        nft.tokenId,
+      );
       return;
     }
     history.push(leasePath);
@@ -116,9 +121,9 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
     if (leaseState === 'toBeTerminated') {
       return 'Terminate Lease';
     }
-    if (leaseState === 'leased') {
-      return 'Leased';
-    }
+    // if (leaseState === 'leased') {
+    //   return 'Leased';
+    // }
     return 'Error';
   }, [leaseState]);
 

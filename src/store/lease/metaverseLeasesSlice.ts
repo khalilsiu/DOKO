@@ -21,6 +21,9 @@ export interface Lease {
   rentToken: AcceptedTokens;
   isOpen: boolean;
   isLeased: boolean;
+  isLeaseCompleted: boolean;
+  isRentOverDue: boolean;
+
   autoRegenerate: boolean;
   rentorAddress: string;
   renteeAddress: string;

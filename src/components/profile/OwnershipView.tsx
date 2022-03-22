@@ -149,44 +149,12 @@ interface IOwnershipView {
   metaverseSummaries: AggregatedSummary[];
 }
 
-export const isLeaseCompleted = (asset: Asset) => {
-  if (!asset.lease) {
-    return null;
-  }
-  const dateSigned = new Date(asset.lease.dateSigned);
-
-  dateSigned.setMonth(dateSigned.getMonth() + asset.lease.finalLeaseLength);
-
-  return Date.now() > dateSigned.getTime();
-};
-
-export const isRentOverDue = (asset: Asset) => {
-  if (!asset.lease) {
-    return null;
-  }
-
-  if (asset.lease.isOpen && !asset.lease.isLeased) {
-    return false;
-  }
-
-  if (asset.lease.monthsPaid > asset.lease.finalLeaseLength) {
-    return false;
-  }
-
-  const dateSigned = new Date(asset.lease.dateSigned);
-
-  dateSigned.setMonth(dateSigned.getMonth() + asset.lease.monthsPaid);
-  dateSigned.setDate(dateSigned.getDate() + asset.lease.gracePeriod);
-
-  return Date.now() > dateSigned.getTime();
-};
-
 export const getLeaseState = (asset: Asset) => {
   if (!asset.lease) {
     return 'toBeCreated';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && isLeaseCompleted(asset)) {
+  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && asset.lease.isLeaseCompleted) {
     return 'completed';
   }
 
@@ -194,11 +162,11 @@ export const getLeaseState = (asset: Asset) => {
     return 'open';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && isRentOverDue(asset)) {
+  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && asset.lease.isRentOverDue) {
     return 'toBeTerminated';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && !isRentOverDue(asset)) {
+  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && !asset.lease.isRentOverDue) {
     return 'leased';
   }
 
@@ -262,7 +230,13 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     setIsConfirmModalOpen(false);
   }, [dclLandRentalContract, confirmModalTargetId]);
 
-  const onActionButtonClick = (headerText: string, bodyText: string, assetId: string) => {
+  const onActionButtonClick = (headerText: string, bodyText: string, contractAddress: string, assetId: string) => {
+    dispatch(
+      getAssetFromOpensea({
+        contractAddress,
+        tokenId: assetId,
+      }),
+    );
     setConfirmModalHeader(headerText);
     setConfirmModalBody(bodyText);
     setConfirmModalTargetId(assetId);
