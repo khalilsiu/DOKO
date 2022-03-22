@@ -41,14 +41,13 @@ const useStyles = makeStyles((theme) => ({
   },
   traits: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     justifyContent: 'flex-start',
     width: '100%',
     overflowX: 'auto',
     paddingBottom: theme.spacing(2),
     gap: theme.spacing(2),
-    [theme.breakpoints.down('md')]: {
-      flexWrap: 'nowrap',
+    [theme.breakpoints.down('xs')]: {
       gap: theme.spacing(1),
     },
   },
