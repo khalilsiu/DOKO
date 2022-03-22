@@ -1,11 +1,12 @@
+import { memo } from 'react';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import withStyles from '@material-ui/core/styles/withStyles';
-import { memo } from 'react';
 import twitterIcon from 'assets/socials/twitter-black-small.png';
 import discordIcon from 'assets/socials/discord.png';
 import mediumIcon from 'assets/socials/medium.png';
+import DOKOLogoLockupImage from 'assets/doko/doko-logo-lockup.png';
 
 const socialLinks = [
   {
@@ -57,7 +58,7 @@ export const Footer = memo(() => {
           Ⓒ 2022 DOKO
         </Typography>
       </Grid>
-      <img height={24} src="/DOKO_LOGO_LOCKUP.png" alt="DOKO" />
+      <img height={24} src={DOKOLogoLockupImage} alt="DOKO" />
       <Grid item xs={4}>
         <Grid container alignItems="center" justifyContent="flex-end">
           {socialLinks.map((s) => (

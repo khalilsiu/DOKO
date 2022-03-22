@@ -20,7 +20,6 @@ import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import Joi from 'joi';
-import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { upsertLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
@@ -33,6 +32,7 @@ import { getLeaseState } from './OwnershipView';
 import { EditLeaseSchema } from './schema';
 import RadiusInput from 'components/RadiusInput';
 import config from 'config';
+import { ContractContext } from 'contexts/ContractContext';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -142,7 +142,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const {
     contracts: { dclLandRental: dclLandRentalContract, dclLand: dclLandContract },
     connectContract,
-  } = useContext(AuthContext) as AuthContextType;
+  } = useContext(ContractContext);
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const theme = useTheme();
   const dispatch = useDispatch();

@@ -19,7 +19,7 @@ import { useParams } from 'react-router-dom';
 import LeaseDetailModal from '../../components/rentalListing/LeaseDetailModal';
 import { useDispatch } from 'react-redux';
 import { getAssetFromServer, useAssetSliceSelector } from '../../store/asset/assetSlice';
-import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import { AuthContext } from 'contexts/AuthContext';
 
 export const sortOptions = [
   {
@@ -172,7 +172,7 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
     const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
       metaverses.map(() => null),
     );
-    const { address: walletAddress } = useContext(AuthContext) as AuthContextType;
+    const { address: walletAddress } = useContext(AuthContext);
     const theme = useTheme();
     const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
     const asset = useAssetSliceSelector((state) => state);
