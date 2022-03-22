@@ -6,19 +6,21 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import Meta from '../../components/Meta';
-import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
+import { AuthContext } from '../../contexts/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import metaverses from 'constants/metaverses';
-import dashboardIcon from 'assets/app/LandingPage/dashboard.png';
-import analysisIcon from 'assets/app/LandingPage/analysis.png';
-import lendingIcon from 'assets/app/LandingPage/lending.png';
-import rentalIcon from 'assets/app/LandingPage/rental.png';
+import dashboardIcon from 'assets/app/landing-page/dashboard.png';
+import analysisIcon from 'assets/app/landing-page/analysis.png';
+import lendingIcon from 'assets/app/landing-page/lending.png';
+import rentalIcon from 'assets/app/landing-page/rental.png';
+import DOKOLogo from 'assets/doko/doko-logo.png';
+import clsx from 'clsx';
 
 export const LandingPage = () => {
   const styles = useStyles();
   const history = useHistory();
-  const { connect, address } = useContext(AuthContext) as AuthContextType;
+  const { connect, address } = useContext(AuthContext);
   const { isLoading } = useSelector((state: RootState) => state.appState);
 
   return (
@@ -27,7 +29,7 @@ export const LandingPage = () => {
         title="DOKO, Metaverse Real Estate Portfolio Manager"
         description="The Metaverse Real Estate Portfolio Manager that allows you to display, manage and trade your metaverse real estates"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Container maxWidth="lg" className={styles.landingTopSection}>
         <h1 className={styles.landingTopTitle}>All Your Metaverse Real Estate in One Place</h1>
@@ -35,8 +37,7 @@ export const LandingPage = () => {
           Manage your real estate from supported metaverse under one single dashboard
         </h3>
         <Button
-          style={{ marginTop: 48, minWidth: 160 }}
-          className="gradient-button"
+          className={clsx('gradient-button', styles.connectButton)}
           variant="outlined"
           disabled={isLoading}
           onClick={() => (address ? history.push(`/address/${address}`) : connect && connect())}
@@ -54,7 +55,7 @@ export const LandingPage = () => {
               </Grid>
             ))}
           </Grid>
-          {/* <img className="beta-image" src="BetaVersion.png" alt="" /> */}
+          {/* <img className="beta-image" src={require('assets/app/beta-version.png')} alt="" /> */}
         </Container>
       </section>
 
@@ -187,6 +188,15 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '80%',
     [theme.breakpoints.down('sm')]: {
       maxWidth: '100%',
+      fontSize: 32,
+      lineHeight: 1.2,
+    },
+  },
+  connectButton: {
+    marginTop: theme.spacing(4),
+    minWidth: 160,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: theme.spacing(3),
     },
   },
   landingTopMiddleText: {
@@ -218,6 +228,7 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'Exo2',
     [theme.breakpoints.down('xs')]: {
       width: 'unset',
+      marginRight: theme.spacing(2),
     },
   },
   betaSection: {
@@ -266,6 +277,10 @@ const useStyles = makeStyles((theme) => ({
     height: 421,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
+      height: 340,
+      '& > img': {
+        maxWidth: 300,
+      },
     },
   },
   whatCanYouDoTextContainer: {

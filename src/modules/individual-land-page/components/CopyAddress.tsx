@@ -1,6 +1,7 @@
 import React from 'react';
 import { Grid, Tooltip, Typography, IconButton, Link, makeStyles } from '@material-ui/core';
-import { minimizeAddress } from '../../../utils/utils';
+import { minimizeAddress } from 'utils/utils';
+import CopyImage from 'assets/app/copy.png';
 
 interface CopyAddressProps {
   address: string;
@@ -34,8 +35,8 @@ export const CopyAddress = ({ address, hasLink = false }: CopyAddressProps) => {
         </Typography>
       )}
       <Tooltip title={copied ? 'Copied' : 'Copy'} placement="right">
-        <IconButton className="hover-button" onClick={() => copy()}>
-          <img height={13} src="/copy.png" alt="" />
+        <IconButton className="hover-button" onClick={copy}>
+          <img height={13} src={CopyImage} />
         </IconButton>
       </Tooltip>
     </Grid>

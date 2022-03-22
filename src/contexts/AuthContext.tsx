@@ -1,256 +1,154 @@
-import { createContext, PropsWithChildren, useCallback, useEffect, useState } from 'react';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import makeStyles from '@material-ui/core/styles/makeStyles';
-import CloseIcon from '@material-ui/icons/Close';
-// import useMediaQuery from '@material-ui/core/useMediaQuery';
-// import useTheme from '@material-ui/core/styles/useTheme';
-import { ethers, Contract } from 'ethers';
-import UIModal from '../components/UIModal';
-import { Wallet, WalletName } from '../types';
+import React from 'react';
+import { Wallet, WalletName } from 'types';
 import { useDispatch } from 'react-redux';
-
-import { rentalContracts } from '../constants/rentals';
-import { tokens } from '../constants/acceptedTokens';
-import metaverses from '../constants/metaverses';
 import { openToast } from 'store/app/appStateSlice';
 import { injected } from 'config/injected';
 import { useWeb3React } from '@web3-react/core';
+import DOKOMetamaskLogoAsset from 'assets/doko/doko-metamask-logo-asset.png';
+import { AuthModal } from 'components/auth/AuthModal';
+import { ethers } from 'ethers';
+import { DeviceCheckUtil } from 'utils/DeviceCheckUtil';
+import { ThirdPartyURL } from 'constants/ThirdPartyURL';
 
 declare let window: any;
-
-type ContractNames = 'dclLandRental' | 'dclLand' | 'USDT';
-
-type Contracts = { [key in ContractNames]: ethers.Contract | null };
 export interface AuthContextType {
-  connectContract: (symbol: ContractNames) => void;
-  contracts: Contracts;
   isActive: boolean;
   address: string;
   connect: () => void;
   disconnect: () => Promise<void>;
+  signer: ethers.Signer | null;
+  setSigner: React.Dispatch<React.SetStateAction<ethers.providers.JsonRpcSigner | null>>;
 }
+
 const wallets: Wallet[] = [
   {
-    icon: '/DOKO_Metamasklogo_asset.png',
+    icon: DOKOMetamaskLogoAsset,
     label: 'MetaMask Wallet',
     name: WalletName.METAMASK,
   },
 ];
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = React.createContext<AuthContextType>(null as any);
 
-export const AuthContextProvider = ({ children }: PropsWithChildren<any>) => {
-  const classes = useStyles();
+export const AuthContextProvider = React.memo(({ children }) => {
   const dispatch = useDispatch();
-  // const theme = useTheme();
-  // const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [address, setAddress] = useState('');
-  const [walletSelected, setWalletSelected] = useState<Wallet>(wallets[0]);
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | null>(null);
+  const [address, setAddress] = React.useState('');
+  const [walletSelected, setWalletSelected] = React.useState<Wallet>(wallets[0]);
+  const [walletModalVisible, setWalletModalVisible] = React.useState(false);
+
   const { account, active, error, activate, deactivate } = useWeb3React();
-  const [isActive, setIsActive] = useState(false);
+  const [isActive, setIsActive] = React.useState(false);
+  const [signer, setSigner] = React.useState<ethers.providers.JsonRpcSigner | null>(null);
 
-  const connect = async () => {
+  const showInstallMetamaskToastOrElseRedirect = React.useCallback(
+    (autoRedirect = false) => {
+      if (DeviceCheckUtil.isMobile()) {
+        if (autoRedirect) window.location.href = ThirdPartyURL.downloadMetamask();
+      } else {
+        dispatch(
+          openToast({
+            message: 'Please install Metamask wallet extension in Chrome to connect.',
+            state: 'error',
+            action: 'install-metamask',
+          }),
+        );
+      }
+    },
+    [dispatch, openToast],
+  );
+
+  const connectMetamask = React.useCallback(async () => {
     try {
-      await activate(injected);
-    } catch (e) {
-      dispatch(openToast({ message: `Error on connecting to Metamask ${e}`, state: 'error' }));
-    }
-  };
+      new ethers.providers.Web3Provider(window.ethereum); // test if metamask is available
 
-  const disconnect = async () => {
+      await activate(injected);
+    } catch (e: any) {
+      console.error(e);
+      if (e.reason === 'missing provider') {
+        // User has not installed Google Chrome Metamask extension yet
+        showInstallMetamaskToastOrElseRedirect(true);
+      } else {
+        dispatch(openToast({ message: `Error on connecting to Metamask ${e}`, state: 'error' }));
+      }
+    }
+  }, [activate, dispatch]);
+
+  const disconnectMetamask = React.useCallback(async () => {
     try {
       await deactivate();
     } catch (e) {
       dispatch(openToast({ message: `Error on disconnecting from App ${e}`, state: 'error' }));
     }
-  };
+  }, [deactivate, dispatch]);
 
-  const login = useCallback(async () => {
-    await connect();
-    setShowWalletModal(false);
+  const login = React.useCallback(async () => {
+    await connectMetamask();
+    setWalletModalVisible(false);
   }, []);
 
   // check when app is connected to metamask as
-  const handleIsActive = useCallback(async () => {
+  const handleIsActive = React.useCallback(async () => {
     const isAuthorized = await injected.isAuthorized();
     if (isAuthorized && !active && !error) {
       await activate(injected);
     }
   }, [active, injected, error]);
 
-  useEffect(() => {
+  const handleConnectButtonClick = React.useCallback(() => {
+    setWalletModalVisible(true);
+  }, [setWalletModalVisible]);
+
+  React.useEffect(() => {
     handleIsActive();
   }, [active, injected, error]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (account) {
       setAddress(account.toLowerCase());
     }
   }, [account]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setIsActive(active);
   }, [active]);
 
-  const [contracts, setContracts] = useState<Contracts>({
-    dclLandRental: null,
-    dclLand: null,
-    USDT: null,
-  });
-
-  useEffect(() => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    setSigner(signer);
-  }, []);
-
-  const connectContract = (symbol: ContractNames) => {
-    const metaverseContracts = metaverses.map((metaverse) => metaverse.contracts).flat();
-    const contract = [...tokens, ...rentalContracts, ...metaverseContracts].find(
-      (contract) => contract.symbol === symbol,
-    );
-    if (!contract) {
-      dispatch(openToast({ message: `${contract} not found`, state: 'error' }));
-      return;
+  React.useEffect(() => {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      setSigner(signer);
+    } catch (e: any) {
+      if (e.reason === 'missing provider') {
+        // User has not installed Google Chrome Metamask extension yet
+        showInstallMetamaskToastOrElseRedirect();
+      }
     }
-    if (!signer) {
-      dispatch(openToast({ message: `Signer is not initialized`, state: 'error' }));
-      return;
-    }
-
-    setContracts((state) => ({
-      ...state,
-      [symbol]: new Contract(contract.address || '', contract.abi, signer),
-    }));
-  };
+  }, [showInstallMetamaskToastOrElseRedirect]);
 
   return (
     <AuthContext.Provider
       value={{
         address,
-        connect: () => setShowWalletModal(true),
-        disconnect,
+        signer,
+        setSigner,
+        connect: handleConnectButtonClick,
+        disconnect: disconnectMetamask,
         isActive,
-        connectContract,
-        contracts,
       }}
     >
-      <>
+      <React.Fragment>
         {children}
-        <UIModal
-          modalOpen={showWalletModal}
-          renderHeader={() => (
-            <div className={classes.modalHeader}>
-              <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-                Connect Wallet
-              </Typography>
-              <IconButton style={{ color: 'white' }} onClick={() => setShowWalletModal(false)}>
-                <CloseIcon fontSize="medium" />
-              </IconButton>
-            </div>
-          )}
-          renderBody={() => (
-            <div className={classes.modalContent}>
-              {wallets.map((wallet) => (
-                <div
-                  className={`${classes.walletContainer} 
-                ${walletSelected.name === wallet.name && classes.walletSelected}`}
-                  key={wallet.label}
-                  onClick={() => setWalletSelected(wallet)}
-                  onKeyDown={() => setWalletSelected(wallet)}
-                >
-                  <img src={wallet.icon} alt="" className={classes.walletImage} />
 
-                  <Typography variant="subtitle2" className={classes.walletName}>
-                    {wallet.label}
-                  </Typography>
-                </div>
-              ))}
-            </div>
-          )}
-          renderFooter={() => (
-            <div className={classes.modalFooter}>
-              <Button className={classes.modalButton} variant="outlined" onClick={login}>
-                <Typography variant="body1" style={{ fontWeight: 'bold' }}>
-                  Connect Wallet
-                </Typography>
-              </Button>
-            </div>
-          )}
+        <AuthModal
+          showModal={walletModalVisible}
+          wallets={wallets}
+          selectedWallet={walletSelected}
+          setSelectedWallet={setWalletSelected}
+          closeModal={() => setWalletModalVisible(false)}
+          login={login}
         />
-      </>
+      </React.Fragment>
     </AuthContext.Provider>
   );
-};
-
-const useStyles = makeStyles((theme) => ({
-  modalHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    color: 'white',
-    padding: '1.5rem',
-    [theme.breakpoints.down('sm')]: {
-      padding: '0.5rem 1.3rem',
-    },
-    justifyContent: 'space-between',
-  },
-  modalContent: {
-    display: 'flex',
-    padding: '1.5rem',
-  },
-  walletContainer: {
-    width: '8rem',
-    height: '8rem',
-    [theme.breakpoints.down('sm')]: {
-      width: '7rem',
-      height: '7rem',
-    },
-    padding: '1.5rem',
-    border: '0.5px solid',
-    borderColor: theme.palette.grey[800],
-    borderRadius: '10px',
-    marginRight: '1rem',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  walletSelected: {
-    borderColor: theme.palette.primary.main,
-  },
-  walletImage: {
-    height: '3rem',
-    width: '3rem',
-    [theme.breakpoints.down('sm')]: {
-      width: '2rem',
-      height: '2rem',
-    },
-    marginBottom: '1rem',
-  },
-  walletName: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-    width: '5rem',
-    fontSize: '0.7rem',
-    lineHeight: '1.2',
-  },
-  modalFooter: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    padding: '1.5rem',
-  },
-  modalButton: {
-    backgroundColor: theme.palette.primary.main,
-    color: 'white',
-    width: '13rem',
-    height: '3rem',
-    [theme.breakpoints.down('sm')]: {
-      width: '11rem',
-      height: '2.5rem',
-    },
-  },
-}));
+});
