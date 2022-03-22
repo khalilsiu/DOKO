@@ -61,7 +61,7 @@ export const preprocessAssetFromServer = (assetFromServer: any) => {
   picked.owner = pick(picked.owner, ['address']).address;
   const metaverse = metaverses.find((metaverse) => metaverse.addresses.includes(picked.asset_contract.address));
   const coordinates: L.LatLngExpression = getCoordinates(metaverse ? metaverse.label : '', picked);
-  return camelize({ ...picked, coordinates });
+  return camelize<Asset>({ ...picked, coordinates });
 };
 
 const metaverseAssetsSlice = createSlice({

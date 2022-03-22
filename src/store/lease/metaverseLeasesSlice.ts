@@ -129,7 +129,7 @@ export const getMetaverseLeases = createAsyncThunk('MetaverseLeases/getLesaes', 
     metavereseLeases.push(
       contractsLeases.map((contractLeases) => {
         return contractLeases.map((lease) =>
-          camelize({
+          camelize<Lease>({
             ...lease.lease,
           }),
         );
