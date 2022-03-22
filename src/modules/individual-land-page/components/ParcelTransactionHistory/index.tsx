@@ -4,17 +4,23 @@ import { FilterTabs } from './FilterTabs';
 import { useParams } from 'react-router-dom';
 import { Title } from './Title';
 import { Table } from './Table';
-import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
+import {
+  fetchParcelTransactionHistory,
+  useParcelTransactionHistorySliceSelector,
+} from 'store/asset/parcelTransactionHistorySlice';
 import { useDispatch } from 'react-redux';
 
 export const ParcelTransactionHistory = React.memo(() => {
   const dispatch = useDispatch();
   const classes = useStyles();
-  const { address, id } = useParams<{ address: string; id: string; chain: string }>();
+  const { address, id } = useParams<{ address: string; id: string }>();
+  const fetchCalled = useParcelTransactionHistorySliceSelector((state) => state.fetchCalled);
 
   React.useEffect(() => {
-    dispatch(fetchParcelTransactionHistory({ contractAddress: address, assetId: id }));
-  }, [address, id]);
+    if (!fetchCalled) {
+      dispatch(fetchParcelTransactionHistory({ contractAddress: address, assetId: id }));
+    }
+  }, [address, id, fetchCalled]);
 
   return (
     <Box className={classes.root}>

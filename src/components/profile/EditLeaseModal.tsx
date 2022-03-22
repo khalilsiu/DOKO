@@ -126,8 +126,8 @@ export interface LeaseForm {
 
 interface TransformedLeaseForm {
   rentToken: AcceptedTokens;
-  rentAmount: number;
-  deposit: number;
+  rentAmount: string;
+  deposit: string;
   gracePeriod: number;
   minLeaseLength: number;
   maxLeaseLength: number;
@@ -189,8 +189,8 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     const { rentAmount, deposit, gracePeriod, minLeaseLength, maxLeaseLength } = leaseForm;
     return {
       ...leaseForm,
-      rentAmount: parseFloat(rentAmount),
-      deposit: parseFloat(deposit),
+      rentAmount,
+      deposit,
       gracePeriod: parseInt(gracePeriod, 10),
       minLeaseLength: parseInt(minLeaseLength, 10),
       maxLeaseLength: parseInt(maxLeaseLength, 10),
@@ -321,7 +321,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     (e) => {
       const rawValue = e.target.value;
       const targetName = e.target.name;
-      const input = { [targetName]: parseFloat(rawValue) };
+      const input = { [targetName]: rawValue };
       const result = Joi.object({
         [targetName]: EditLeaseSchema[targetName],
       }).validate(input);

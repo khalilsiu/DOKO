@@ -24,6 +24,7 @@ export const FilterTabs = React.memo(() => {
         fetchParcelTransactionHistory({
           contractAddress: address,
           assetId: id,
+          refetch: true,
         }),
       );
   }, []);
