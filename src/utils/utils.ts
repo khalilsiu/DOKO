@@ -2,7 +2,7 @@ import { transform, isArray, camelCase, isDate, isObject, snakeCase } from 'loda
 import moment from 'moment';
 import { web3 } from '../libs/web3';
 
-export const camelize = (obj: any) =>
+export const camelize = <T>(obj: any): T =>
   transform(obj, (acc: any, value, key, target) => {
     const camelKey = isArray(target) ? key : camelCase(key as string);
     if (isDate(value)) {
