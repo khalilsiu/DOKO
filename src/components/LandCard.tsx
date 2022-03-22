@@ -47,7 +47,7 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
-  const nftPath = `/nft/eth/${nft.assetContract.address}/${nft.tokenId}`;
+  const nftPath = `/asset/${nft.assetContract.address}/${nft.tokenId}`;
   const leasePath = `/address/${urlAddress}/${nft.assetContract.address}/${nft.tokenId}/lease`;
 
   // only decentraland right now

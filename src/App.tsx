@@ -64,7 +64,7 @@ const App = React.memo(() => {
                         <RentalListingPage />
                       </RouteContainer>
                     </Route>
-                    <Route path="/nft/:chain/:address/:id" exact>
+                    <Route path="/asset/:address/:id" exact>
                       <RouteContainer>
                         <MetaIndividualLandPage />
                       </RouteContainer>
