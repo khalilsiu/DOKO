@@ -15,6 +15,7 @@ import analysisIcon from 'assets/app/landing-page/analysis.png';
 import lendingIcon from 'assets/app/landing-page/lending.png';
 import rentalIcon from 'assets/app/landing-page/rental.png';
 import DOKOLogo from 'assets/doko/doko-logo.png';
+import clsx from 'clsx';
 
 export const LandingPage = () => {
   const styles = useStyles();
@@ -36,8 +37,7 @@ export const LandingPage = () => {
           Manage your real estate from supported metaverse under one single dashboard
         </h3>
         <Button
-          style={{ marginTop: 48, minWidth: 160 }}
-          className="gradient-button"
+          className={clsx('gradient-button', styles.connectButton)}
           variant="outlined"
           disabled={isLoading}
           onClick={() => (address ? history.push(`/address/${address}`) : connect && connect())}
@@ -188,6 +188,15 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '80%',
     [theme.breakpoints.down('sm')]: {
       maxWidth: '100%',
+      fontSize: 32,
+      lineHeight: 1.2,
+    },
+  },
+  connectButton: {
+    marginTop: theme.spacing(4),
+    minWidth: 160,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: theme.spacing(3),
     },
   },
   landingTopMiddleText: {
@@ -219,6 +228,7 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'Exo2',
     [theme.breakpoints.down('xs')]: {
       width: 'unset',
+      marginRight: theme.spacing(2),
     },
   },
   betaSection: {
@@ -267,6 +277,10 @@ const useStyles = makeStyles((theme) => ({
     height: 421,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
+      height: 340,
+      '& > img': {
+        maxWidth: 300,
+      },
     },
   },
   whatCanYouDoTextContainer: {

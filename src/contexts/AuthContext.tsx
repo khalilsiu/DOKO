@@ -41,19 +41,22 @@ export const AuthContextProvider = React.memo(({ children }) => {
   const [isActive, setIsActive] = React.useState(false);
   const [signer, setSigner] = React.useState<ethers.providers.JsonRpcSigner | null>(null);
 
-  const showInstallMetamaskToastOrElseRedirect = React.useCallback(() => {
-    if (DeviceCheckUtil.isMobile()) {
-      window.location.href = ThirdPartyURL.downloadMetamask;
-    } else {
-      dispatch(
-        openToast({
-          message: 'You has not installed Google Chrome Metamask extension yet.',
-          state: 'error',
-          action: 'install-metamask',
-        }),
-      );
-    }
-  }, [dispatch, openToast]);
+  const showInstallMetamaskToastOrElseRedirect = React.useCallback(
+    (autoRedirect = false) => {
+      if (DeviceCheckUtil.isMobile()) {
+        if (autoRedirect) window.location.href = ThirdPartyURL.downloadMetamask;
+      } else {
+        dispatch(
+          openToast({
+            message: 'You has not installed Google Chrome Metamask extension yet.',
+            state: 'error',
+            action: 'install-metamask',
+          }),
+        );
+      }
+    },
+    [dispatch, openToast],
+  );
 
   const connectMetamask = React.useCallback(async () => {
     try {
@@ -64,7 +67,7 @@ export const AuthContextProvider = React.memo(({ children }) => {
       console.error(e);
       if (e.reason === 'missing provider') {
         // User has not installed Google Chrome Metamask extension yet
-        showInstallMetamaskToastOrElseRedirect();
+        showInstallMetamaskToastOrElseRedirect(true);
       } else {
         dispatch(openToast({ message: `Error on connecting to Metamask ${e}`, state: 'error' }));
       }
