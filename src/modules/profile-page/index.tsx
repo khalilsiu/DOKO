@@ -23,6 +23,7 @@ import { CreateProfileContext } from 'contexts/CreateProfileContext';
 import Intro from 'components/Intro';
 import Meta from 'components/Meta';
 import DOKOLogo from 'assets/doko/doko-logo.png';
+import CreateProfileIcon from 'assets/app/profiles-page/create-profile-icon.png';
 
 type Icons = {
   [key: string]: string;
@@ -186,7 +187,7 @@ export const ProfilePage = () => {
           <Hidden smUp>
             <Grid container direction="row" alignItems="center" justifyContent="flex-end" wrap="nowrap">
               <IconButton onClick={handleClickOpen}>
-                <img src="/createProfileIcon.png" alt="share" />
+                <img src={CreateProfileIcon} alt="share" />
               </IconButton>
             </Grid>
           </Hidden>

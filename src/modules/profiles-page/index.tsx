@@ -23,6 +23,7 @@ import Meta from 'components/Meta';
 import addAddressIcon from 'assets/app/profiles-page/addAddress.png';
 import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
 import DOKOLogo from 'assets/doko/doko-logo.png';
+import CreateProfileIcon from 'assets/app/profiles-page/create-profile-icon.png';
 
 type Icons = {
   [key: string]: string;
@@ -248,7 +249,7 @@ export const Profiles = () => {
         <Hidden smUp>
           <Grid container direction="row" alignItems="center" justifyContent="flex-end" wrap="nowrap">
             <IconButton onClick={handleClickOpen}>
-              <img src="/createProfileIcon.png" alt="share" />
+              <img src={CreateProfileIcon} alt="share" />
             </IconButton>
           </Grid>
         </Hidden>
