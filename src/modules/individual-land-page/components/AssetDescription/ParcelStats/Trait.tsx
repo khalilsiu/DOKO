@@ -29,8 +29,6 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 180,
     width: 180,
     padding: theme.spacing(2),
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
