@@ -18,7 +18,8 @@ import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import { useState, useEffect, useMemo, ChangeEvent, MouseEvent } from 'react';
 import dateFormat from 'dateformat';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
-import { isValidHttpUrl } from '../utils/utils';
+import { isValidHttpUrl } from 'utils/utils';
+import EthereumImage from 'assets/tokens/ethereum.png';
 
 interface StyleProps {
   page?: number;
@@ -358,7 +359,7 @@ export default function EnhancedTable({
                           </a>
                         ) : priceHeaderIds.includes(key) ? (
                           <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <img height={20} src="/landing/Ethereum.png" alt="" style={{ marginRight: '1rem' }} />
+                            <img height={20} src={EthereumImage} style={{ marginRight: '1rem' }} />
                             <Typography variant="body1">{row[key]}</Typography>
                           </div>
                         ) : (

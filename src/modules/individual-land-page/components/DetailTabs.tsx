@@ -14,7 +14,7 @@ export const DetailTabs = React.memo(() => {
           label="Parcel Details"
           value="parcel"
         />
-        <Tab disabled classes={{ disabled: classes.disabledTab }} className={classes.tab} label="District Details" />
+        {/* <Tab disabled classes={{ disabled: classes.disabledTab }} className={classes.tab} label="District Details" /> */}
       </Tabs>
       <Divider className={classes.divider} />
       <ParcelTransactionHistory />

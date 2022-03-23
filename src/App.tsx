@@ -1,3 +1,4 @@
+import React from 'react';
 import { lazy, PropsWithChildren, Suspense } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import makeStyles from '@material-ui/core/styles/makeStyles';
@@ -7,16 +8,12 @@ import { CreateProfileContextProvider } from './contexts/CreateProfileContext';
 import { DrawerContextProvider } from './contexts/DrawerContext';
 import { Loading } from './components/Loading';
 import { LandingPage } from './modules/landing-page';
-import Snackbar from '@material-ui/core/Snackbar';
-import { Alert } from '@material-ui/lab';
-import { closeToast, ToastAction } from './store/app/appStateSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from './store/store';
 import { WSContextProvider } from './contexts/WSContext';
-import { Button } from '@material-ui/core';
 import Header from 'components/Header';
 import Intro from 'components/Intro';
 import MetaStatsPage from './modules/meta-stats-page';
+import { ContractContextProvider } from 'contexts/ContractContext';
+import { GlobalSnackbar } from 'components/Footer/GlobalSnackbar';
 
 const AddressPage = lazy(() => import(/* webpackPrefetch: true */ './modules/address-page'));
 const RentalListingPage = lazy(() => import(/* webpackPrefetch: true */ './modules/rental-listing-page'));
@@ -33,90 +30,71 @@ const RouteContainer = ({ children }: PropsWithChildren<any>) => {
   return <div className={styles.offset}>{children}</div>;
 };
 
-function App() {
-  const { toast } = useSelector((state: RootState) => state.appState);
-  const dispatch = useDispatch();
-  const handleToastClose = () => {
-    dispatch(closeToast());
-  };
-
-  const renderToastAction = (toastAction: ToastAction) => {
-    switch (toastAction) {
-      case 'refresh': {
-        return <Button onClick={() => window.location.reload()}>Refresh</Button>;
-      }
-      default: {
-        <></>;
-      }
-    }
-  };
-
+const App = React.memo(() => {
   return (
     <Suspense fallback={<Loading />}>
       <BrowserRouter>
         <AuthContextProvider>
-          <WSContextProvider>
-            <CreateProfileContextProvider>
-              <DrawerContextProvider intro={<Intro drawer />}>
-                <Header />
-                <Switch>
-                  <Route path="/" exact>
-                    <LandingPage />
-                  </Route>
-                  <Route path="/address/:address" exact>
-                    <RouteContainer>
-                      <AddressPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
-                    <RouteContainer>
-                      <AddressPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/rentals" exact>
-                    <RouteContainer>
-                      <RentalListingPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/rentals/:contractAddress/:tokenId/lease" exact>
-                    <RouteContainer>
-                      <RentalListingPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/nft/:chain/:address/:id" exact>
-                    <RouteContainer>
-                      <MetaIndividualLandPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/profiles" exact>
-                    <RouteContainer>
-                      <ProfilesPage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/profiles/:hash" exact>
-                    <RouteContainer>
-                      <ProfilePage />
-                    </RouteContainer>
-                  </Route>
-                  <Route path="/dcl-stats" exact>
-                    <RouteContainer>
-                      <MetaStatsPage />
-                    </RouteContainer>
-                  </Route>
-                </Switch>
-                <Snackbar open={toast.show} autoHideDuration={6000} onClose={handleToastClose}>
-                  <Alert severity={toast.state} action={toast.action && renderToastAction(toast.action)}>
-                    {toast.message}
-                  </Alert>
-                </Snackbar>
-                <Footer />
-              </DrawerContextProvider>
-            </CreateProfileContextProvider>
-          </WSContextProvider>
+          <ContractContextProvider>
+            <WSContextProvider>
+              <CreateProfileContextProvider>
+                <DrawerContextProvider intro={<Intro drawer />}>
+                  <Header />
+                  <Switch>
+                    <Route path="/" exact>
+                      <LandingPage />
+                    </Route>
+                    <Route path="/address/:address" exact>
+                      <RouteContainer>
+                        <AddressPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
+                      <RouteContainer>
+                        <AddressPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/rentals" exact>
+                      <RouteContainer>
+                        <RentalListingPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/rentals/:contractAddress/:tokenId/lease" exact>
+                      <RouteContainer>
+                        <RentalListingPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/asset/:address/:id" exact>
+                      <RouteContainer>
+                        <MetaIndividualLandPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/profiles" exact>
+                      <RouteContainer>
+                        <ProfilesPage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/profiles/:hash" exact>
+                      <RouteContainer>
+                        <ProfilePage />
+                      </RouteContainer>
+                    </Route>
+                    <Route path="/dcl-stats" exact>
+                      <RouteContainer>
+                        <MetaStatsPage />
+                      </RouteContainer>
+                    </Route>
+                  </Switch>
+                  <Footer />
+                  <GlobalSnackbar />
+                </DrawerContextProvider>
+              </CreateProfileContextProvider>
+            </WSContextProvider>
+          </ContractContextProvider>
         </AuthContextProvider>
       </BrowserRouter>
     </Suspense>
   );
-}
+});
 
 export default App;

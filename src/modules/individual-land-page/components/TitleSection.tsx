@@ -5,6 +5,7 @@ import PopoverShare from 'components/PopoverShare';
 import { useParams } from 'react-router-dom';
 import clsx from 'clsx';
 import { Asset } from 'store/summary/profileOwnershipSlice';
+import RefreshDataImage from 'assets/app/refresh-data.png';
 
 interface Props {
   asset: Asset;
@@ -54,7 +55,7 @@ export const TitleSection = React.memo<Props>(({ asset }) => {
       <Box>
         <Hidden xsDown>
           <IconButton onClick={onRefresh}>
-            <img className={classes.refreshIcon} src="/collection/RefreshData.png" alt="back" />
+            <img className={classes.refreshIcon} src={RefreshDataImage} alt="back" />
           </IconButton>
         </Hidden>
         <PopoverShare onRefresh={onRefresh} address={address} tokenId={id} chain={chain} name={asset.name} />

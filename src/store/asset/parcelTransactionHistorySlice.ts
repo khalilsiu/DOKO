@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import OpenSeaAPI from '../../libs/opensea-api';
-import { minimizeAddress } from '../../utils/utils';
 
 export type ParcelTransactionHistoryCategory = 'sales' | 'bids' | 'transfers';
 
@@ -41,7 +40,7 @@ const initialState: ParcelTransactionHistoryState = {
 
 export const parcelTransactionHistoryEventMap: Record<ParcelTransactionHistoryCategory, string> = {
   sales: 'successful',
-  bids: 'created',
+  bids: 'bid_entered',
   transfers: 'transfer',
 };
 
@@ -49,10 +48,6 @@ const parseResponseAsParcelTransactionHistories = (
   currentTab: ParcelTransactionHistoryCategory,
   response: any,
 ): ParcelTransactionHistory[] => {
-  const formatAddress = (address: string | null) => {
-    return address ? minimizeAddress(address) : 'Unknown';
-  };
-
   const formatPrice = (price: string | null, decimals: number) => {
     return price ? parseFloat(String(Number(price) / Math.pow(10, decimals))).toFixed(2) : null;
   };
@@ -61,8 +56,8 @@ const parseResponseAsParcelTransactionHistories = (
     switch (currentTab) {
       case 'sales':
         return {
-          fromAddress: formatAddress(assetEvent?.seller?.address),
-          toAddress: formatAddress(assetEvent?.winner_account?.address),
+          fromAddress: assetEvent?.seller?.address,
+          toAddress: assetEvent?.winner_account?.address,
           price: formatPrice(assetEvent?.total_price, assetEvent?.payment_token?.decimals),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,
@@ -70,7 +65,7 @@ const parseResponseAsParcelTransactionHistories = (
         };
       case 'bids':
         return {
-          fromAddress: formatAddress(assetEvent?.from_account?.address),
+          fromAddress: assetEvent?.from_account?.address,
           toAddress: null,
           price: formatPrice(assetEvent?.bid_amount, assetEvent?.payment_token?.decimals),
           parcel: assetEvent?.asset?.name || null,
@@ -79,8 +74,8 @@ const parseResponseAsParcelTransactionHistories = (
         };
       case 'transfers':
         return {
-          fromAddress: formatAddress(assetEvent?.from_account?.address),
-          toAddress: formatAddress(assetEvent?.to_account?.address),
+          fromAddress: assetEvent?.from_account?.address,
+          toAddress: assetEvent?.to_account?.address,
           price: formatPrice(assetEvent?.bid_amount, assetEvent?.payment_token?.decimals),
           parcel: assetEvent?.asset?.name || null,
           time: assetEvent?.created_date,

@@ -15,7 +15,6 @@ import UIModal from '../UIModal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AuthContext, AuthContextType } from '../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
@@ -25,6 +24,7 @@ import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { acceptLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
 import config from 'config';
+import { ContractContext } from 'contexts/ContractContext';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -151,7 +151,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const history = useHistory();
   const {
     contracts: { USDT: usdtContract, dclLandRental: dclLandRentalContract },
-  } = useContext(AuthContext) as AuthContextType;
+  } = useContext(ContractContext);
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const [finalLeaseLength, setFinalLeaseLength] = useState(0);
   const [isApproved, setIsApproved] = useState(false);

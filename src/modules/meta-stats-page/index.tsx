@@ -1,11 +1,12 @@
 import { Grid, Hidden, Card, makeStyles, Typography } from '@material-ui/core';
 import Intro from 'components/Intro';
 import Meta from 'components/Meta';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getDclStats } from '../../store/stats/dclStatsSlice';
-import { RootState } from '../../store/store';
+import { getDclStats } from 'store/stats/dclStatsSlice';
+import { RootState } from 'store/store';
 import StatsView from './StatsView';
+import DOKOLogo from 'assets/doko/doko-logo.png';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -37,7 +38,7 @@ const MetaStatsPage = () => {
         title="Stats | DOKO"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>
