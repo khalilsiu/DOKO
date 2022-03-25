@@ -115,6 +115,12 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     connectContract('dclLandRental');
   }, []);
 
+  useEffect(() => {
+    if (asset.lease) {
+      setFinalLeaseLength(asset.lease.minLeaseLength);
+    }
+  }, [asset]);
+
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
   const isFieldDisabled = () => {
@@ -143,13 +149,13 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     return 'Error';
   }, [leaseState, isApproved, asset]);
 
-  const handleButtonClick = () => {
+  const handleButtonClick = useCallback(() => {
     if (!asset.lease) {
       return;
     }
     const requireApproval = asset.lease.rentToken !== 'ETH';
     if (requireApproval && !isApproved) {
-      approveToken();
+      return approveToken();
     }
     if (leaseState === LeaseStatus['OPEN']) {
       return handleAcceptLease();
@@ -157,7 +163,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     if (leaseState === LeaseStatus['LEASED']) {
       return handlePayRent();
     }
-  };
+  }, [leaseState, isApproved, asset]);
 
   const handleLeaseLengthSelect = useCallback((e) => {
     setFinalLeaseLength(e.target.value);

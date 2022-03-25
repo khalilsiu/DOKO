@@ -56,6 +56,7 @@ const LeaseLengthSelect = ({ finalLeaseLength, handleSelectChange, leaseLengths 
       variant="outlined"
       onChange={handleSelectChange}
       fullWidth
+      label="Months"
       MenuProps={{ classes: { list: styles.menu } }}
       input={<Input className={styles.underline} />}
       style={{ height: '30px' }}

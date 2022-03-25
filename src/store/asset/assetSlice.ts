@@ -84,24 +84,20 @@ const fetchNFTOpensea = async (address: string, id: string) => OpenSeaAPI.get(`/
 export const getAssetFromOpensea = createAsyncThunk(
   'Asset/getAssetFromOpensea',
   async ({ contractAddress, tokenId }: IGetAsset) => {
-    try {
-      const response = await fetchNFTOpensea(contractAddress, tokenId);
-      const asset = processAssetFromOpensea(response.data);
-      const assetWithLease = await ContractServiceAPI.getLeasedAsset({
-        contractAddress,
-        tokenId,
-      });
-      const [floorPriceInEth, floorPriceInUsd] = await fetchMetaverseFloorPrice(asset);
+    const response = await fetchNFTOpensea(contractAddress, tokenId);
+    const asset = processAssetFromOpensea(response.data);
+    const assetWithLease = await ContractServiceAPI.getLeasedAsset({
+      contractAddress,
+      tokenId,
+    });
+    const [floorPriceInEth, floorPriceInUsd] = await fetchMetaverseFloorPrice(asset);
 
-      return camelize({
-        ...asset,
-        lease: assetWithLease.lease,
-        floorPriceInEth,
-        floorPriceInUsd,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    return camelize({
+      ...asset,
+      lease: assetWithLease.lease,
+      floorPriceInEth,
+      floorPriceInUsd,
+    });
   },
 );
 

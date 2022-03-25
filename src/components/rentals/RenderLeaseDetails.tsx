@@ -22,7 +22,7 @@ const NA = 'N.A.';
 
 const RenderLeaseDetails = ({ lease, finalLeaseLength, handleLeaseLengthSelect, mode }: IProps) => {
   const styles = useStyles();
-  const rows = (
+  const renderRows = (
     tokenLabelText: string,
     rentAmountText: string,
     leaseLengths: number[],
@@ -31,11 +31,7 @@ const RenderLeaseDetails = ({ lease, finalLeaseLength, handleLeaseLengthSelect, 
     gracePeriodText: string,
     leaseStatusText: string,
     dateSignedText: string,
-  ): {
-    mode: LeaseMode | 'all';
-    title: string;
-    detail: JSX.Element;
-  }[][] => {
+  ): AssetDetailRow[][] => {
     return [
       [
         {
@@ -119,7 +115,7 @@ const RenderLeaseDetails = ({ lease, finalLeaseLength, handleLeaseLengthSelect, 
   };
   const assetDetailsRows: AssetDetailRow[][] = useMemo(() => {
     if (!lease) {
-      return rows(NA, NA, [], NA, NA, NA, NA, NA);
+      return renderRows(NA, NA, [], NA, NA, NA, NA, NA);
     }
     const token = tokens.find((token) => token.symbol === lease?.rentToken);
     const tokenLabel = token ? token.label : NA;
@@ -130,12 +126,12 @@ const RenderLeaseDetails = ({ lease, finalLeaseLength, handleLeaseLengthSelect, 
 
     const tokenLabelText = tokenLabel;
     const rentAmountText = `${lease.rentAmount} ${tokenSymbol}`;
-    const depositText = `${lease.deposit} $${tokenSymbol}`;
+    const depositText = `${lease.deposit} ${tokenSymbol}`;
     const finalLeaseLengthText = (lease.finalLeaseLength ?? 0).toString();
     const gracePeriodText = lease.gracePeriod.toString();
-    const leaseStatusText = lease.status;
-    const dateSignedText = moment(lease.dateSigned).format('YYYY-MM-DD ZZ');
-    return rows(
+    const leaseStatusText = lease.isRentOverdue ? 'OVERDUE' : lease.status;
+    const dateSignedText = moment(lease.dateSigned).format('YYYY-MM-DD HH:mm:ss ZZ');
+    return renderRows(
       tokenLabelText,
       rentAmountText,
       leaseLengths,
