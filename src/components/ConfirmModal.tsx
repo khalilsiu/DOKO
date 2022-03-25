@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
   modalContent: {
     padding: '1.5rem',
   },
+  actionButton: { marginRight: '0.5rem', width: '110px' },
 }));
 
 const ConfirmModal = ({ modalOpen, closeModal, headerText, bodyText, action }: ConfirmModalProps) => {
@@ -64,20 +65,10 @@ const ConfirmModal = ({ modalOpen, closeModal, headerText, bodyText, action }: C
             justifyContent: 'flex-end',
           }}
         >
-          <Button
-            className="gradient-button"
-            variant="contained"
-            style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={action}
-          >
+          <Button className={`gradient-button ${styles.actionButton}`} variant="contained" onClick={action}>
             Confirm
           </Button>
-          <Button
-            className="gradient-button"
-            variant="contained"
-            style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={closeModal}
-          >
+          <Button className={`gradient-button ${styles.actionButton}`} variant="contained" onClick={closeModal}>
             Cancel
           </Button>
         </div>
