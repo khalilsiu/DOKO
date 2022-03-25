@@ -7,7 +7,8 @@ import Summary from 'modules/address-page/components/Summary';
 import { AggregatedSummary } from 'hooks/summary/aggregateSummaries';
 import { RootState } from 'store/store';
 import { TabPanel } from 'components/TabPanel';
-import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
+import { AuthContext } from 'contexts/AuthContext';
 import { CreateProfileContext } from 'contexts/CreateProfileContext';
 import { useAssetSliceSelector, getAssetFromOpensea } from 'store/asset/assetSlice';
 import { Asset } from 'store/profile/profileOwnershipSlice';
@@ -66,7 +67,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     tokenId: urlTokenId,
     mode,
   } = useParams<{ address: string; contractAddress: string; tokenId: string; mode: LeaseMode }>();
-  const { address: walletAddress } = useContext(AuthContext) as AuthContextType;
+  const { address: walletAddress } = useContext(AuthContext);
   const asset = useAssetSliceSelector((state) => state);
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);
@@ -109,7 +110,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
       <Grid item style={{ width: '100%' }}>
         <Hidden xsDown>
           <Button className={styles.createProfileButton} onClick={handleClickOpen}>
-            <img src="/createProfileButton.png" alt="Create Profile" />
+            <img src={CreateProfileButtonImage} alt="Create Profile" />
           </Button>
         </Hidden>
         <CustomTabs

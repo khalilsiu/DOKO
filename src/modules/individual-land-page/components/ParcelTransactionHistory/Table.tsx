@@ -20,6 +20,7 @@ import {
 } from 'store/asset/parcelTransactionHistorySlice';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { minimizeAddress } from 'utils/utils';
 
 interface Column {
   key: keyof ParcelTransactionHistory;
@@ -41,12 +42,21 @@ export const Table = React.memo(() => {
     dispatch(fetchParcelTransactionHistory({ contractAddress: address, assetId: id }));
   }, [address, id]);
 
+  const renderAddress = (value: string | null) => {
+    const address = value || '';
+    return (
+      <a className={classes.link} target="_blank" href={`https://opensea.io/${address}`}>
+        {value ? minimizeAddress(value) : 'Unknown'}
+      </a>
+    );
+  };
+
   const columns: Column[] = React.useMemo(() => {
     const fromAddressColumn: Column = {
       key: 'fromAddress',
       title: 'From',
       render(value) {
-        return value;
+        return renderAddress(value);
       },
     };
 
@@ -54,7 +64,7 @@ export const Table = React.memo(() => {
       key: 'toAddress',
       title: 'To',
       render(value) {
-        return value;
+        return renderAddress(value);
       },
     };
 
@@ -207,5 +217,9 @@ const useStyles = makeStyles((theme) => ({
   },
   loadMoreButtonProgress: {
     marginRight: theme.spacing(1),
+  },
+  link: {
+    color: '#43f3e5',
+    textDecoration: 'none',
   },
 }));

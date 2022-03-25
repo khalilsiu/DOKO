@@ -3,7 +3,7 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import { useDispatch } from 'react-redux';
 import { io, Socket } from 'socket.io-client';
 import { openToast } from 'store/app/appStateSlice';
-import { AuthContext, AuthContextType } from './AuthContext';
+import { AuthContext } from './AuthContext';
 
 interface ServerToClientEvents {
   event: (data: string) => void;
@@ -29,7 +29,7 @@ export const WSContext = createContext<WSContextValue>({
 
 export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [socket, setSocket] = useState<SocketIO | null>(null);
-  const { address } = useContext(AuthContext) as AuthContextType;
+  const { address } = useContext(AuthContext);
   const dispatch = useDispatch();
   socket &&
     socket

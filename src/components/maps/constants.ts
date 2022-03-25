@@ -1,12 +1,12 @@
 import L from 'leaflet';
 import styled from 'styled-components';
 import { Popup } from 'react-leaflet';
-
 import { createStyles } from '@material-ui/styles';
-import { Asset } from '../../store/profile/profileOwnershipSlice';
+import MarkerImage from 'assets/app/marker.png';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 
 export const marker = new L.Icon({
-  iconUrl: '/marker.png',
+  iconUrl: MarkerImage,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],

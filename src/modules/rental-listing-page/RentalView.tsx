@@ -10,7 +10,7 @@ import {
   useTheme,
 } from '@material-ui/core';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { forwardRef, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import LeaseCard from '../../components/rentals/LeaseCard';
 import RenderMaps from '../../components/maps/RenderMaps';
 import metaverses from '../../constants/metaverses';
@@ -19,7 +19,7 @@ import { useParams } from 'react-router-dom';
 import LeaseDetailModal from '../../components/rentals/LeaseDetailModal';
 import { useDispatch } from 'react-redux';
 import { getAssetFromServer, useAssetSliceSelector } from '../../store/asset/assetSlice';
-import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import { AuthContext } from 'contexts/AuthContext';
 
 export const sortOptions = [
   {
@@ -165,95 +165,108 @@ interface IRentalView {
   assets?: Asset[][];
 }
 
-const RentalView = forwardRef<HTMLDivElement, IRentalView>(
-  ({ metaverseIndex, handleSortChange, sortOpen, setSortOpen, sortIndex, assets }: IRentalView, ref) => {
-    const styles = useStyles();
-    const dispatch = useDispatch();
-    const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
-      metaverses.map(() => null),
-    );
-    const { address: walletAddress } = useContext(AuthContext) as AuthContextType;
-    const theme = useTheme();
-    const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-    const asset = useAssetSliceSelector((state) => state);
-    const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
-      useParams<{ contractAddress: string; tokenId: string }>();
+const RentalView = ({ metaverseIndex, handleSortChange, sortOpen, setSortOpen, sortIndex, assets }: IRentalView) => {
+  const styles = useStyles();
+  const dispatch = useDispatch();
+  const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
+    metaverses.map(() => null),
+  );
+  const { address: walletAddress } = useContext(AuthContext);
+  const theme = useTheme();
+  const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
+  const asset = useAssetSliceSelector((state) => state);
+  const ref = useRef<HTMLDivElement>(null);
+  const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
+    useParams<{ contractAddress: string; tokenId: string }>();
 
-    // subcontract assets
-    const flatAssets = assets ? assets.flat() : [];
+  // subcontract assets
+  const flatAssets = assets ? assets.flat() : [];
 
-    const onAssetClick = (collectionIndex: number, index: number) => {
-      const copy = collectionAssetSelected.slice();
-      copy[collectionIndex] = index;
-      setCollectionAssetSelected(copy);
+  const handleOffMenuClick = (e: MouseEvent) => {
+    if (ref.current && !ref.current.contains(e.target as Node)) {
+      setSortOpen(false);
+    }
+  };
+  const onAssetClick = (collectionIndex: number, index: number) => {
+    const copy = collectionAssetSelected.slice();
+    copy[collectionIndex] = index;
+    setCollectionAssetSelected(copy);
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('mousedown', handleOffMenuClick);
+    }
+    return () => {
+      window.removeEventListener('mousedown', handleOffMenuClick);
     };
+  }, []);
 
-    useEffect(() => {
-      if (urlContractAddress && urlTokenId) {
-        dispatch(
-          getAssetFromServer({
-            contractAddress: urlContractAddress,
-            tokenId: urlTokenId,
-          }),
-        );
-      }
-    }, [urlContractAddress, urlTokenId]);
+  useEffect(() => {
+    if (urlContractAddress && urlTokenId) {
+      dispatch(
+        getAssetFromServer({
+          contractAddress: urlContractAddress,
+          tokenId: urlTokenId,
+        }),
+      );
+    }
+  }, [urlContractAddress, urlTokenId]);
 
-    return (
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <div style={{ position: 'relative' }}>
-            <StyledButton
-              className="gradient-button"
-              disabled={false}
-              variant="outlined"
-              onClick={() => setSortOpen(!sortOpen)}
-              style={{}}
-            >
-              {mdOrAbove && sortOptions[sortIndex].label}
-              <ArrowDropDownIcon />
-            </StyledButton>
-            {sortOpen && (
-              <div className={styles.sortMenu} ref={ref}>
-                {sortOptions.map((sort, index) => (
-                  <MenuItem
-                    value={index}
-                    onClick={() => handleSortChange(metaverseIndex, index)}
-                    className={styles.menuItem}
-                    style={sortIndex === index ? { backgroundColor: theme.palette.grey[300] } : {}}
-                    key={sort.label}
-                  >
-                    {sort.label}
-                  </MenuItem>
-                ))}
-              </div>
-            )}
-          </div>
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ position: 'relative' }}>
+          <StyledButton
+            className="gradient-button"
+            disabled={false}
+            variant="outlined"
+            onClick={() => setSortOpen(!sortOpen)}
+            style={{}}
+          >
+            {mdOrAbove && sortOptions[sortIndex].label}
+            <ArrowDropDownIcon />
+          </StyledButton>
+          {sortOpen && (
+            <div className={styles.sortMenu} ref={ref}>
+              {sortOptions.map((sort, index) => (
+                <MenuItem
+                  value={index}
+                  onClick={() => handleSortChange(metaverseIndex, index)}
+                  className={styles.menuItem}
+                  style={sortIndex === index ? { backgroundColor: theme.palette.grey[300] } : {}}
+                  key={sort.label}
+                >
+                  {sort.label}
+                </MenuItem>
+              ))}
+            </div>
+          )}
         </div>
-        <Typography variant="subtitle2" className={styles.resultsText}>
-          Results showing: {flatAssets.length} listings
-        </Typography>
-        <Grid container spacing={2} direction={mdOrAbove ? 'row' : 'column-reverse'}>
-          <Grid item md={4} className={styles.leaseCardSection}>
-            {flatAssets.map((asset, assetIndex) => (
-              <LeaseCard key={asset.id} asset={asset} handleClick={() => onAssetClick(metaverseIndex, assetIndex)} />
-            ))}
-          </Grid>
-          <Grid item md={8}>
-            <RenderMaps
-              metaverseName={metaverses[metaverseIndex].label}
-              assets={flatAssets}
-              assetSelected={collectionAssetSelected[metaverseIndex]}
-            />
-          </Grid>
-        </Grid>
-
-        {urlContractAddress && urlTokenId && walletAddress && (
-          <LeaseDetailModal asset={asset} walletAddress={walletAddress} mode="lease" />
-        )}
       </div>
-    );
-  },
-);
+      <Typography variant="subtitle2" className={styles.resultsText}>
+        Results showing: {flatAssets.length} listings
+      </Typography>
+      <Grid container spacing={2} direction={mdOrAbove ? 'row' : 'column-reverse'}>
+        <Grid item md={4} className={styles.leaseCardSection}>
+          {flatAssets.map((asset, assetIndex) => (
+            <LeaseCard key={asset.id} asset={asset} handleClick={() => onAssetClick(metaverseIndex, assetIndex)} />
+          ))}
+        </Grid>
+        <Grid item md={8}>
+          <RenderMaps
+            metaverseName={metaverses[metaverseIndex].label}
+            assets={flatAssets}
+            assetSelected={collectionAssetSelected[metaverseIndex]}
+          />
+        </Grid>
+      </Grid>
+
+      {urlContractAddress && urlTokenId && walletAddress && (
+        <LeaseDetailModal asset={asset} walletAddress={walletAddress} mode="lease" />
+      )}
+    </div>
+  );
+};
 
 export default RentalView;

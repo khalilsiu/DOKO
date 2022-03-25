@@ -20,13 +20,13 @@ import { useHistory, useParams } from 'react-router-dom';
 import eth from '../assets/tokens/eth.png';
 import facebook from '../assets/socials/facebook.png';
 import twitter from '../assets/socials/twitter.png';
-import NoImage from '../assets//app/NoImage.png';
+import NoImage from '../assets//app/no-image.png';
 import loading from '../assets//app/loading.gif';
 import { getLeaseState, LeaseMode } from './profile/OwnershipView';
 import { Asset } from 'store/profile/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
-import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import { AuthContext } from 'contexts/AuthContext';
 import { LeaseStatus } from 'store/lease/leasesSlice';
 
 interface ILandCard {
@@ -44,7 +44,7 @@ const LeaseButton = withStyles({
 export const LandCard = memo(({ asset, onClick, mode }: ILandCard) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
-  const { isActive, address: walletAddress } = useContext(AuthContext) as AuthContextType;
+  const { isActive, address: walletAddress } = useContext(AuthContext);
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);

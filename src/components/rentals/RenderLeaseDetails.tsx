@@ -148,9 +148,9 @@ const RenderLeaseDetails = ({ lease, finalLeaseLength, handleLeaseLengthSelect, 
       {assetDetailsRows.map((row, index) => (
         <Grid key={index} container spacing={2} className={styles.modalContentRow} style={{ display: 'flex' }}>
           {row.map((column) => (
-            <Fragment>
+            <Fragment key={column.title}>
               {(column.mode === mode || column.mode === 'all') && (
-                <Grid key={column.title} sm={12} md={6} item style={{ width: '100%' }}>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
                   <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
                     {column.title}
                   </Typography>

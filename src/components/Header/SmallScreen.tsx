@@ -8,10 +8,10 @@ import makeStyles from '@material-ui/core/styles/makeStyles';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
-
 import { ToolbarItemsProps } from './types';
 import RadiusInput from 'components/RadiusInput';
 import { DrawerContext } from 'contexts/DrawerContext';
+import DOKOGradientLogo from 'assets/doko/doko-gradient-logo.png';
 
 const useStyles = makeStyles((theme) => ({
   flexAnimationItem: {
@@ -44,7 +44,7 @@ export const SmallScreen = ({ search, setSearch }: ToolbarItemsProps) => {
       </Grid>
       <Grid item>
         <Link to="/" style={{ textDecoration: 'none' }}>
-          <img src="/GRADIENT_LOGO.png" height={36} alt="" />
+          <img src={DOKOGradientLogo} height={36} alt="" />
         </Link>
       </Grid>
       <Grid className={styles.flexAnimationItem} xs={showSearch ? true : 4} item>
