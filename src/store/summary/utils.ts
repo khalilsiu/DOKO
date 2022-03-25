@@ -47,7 +47,7 @@ export const processAssetFromOpensea = (asset: any): Asset => {
 
   const slug = picked.collection?.slug;
   const metaverseName = getMetaverseName(picked.collection.slug);
-  const ownerAddress = picked.owner?.address;
+  const owner = picked.owner?.address;
   const creatorAddress = picked.creator?.address;
   const collection = picked.asset_contract?.name;
   const tokenStandard = picked.asset_contract?.schema_name;
@@ -62,7 +62,7 @@ export const processAssetFromOpensea = (asset: any): Asset => {
     ...picked,
     coordinates,
     metaverseName,
-    ownerAddress,
+    owner,
     creatorAddress,
     collection,
     tokenStandard,

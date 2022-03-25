@@ -236,9 +236,7 @@ const RentalView = forwardRef<HTMLDivElement, IRentalView>(
         <Grid container spacing={2} direction={mdOrAbove ? 'row' : 'column-reverse'}>
           <Grid item md={4} className={styles.leaseCardSection}>
             {flatAssets.map((asset, assetIndex) => (
-              <div>
-                <LeaseCard asset={asset} handleClick={() => onAssetClick(metaverseIndex, assetIndex)} />
-              </div>
+              <LeaseCard key={asset.id} asset={asset} handleClick={() => onAssetClick(metaverseIndex, assetIndex)} />
             ))}
           </Grid>
           <Grid item md={8}>

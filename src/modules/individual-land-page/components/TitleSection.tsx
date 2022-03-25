@@ -39,9 +39,9 @@ export const TitleSection = React.memo<Props>(({ asset }) => {
           </Box>
           <Box className={classes.addressBox}>
             <Box className={classes.addressType}>Owner</Box>
-            <Box className={clsx({ [classes.naContainer]: !asset.ownerAddress })}>
-              {asset.ownerAddress ? (
-                <CopyAddress address={asset.ownerAddress} hasLink />
+            <Box className={clsx({ [classes.naContainer]: !asset.owner })}>
+              {asset.owner ? (
+                <CopyAddress address={asset.owner} hasLink />
               ) : (
                 <Typography className={classes.na} variant="body1">
                   N/A

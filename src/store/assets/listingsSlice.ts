@@ -4,6 +4,7 @@ import { camelize, getCoordinates } from '../../utils/utils';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import { Asset } from 'store/profile/profileOwnershipSlice';
+import { LeaseStatus } from 'store/lease/leasesSlice';
 
 const initialState: Asset[][][] = [];
 
@@ -28,7 +29,7 @@ const getListingsFromServer = async ({ filter, sortOptions }: IGetLstings) => {
         return ContractServiceAPI.getLeasedAssets({
           ...filter,
           contractAddress: address,
-          isOpen: true,
+          status: LeaseStatus['OPEN'],
           sort: sortOption,
         }).catch((err) => {
           if (err.response.status === 404) {

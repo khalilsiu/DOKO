@@ -115,7 +115,7 @@ const RentalListingPage = () => {
             />
           </CustomTabs>
           {metaverses.map((metaverse, index) => (
-            <TabPanel key={index} index={index} value={tabValue}>
+            <TabPanel key={metaverse.name} index={index} value={tabValue}>
               <RentalView
                 metaverseIndex={index}
                 handleSortChange={handleSortChange}

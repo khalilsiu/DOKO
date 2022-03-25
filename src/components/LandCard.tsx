@@ -27,6 +27,7 @@ import { Asset } from 'store/profile/profileOwnershipSlice';
 import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
 import { AuthContext, AuthContextType } from 'contexts/AuthContext';
+import { LeaseStatus } from 'store/lease/leasesSlice';
 
 interface ILandCard {
   asset: Asset;
@@ -97,16 +98,34 @@ export const LandCard = memo(({ asset, onClick, mode }: ILandCard) => {
 
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
-  const renderButtonText = useCallback(() => {
-    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
+  const renderLeaseButtonText = useCallback(() => {
+    if (
+      leaseState === 'TOBECREATED' ||
+      leaseState === LeaseStatus['COMPLETED'] ||
+      leaseState === LeaseStatus['CANCELLED']
+    ) {
       return 'Create Lease';
     }
-    if (leaseState === 'open') {
+    if (leaseState === LeaseStatus['OPEN']) {
       return 'Update Lease';
     }
-    if (leaseState === 'leased') {
+    if (leaseState === LeaseStatus['LEASED']) {
       return 'Leased';
     }
+    return 'Error';
+  }, [leaseState]);
+
+  const renderRentButtonText = useCallback(() => {
+    if (leaseState === LeaseStatus['LEASED']) {
+      return 'Rented';
+    }
+    if (leaseState === LeaseStatus['COMPLETED']) {
+      return 'Rent Completed';
+    }
+    if (leaseState === LeaseStatus['CANCELLED']) {
+      return 'Rent Cancelled';
+    }
+    // states other than these will be an error on rent page
     return 'Error';
   }, [leaseState]);
 
@@ -176,7 +195,7 @@ export const LandCard = memo(({ asset, onClick, mode }: ILandCard) => {
                       onClick={(e) => handleLeaseBtnClick(e)}
                     >
                       <Typography className={styles.leaseBtn} variant="caption">
-                        {renderButtonText()}
+                        {mode === 'lease' ? renderLeaseButtonText() : renderRentButtonText()}
                       </Typography>
                     </LeaseButton>
                   </div>

@@ -37,35 +37,12 @@ interface IOwnershipView {
   metaverseSummaries: AggregatedSummary[];
 }
 
-export const isLeaseCompleted = (asset: Asset) => {
-  if (!asset.lease) {
-    return null;
-  }
-  const dateSigned = new Date(asset.lease.dateSigned);
-
-  dateSigned.setMonth(dateSigned.getMonth() + asset.lease.finalLeaseLength);
-
-  return Date.now() > dateSigned.getTime();
-};
-
 export const getLeaseState = (asset: Asset) => {
   if (!asset.lease) {
-    return 'toBeCreated';
+    return 'TOBECREATED';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && isLeaseCompleted(asset)) {
-    return 'completed';
-  }
-
-  if (asset.lease && asset.lease.isOpen && !asset.lease.isLeased) {
-    return 'open';
-  }
-
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased) {
-    return 'leased';
-  }
-
-  return 'unknown';
+  return asset.lease.status;
 };
 
 const tabs = [

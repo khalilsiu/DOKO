@@ -20,7 +20,7 @@ const initialState: Asset = {
   imageThumbnailUrl: '',
   name: '',
   description: '',
-  ownerAddress: '',
+  owner: '',
   creatorAddress: '',
   assetContract: {
     address: '',

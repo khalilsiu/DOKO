@@ -1,32 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { AcceptedTokens } from 'constants/acceptedTokens';
 import ContractServiceAPI from 'libs/contract-service-api';
+import { Lease } from 'store/lease/leasesSlice';
 import { fetchMetaverseAssets } from 'store/summary/utils';
 
 export interface Trait {
   traitType: string;
   value: string;
-}
-
-export interface Lease {
-  rentAmount: number;
-  deposit: number;
-  monthsPaid: number;
-  gracePeriod: number;
-  minLeaseLength: number;
-  maxLeaseLength: number;
-  finalLeaseLength: number;
-  dateSigned: string;
-  rentToken: AcceptedTokens;
-  isOpen: boolean;
-  isLeased: boolean;
-  autoRegenerate: boolean;
-  lessor: string;
-  lessee: string;
-  tokenId: string;
-  contractAddress: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Asset {
@@ -39,7 +18,7 @@ export interface Asset {
   imageThumbnailUrl: string;
   name: string;
   description: string;
-  ownerAddress: string;
+  owner: string;
   creatorAddress: string;
   assetContract: {
     address: string;

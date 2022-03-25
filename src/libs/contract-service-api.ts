@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Filter } from '../hooks/summary/aggregateSummaries';
 import { Metaverse } from 'constants/metaverses';
 import config from 'config';
+import { LeaseStatus } from 'store/lease/leasesSlice';
 
 const instance = axios.create({
   baseURL: config.holdingsServiceUrl,
@@ -15,7 +16,7 @@ export interface IGetLeasedAssets {
   lessor?: string;
   lessee?: string;
   contractAddress?: string;
-  isOpen?: boolean;
+  status?: LeaseStatus;
   sort?: SortOption[];
 }
 export interface IGetLeasedAsset {

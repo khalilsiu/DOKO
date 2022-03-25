@@ -3,6 +3,7 @@ import { AggregatedSummary } from 'hooks/summary/aggregateSummaries';
 import { memo, useMemo } from 'react';
 import Bullet from './Bullet';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
+import { LeaseStatus } from 'store/lease/leasesSlice';
 
 interface IBulletSection {
   metaverseSummaries: AggregatedSummary[];
@@ -22,7 +23,7 @@ const BulletSection = ({ metaverseSummaries }: IBulletSection) => {
       totalFloorPrice += collection.totalFloorPrice;
       totalLandsListed += collection.leasedAssets.length;
       totalLandsLeased += collection.leasedAssets.reduce((leased, asset) => {
-        if (asset.lease && asset.lease.isLeased) {
+        if (asset.lease && asset.lease.status === LeaseStatus['LEASED']) {
           leased++;
         }
         return leased;

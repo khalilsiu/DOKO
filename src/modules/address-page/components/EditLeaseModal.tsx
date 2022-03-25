@@ -23,7 +23,7 @@ import Joi from 'joi';
 import { AuthContext, AuthContextType } from '../../../contexts/AuthContext';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { upsertLease } from '../../../store/lease/leasesSlice';
+import { LeaseStatus, upsertLease } from '../../../store/lease/leasesSlice';
 import { RootState } from '../../../store/store';
 import { Asset } from '../../../store/profile/profileOwnershipSlice';
 import { parseError } from '../../../utils/joiErrors';
@@ -169,19 +169,20 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
 
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
-  const isFieldDisabled = isTransacting || isLoading || leaseState === 'leased' || walletAddress !== asset.ownerAddress;
+  const isFieldDisabled =
+    isTransacting || isLoading || leaseState === LeaseStatus['LEASED'] || walletAddress !== asset.owner;
 
   const renderButtonText = useCallback(() => {
     if (!isApproved) {
       return 'Approve';
     }
-    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
+    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus['COMPLETED']) {
       return 'Create';
     }
-    if (leaseState === 'open') {
+    if (leaseState === LeaseStatus['OPEN']) {
       return 'Update';
     }
-    if (leaseState === 'leased') {
+    if (leaseState === LeaseStatus['LEASED']) {
       return 'Leased';
     }
   }, [leaseState, isApproved]);
@@ -209,7 +210,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   });
 
   useEffect(() => {
-    if (asset && asset.lease && leaseState !== 'completed') {
+    if (asset && asset.lease && leaseState !== LeaseStatus['COMPLETED']) {
       setLeaseForm({
         rentToken: asset.lease?.rentToken,
         rentAmount: (asset.lease?.rentAmount).toString(),
@@ -279,7 +280,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       }),
     );
 
-    history.push(`/address/${asset.ownerAddress}`);
+    history.push(`/address/${asset.owner}`);
   }, [leaseForm, walletAddress, asset, dclLandRentalContract, errors]);
 
   const handleChange = useCallback(
@@ -338,7 +339,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
           <Typography variant="h6" style={{ fontWeight: 'bold' }}>
             Create Lease
           </Typography>
-          <IconButton style={{ color: 'white' }} onClick={() => history.push(`/address/${asset.ownerAddress}`)}>
+          <IconButton style={{ color: 'white' }} onClick={() => history.push(`/address/${asset.owner}`)}>
             <CloseIcon fontSize="medium" />
           </IconButton>
         </div>

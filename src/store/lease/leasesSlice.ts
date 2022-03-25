@@ -7,6 +7,12 @@ import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
 import { ThunkError } from '../../types';
 import { LeaseDetails, LeasePayload } from '../../types/contracts/dokoRentalDclLand';
 
+export enum LeaseStatus {
+  OPEN = 'OPEN',
+  LEASED = 'LEASED',
+  COMPLETED = 'COMPLETED',
+  TERMINATED = 'TERMINATED',
+}
 export interface Lease {
   rentAmount: number;
   deposit: number;
@@ -14,11 +20,11 @@ export interface Lease {
   gracePeriod: number;
   minLeaseLength: number;
   maxLeaseLength: number;
-  finalLeaseLength: number;
+  finalLeaseLength?: number;
   dateSigned: string;
   rentToken: AcceptedTokens;
-  isOpen: boolean;
-  isLeased: boolean;
+  isRentOverdue: boolean;
+  status: LeaseStatus;
   autoRegenerate: boolean;
   lessor: string;
   lessee: string;
@@ -56,7 +62,7 @@ export const upsertLease = createAsyncThunk<void, IUpsertLease, { rejectValue: T
         throw new Error('Thunk error: Land rental contract initialization error');
       }
       const { asset } = getState() as { asset: Asset };
-      if (asset.ownerAddress !== operator) {
+      if (asset.owner !== operator) {
         throw new Error('Thunk error: Only land owner can create lease');
       }
       const leaseDetails: LeaseDetails = [
@@ -96,7 +102,7 @@ export const acceptLease = createAsyncThunk<void, IAcceptLease, { rejectValue: T
       if (!asset.lease) {
         throw new Error('Thunk error: Lease does not exist for asset');
       }
-      if (asset.ownerAddress === operator) {
+      if (asset.owner === operator) {
         throw new Error('Thunk error: Land owner cannot enter lease of owned asset');
       }
       const { rentAmount, deposit, rentToken } = asset.lease;
@@ -133,11 +139,24 @@ export const payRent = createAsyncThunk<void, IPayRent, { rejectValue: ThunkErro
       if (!asset.lease) {
         throw new Error('Thunk error: Lease does not exist for asset');
       }
-      console.log('asset', asset.lease);
       if (asset.lease.lessee !== operator) {
         throw new Error('Thunk error: Lessee can only pay rent to rented lands');
       }
-      await dclLandRentalContract.payRent(asset.tokenId);
+      const { rentAmount, rentToken } = asset.lease;
+      const payment = rentAmount;
+      const token = tokens.find((token) => token.symbol === AcceptedTokens[rentToken]);
+
+      if (!token) {
+        throw new Error(`${rentToken} not an accepted token.`);
+      }
+
+      const options =
+        rentToken === AcceptedTokens['ETH']
+          ? {
+              value: ethers.utils.parseUnits(payment.toString(), token.decimals),
+            }
+          : null;
+      await dclLandRentalContract.payRent(asset.tokenId, options);
     } catch (e: any) {
       const message = (e.data && e.data.message) ?? e.toString();
       return rejectWithValue({ error: message } as ThunkError);
