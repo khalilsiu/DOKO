@@ -9,7 +9,7 @@ interface ServerToClientEvents {
   event: (data: string) => void;
   LeaseCreated: (message: any) => void;
   LeaseAccepted: (message: any) => void;
-  LeaseTerminated: (message: any) => void;
+  LeaseCancelled: (message: any) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -51,7 +51,7 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
           }),
         );
       })
-      .on('LeaseTerminated', () => {
+      .on('LeaseCancelled', () => {
         dispatch(
           openToast({
             message: 'Lease has been terminated',
