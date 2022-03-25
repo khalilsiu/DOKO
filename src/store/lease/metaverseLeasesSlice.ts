@@ -8,6 +8,12 @@ import ContractServiceAPI from '../../libs/contract-service-api';
 import { ThunkError } from '../../types';
 import { LeaseDetails, LeasePayload } from '../../types/contracts/dokoRentalDclLand';
 import { camelize } from '../../utils/utils';
+export enum LeaseStatus {
+  OPEN = 'OPEN',
+  LEASED = 'LEASED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
 
 export interface Lease {
   rentAmount: number;
@@ -21,12 +27,11 @@ export interface Lease {
   rentToken: AcceptedTokens;
   isOpen: boolean;
   isLeased: boolean;
-  isLeaseCompleted: boolean;
   isRentOverDue: boolean;
-
   autoRegenerate: boolean;
   rentorAddress: string;
   renteeAddress: string;
+  status: LeaseStatus;
   tokenId: string;
   contractAddress: string;
   createdAt: string;

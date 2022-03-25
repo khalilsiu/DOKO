@@ -31,7 +31,7 @@ import { TabPanel } from 'components/TabPanel';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
 import ConfirmModal from 'components/ConfirmModal';
 import { openToast, startLoading, stopLoading } from 'store/app/appStateSlice';
-import { landlordTerminateToBlockchain } from 'store/lease/metaverseLeasesSlice';
+import { landlordTerminateToBlockchain, LeaseStatus } from 'store/lease/metaverseLeasesSlice';
 import { AuthContext } from 'contexts/AuthContext';
 import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
 import { ContractContext } from 'contexts/ContractContext';
@@ -156,19 +156,19 @@ export const getLeaseState = (asset: Asset) => {
     return 'toBeCreated';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && asset.lease.isLeaseCompleted) {
+  if (asset.lease && asset.lease.status === LeaseStatus.COMPLETED) {
     return 'completed';
   }
 
-  if (asset.lease && asset.lease.isOpen && !asset.lease.isLeased) {
+  if (asset.lease && asset.lease.status === LeaseStatus.OPEN) {
     return 'open';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && asset.lease.isRentOverDue) {
+  if (asset.lease && asset.lease.status === LeaseStatus.LEASED && asset.lease.isRentOverDue) {
     return 'toBeTerminated';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && !asset.lease.isRentOverDue) {
+  if (asset.lease && asset.lease.status === LeaseStatus.LEASED && !asset.lease.isRentOverDue) {
     return 'leased';
   }
 

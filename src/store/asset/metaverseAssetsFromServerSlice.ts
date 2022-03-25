@@ -4,6 +4,7 @@ import { camelize, getCoordinates } from '../../utils/utils';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
 import { Asset } from 'store/summary/profileOwnershipSlice';
+import { LeaseStatus } from 'store/lease/metaverseLeasesSlice';
 
 const initialState: Asset[][][] = [];
 
@@ -17,7 +18,7 @@ export const getMetaverseAssetsFromServer = createAsyncThunk(
         metaverses[i].addresses.map((address) =>
           ContractServiceAPI.getLeases({
             contractAddress: address,
-            isOpen: true,
+            status: LeaseStatus.OPEN,
             sort: [sortOptions[i]],
           }).catch((err) => {
             if (err.response.status === 404) {

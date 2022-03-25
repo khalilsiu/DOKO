@@ -120,9 +120,9 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
     if (leaseState === 'toBeTerminated') {
       return 'Terminate Lease';
     }
-    // if (leaseState === 'leased') {
-    //   return 'Leased';
-    // }
+    if (leaseState === 'leased') {
+      return 'Leased';
+    }
     return 'Error';
   }, [leaseState]);
 
