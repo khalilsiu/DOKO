@@ -4,7 +4,11 @@ import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHist
 import { fetchProfileOwnership } from 'store/summary/profileOwnershipSlice';
 import { getDclStats } from 'store/stats/dclStatsSlice';
 import { getAssetFromOpensea } from '../asset/assetSlice';
-import { acceptLeaseToBlockchain, upsertLeaseToBlockchain } from '../lease/metaverseLeasesSlice';
+import {
+  acceptLeaseToBlockchain,
+  landlordTerminateToBlockchain,
+  upsertLeaseToBlockchain,
+} from '../lease/metaverseLeasesSlice';
 import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
 
 export type ToastAction = 'refresh' | 'install-metamask';
@@ -100,6 +104,20 @@ const appStateSlice = createSlice({
         state.isTransacting = false;
       })
       .addCase(acceptLeaseToBlockchain.rejected, (state, action) => {
+        state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.payload ? action.payload.error : action.error.message,
+        };
+      })
+      .addCase(landlordTerminateToBlockchain.pending, (state) => {
+        state.isTransacting = true;
+      })
+      .addCase(landlordTerminateToBlockchain.fulfilled, (state) => {
+        state.isTransacting = false;
+      })
+      .addCase(landlordTerminateToBlockchain.rejected, (state, action) => {
         state.isTransacting = false;
         state.toast = {
           show: true,

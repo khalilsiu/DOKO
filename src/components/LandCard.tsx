@@ -30,17 +30,18 @@ import { AuthContext } from 'contexts/AuthContext';
 interface NFTItemProps {
   nft: Asset;
   onClick?: () => void;
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
   setSelectedAssetForLease?: (asset: Asset | null) => void;
   selectedAssetForLease?: Asset | null;
 }
 
 const LeaseButton = withStyles({
   root: {
-    minWidth: '90px',
+    minWidth: '110px',
   },
 })(Button);
 
-export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
+export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProps) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
   const { isActive, address: walletAddress } = useContext(AuthContext);
@@ -77,6 +78,16 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
 
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
+    const actionText = renderActionText();
+    if (leaseState === 'toBeTerminated') {
+      onActionButtonClick(
+        actionText,
+        `Are you sure you want to ${actionText.toLowerCase()}?`,
+        nft.assetContract.address,
+        nft.tokenId,
+      );
+      return;
+    }
     history.push(leasePath);
   };
 
@@ -95,12 +106,15 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
 
   const leaseState = useMemo(() => getLeaseState(nft), [nft]);
 
-  const renderButtonText = useCallback(() => {
+  const renderActionText = useCallback(() => {
     if (leaseState === 'toBeCreated' || leaseState === 'completed') {
       return 'Create Lease';
     }
     if (leaseState === 'open') {
       return 'Update Lease';
+    }
+    if (leaseState === 'toBeTerminated') {
+      return 'Terminate Lease';
     }
     if (leaseState === 'leased') {
       return 'Leased';
@@ -174,7 +188,7 @@ export const LandCard = memo(({ nft, onClick }: NFTItemProps) => {
                       onClick={(e) => handleLeaseBtnClick(e)}
                     >
                       <Typography className={styles.leaseBtn} variant="caption">
-                        {renderButtonText()}
+                        {renderActionText()}
                       </Typography>
                     </LeaseButton>
                   </div>

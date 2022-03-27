@@ -13,6 +13,7 @@ interface Props {
   loading?: boolean;
   maxPage?: number;
   onLeaseButtonClick?: (asset: Asset | null) => void;
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -46,6 +47,7 @@ export const LandPagination = ({
   loading = false,
   maxPage,
   onLeaseButtonClick,
+  onActionButtonClick,
 }: Props) => {
   const styles = useStyles();
 
@@ -53,7 +55,12 @@ export const LandPagination = ({
     <div>
       <div className={styles.nftsContainer}>
         {nfts.map((nft) => (
-          <LandCard setSelectedAssetForLease={onLeaseButtonClick} nft={nft} key={nft.id} />
+          <LandCard
+            setSelectedAssetForLease={onLeaseButtonClick}
+            nft={nft}
+            key={nft.id}
+            onActionButtonClick={onActionButtonClick}
+          />
         ))}
       </div>
       {loading && <CircularProgress />}

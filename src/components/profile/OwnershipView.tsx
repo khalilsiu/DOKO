@@ -10,7 +10,7 @@ import {
   useMediaQuery,
   Theme,
 } from '@material-ui/core';
-import { useState, useContext, memo, useEffect } from 'react';
+import { useState, useContext, memo, useEffect, useCallback } from 'react';
 import SectionLabel from '../SectionLabel';
 import metaverses from 'constants/metaverses';
 import ListIcon from '@material-ui/icons/FormatListBulleted';
@@ -29,8 +29,12 @@ import { RootState } from 'store/store';
 import OpenseaNFTItem from 'components/LandCard';
 import { TabPanel } from 'components/TabPanel';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
+import ConfirmModal from 'components/ConfirmModal';
+import { openToast, startLoading, stopLoading } from 'store/app/appStateSlice';
+import { landlordTerminateToBlockchain, LeaseStatus } from 'store/lease/metaverseLeasesSlice';
 import { AuthContext } from 'contexts/AuthContext';
 import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
+import { ContractContext } from 'contexts/ContractContext';
 
 const useStyles = makeStyles((theme) => ({
   createProfileButton: {
@@ -147,31 +151,24 @@ interface IOwnershipView {
   metaverseSummaries: AggregatedSummary[];
 }
 
-export const isLeaseCompleted = (asset: Asset) => {
-  if (!asset.lease) {
-    return null;
-  }
-  const dateSigned = new Date(asset.lease.dateSigned);
-
-  dateSigned.setMonth(dateSigned.getMonth() + asset.lease.finalLeaseLength);
-
-  return Date.now() > dateSigned.getTime();
-};
-
 export const getLeaseState = (asset: Asset) => {
   if (!asset.lease) {
     return 'toBeCreated';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased && isLeaseCompleted(asset)) {
+  if (asset.lease && asset.lease.status === LeaseStatus.COMPLETED) {
     return 'completed';
   }
 
-  if (asset.lease && asset.lease.isOpen && !asset.lease.isLeased) {
+  if (asset.lease && asset.lease.status === LeaseStatus.OPEN) {
     return 'open';
   }
 
-  if (asset.lease && !asset.lease.isOpen && asset.lease.isLeased) {
+  if (asset.lease && asset.lease.status === LeaseStatus.LEASED && asset.lease.isRentOverDue) {
+    return 'toBeTerminated';
+  }
+
+  if (asset.lease && asset.lease.status === LeaseStatus.LEASED && !asset.lease.isRentOverDue) {
     return 'leased';
   }
 
@@ -180,12 +177,20 @@ export const getLeaseState = (asset: Asset) => {
 
 const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const { openProfileModal } = useContext(CreateProfileContext);
+  const {
+    contracts: { dclLandRental: dclLandRentalContract },
+  } = useContext(ContractContext);
   const { contractAddress: urlContractAddress, tokenId: urlTokenId } =
     useParams<{ address: string; contractAddress: string; tokenId: string }>();
   const { address: walletAddress } = useContext(AuthContext);
   const asset = useAssetSliceSelector((state) => state);
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmModalTargetId, setConfirmModalTargetId] = useState('');
+  const [confirmModalHeader, setConfirmModalHeader] = useState('');
+  const [confirmModalBody, setConfirmModalBody] = useState('');
+
   const styles = useStyles();
   const dispatch = useDispatch();
   const views = metaverses.map(() => useState('list'));
@@ -203,6 +208,41 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     const copy = collectionAssetSelected.slice();
     copy[collectionIndex] = index;
     setCollectionAssetSelected(copy);
+  };
+
+  const confirmModalAction = useCallback(async () => {
+    dispatch(startLoading());
+    if (!dclLandRentalContract) {
+      dispatch(
+        openToast({
+          message: 'Land rental contract initialization error',
+          state: 'error',
+        }),
+      );
+      return;
+    }
+
+    await dispatch(
+      landlordTerminateToBlockchain({
+        assetId: confirmModalTargetId,
+        dclLandRentalContract,
+      }),
+    );
+    dispatch(stopLoading());
+    setIsConfirmModalOpen(false);
+  }, [dclLandRentalContract, confirmModalTargetId]);
+
+  const onActionButtonClick = (headerText: string, bodyText: string, contractAddress: string, assetId: string) => {
+    dispatch(
+      getAssetFromOpensea({
+        contractAddress,
+        tokenId: assetId,
+      }),
+    );
+    setConfirmModalHeader(headerText);
+    setConfirmModalBody(bodyText);
+    setConfirmModalTargetId(assetId);
+    setIsConfirmModalOpen(true);
   };
 
   useEffect(() => {
@@ -231,6 +271,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
                 key={nft.id}
                 nft={nft}
                 onClick={() => onAssetClick(metaverseIndex, nftIndex)}
+                onActionButtonClick={onActionButtonClick}
                 setSelectedAssetForLease={setSelectedAssetForLease}
                 selectedAssetForLease={selectedAssetForLease}
               />
@@ -359,6 +400,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
               <div key={`${metaverse.name}listview`} style={view === 'list' ? {} : { display: 'none' }}>
                 <LandPagination
                   onLeaseButtonClick={setSelectedAssetForLease}
+                  onActionButtonClick={onActionButtonClick}
                   loading={isLoading}
                   nfts={metaverse.ownership.slice((page - 1) * 4, page * 4)}
                   page={page}
@@ -415,6 +457,13 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
       {urlContractAddress && urlTokenId && walletAddress && (
         <EditLeaseModal walletAddress={walletAddress} asset={asset} />
       )}
+      <ConfirmModal
+        modalOpen={isConfirmModalOpen}
+        closeModal={() => setIsConfirmModalOpen(false)}
+        headerText={confirmModalHeader}
+        bodyText={confirmModalBody}
+        action={confirmModalAction}
+      />
     </>
   );
 };

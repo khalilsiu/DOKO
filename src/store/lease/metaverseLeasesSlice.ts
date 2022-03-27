@@ -8,6 +8,12 @@ import ContractServiceAPI from '../../libs/contract-service-api';
 import { ThunkError } from '../../types';
 import { LeaseDetails, LeasePayload } from '../../types/contracts/dokoRentalDclLand';
 import { camelize } from '../../utils/utils';
+export enum LeaseStatus {
+  OPEN = 'OPEN',
+  LEASED = 'LEASED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
 
 export interface Lease {
   rentAmount: number;
@@ -21,9 +27,11 @@ export interface Lease {
   rentToken: AcceptedTokens;
   isOpen: boolean;
   isLeased: boolean;
+  isRentOverDue: boolean;
   autoRegenerate: boolean;
   rentorAddress: string;
   renteeAddress: string;
+  status: LeaseStatus;
   tokenId: string;
   contractAddress: string;
   createdAt: string;
@@ -47,6 +55,11 @@ interface IAcceptLease {
   rentAmount: number;
   deposit: number;
   rentToken: AcceptedTokens;
+}
+
+interface ILandlordTerminate {
+  assetId: string;
+  dclLandRentalContract: ethers.Contract;
 }
 
 export const upsertLeaseToBlockchain = createAsyncThunk<void, IUpsertLease, { rejectValue: ThunkError }>(
@@ -102,6 +115,23 @@ export const acceptLeaseToBlockchain = createAsyncThunk<void, IAcceptLease, { re
           : null;
       // does not wait for txn to resolve
       await dclLandRentalContract.acceptLease(assetId, finalLeaseLength, options);
+    } catch (e: any) {
+      const message = (e.data && e.data.message) ?? e.toString();
+      return rejectWithValue({ error: message } as ThunkError);
+    }
+  },
+);
+
+export const landlordTerminateToBlockchain = createAsyncThunk<void, ILandlordTerminate, { rejectValue: ThunkError }>(
+  'MetaverseLeases/landlordTerminateToBlockchain',
+  async ({ assetId, dclLandRentalContract }: ILandlordTerminate, { rejectWithValue, getState }) => {
+    try {
+      const { asset } = getState() as { asset: Asset };
+      if (!asset.lease) {
+        throw new Error('Thunk error: Lease does not exist for asset');
+      }
+      // does not wait for txn to resolve
+      await dclLandRentalContract.landlordTerminateLease(assetId);
     } catch (e: any) {
       const message = (e.data && e.data.message) ?? e.toString();
       return rejectWithValue({ error: message } as ThunkError);
