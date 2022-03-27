@@ -181,6 +181,18 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     }
   }, [leaseState, isApproved]);
 
+  const renderHeaderText = useCallback(() => {
+    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
+      return 'Create Lease';
+    }
+    if (leaseState === 'open') {
+      return 'Update Lease';
+    }
+    if (leaseState === 'leased') {
+      return 'Lease Details';
+    }
+  }, [leaseState, isApproved]);
+
   const convertLeaseFrom = (leaseForm: LeaseForm): TransformedLeaseForm => {
     const { rentAmount, deposit, gracePeriod, minLeaseLength, maxLeaseLength } = leaseForm;
     return {
@@ -352,7 +364,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       renderHeader={() => (
         <div className={styles.modalHeader}>
           <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-            Create Lease
+            {renderHeaderText()}
           </Typography>
           <IconButton style={{ color: 'white' }} onClick={() => history.push(`/address/${asset.ownerAddress}`)}>
             <CloseIcon fontSize="medium" />
@@ -556,25 +568,29 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
           </div>
         </div>
       )}
-      renderFooter={() => (
-        <div
-          style={{
-            padding: '1.5rem',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Button
-            className="gradient-button"
-            variant="contained"
-            style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={!isApproved ? approveLease : upsertLease}
-            disabled={isFieldDisabled}
-          >
-            {renderButtonText()}
-          </Button>
-        </div>
-      )}
+      renderFooter={() => {
+        if (leaseState === 'toBeCreated' || leaseState === 'completed' || leaseState === 'open') {
+          return (
+            <div
+              style={{
+                padding: '1.5rem',
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <Button
+                className="gradient-button"
+                variant="contained"
+                style={{ marginRight: '0.5rem', width: '110px' }}
+                onClick={!isApproved ? approveLease : upsertLease}
+                disabled={isFieldDisabled}
+              >
+                {renderButtonText()}
+              </Button>
+            </div>
+          );
+        }
+      }}
     />
   );
 });

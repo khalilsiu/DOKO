@@ -79,10 +79,6 @@ export const LandCard = memo(({ nft, onClick, onActionButtonClick }: NFTItemProp
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     const actionText = renderActionText();
-    if (leaseState === 'leased') {
-      // TODO: detail modal pop up?
-      return;
-    }
     if (leaseState === 'toBeTerminated') {
       onActionButtonClick(
         actionText,
