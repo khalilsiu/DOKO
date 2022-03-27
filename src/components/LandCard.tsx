@@ -37,7 +37,7 @@ interface NFTItemProps {
 
 const LeaseButton = withStyles({
   root: {
-    minWidth: '90px',
+    minWidth: '110px',
   },
 })(Button);
 
