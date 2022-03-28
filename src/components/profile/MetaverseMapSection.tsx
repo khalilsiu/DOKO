@@ -11,11 +11,12 @@ interface Props {
 
 interface IMetaverseMapSection {
   metaverseMapSectionProps: Props[];
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
   mode: LeaseMode;
 }
 export type ViewOption = 'list' | 'map';
 
-const MetaverseMapSection = ({ metaverseMapSectionProps, mode }: IMetaverseMapSection) => {
+const MetaverseMapSection = ({ metaverseMapSectionProps, mode, onActionButtonClick }: IMetaverseMapSection) => {
   const [views, setViews] = useState<Array<ViewOption>>(metaverses.map(() => 'list'));
   const [paginations, setPaginations] = useState(metaverses.map(() => 1));
   const [collectionAssetSelected, setCollectionAssetSelected] = useState<Array<number | null>>(
@@ -50,6 +51,7 @@ const MetaverseMapSection = ({ metaverseMapSectionProps, mode }: IMetaverseMapSe
     <Fragment>
       {metaverseMapSectionProps.map((metaverse, metaverseIndex) => (
         <AssetMapSection
+          key={metaverseIndex}
           metaverseName={metaverse.name}
           assets={metaverse.assets}
           metaverseIndex={metaverseIndex}
@@ -60,6 +62,7 @@ const MetaverseMapSection = ({ metaverseMapSectionProps, mode }: IMetaverseMapSe
           onPageChange={onPageChange}
           assetSelectedForMap={collectionAssetSelected[metaverseIndex]}
           mode={mode}
+          onActionButtonClick={onActionButtonClick}
         />
       ))}
     </Fragment>

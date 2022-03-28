@@ -11,7 +11,7 @@ export enum LeaseStatus {
   OPEN = 'OPEN',
   LEASED = 'LEASED',
   COMPLETED = 'COMPLETED',
-  TERMINATED = 'TERMINATED',
+  CANCELLED = 'CANCELLED',
 }
 export interface Lease {
   rentAmount: number;
@@ -178,6 +178,7 @@ export const landlordTerminate = createAsyncThunk<void, ILandlordTerminate, { re
         throw new Error('Thunk error: Land rental contract initialization error');
       }
       const { asset } = getState() as { asset: Asset };
+
       if (!asset.lease) {
         throw new Error('Thunk error: Lease does not exist for asset');
       }

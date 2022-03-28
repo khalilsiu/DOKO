@@ -1,5 +1,5 @@
 import { Grid, Hidden, makeStyles, Tab, Tabs, withStyles, Button, CircularProgress, Box } from '@material-ui/core';
-import { useState, useContext, memo, useEffect, useMemo, Fragment } from 'react';
+import { useState, useContext, memo, useEffect, useMemo, Fragment, useCallback } from 'react';
 import EditLeaseModal from '../../modules/address-page/components/EditLeaseModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -15,7 +15,9 @@ import { Asset } from 'store/profile/profileOwnershipSlice';
 import BulletSection from './BulletSection';
 import MetaverseMapSection from './MetaverseMapSection';
 import LeaseDetailModal from 'components/rentals/LeaseDetailModal';
-import { LeaseStatus } from 'store/lease/leasesSlice';
+import { landlordTerminate, LeaseStatus } from 'store/lease/leasesSlice';
+import ConfirmModal from 'components/ConfirmModal';
+import { ContractContext } from 'contexts/ContractContext';
 
 export const CustomTabs = withStyles({
   root: {
@@ -45,7 +47,7 @@ export const getLeaseState = (asset: Asset) => {
   }
 
   if (asset.lease.status === LeaseStatus.LEASED && asset.lease.isRentOverdue) {
-    return 'TOBETERMINATED';
+    return 'OVERDUE';
   }
 
   return asset.lease.status;
@@ -74,8 +76,15 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   } = useParams<{ address: string; contractAddress: string; tokenId: string; mode: LeaseMode }>();
   const { address: walletAddress } = useContext(AuthContext);
   const asset = useAssetSliceSelector((state) => state);
+  const {
+    contracts: { dclLandRental: dclLandRentalContract },
+  } = useContext(ContractContext);
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmModalTargetId, setConfirmModalTargetId] = useState('');
+  const [confirmModalHeader, setConfirmModalHeader] = useState('');
+  const [confirmModalBody, setConfirmModalBody] = useState('');
 
   const styles = useStyles();
   const dispatch = useDispatch();
@@ -96,6 +105,30 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
 
   const handleClickOpen = () => {
     openProfileModal();
+  };
+
+  const confirmModalAction = useCallback(async () => {
+    await dispatch(
+      landlordTerminate({
+        assetId: confirmModalTargetId,
+        dclLandRentalContract,
+        operator: walletAddress,
+      }),
+    );
+    setIsConfirmModalOpen(false);
+  }, [dclLandRentalContract, confirmModalTargetId]);
+
+  const onActionButtonClick = (headerText: string, bodyText: string, contractAddress: string, assetId: string) => {
+    dispatch(
+      getAssetFromOpensea({
+        contractAddress: contractAddress,
+        tokenId: assetId,
+      }),
+    );
+    setConfirmModalHeader(headerText);
+    setConfirmModalBody(bodyText);
+    setConfirmModalTargetId(assetId);
+    setIsConfirmModalOpen(true);
   };
 
   useEffect(() => {
@@ -141,15 +174,23 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
             <TabPanel index={0} value={tabValue}>
               <BulletSection metaverseSummaries={metaverseSummaries} />
               <Summary summary={metaverseSummaries} />
-              <MetaverseMapSection metaverseMapSectionProps={leasedAssets} mode="lease" />
+              <MetaverseMapSection
+                metaverseMapSectionProps={leasedAssets}
+                mode="lease"
+                onActionButtonClick={onActionButtonClick}
+              />
             </TabPanel>
             <TabPanel index={1} value={tabValue}>
-              <MetaverseMapSection metaverseMapSectionProps={rentedAssets} mode="rent" />
+              <MetaverseMapSection
+                metaverseMapSectionProps={rentedAssets}
+                mode="rent"
+                onActionButtonClick={onActionButtonClick}
+              />
             </TabPanel>
           </Fragment>
         )}
       </Grid>
-      {isShowModal && (
+      {isShowModal ? (
         <Fragment>
           {mode === 'lease' ? (
             <EditLeaseModal walletAddress={walletAddress} asset={asset} />
@@ -157,6 +198,16 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
             <LeaseDetailModal walletAddress={walletAddress} asset={asset} mode="rent" />
           )}
         </Fragment>
+      ) : isConfirmModalOpen ? (
+        <ConfirmModal
+          modalOpen={isConfirmModalOpen}
+          closeModal={() => setIsConfirmModalOpen(false)}
+          headerText={confirmModalHeader}
+          bodyText={confirmModalBody}
+          action={confirmModalAction}
+        />
+      ) : (
+        <></>
       )}
     </>
   );

@@ -51,7 +51,7 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
-  const assetPath = `/asset/eth/${asset.assetContract.address}/${asset.tokenId}`;
+  const assetPath = `/asset/${asset.assetContract.address}/${asset.tokenId}`;
   const buttonPath = `/address/${urlAddress}/${asset.assetContract.address}/${asset.tokenId}/${
     mode === 'lease' ? 'lease' : 'rent'
   }`;
@@ -84,7 +84,7 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     const actionText = renderLeaseButtonText();
-    if (leaseState === 'TOBETERMINATED') {
+    if (leaseState === 'OVERDUE' && mode === 'lease') {
       onActionButtonClick(
         actionText,
         `Are you sure you want to ${actionText.toLowerCase()}?`,
@@ -122,7 +122,7 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
     if (leaseState === LeaseStatus['OPEN']) {
       return 'Update Lease';
     }
-    if (leaseState === 'TOBETERMINATED') {
+    if (leaseState === 'OVERDUE') {
       return 'Terminate Lease';
     }
     if (leaseState === LeaseStatus['LEASED']) {
@@ -133,14 +133,20 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
 
   const renderRentButtonText = useCallback(() => {
     if (leaseState === LeaseStatus['LEASED']) {
-      return 'Rented';
+      return 'Rent Paid';
     }
     if (leaseState === LeaseStatus['COMPLETED']) {
       return 'Rent Completed';
     }
+
     if (leaseState === LeaseStatus['CANCELLED']) {
       return 'Rent Cancelled';
     }
+
+    if (leaseState === 'OVERDUE') {
+      return 'Rent Overdue';
+    }
+
     // states other than these will be an error on rent page
     return 'Error';
   }, [leaseState]);

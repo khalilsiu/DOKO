@@ -70,6 +70,7 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
           }),
         );
       });
+
   useEffect(() => {
     const socket = io(config.holdingsServiceSocketUrl || '', {
       secure: true,

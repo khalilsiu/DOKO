@@ -166,7 +166,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const isFieldDisabled =
     isTransacting ||
     isLoading ||
-    leaseState === 'TOBETERMINATED' ||
+    leaseState === 'OVERDUE' ||
     leaseState === LeaseStatus['LEASED'] ||
     walletAddress !== asset.owner;
 

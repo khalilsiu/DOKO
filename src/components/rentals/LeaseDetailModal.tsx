@@ -101,7 +101,6 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
   const history = useHistory();
   const {
     contracts: { USDT: usdtContract, dclLandRental: dclLandRentalContract },
-    connectContract,
   } = useContext(ContractContext);
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const [finalLeaseLength, setFinalLeaseLength] = useState(0);
@@ -111,11 +110,6 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
   const closePath = mode === 'lease' ? '/rentals' : `/address/${walletAddress}`;
 
   useEffect(() => {
-    connectContract('USDT');
-    connectContract('dclLandRental');
-  }, []);
-
-  useEffect(() => {
     if (asset.lease) {
       setFinalLeaseLength(asset.lease.minLeaseLength);
     }
@@ -123,7 +117,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
 
   const leaseState = useMemo(() => {
     const state = getLeaseState(asset);
-    if (state === LeaseStatus['OPEN'] || state === 'TOBETERMINATED' || state === LeaseStatus['LEASED']) {
+    if (state === LeaseStatus['OPEN'] || state === 'OVERDUE' || state === LeaseStatus['LEASED']) {
       return state;
     }
     return 'ERROR';
@@ -135,7 +129,13 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     if (mode === 'lease') {
       return base || leaseState === LeaseStatus['LEASED'];
     }
-    return base || (asset.lease && !asset.lease.isRentOverdue);
+
+    // mode === 'rent'
+    if (asset.lease && !asset.lease.isRentOverdue) {
+      return base || (asset.lease && !asset.lease.isRentOverdue);
+    }
+
+    return base;
   };
 
   const renderButtonText = useCallback(() => {
@@ -149,7 +149,12 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     if (leaseState === LeaseStatus['OPEN']) {
       return 'Accept Lease';
     }
-    if (leaseState === 'TOBETERMINATED') {
+
+    if (leaseState === LeaseStatus['LEASED']) {
+      return 'Rent Paid';
+    }
+
+    if (leaseState === 'OVERDUE') {
       return 'Pay Rent';
     }
     return 'Error';
@@ -166,14 +171,14 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     if (leaseState === LeaseStatus['OPEN']) {
       return handleAcceptLease();
     }
-    if (leaseState === LeaseStatus['LEASED']) {
+    if (leaseState === 'OVERDUE') {
       return handlePayRent();
     }
   }, [leaseState, isApproved, asset]);
 
-  const handleLeaseLengthSelect = useCallback((e) => {
+  const handleLeaseLengthSelect = (e) => {
     setFinalLeaseLength(e.target.value);
-  }, []);
+  };
 
   const handleAcceptLease = useCallback(async () => {
     await dispatch(
