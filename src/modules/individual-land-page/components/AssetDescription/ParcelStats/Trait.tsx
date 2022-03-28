@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, makeStyles, Typography } from '@material-ui/core';
-import { Trait as TraitType } from 'store/summary/profileOwnershipSlice';
+import { Trait as TraitType } from 'store/profile/profileOwnershipSlice';
 import { startCase } from 'lodash';
 
 interface Props {

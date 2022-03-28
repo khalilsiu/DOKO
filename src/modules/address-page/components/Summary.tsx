@@ -1,7 +1,7 @@
-import { Grid, Typography, withStyles, makeStyles, CircularProgress } from '@material-ui/core';
+import { Grid, Typography, withStyles, makeStyles } from '@material-ui/core';
 import ethBlueIcon from 'assets/tokens/eth-blue.png';
-
 import SectionLabel from 'components/SectionLabel';
+import { AggregatedSummary } from 'hooks/summary/aggregateSummaries';
 
 const ChainContainer = withStyles((theme) => ({
   root: {
@@ -26,19 +26,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
-  data: any;
+  summary: AggregatedSummary[];
 }
 
-export const Summary = ({ data }: Props) => {
+export const Summary = ({ summary }: Props) => {
   const classes = useStyles();
-
   return (
     <>
       <SectionLabel variant="h5" gutterBottom>
         Summary
       </SectionLabel>
       <Grid style={{ marginTop: 32, marginBottom: 64 }} container spacing={2}>
-        {data.summary.map((item: any) => (
+        {summary.map((item) => (
           <Grid item key={item.name} xs={12} sm={6} lg={3}>
             <Grid container direction="column" style={{ height: '100%' }}>
               <Grid container alignItems="center">
@@ -49,7 +48,7 @@ export const Summary = ({ data }: Props) => {
               </Grid>
               <ChainContainer container wrap="nowrap" style={{ flex: 1 }}>
                 <Grid item>
-                  <Typography style={{ fontSize: 14 }}>Total NFTs</Typography>
+                  <Typography style={{ fontSize: 14 }}>Total Parcels</Typography>
                   <Typography style={{ fontSize: 18, fontWeight: 700 }}>{item.count}</Typography>
                 </Grid>
                 <Grid item className={classes.chainInfo}>
@@ -59,19 +58,13 @@ export const Summary = ({ data }: Props) => {
                     style={{
                       fontSize: 18,
                       fontWeight: 700,
-                      opacity: item.available ? 1 : 0.5,
                     }}
                   >
-                    {item.available ? (
-                      <Grid container alignItems="center">
-                        <img style={{ marginRight: 8 }} src={ethBlueIcon} width={10} alt="ETH" />
-                        {parseFloat(`${item.price}`).toFixed(3)}
-                      </Grid>
-                    ) : (
-                      'Coming Soon'
-                    )}
+                    <Grid container alignItems="center">
+                      <img style={{ marginRight: 8 }} src={ethBlueIcon} width={10} alt="ETH" />
+                      {parseFloat(`${item.totalFloorPrice}`).toFixed(3)}
+                    </Grid>
                   </Typography>
-                  {item.loading && <CircularProgress />}
                 </Grid>
               </ChainContainer>
             </Grid>

@@ -9,6 +9,7 @@ interface ServerToClientEvents {
   event: (data: string) => void;
   LeaseCreated: (message: any) => void;
   LeaseAccepted: (message: any) => void;
+  RentPaid: (message: any) => void;
   LeaseCancelled: (message: any) => void;
 }
 
@@ -51,6 +52,15 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
           }),
         );
       })
+      .on('RentPaid', () => {
+        dispatch(
+          openToast({
+            message: 'Rent has been paid',
+            state: 'success',
+            action: 'refresh',
+          }),
+        );
+      })
       .on('LeaseCancelled', () => {
         dispatch(
           openToast({
@@ -60,6 +70,7 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
           }),
         );
       });
+
   useEffect(() => {
     const socket = io(config.holdingsServiceSocketUrl || '', {
       secure: true,

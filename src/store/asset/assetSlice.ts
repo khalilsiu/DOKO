@@ -3,13 +3,12 @@ import metaverses from 'constants/metaverses';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import { parsePriceETH, parsePriceUSD } from 'store/summary/metaverseSummary';
-import { Asset } from 'store/summary/profileOwnershipSlice';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 import { processAssetFromOpensea } from 'store/summary/utils';
 import ContractServiceAPI from '../../libs/contract-service-api';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { camelize } from '../../utils/utils';
-
-import { preprocessAssetFromServer } from './metaverseAssetsFromServerSlice';
+import { preprocessAssetFromServer } from 'store/assets/listingsSlice';
 
 const initialState: Asset = {
   id: '',
@@ -21,7 +20,7 @@ const initialState: Asset = {
   imageThumbnailUrl: '',
   name: '',
   description: '',
-  ownerAddress: '',
+  owner: '',
   creatorAddress: '',
   assetContract: {
     address: '',
@@ -85,30 +84,25 @@ const fetchNFTOpensea = async (address: string, id: string) => OpenSeaAPI.get(`/
 export const getAssetFromOpensea = createAsyncThunk(
   'Asset/getAssetFromOpensea',
   async ({ contractAddress, tokenId }: IGetAsset) => {
-    try {
-      const response = await fetchNFTOpensea(contractAddress, tokenId);
-      const asset = processAssetFromOpensea(response.data);
-      const assetWithLease = await ContractServiceAPI.getLease({
-        contractAddress,
-        tokenId,
-      });
+    const response = await fetchNFTOpensea(contractAddress, tokenId);
+    const asset = processAssetFromOpensea(response.data);
+    const assetWithLease = await ContractServiceAPI.getLeasedAsset({
+      contractAddress,
+      tokenId,
+    });
+    const [floorPriceInEth, floorPriceInUsd] = await fetchMetaverseFloorPrice(asset);
 
-      const [floorPriceInEth, floorPriceInUsd] = await fetchMetaverseFloorPrice(asset);
-
-      return camelize<Asset>({
-        ...asset,
-        lease: assetWithLease.lease,
-        floorPriceInEth,
-        floorPriceInUsd,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    return camelize<Asset>({
+      ...asset,
+      lease: assetWithLease.lease,
+      floorPriceInEth,
+      floorPriceInUsd,
+    });
   },
 );
 
 export const getAssetFromServer = createAsyncThunk('Asset/getAssetFromServer', async (payload: IGetAsset) => {
-  const leaseWithAsset = await ContractServiceAPI.getLease(payload);
+  const leaseWithAsset = await ContractServiceAPI.getLeasedAsset(payload);
   return preprocessAssetFromServer(leaseWithAsset);
 });
 

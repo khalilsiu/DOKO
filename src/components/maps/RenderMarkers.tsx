@@ -2,7 +2,7 @@ import { makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 
 import { memo } from 'react';
 import { Marker } from 'react-leaflet';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
+import { Asset } from '../../store/profile/profileOwnershipSlice';
 import { StyleProps, marker, MapStyles, StyledPopup } from './constants';
 const useStyles = makeStyles<Theme, StyleProps>(() => MapStyles);
 

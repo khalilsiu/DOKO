@@ -49,7 +49,7 @@ const App = React.memo(() => {
                         <AddressPage />
                       </RouteContainer>
                     </Route>
-                    <Route path="/address/:address/:contractAddress/:tokenId/lease" exact>
+                    <Route path="/address/:address/:contractAddress/:tokenId/:mode" exact>
                       <RouteContainer>
                         <AddressPage />
                       </RouteContainer>

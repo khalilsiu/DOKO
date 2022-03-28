@@ -4,8 +4,8 @@ import { CopyAddress } from './CopyAddress';
 import PopoverShare from 'components/PopoverShare';
 import { useParams } from 'react-router-dom';
 import clsx from 'clsx';
-import { Asset } from 'store/summary/profileOwnershipSlice';
 import RefreshDataImage from 'assets/app/refresh-data.png';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 
 interface Props {
   asset: Asset;
@@ -40,9 +40,9 @@ export const TitleSection = React.memo<Props>(({ asset }) => {
           </Box>
           <Box className={classes.addressBox}>
             <Box className={classes.addressType}>Owner</Box>
-            <Box className={clsx({ [classes.naContainer]: !asset.ownerAddress })}>
-              {asset.ownerAddress ? (
-                <CopyAddress address={asset.ownerAddress} hasLink />
+            <Box className={clsx({ [classes.naContainer]: !asset.owner })}>
+              {asset.owner ? (
+                <CopyAddress address={asset.owner} hasLink />
               ) : (
                 <Typography className={classes.na} variant="body1">
                   N/A

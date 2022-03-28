@@ -1,18 +1,13 @@
 import { Color } from '@material-ui/lab';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { fetchAddressOwnership } from 'store/address/addressOwnershipSlice';
 import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHistorySlice';
-import { fetchProfileOwnership } from 'store/summary/profileOwnershipSlice';
+import { fetchProfileOwnership } from 'store/profile/profileOwnershipSlice';
 import { getDclStats } from 'store/stats/dclStatsSlice';
 import { getAssetFromOpensea } from '../asset/assetSlice';
-import {
-  acceptLeaseToBlockchain,
-  landlordTerminateToBlockchain,
-  upsertLeaseToBlockchain,
-} from '../lease/metaverseLeasesSlice';
-import { fetchAddressOwnership } from '../summary/addressOwnershipSlice';
+import { acceptLease, upsertLease, landlordTerminate, payRent } from '../lease/leasesSlice';
 
 export type ToastAction = 'refresh' | 'install-metamask';
-
 interface AppState {
   isLoading: boolean;
   isTransacting: boolean;
@@ -82,13 +77,13 @@ const appStateSlice = createSlice({
         };
       })
 
-      .addCase(upsertLeaseToBlockchain.pending, (state) => {
+      .addCase(upsertLease.pending, (state) => {
         state.isTransacting = true;
       })
-      .addCase(upsertLeaseToBlockchain.fulfilled, (state) => {
+      .addCase(upsertLease.fulfilled, (state) => {
         state.isTransacting = false;
       })
-      .addCase(upsertLeaseToBlockchain.rejected, (state, action) => {
+      .addCase(upsertLease.rejected, (state, action) => {
         state.isTransacting = false;
         state.toast = {
           show: true,
@@ -97,13 +92,13 @@ const appStateSlice = createSlice({
         };
       })
 
-      .addCase(acceptLeaseToBlockchain.pending, (state) => {
+      .addCase(acceptLease.pending, (state) => {
         state.isTransacting = true;
       })
-      .addCase(acceptLeaseToBlockchain.fulfilled, (state) => {
+      .addCase(acceptLease.fulfilled, (state) => {
         state.isTransacting = false;
       })
-      .addCase(acceptLeaseToBlockchain.rejected, (state, action) => {
+      .addCase(acceptLease.rejected, (state, action) => {
         state.isTransacting = false;
         state.toast = {
           show: true,
@@ -111,13 +106,29 @@ const appStateSlice = createSlice({
           message: action.payload ? action.payload.error : action.error.message,
         };
       })
-      .addCase(landlordTerminateToBlockchain.pending, (state) => {
+
+      .addCase(payRent.pending, (state) => {
         state.isTransacting = true;
       })
-      .addCase(landlordTerminateToBlockchain.fulfilled, (state) => {
+      .addCase(payRent.fulfilled, (state) => {
         state.isTransacting = false;
       })
-      .addCase(landlordTerminateToBlockchain.rejected, (state, action) => {
+      .addCase(payRent.rejected, (state, action) => {
+        state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.payload ? action.payload.error : action.error.message,
+        };
+      })
+
+      .addCase(landlordTerminate.pending, (state) => {
+        state.isTransacting = true;
+      })
+      .addCase(landlordTerminate.fulfilled, (state) => {
+        state.isTransacting = false;
+      })
+      .addCase(landlordTerminate.rejected, (state, action) => {
         state.isTransacting = false;
         state.toast = {
           show: true,

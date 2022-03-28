@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { Filter } from '../hooks/summary/aggregateMetaverseSummaries';
+import { Filter } from '../hooks/summary/aggregateSummaries';
 import { Metaverse } from 'constants/metaverses';
 import config from 'config';
-import { LeaseStatus } from 'store/lease/metaverseLeasesSlice';
+import { LeaseStatus } from 'store/lease/leasesSlice';
 
 const instance = axios.create({
   baseURL: config.holdingsServiceUrl,
@@ -12,14 +12,14 @@ export interface SortOption {
   field: string;
   order: string;
 }
-export interface IGetLeases {
+export interface IGetLeasedAssets {
   lessor?: string;
-  contractAddress: string;
+  lessee?: string;
+  contractAddress?: string;
   status?: LeaseStatus;
   sort?: SortOption[];
 }
-
-export interface IGetLease {
+export interface IGetLeasedAsset {
   contractAddress: string;
   tokenId: string;
   status?: LeaseStatus;
@@ -50,12 +50,12 @@ export default class ContractServiceAPI {
     return res;
   }
 
-  static async getLeases(payload: IGetLeases) {
+  static async getLeasedAssets(payload: IGetLeasedAssets) {
     const res = await instance.post('lease/filter', payload).then((res) => res.data);
     return res;
   }
 
-  static async getLease(payload: IGetLease) {
+  static async getLeasedAsset(payload: IGetLeasedAsset) {
     const { contractAddress, tokenId } = payload;
     const body = {
       contractAddress,

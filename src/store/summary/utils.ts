@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import OpenSeaAPI from '../../libs/opensea-api';
 import { getCoordinates, camelize } from 'utils/utils';
 import { parsePriceETH, parsePriceUSD } from './metaverseSummary';
-import { Asset } from './profileOwnershipSlice';
+import { Asset } from '../profile/profileOwnershipSlice';
 
 export const getMetaverseName = (slug: string): string | null => {
   switch (slug) {
@@ -47,7 +47,7 @@ export const processAssetFromOpensea = (asset: any): Asset => {
 
   const slug = picked.collection?.slug;
   const metaverseName = getMetaverseName(picked.collection.slug);
-  const ownerAddress = picked.owner?.address;
+  const owner = picked.owner?.address;
   const creatorAddress = picked.creator?.address;
   const collection = picked.asset_contract?.name;
   const tokenStandard = picked.asset_contract?.schema_name;
@@ -66,7 +66,7 @@ export const processAssetFromOpensea = (asset: any): Asset => {
     ...picked,
     coordinates,
     metaverseName,
-    ownerAddress,
+    owner,
     creatorAddress,
     collection,
     tokenStandard,
@@ -77,7 +77,7 @@ export const processAssetFromOpensea = (asset: any): Asset => {
   });
 };
 
-export const fetchAssets = async (address: string) => {
+export const fetchMetaverseAssets = async (address: string) => {
   let assetsFromResponse: any[] = [''];
   let offset = 0;
   const assets: any[] = [];

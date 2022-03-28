@@ -1,8 +1,8 @@
 import React from 'react';
 import { PriceBox } from './PriceBox';
 import { Grid, makeStyles } from '@material-ui/core';
+import { Asset } from 'store/profile/profileOwnershipSlice';
 // import { LeaseButton } from './LeaseButton';
-import { Asset } from 'store/summary/profileOwnershipSlice';
 
 type Props = Pick<Asset, 'floorPriceInEth' | 'floorPriceInUsd' | 'lastPurchasePriceEth' | 'lastPurchasePriceUsd'>;
 

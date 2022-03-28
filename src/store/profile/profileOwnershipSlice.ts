@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { Lease } from '../lease/metaverseLeasesSlice';
-import { fetchAssets } from './utils';
+import ContractServiceAPI from 'libs/contract-service-api';
+import { Lease } from 'store/lease/leasesSlice';
+import { fetchMetaverseAssets } from 'store/summary/utils';
 
 export interface Trait {
   traitType: string;
@@ -17,7 +18,7 @@ export interface Asset {
   imageThumbnailUrl: string;
   name: string;
   description: string;
-  ownerAddress: string;
+  owner: string;
   creatorAddress: string;
   assetContract: {
     address: string;
@@ -40,6 +41,8 @@ export interface AddressOwnership {
   // no count needed, can be inferred from nfts.length
   // price should be another domain not User
   assets: Asset[][];
+  leasedAssets: Asset[][];
+  rentedAssets: Asset[][];
   address: string;
 }
 
@@ -47,13 +50,21 @@ const initialState: AddressOwnership[] = [];
 
 export const fetchProfileOwnership = createAsyncThunk(
   'ProfileOwnership/fetchProfileOwnership',
-  async (addresses: string[]): Promise<AddressOwnership[]> =>
-    Promise.all(
-      addresses.map(async (address) => ({
+  async (addresses: string[]): Promise<AddressOwnership[]> => {
+    const profile: AddressOwnership[] = [];
+    for (const address of addresses) {
+      const assets = await fetchMetaverseAssets(address);
+      const leasedAssets = await ContractServiceAPI.getLeasedAssets({ lessor: address });
+      const rentedAssets = await ContractServiceAPI.getLeasedAssets({ lessee: address });
+      profile.push({
+        assets,
+        leasedAssets,
+        rentedAssets,
         address,
-        assets: await fetchAssets(address),
-      })),
-    ),
+      });
+    }
+    return profile;
+  },
 );
 
 const profileOwnershipSlice = createSlice({

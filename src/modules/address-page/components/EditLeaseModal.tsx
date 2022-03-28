@@ -14,24 +14,25 @@ import {
   Grid,
 } from '@material-ui/core';
 
-import UIModal from '../UIModal';
+import UIModal from '../../../components/UIModal';
 import CloseIcon from '@material-ui/icons/Close';
-import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
+import { AcceptedTokens, tokens } from '../../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import Joi from 'joi';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { upsertLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
-import { RootState } from '../../store/store';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
-import { parseError } from '../../utils/joiErrors';
-import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
+import { LeaseStatus, upsertLease } from '../../../store/lease/leasesSlice';
+import { RootState } from '../../../store/store';
+import { Asset } from '../../../store/profile/profileOwnershipSlice';
+import { parseError } from '../../../utils/joiErrors';
+import { openToast, startLoading, stopLoading } from '../../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
-import { getLeaseState } from './OwnershipView';
+
 import { EditLeaseSchema } from './schema';
 import RadiusInput from 'components/RadiusInput';
 import config from 'config';
+import { getLeaseState } from 'components/profile/OwnershipView';
 import { ContractContext } from 'contexts/ContractContext';
 
 const useStyles = makeStyles((theme) => ({
@@ -165,33 +166,36 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const isFieldDisabled =
     isTransacting ||
     isLoading ||
-    leaseState === 'toBeTerminated' ||
-    leaseState === 'leased' ||
-    walletAddress !== asset.ownerAddress;
+    leaseState === 'OVERDUE' ||
+    leaseState === LeaseStatus['LEASED'] ||
+    walletAddress !== asset.owner;
 
   const renderButtonText = useCallback(() => {
     if (!isApproved) {
       return 'Approve';
     }
-    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
+    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus['COMPLETED']) {
       return 'Create';
     }
-    if (leaseState === 'open') {
+    if (leaseState === LeaseStatus['OPEN']) {
       return 'Update';
     }
-  }, [leaseState, isApproved]);
+    if (leaseState === LeaseStatus['LEASED']) {
+      return 'Leased';
+    }
+  }, [isApproved, leaseState]);
 
   const renderHeaderText = useCallback(() => {
-    if (leaseState === 'toBeCreated' || leaseState === 'completed') {
+    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus['COMPLETED']) {
       return 'Create Lease';
     }
-    if (leaseState === 'open') {
+    if (leaseState === LeaseStatus['OPEN']) {
       return 'Update Lease';
     }
-    if (leaseState === 'leased') {
+    if (leaseState === LeaseStatus['LEASED']) {
       return 'Lease Details';
     }
-  }, [leaseState, isApproved]);
+  }, [isApproved, leaseState]);
 
   const convertLeaseFrom = (leaseForm: LeaseForm): TransformedLeaseForm => {
     const { rentAmount, deposit, gracePeriod, minLeaseLength, maxLeaseLength } = leaseForm;
@@ -216,7 +220,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   });
 
   useEffect(() => {
-    if (asset && asset.lease && leaseState !== 'completed') {
+    if (asset && asset.lease && leaseState !== LeaseStatus['COMPLETED']) {
       setLeaseForm({
         rentToken: asset.lease?.rentToken,
         rentAmount: (asset.lease?.rentAmount).toString(),
@@ -245,7 +249,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   }, [dclLandContract, walletAddress, dclLandRentalAddress]);
 
   // can be moved into hooks
-  const approveLease = useCallback(async () => {
+  const handleApproveLease = useCallback(async () => {
     dispatch(startLoading());
     if (!dclLandContract) {
       dispatch(
@@ -266,7 +270,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     dispatch(stopLoading());
   }, [dclLandContract, dclLandRentalAddress]);
 
-  const upsertLease = useCallback(async () => {
+  const handleUpsertLease = useCallback(async () => {
     const result = Joi.object(EditLeaseSchema).validate(convertLeaseFrom(leaseForm), {
       convert: false,
     });
@@ -277,37 +281,16 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       return;
     }
 
-    if (!dclLandRentalContract) {
-      dispatch(
-        openToast({
-          message: 'Land rental contract initialization error',
-          state: 'error',
-        }),
-      );
-      return;
-    }
-
-    if (walletAddress !== asset.ownerAddress) {
-      dispatch(
-        openToast({
-          message: 'Only land owner can create lease',
-          state: 'error',
-        }),
-      );
-      return;
-    }
-
     await dispatch(
-      upsertLeaseToBlockchain({
+      upsertLease({
         leaseForm,
-        walletAddress,
-        assetId: asset.tokenId,
+        operator: walletAddress,
         dclLandRentalContract,
         isUpdate: !!asset.lease,
       }),
     );
 
-    history.push(`/address/${asset.ownerAddress}`);
+    history.push(`/address/${asset.owner}`);
   }, [leaseForm, walletAddress, asset, dclLandRentalContract, errors]);
 
   const handleChange = useCallback(
@@ -366,7 +349,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
           <Typography variant="h6" style={{ fontWeight: 'bold' }}>
             {renderHeaderText()}
           </Typography>
-          <IconButton style={{ color: 'white' }} onClick={() => history.push(`/address/${asset.ownerAddress}`)}>
+          <IconButton style={{ color: 'white' }} onClick={() => history.push(`/address/${asset.owner}`)}>
             <CloseIcon fontSize="medium" />
           </IconButton>
         </div>
@@ -568,29 +551,25 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
           </div>
         </div>
       )}
-      renderFooter={() => {
-        if (leaseState === 'toBeCreated' || leaseState === 'completed' || leaseState === 'open') {
-          return (
-            <div
-              style={{
-                padding: '1.5rem',
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}
-            >
-              <Button
-                className="gradient-button"
-                variant="contained"
-                style={{ marginRight: '0.5rem', width: '110px' }}
-                onClick={!isApproved ? approveLease : upsertLease}
-                disabled={isFieldDisabled}
-              >
-                {renderButtonText()}
-              </Button>
-            </div>
-          );
-        }
-      }}
+      renderFooter={() => (
+        <div
+          style={{
+            padding: '1.5rem',
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <Button
+            className="gradient-button"
+            variant="contained"
+            style={{ marginRight: '0.5rem', width: '110px' }}
+            onClick={!isApproved ? handleApproveLease : handleUpsertLease}
+            disabled={isFieldDisabled}
+          >
+            {renderButtonText()}
+          </Button>
+        </div>
+      )}
     />
   );
 });

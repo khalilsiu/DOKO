@@ -2,28 +2,29 @@ import DecentralandMap from './DecentralandMap';
 import CryptovoxelsMap from './CryptovoxelsMap';
 import SomniumSpaceMap from './SomniumSpaceMap';
 import SandboxMap from './SandboxMap';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
+import { Asset } from '../../store/profile/profileOwnershipSlice';
+import { memo } from 'react';
 
 interface RenderMapsProps {
   metaverseName: string;
-  assetsSelected: Array<number | null>;
+  assetSelected: number | null;
   assets: Asset[];
 }
 
-const RenderMaps = ({ metaverseName, assetsSelected, assets }: RenderMapsProps) => {
+const RenderMaps = ({ metaverseName, assetSelected, assets }: RenderMapsProps) => {
   return (
     <div>
       {metaverseName === 'Decentraland' ? (
-        <DecentralandMap assets={assets} selected={assetsSelected[0]} />
+        <DecentralandMap assets={assets} selected={assetSelected} />
       ) : metaverseName === 'The Sandbox' ? (
-        <SandboxMap assets={assets} selected={assetsSelected[1]} />
+        <SandboxMap assets={assets} selected={assetSelected} />
       ) : metaverseName === 'Cryptovoxels' ? (
-        <CryptovoxelsMap assets={assets} selected={assetsSelected[2]} />
+        <CryptovoxelsMap assets={assets} selected={assetSelected} />
       ) : (
-        <SomniumSpaceMap assets={assets} selected={assetsSelected[3]} />
+        <SomniumSpaceMap assets={assets} selected={assetSelected} />
       )}
     </div>
   );
 };
 
-export default RenderMaps;
+export default memo(RenderMaps);

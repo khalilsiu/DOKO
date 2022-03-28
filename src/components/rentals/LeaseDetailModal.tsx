@@ -1,30 +1,20 @@
-import {
-  Typography,
-  IconButton,
-  makeStyles,
-  Button,
-  MenuItem,
-  withStyles,
-  Select,
-  Input,
-  Theme,
-  useMediaQuery,
-  Grid,
-} from '@material-ui/core';
+import { Typography, IconButton, makeStyles, Button, Theme, useMediaQuery } from '@material-ui/core';
 import UIModal from '../UIModal';
 import CloseIcon from '@material-ui/icons/Close';
-import { AcceptedTokens, tokens } from '../../constants/acceptedTokens';
+import { AcceptedTokens } from '../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
+import { Asset } from '../../store/profile/profileOwnershipSlice';
 import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
+import { acceptLease, LeaseStatus, payRent } from '../../store/lease/leasesSlice';
 import config from 'config';
+import { getLeaseState, LeaseMode } from 'components/profile/OwnershipView';
+import RenderLeaseDetails from './RenderLeaseDetails';
 import { ContractContext } from 'contexts/ContractContext';
-import { Asset } from 'store/profile/profileOwnershipSlice';
-import { acceptLease } from 'store/lease/leasesSlice';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -65,7 +55,6 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   modalContentRight: { flex: 2, padding: '1.5rem' },
-  modalContentRow: { marginBottom: '0.7rem' },
   errorMessage: { marginTop: '0.2rem', color: 'red', fontSize: '0.8rem' },
   underline: {
     '&:before': {
@@ -81,10 +70,6 @@ const useStyles = makeStyles((theme) => ({
       borderBottom: 'none',
     },
   },
-  detailItem: {
-    fontSize: '0.8rem',
-    color: theme.palette.grey[400],
-  },
   selectValue: {
     color: theme.palette.grey[400],
   },
@@ -94,45 +79,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const StyledSelect = withStyles(() => ({
-  root: {
-    display: 'flex',
-    alignItems: 'center',
-    height: '30px',
-    padding: 0,
-    backgroundColor: 'transparent',
-    borderRadius: '15px',
-    fontSize: '0.8rem',
-    fontWeight: 'bold',
-    '&:focus': {
-      backgroundColor: 'transparent',
-      borderRadius: '15px',
-      borderBottom: 'none',
-    },
-  },
-  icon: {
-    color: 'white',
-  },
-}))(Select);
-
-export const StyledMenuItem = withStyles((theme: Theme) => ({
-  root: {
-    backgroundColor: 'black !important',
-    '&:hover': {
-      backgroundColor: `${theme.palette.grey[800]} !important`,
-    },
-  },
-  gutters: {
-    backgroundColor: 'black !important',
-  },
-  selected: {
-    backgroundColor: `${theme.palette.grey[800]} !important`,
-  },
-}))(MenuItem);
-
 interface ILeaseDetailModal {
   asset: Asset;
   walletAddress: string;
+  mode: LeaseMode;
 }
 
 export interface LeaseForm {
@@ -146,7 +96,7 @@ export interface LeaseForm {
 }
 const dclLandRentalAddress = config.dclLandRentalAddress;
 
-const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
+const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal) => {
   const styles = useStyles();
   const history = useHistory();
   const {
@@ -157,40 +107,80 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const [isApproved, setIsApproved] = useState(false);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const dispatch = useDispatch();
-  const assetDetails = useMemo(() => {
-    const details = {
-      tokenLabel: 'N.A.',
-      tokenSymbol: '',
-      leaseAmount: 'N.A.',
-      deposit: 'N.A.',
-      gracePeriod: 'N.A.',
-      leaseLengths: [] as number[],
-    };
+  const closePath = mode === 'lease' ? '/rentals' : `/address/${walletAddress}`;
+
+  useEffect(() => {
     if (asset.lease) {
-      const { lease } = asset;
-      const token = tokens.find((token) => token.symbol === lease?.rentToken);
-      details.leaseAmount = lease.rentAmount.toString();
-      details.deposit = lease.deposit.toString();
-      details.gracePeriod = lease.gracePeriod.toString();
-      setFinalLeaseLength(lease.minLeaseLength);
-      details.leaseLengths = Array(lease.maxLeaseLength - lease.minLeaseLength + 1)
-        .fill(null)
-        .map((_, i) => i + lease.minLeaseLength);
-      if (token) {
-        details.tokenLabel = token.label;
-        details.tokenSymbol = token.symbol;
-      }
+      setFinalLeaseLength(asset.lease.minLeaseLength);
     }
-    return details;
   }, [asset]);
 
-  const requireApproval = assetDetails.tokenSymbol !== 'ETH';
+  const leaseState = useMemo(() => {
+    const state = getLeaseState(asset);
+    if (state === LeaseStatus['OPEN'] || state === 'OVERDUE' || state === LeaseStatus['LEASED']) {
+      return state;
+    }
+    return 'ERROR';
+  }, [asset]);
 
-  const handleSelectChange = (e) => {
+  const isFieldDisabled = () => {
+    const base = isTransacting || isLoading || walletAddress === asset.owner;
+
+    if (mode === 'lease') {
+      return base || leaseState === LeaseStatus['LEASED'];
+    }
+
+    // mode === 'rent'
+    if (asset.lease && !asset.lease.isRentOverdue) {
+      return base || (asset.lease && !asset.lease.isRentOverdue);
+    }
+
+    return base;
+  };
+
+  const renderButtonText = useCallback(() => {
+    if (!asset.lease) {
+      return 'No Lease';
+    }
+    const requireApproval = asset.lease.rentToken !== 'ETH';
+    if (requireApproval && !isApproved) {
+      return 'Approve';
+    }
+    if (leaseState === LeaseStatus['OPEN']) {
+      return 'Accept Lease';
+    }
+
+    if (leaseState === LeaseStatus['LEASED']) {
+      return 'Rent Paid';
+    }
+
+    if (leaseState === 'OVERDUE') {
+      return 'Pay Rent';
+    }
+    return 'Error';
+  }, [leaseState, isApproved, asset]);
+
+  const handleButtonClick = useCallback(() => {
+    if (!asset.lease) {
+      return;
+    }
+    const requireApproval = asset.lease.rentToken !== 'ETH';
+    if (requireApproval && !isApproved) {
+      return approveToken();
+    }
+    if (leaseState === LeaseStatus['OPEN']) {
+      return handleAcceptLease();
+    }
+    if (leaseState === 'OVERDUE') {
+      return handlePayRent();
+    }
+  }, [leaseState, isApproved, asset]);
+
+  const handleLeaseLengthSelect = (e) => {
     setFinalLeaseLength(e.target.value);
   };
 
-  const purchaseLease = useCallback(async () => {
+  const handleAcceptLease = useCallback(async () => {
     await dispatch(
       acceptLease({
         finalLeaseLength,
@@ -199,7 +189,18 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
       }),
     );
 
-    history.push(`/rentals`);
+    history.push(closePath);
+  }, [asset, dclLandRentalContract, walletAddress, finalLeaseLength]);
+
+  const handlePayRent = useCallback(async () => {
+    await dispatch(
+      payRent({
+        dclLandRentalContract,
+        operator: walletAddress,
+      }),
+    );
+
+    history.push(closePath);
   }, [asset, dclLandRentalContract, walletAddress, finalLeaseLength]);
 
   const approveToken = useCallback(async () => {
@@ -249,7 +250,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
           <Typography variant="h6" style={{ fontWeight: 'bold' }}>
             Lease Details
           </Typography>
-          <IconButton style={{ color: 'white' }} onClick={() => history.push(`/rentals`)}>
+          <IconButton style={{ color: 'white' }} onClick={() => history.push(closePath)}>
             <CloseIcon fontSize="medium" />
           </IconButton>
         </div>
@@ -272,76 +273,12 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
             </div>
           )}
           <div className={styles.modalContentRight}>
-            <Grid container spacing={2} className={styles.modalContentRow} style={{ display: 'flex' }}>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Lease Token
-                </Typography>
-                <Typography variant="subtitle2" className={styles.detailItem}>
-                  {assetDetails.tokenLabel}
-                </Typography>
-              </Grid>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Lease Amount
-                </Typography>
-                <Typography variant="subtitle2" className={styles.detailItem}>
-                  {assetDetails.leaseAmount} {assetDetails.tokenSymbol} per month
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} className={styles.modalContentRow}>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Lease Length
-                </Typography>
-                <StyledSelect
-                  value={finalLeaseLength}
-                  defaultValue=""
-                  variant="outlined"
-                  onChange={handleSelectChange}
-                  fullWidth
-                  MenuProps={{ classes: { list: styles.menu } }}
-                  input={<Input className={styles.underline} />}
-                  style={{ height: '30px' }}
-                  disabled={isTransacting || isLoading}
-                >
-                  {assetDetails.leaseLengths.map((leaseLength) => (
-                    <StyledMenuItem key={leaseLength} value={leaseLength}>
-                      <Typography variant="body2" className={styles.selectValue}>
-                        {leaseLength} months
-                      </Typography>
-                    </StyledMenuItem>
-                  ))}
-                </StyledSelect>
-              </Grid>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Security Deposit Amount
-                </Typography>
-                <div
-                  style={{
-                    height: '30px',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography variant="subtitle2" className={styles.detailItem}>
-                    {assetDetails.deposit} {assetDetails.tokenSymbol}
-                  </Typography>
-                </div>
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} className={styles.modalContentRow}>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Grace Period
-                </Typography>
-                <Typography variant="subtitle2" className={styles.detailItem}>
-                  {assetDetails.gracePeriod} days
-                </Typography>
-              </Grid>
-            </Grid>
+            <RenderLeaseDetails
+              lease={asset.lease}
+              finalLeaseLength={finalLeaseLength}
+              handleLeaseLengthSelect={handleLeaseLengthSelect}
+              mode={mode}
+            />
             <div>
               <Typography variant="body2" style={{ paddingBottom: '0.25rem', fontSize: '0.8rem' }}>
                 Notes:
@@ -368,10 +305,10 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
             className="gradient-button"
             variant="contained"
             style={{ marginRight: '0.5rem', minWidth: '150px' }}
-            onClick={requireApproval && !isApproved ? approveToken : purchaseLease}
-            disabled={isTransacting || isLoading || asset.owner === walletAddress}
+            onClick={handleButtonClick}
+            disabled={isFieldDisabled()}
           >
-            {requireApproval && !isApproved ? 'Approve' : 'Accept Lease'}
+            {renderButtonText()}
           </Button>
         </div>
       )}

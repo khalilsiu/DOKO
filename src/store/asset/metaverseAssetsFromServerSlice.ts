@@ -3,8 +3,8 @@ import ContractServiceAPI, { SortOption } from '../../libs/contract-service-api'
 import { camelize, getCoordinates } from '../../utils/utils';
 import { pick } from 'lodash';
 import metaverses from '../../constants/metaverses';
-import { Asset } from 'store/summary/profileOwnershipSlice';
-import { LeaseStatus } from 'store/lease/metaverseLeasesSlice';
+import { Asset } from 'store/profile/profileOwnershipSlice';
+import { LeaseStatus } from 'store/lease/leasesSlice';
 
 const initialState: Asset[][][] = [];
 
@@ -16,9 +16,9 @@ export const getMetaverseAssetsFromServer = createAsyncThunk(
     for (let i = 0; i < metaverses.length; i++) {
       const contractsAssets = await Promise.all(
         metaverses[i].addresses.map((address) =>
-          ContractServiceAPI.getLeases({
+          ContractServiceAPI.getLeasedAssets({
             contractAddress: address,
-            status: LeaseStatus.OPEN,
+            status: LeaseStatus['OPEN'],
             sort: [sortOptions[i]],
           }).catch((err) => {
             if (err.response.status === 404) {
