@@ -21,10 +21,10 @@ import { RootState } from '../../store/store';
 import { openToast, startLoading, stopLoading } from '../../store/app/appStateSlice';
 import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
-import { acceptLeaseToBlockchain } from '../../store/lease/metaverseLeasesSlice';
 import config from 'config';
 import { ContractContext } from 'contexts/ContractContext';
 import { Asset } from 'store/profile/profileOwnershipSlice';
+import { acceptLease } from 'store/lease/leasesSlice';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -151,19 +151,12 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const history = useHistory();
   const {
     contracts: { USDT: usdtContract, dclLandRental: dclLandRentalContract },
-    connectContract,
   } = useContext(ContractContext);
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const [finalLeaseLength, setFinalLeaseLength] = useState(0);
   const [isApproved, setIsApproved] = useState(false);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    connectContract('USDT');
-    connectContract('dclLandRental');
-  }, []);
-
   const assetDetails = useMemo(() => {
     const details = {
       tokenLabel: 'N.A.',
@@ -198,38 +191,11 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   };
 
   const purchaseLease = useCallback(async () => {
-    if (!dclLandRentalContract) {
-      dispatch(
-        openToast({
-          message: 'Land rental contract initialization error',
-          state: 'error',
-        }),
-      );
-      return;
-    }
-    if (asset.owner === walletAddress) {
-      dispatch(
-        openToast({
-          message: 'Land owner cannot purchase lease of owned asset',
-          state: 'error',
-        }),
-      );
-      return;
-    }
-
-    if (!asset.lease) {
-      dispatch(openToast({ message: 'Lease has not been created', state: 'error' }));
-      return;
-    }
-
     await dispatch(
-      acceptLeaseToBlockchain({
-        assetId: asset.tokenId,
+      acceptLease({
         finalLeaseLength,
         dclLandRentalContract,
-        rentAmount: asset.lease.rentAmount,
-        rentToken: asset.lease.rentToken,
-        deposit: asset.lease.deposit,
+        operator: walletAddress,
       }),
     );
 

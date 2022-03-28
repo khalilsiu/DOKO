@@ -152,6 +152,12 @@
           "internalType": "address",
           "name": "lessor",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "regenerate",
+          "type": "bool"
         }
       ],
       "name": "LeaseTerminated",
@@ -377,38 +383,25 @@
     },
     {
       "inputs": [],
-      "name": "MIN_ERC_RENT",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MIN_ETH_RENT",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "PLATFORM_ADMIN",
       "outputs": [
         {
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PLATFORM_FEE_CEILING",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -548,6 +541,11 @@
           "internalType": "string",
           "name": "token",
           "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "emergency",
+          "type": "bool"
         }
       ],
       "name": "adminWithdraw",
@@ -582,37 +580,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "landlord",
-          "type": "address"
-        },
-        {
-          "internalType": "uint8",
-          "name": "count",
-          "type": "uint8"
-        }
-      ],
-      "name": "changeMalLandlordCount",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "newLimit",
-          "type": "uint256"
-        }
-      ],
-      "name": "changeMaliciousLimit",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -731,19 +698,6 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getAcceptedTokenSymbols",
-      "outputs": [
-        {
-          "internalType": "bytes32[]",
-          "name": "tokenSymbols",
-          "type": "bytes32[]"
         }
       ],
       "stateMutability": "view",
@@ -1088,6 +1042,19 @@
     },
     {
       "inputs": [],
+      "name": "minGracePeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "nftAddress",
       "outputs": [
         {
@@ -1184,6 +1151,81 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "newOperator",
+          "type": "address"
+        }
+      ],
+      "name": "setDokoLandOperator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "landlord",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "count",
+          "type": "uint8"
+        }
+      ],
+      "name": "setMalLandlordCount",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "newLimit",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMaliciousLimit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_gracePeriod",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMinGracePeriod",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_assetId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_operator",
+          "type": "address"
+        }
+      ],
+      "name": "setUpdateOperator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bytes4",
           "name": "interfaceId",
           "type": "bytes4"
@@ -1216,19 +1258,6 @@
     {
       "inputs": [],
       "name": "unpause",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newOperator",
-          "type": "address"
-        }
-      ],
-      "name": "updateLandOperator",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

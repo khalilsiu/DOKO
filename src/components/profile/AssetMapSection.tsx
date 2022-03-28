@@ -3,13 +3,18 @@ import LandPagination from 'components/LandPagination';
 import RenderMaps from 'components/maps/RenderMaps';
 import SectionLabel from 'components/SectionLabel';
 import ListIcon from '@material-ui/icons/FormatListBulleted';
-import { memo } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { Asset } from 'store/profile/profileOwnershipSlice';
 import LandCard from 'components/LandCard';
 import { LeaseMode, ViewOption } from './OwnershipView';
 import MapIcon from '@material-ui/icons/Map';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store/store';
+import ConfirmModal from 'components/ConfirmModal';
+import { getAssetFromOpensea } from 'store/asset/assetSlice';
+import { landlordTerminate } from 'store/lease/leasesSlice';
+import { ContractContext } from 'contexts/ContractContext';
+import { AuthContext } from 'contexts/AuthContext';
 
 interface IAssetMapSection {
   metaverseName: string;
@@ -28,6 +33,7 @@ interface IRenderAssets {
   assets: Asset[];
   metaverseIndex: number;
   mode: LeaseMode;
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
 }
 
 const AssetMapSection = ({
@@ -44,9 +50,30 @@ const AssetMapSection = ({
 }: IAssetMapSection) => {
   const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const { isLoading } = useSelector((state: RootState) => state.appState);
+  const { address: walletAddress } = useContext(AuthContext);
   const styles = useStyles();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmModalTargetId, setConfirmModalTargetId] = useState('');
+  const [confirmModalHeader, setConfirmModalHeader] = useState('');
+  const [confirmModalBody, setConfirmModalBody] = useState('');
+  const {
+    contracts: { dclLandRental: dclLandRentalContract },
+  } = useContext(ContractContext);
+  const dispatch = useDispatch();
+  const onActionButtonClick = (headerText: string, bodyText: string, contractAddress: string, assetId: string) => {
+    dispatch(
+      getAssetFromOpensea({
+        contractAddress,
+        tokenId: assetId,
+      }),
+    );
+    setConfirmModalHeader(headerText);
+    setConfirmModalBody(bodyText);
+    setConfirmModalTargetId(assetId);
+    setIsConfirmModalOpen(true);
+  };
 
-  const RenderAssets = memo(({ assets, metaverseIndex, mode }: IRenderAssets) => {
+  const RenderAssets = memo(({ assets, metaverseIndex, mode, onActionButtonClick }: IRenderAssets) => {
     return (
       <>
         {assets.length ? (
@@ -56,6 +83,7 @@ const AssetMapSection = ({
                 key={asset.id}
                 asset={asset}
                 onClick={() => onAssetClick(metaverseIndex, assetIndex)}
+                onActionButtonClick={onActionButtonClick}
                 mode={mode}
               />
             </Grid>
@@ -66,6 +94,18 @@ const AssetMapSection = ({
       </>
     );
   });
+
+  const confirmModalAction = useCallback(async () => {
+    await dispatch(
+      landlordTerminate({
+        assetId: confirmModalTargetId,
+        dclLandRentalContract,
+        operator: walletAddress,
+      }),
+    );
+    setIsConfirmModalOpen(false);
+  }, [dclLandRentalContract, confirmModalTargetId]);
+
   return (
     <div style={{ marginBottom: '3rem' }}>
       <Grid
@@ -143,6 +183,7 @@ const AssetMapSection = ({
           onNext={() => onPageChange(page + 1, metaverseIndex)}
           onPrev={() => onPageChange(page - 1, metaverseIndex)}
           mode={mode}
+          onActionButtonClick={onActionButtonClick}
         />
       </div>
       <div id={`${metaverseName}mapview`} style={view === 'map' ? {} : { display: 'none' }}>
@@ -150,7 +191,12 @@ const AssetMapSection = ({
           <Grid container spacing={1}>
             <Grid item xs={5}>
               <Grid container spacing={1} style={{ height: 600, overflowY: 'scroll' }}>
-                <RenderAssets assets={assets} metaverseIndex={metaverseIndex} mode={mode} />
+                <RenderAssets
+                  assets={assets}
+                  metaverseIndex={metaverseIndex}
+                  mode={mode}
+                  onActionButtonClick={onActionButtonClick}
+                />
               </Grid>
             </Grid>
             <Grid item xs={7} id="map">
@@ -169,7 +215,12 @@ const AssetMapSection = ({
                   width: '100%',
                 }}
               >
-                <RenderAssets assets={assets} metaverseIndex={metaverseIndex} mode={mode} />
+                <RenderAssets
+                  assets={assets}
+                  metaverseIndex={metaverseIndex}
+                  mode={mode}
+                  onActionButtonClick={onActionButtonClick}
+                />
               </Grid>
             </Grid>
             <Grid item id="map" style={{ height: 300, marginBottom: '4px' }}>
@@ -178,6 +229,13 @@ const AssetMapSection = ({
           </Grid>
         )}
       </div>
+      <ConfirmModal
+        modalOpen={isConfirmModalOpen}
+        closeModal={() => setIsConfirmModalOpen(false)}
+        headerText={confirmModalHeader}
+        bodyText={confirmModalBody}
+        action={confirmModalAction}
+      />
     </div>
   );
 };

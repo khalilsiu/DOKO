@@ -121,7 +121,13 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     }
   }, [asset]);
 
-  const leaseState = useMemo(() => getLeaseState(asset), [asset]);
+  const leaseState = useMemo(() => {
+    const state = getLeaseState(asset);
+    if (state === LeaseStatus['OPEN'] || state === 'TOBETERMINATED' || state === LeaseStatus['LEASED']) {
+      return state;
+    }
+    return 'ERROR';
+  }, [asset]);
 
   const isFieldDisabled = () => {
     const base = isTransacting || isLoading || walletAddress === asset.owner;
@@ -143,7 +149,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     if (leaseState === LeaseStatus['OPEN']) {
       return 'Accept Lease';
     }
-    if (leaseState === LeaseStatus['LEASED']) {
+    if (leaseState === 'TOBETERMINATED') {
       return 'Pay Rent';
     }
     return 'Error';

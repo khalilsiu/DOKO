@@ -5,10 +5,9 @@ import { fetchParcelTransactionHistory } from 'store/asset/parcelTransactionHist
 import { fetchProfileOwnership } from 'store/profile/profileOwnershipSlice';
 import { getDclStats } from 'store/stats/dclStatsSlice';
 import { getAssetFromOpensea } from '../asset/assetSlice';
-import { acceptLease, upsertLease } from '../lease/leasesSlice';
+import { acceptLease, upsertLease, landlordTerminate, payRent } from '../lease/leasesSlice';
 
 export type ToastAction = 'refresh' | 'install-metamask';
-
 interface AppState {
   isLoading: boolean;
   isTransacting: boolean;
@@ -100,6 +99,36 @@ const appStateSlice = createSlice({
         state.isTransacting = false;
       })
       .addCase(acceptLease.rejected, (state, action) => {
+        state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.payload ? action.payload.error : action.error.message,
+        };
+      })
+
+      .addCase(payRent.pending, (state) => {
+        state.isTransacting = true;
+      })
+      .addCase(payRent.fulfilled, (state) => {
+        state.isTransacting = false;
+      })
+      .addCase(payRent.rejected, (state, action) => {
+        state.isTransacting = false;
+        state.toast = {
+          show: true,
+          state: 'error',
+          message: action.payload ? action.payload.error : action.error.message,
+        };
+      })
+
+      .addCase(landlordTerminate.pending, (state) => {
+        state.isTransacting = true;
+      })
+      .addCase(landlordTerminate.fulfilled, (state) => {
+        state.isTransacting = false;
+      })
+      .addCase(landlordTerminate.rejected, (state, action) => {
         state.isTransacting = false;
         state.toast = {
           show: true,

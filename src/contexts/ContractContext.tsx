@@ -27,6 +27,13 @@ export const ContractContextProvider = React.memo(({ children }) => {
     dclLand: null,
     USDT: null,
   });
+  React.useEffect(() => {
+    if (signer) {
+      connectContract('dclLandRental');
+      connectContract('dclLand');
+      connectContract('USDT');
+    }
+  }, [signer]);
 
   const connectContract = React.useCallback(
     (symbol: ContractNames) => {

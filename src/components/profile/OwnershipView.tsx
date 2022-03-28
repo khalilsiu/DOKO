@@ -15,6 +15,7 @@ import { Asset } from 'store/profile/profileOwnershipSlice';
 import BulletSection from './BulletSection';
 import MetaverseMapSection from './MetaverseMapSection';
 import LeaseDetailModal from 'components/rentals/LeaseDetailModal';
+import { LeaseStatus } from 'store/lease/leasesSlice';
 
 export const CustomTabs = withStyles({
   root: {
@@ -41,6 +42,10 @@ interface IOwnershipView {
 export const getLeaseState = (asset: Asset) => {
   if (!asset.lease) {
     return 'TOBECREATED';
+  }
+
+  if (asset.lease.status === LeaseStatus.LEASED && asset.lease.isRentOverdue) {
+    return 'TOBETERMINATED';
   }
 
   return asset.lease.status;
@@ -71,6 +76,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   const asset = useAssetSliceSelector((state) => state);
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const [tabValue, setTabValue] = useState(0);
+
   const styles = useStyles();
   const dispatch = useDispatch();
 

@@ -13,8 +13,8 @@ interface Props {
   onPrev?: () => void;
   loading?: boolean;
   maxPage?: number;
-  onLeaseButtonClick?: (asset: Asset | null) => void;
   mode: LeaseMode;
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -48,6 +48,7 @@ export const LandPagination = ({
   loading = false,
   maxPage,
   mode,
+  onActionButtonClick,
 }: Props) => {
   const styles = useStyles();
 
@@ -55,7 +56,7 @@ export const LandPagination = ({
     <div>
       <div className={styles.assetsContainer}>
         {assets.map((asset) => (
-          <LandCard asset={asset} key={asset.id} mode={mode} />
+          <LandCard asset={asset} key={asset.id} mode={mode} onActionButtonClick={onActionButtonClick} />
         ))}
       </div>
       {loading && <CircularProgress />}

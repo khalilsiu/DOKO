@@ -22,6 +22,7 @@ export interface IGetLeasedAssets {
 export interface IGetLeasedAsset {
   contractAddress: string;
   tokenId: string;
+  status?: LeaseStatus;
 }
 
 export default class ContractServiceAPI {

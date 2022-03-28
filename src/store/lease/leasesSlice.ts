@@ -54,6 +54,12 @@ interface IPayRent {
   operator: string;
 }
 
+interface ILandlordTerminate {
+  assetId: string;
+  dclLandRentalContract: ethers.Contract | null;
+  operator: string;
+}
+
 export const upsertLease = createAsyncThunk<void, IUpsertLease, { rejectValue: ThunkError }>(
   'leases/upsertLease',
   async ({ leaseForm, operator, dclLandRentalContract, isUpdate }: IUpsertLease, { rejectWithValue, getState }) => {
@@ -129,7 +135,7 @@ export const acceptLease = createAsyncThunk<void, IAcceptLease, { rejectValue: T
 );
 
 export const payRent = createAsyncThunk<void, IPayRent, { rejectValue: ThunkError }>(
-  'leases/acceptLease',
+  'leases/payRent',
   async ({ dclLandRentalContract, operator }, { rejectWithValue, getState }) => {
     try {
       if (!dclLandRentalContract) {
@@ -157,6 +163,29 @@ export const payRent = createAsyncThunk<void, IPayRent, { rejectValue: ThunkErro
             }
           : null;
       await dclLandRentalContract.payRent(asset.tokenId, options);
+    } catch (e: any) {
+      const message = (e.data && e.data.message) ?? e.toString();
+      return rejectWithValue({ error: message } as ThunkError);
+    }
+  },
+);
+
+export const landlordTerminate = createAsyncThunk<void, ILandlordTerminate, { rejectValue: ThunkError }>(
+  'leases/landlordTerminate',
+  async ({ assetId, dclLandRentalContract, operator }: ILandlordTerminate, { rejectWithValue, getState }) => {
+    try {
+      if (!dclLandRentalContract) {
+        throw new Error('Thunk error: Land rental contract initialization error');
+      }
+      const { asset } = getState() as { asset: Asset };
+      if (!asset.lease) {
+        throw new Error('Thunk error: Lease does not exist for asset');
+      }
+      if (asset.owner !== operator) {
+        throw new Error('Thunk error: Only owner is able to terminate lease');
+      }
+      // does not wait for txn to resolve
+      await dclLandRentalContract.landlordTerminateLease(assetId);
     } catch (e: any) {
       const message = (e.data && e.data.message) ?? e.toString();
       return rejectWithValue({ error: message } as ThunkError);

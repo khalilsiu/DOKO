@@ -142,18 +142,12 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const history = useHistory();
   const {
     contracts: { dclLandRental: dclLandRentalContract, dclLand: dclLandContract },
-    connectContract,
   } = useContext(ContractContext);
   const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
   const theme = useTheme();
   const dispatch = useDispatch();
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const [isApproved, setIsApproved] = useState(false);
-
-  useEffect(() => {
-    connectContract('dclLandRental');
-    connectContract('dclLand');
-  }, []);
 
   const initialState = {
     rentToken: AcceptedTokens['ETH'],
@@ -170,7 +164,11 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
   const isFieldDisabled =
-    isTransacting || isLoading || leaseState === LeaseStatus['LEASED'] || walletAddress !== asset.owner;
+    isTransacting ||
+    isLoading ||
+    leaseState === 'TOBETERMINATED' ||
+    leaseState === LeaseStatus['LEASED'] ||
+    walletAddress !== asset.owner;
 
   const renderButtonText = useCallback(() => {
     if (!isApproved) {
@@ -185,7 +183,19 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     if (leaseState === LeaseStatus['LEASED']) {
       return 'Leased';
     }
-  }, [leaseState, isApproved]);
+  }, [isApproved, leaseState]);
+
+  const renderHeaderText = useCallback(() => {
+    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus['COMPLETED']) {
+      return 'Create Lease';
+    }
+    if (leaseState === LeaseStatus['OPEN']) {
+      return 'Update Lease';
+    }
+    if (leaseState === LeaseStatus['LEASED']) {
+      return 'Lease Details';
+    }
+  }, [isApproved, leaseState]);
 
   const convertLeaseFrom = (leaseForm: LeaseForm): TransformedLeaseForm => {
     const { rentAmount, deposit, gracePeriod, minLeaseLength, maxLeaseLength } = leaseForm;
@@ -337,7 +347,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       renderHeader={() => (
         <div className={styles.modalHeader}>
           <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-            Create Lease
+            {renderHeaderText()}
           </Typography>
           <IconButton style={{ color: 'white' }} onClick={() => history.push(`/address/${asset.owner}`)}>
             <CloseIcon fontSize="medium" />

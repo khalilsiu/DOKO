@@ -33,15 +33,18 @@ interface ILandCard {
   asset: Asset;
   onClick?: () => void;
   mode: LeaseMode;
+  onActionButtonClick: (headerText: string, bodyText: string, contractAddress: string, assetId: string) => void;
+  setSelectedAssetForLease?: (asset: Asset | null) => void;
+  selectedAssetForLease?: Asset | null;
 }
 
 const LeaseButton = withStyles({
   root: {
-    minWidth: '90px',
+    minWidth: '110px',
   },
 })(Button);
 
-export const LandCard = memo(({ asset, onClick, mode }: ILandCard) => {
+export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILandCard) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
   const { isActive, address: walletAddress } = useContext(AuthContext);
@@ -80,6 +83,16 @@ export const LandCard = memo(({ asset, onClick, mode }: ILandCard) => {
 
   const handleLeaseBtnClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
+    const actionText = renderLeaseButtonText();
+    if (leaseState === 'TOBETERMINATED') {
+      onActionButtonClick(
+        actionText,
+        `Are you sure you want to ${actionText.toLowerCase()}?`,
+        asset.assetContract.address,
+        asset.tokenId,
+      );
+      return;
+    }
     history.push(buttonPath);
   };
 
@@ -108,6 +121,9 @@ export const LandCard = memo(({ asset, onClick, mode }: ILandCard) => {
     }
     if (leaseState === LeaseStatus['OPEN']) {
       return 'Update Lease';
+    }
+    if (leaseState === 'TOBETERMINATED') {
+      return 'Terminate Lease';
     }
     if (leaseState === LeaseStatus['LEASED']) {
       return 'Leased';
