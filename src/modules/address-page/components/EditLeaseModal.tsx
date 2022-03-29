@@ -260,8 +260,8 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     }
     setLeaseForm({
       rentToken: asset.lease?.rentToken,
-      rentAmount: (asset.lease?.rentAmount).toFixed(decimals),
-      deposit: (asset.lease?.deposit).toFixed(decimals),
+      rentAmount: parseFloat((asset.lease?.rentAmount).toFixed(decimals)).toString(),
+      deposit: parseFloat((asset.lease?.deposit).toFixed(decimals)).toString(),
       gracePeriod: (asset.lease?.gracePeriod).toString(),
       minLeaseLength: (asset.lease?.minLeaseLength).toString(),
       maxLeaseLength: (asset.lease?.maxLeaseLength).toString(),
