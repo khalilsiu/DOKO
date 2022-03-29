@@ -17,7 +17,6 @@ const useAddressSummaries = (walletAddress: string) => {
   useEffect(() => {
     if (walletAddress) {
       dispatch(fetchAddressOwnership(walletAddress));
-      dispatch(fetchAddressOwnership(walletAddress));
       dispatch(fetchMetaverseSummary());
     }
   }, [walletAddress]);

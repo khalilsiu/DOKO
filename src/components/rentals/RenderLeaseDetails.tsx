@@ -117,16 +117,19 @@ const RenderLeaseDetails = ({ lease, finalLeaseLength, handleLeaseLengthSelect, 
     if (!lease) {
       return renderRows(NA, NA, [], NA, NA, NA, NA, NA);
     }
-    const token = tokens.find((token) => token.symbol === lease?.rentToken);
-    const tokenLabel = token ? token.label : NA;
-    const tokenSymbol = token ? token.symbol : NA;
+    const token = tokens.find((token) => token.symbol === lease.rentToken);
+    if (!token) {
+      return renderRows(NA, NA, [], NA, NA, NA, NA, NA);
+    }
+    const tokenLabel = token.label;
+    const tokenSymbol = token.symbol;
     const leaseLengths = Array(lease.maxLeaseLength - lease.minLeaseLength + 1)
       .fill(null)
       .map((_, i) => i + lease.minLeaseLength);
 
     const tokenLabelText = tokenLabel;
-    const rentAmountText = `${lease.rentAmount} ${tokenSymbol}`;
-    const depositText = `${lease.deposit} ${tokenSymbol}`;
+    const rentAmountText = `${parseFloat(lease.rentAmount.toFixed(token.decimals))} ${tokenSymbol}`;
+    const depositText = `${parseFloat(lease.deposit.toFixed(token.decimals))} ${tokenSymbol}`;
     const finalLeaseLengthText = (lease.finalLeaseLength ?? 0).toString();
     const gracePeriodText = lease.gracePeriod.toString();
     const leaseStatusText = lease.isRentOverdue ? 'OVERDUE' : lease.status;
