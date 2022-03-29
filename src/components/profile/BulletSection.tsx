@@ -23,7 +23,7 @@ const BulletSection = ({ metaverseSummaries }: IBulletSection) => {
       totalFloorPrice += collection.totalFloorPrice;
       totalLandsListed += collection.leasedAssets.length;
       totalLandsLeased += collection.leasedAssets.reduce((leased, asset) => {
-        if (asset.lease && asset.lease.status === LeaseStatus['LEASED']) {
+        if (asset.lease && asset.lease.status === LeaseStatus.LEASED) {
           leased++;
         }
         return leased;

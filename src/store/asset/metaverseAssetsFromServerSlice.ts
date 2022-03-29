@@ -18,7 +18,7 @@ export const getMetaverseAssetsFromServer = createAsyncThunk(
         metaverses[i].addresses.map((address) =>
           ContractServiceAPI.getLeasedAssets({
             contractAddress: address,
-            status: LeaseStatus['OPEN'],
+            status: LeaseStatus.OPEN,
             sort: [sortOptions[i]],
           }).catch((err) => {
             if (err.response.status === 404) {

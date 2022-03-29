@@ -15,70 +15,6 @@ import config from 'config';
 import { getLeaseState, LeaseMode } from 'components/profile/OwnershipView';
 import RenderLeaseDetails from './RenderLeaseDetails';
 import { ContractContext } from 'contexts/ContractContext';
-
-const useStyles = makeStyles((theme) => ({
-  modalHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    color: 'white',
-    padding: '1.5rem',
-    [theme.breakpoints.down('sm')]: {
-      padding: '0.5rem 1.3rem',
-    },
-    justifyContent: 'space-between',
-  },
-  modal: {
-    [theme.breakpoints.down('sm')]: {
-      width: '90vw',
-    },
-    width: '900px',
-  },
-  modalContent: {
-    display: 'flex',
-    [theme.breakpoints.down('sm')]: {
-      height: '60vh',
-      overflowY: 'scroll',
-      marginBottom: '1.5rem',
-    },
-  },
-  modalContentLeft: {
-    flex: 1,
-    borderRight: 'white 1px solid',
-    padding: '1.5rem',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  assetName: { fontWeight: 'bold', paddingBottom: '0.5rem' },
-  assetImage: {
-    borderRadius: '10px',
-    border: 'white 1px solid',
-    flex: 1,
-  },
-  modalContentRight: { flex: 2, padding: '1.5rem' },
-  errorMessage: { marginTop: '0.2rem', color: 'red', fontSize: '0.8rem' },
-  underline: {
-    '&:before': {
-      borderBottom: 'none',
-    },
-    '&:after': {
-      borderBottom: 'none',
-    },
-    '&:focus': {
-      borderBottom: 'none',
-    },
-    '&:hover:not(.Mui-disabled):before': {
-      borderBottom: 'none',
-    },
-  },
-  selectValue: {
-    color: theme.palette.grey[400],
-  },
-  menu: {
-    backgroundColor: 'black',
-    maxHeight: '30vh',
-  },
-}));
-
 interface ILeaseDetailModal {
   asset: Asset;
   walletAddress: string;
@@ -117,7 +53,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
 
   const leaseState = useMemo(() => {
     const state = getLeaseState(asset);
-    if (state === LeaseStatus['OPEN'] || state === 'OVERDUE' || state === LeaseStatus['LEASED']) {
+    if (state === LeaseStatus.OPEN || state === 'OVERDUE' || state === LeaseStatus.LEASED) {
       return state;
     }
     return 'ERROR';
@@ -127,7 +63,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     const base = isTransacting || isLoading || walletAddress === asset.owner;
 
     if (mode === 'lease') {
-      return base || leaseState === LeaseStatus['LEASED'];
+      return base || leaseState === LeaseStatus.LEASED;
     }
 
     // mode === 'rent'
@@ -146,11 +82,11 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     if (requireApproval && !isApproved) {
       return 'Approve';
     }
-    if (leaseState === LeaseStatus['OPEN']) {
+    if (leaseState === LeaseStatus.OPEN) {
       return 'Accept Lease';
     }
 
-    if (leaseState === LeaseStatus['LEASED']) {
+    if (leaseState === LeaseStatus.LEASED) {
       return 'Rent Paid';
     }
 
@@ -168,7 +104,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     if (requireApproval && !isApproved) {
       return approveToken();
     }
-    if (leaseState === LeaseStatus['OPEN']) {
+    if (leaseState === LeaseStatus.OPEN) {
       return handleAcceptLease();
     }
     if (leaseState === 'OVERDUE') {
@@ -317,3 +253,66 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
 });
 
 export default LeaseDetailModal;
+
+const useStyles = makeStyles((theme) => ({
+  modalHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    color: 'white',
+    padding: '1.5rem',
+    [theme.breakpoints.down('sm')]: {
+      padding: '0.5rem 1.3rem',
+    },
+    justifyContent: 'space-between',
+  },
+  modal: {
+    [theme.breakpoints.down('sm')]: {
+      width: '90vw',
+    },
+    width: '900px',
+  },
+  modalContent: {
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      height: '60vh',
+      overflowY: 'scroll',
+      marginBottom: '1.5rem',
+    },
+  },
+  modalContentLeft: {
+    flex: 1,
+    borderRight: 'white 1px solid',
+    padding: '1.5rem',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  assetName: { fontWeight: 'bold', paddingBottom: '0.5rem' },
+  assetImage: {
+    borderRadius: '10px',
+    border: 'white 1px solid',
+    flex: 1,
+  },
+  modalContentRight: { flex: 2, padding: '1.5rem' },
+  errorMessage: { marginTop: '0.2rem', color: 'red', fontSize: '0.8rem' },
+  underline: {
+    '&:before': {
+      borderBottom: 'none',
+    },
+    '&:after': {
+      borderBottom: 'none',
+    },
+    '&:focus': {
+      borderBottom: 'none',
+    },
+    '&:hover:not(.Mui-disabled):before': {
+      borderBottom: 'none',
+    },
+  },
+  selectValue: {
+    color: theme.palette.grey[400],
+  },
+  menu: {
+    backgroundColor: 'black',
+    maxHeight: '30vh',
+  },
+}));

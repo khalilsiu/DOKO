@@ -113,34 +113,30 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
   const renderLeaseButtonText = useCallback(() => {
-    if (
-      leaseState === 'TOBECREATED' ||
-      leaseState === LeaseStatus['COMPLETED'] ||
-      leaseState === LeaseStatus['CANCELLED']
-    ) {
+    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus.COMPLETED || leaseState === LeaseStatus.CANCELLED) {
       return 'Create Lease';
     }
-    if (leaseState === LeaseStatus['OPEN']) {
+    if (leaseState === LeaseStatus.OPEN) {
       return 'Update Lease';
     }
     if (leaseState === 'OVERDUE') {
       return 'Terminate Lease';
     }
-    if (leaseState === LeaseStatus['LEASED']) {
+    if (leaseState === LeaseStatus.LEASED) {
       return 'Leased';
     }
     return 'Error';
   }, [leaseState]);
 
   const renderRentButtonText = useCallback(() => {
-    if (leaseState === LeaseStatus['LEASED']) {
+    if (leaseState === LeaseStatus.LEASED) {
       return 'Rent Paid';
     }
-    if (leaseState === LeaseStatus['COMPLETED']) {
+    if (leaseState === LeaseStatus.COMPLETED) {
       return 'Rent Completed';
     }
 
-    if (leaseState === LeaseStatus['CANCELLED']) {
+    if (leaseState === LeaseStatus.CANCELLED) {
       return 'Rent Cancelled';
     }
 
