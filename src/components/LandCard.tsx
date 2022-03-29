@@ -28,6 +28,7 @@ import activeShareIcon from 'assets/socials/active-share.png';
 import inactiveShareIcon from 'assets/socials/inactive-share.png';
 import { AuthContext } from 'contexts/AuthContext';
 import { LeaseStatus } from 'store/lease/leasesSlice';
+import clsx from 'clsx';
 
 interface ILandCard {
   asset: Asset;
@@ -206,17 +207,17 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
                   {asset.floorPriceInEth ? asset.floorPriceInEth.toFixed(2) : 'N.A.'}
                 </Typography>
               </Grid>
-              <div style={{ display: 'flex' }}>
+              <div className={styles.cardFooter}>
                 {showLeaseButton && (
-                  <div style={{ marginRight: '0.5rem' }}>
+                  <div className={styles.leaseButtonContainer}>
                     <LeaseButton
-                      className="gradient-button"
+                      className={clsx('gradient-button', styles.leaseBtn)}
                       disabled={false}
                       variant="outlined"
                       style={{ padding: 0 }}
                       onClick={(e) => handleLeaseBtnClick(e)}
                     >
-                      <Typography className={styles.leaseBtn} variant="caption">
+                      <Typography className={styles.leaseBtnText} variant="caption">
                         {mode === 'lease' ? renderLeaseButtonText() : renderRentButtonText()}
                       </Typography>
                     </LeaseButton>
@@ -227,7 +228,7 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
                     onMouseEnter={() => setShareActive(true)}
                     onMouseLeave={() => setShareActive(false)}
                     onClick={handleClick}
-                    style={{ padding: 0 }}
+                    className={styles.shareButton}
                   >
                     {shareActive ? (
                       <img className={styles.shareIcon} src={activeShareIcon} alt="share" />
@@ -309,7 +310,20 @@ const useStyles = makeStyles((theme) => ({
     '-webkit-line-clamp': 1,
     '-webkit-box-orient': 'vertical',
   },
+  leaseButtonContainer: {
+    position: 'relative',
+    top: 5,
+    [theme.breakpoints.up('md')]: {
+      top: 0,
+      marginRight: '0.5rem',
+    },
+  },
   leaseBtn: {
+    '&:hover span': {
+      color: 'white',
+    },
+  },
+  leaseBtnText: {
     color: theme.palette.primary.main,
   },
   image: {
@@ -329,6 +343,9 @@ const useStyles = makeStyles((theme) => ({
     width: 12,
     marginRight: 8,
   },
+  shareButton: {
+    padding: 0,
+  },
   shareIcon: {
     width: 20,
   },
@@ -345,6 +362,13 @@ const useStyles = makeStyles((theme) => ({
   notAvailableText: {
     color: '#b3b3b3',
     textAlign: 'center',
+  },
+  cardFooter: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    [theme.breakpoints.down('sm')]: {
+      flexWrap: 'wrap-reverse',
+    },
   },
 }));
 

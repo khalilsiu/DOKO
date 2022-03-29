@@ -12,13 +12,14 @@ import {
   Theme,
   useMediaQuery,
   Grid,
+  CircularProgress,
 } from '@material-ui/core';
 
 import UIModal from '../../../components/UIModal';
 import CloseIcon from '@material-ui/icons/Close';
 import { AcceptedTokens, tokens } from '../../../constants/acceptedTokens';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { cloneDeep } from 'lodash';
+import { capitalize, cloneDeep } from 'lodash';
 import Joi from 'joi';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -143,11 +144,12 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const {
     contracts: { dclLandRental: dclLandRentalContract, dclLand: dclLandContract },
   } = useContext(ContractContext);
-  const { isTransacting, isLoading } = useSelector((state: RootState) => state.appState);
+  const { isTransacting, isLoading: isAppLoading } = useSelector((state: RootState) => state.appState);
   const theme = useTheme();
   const dispatch = useDispatch();
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const [isApproved, setIsApproved] = useState(false);
+  const [isCheckingApproved, setCheckingApproved] = useState(false);
 
   const initialState = {
     rentToken: AcceptedTokens['ETH'],
@@ -165,10 +167,13 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
 
   const isFieldDisabled =
     isTransacting ||
-    isLoading ||
+    isAppLoading ||
     leaseState === 'OVERDUE' ||
     leaseState === LeaseStatus['LEASED'] ||
-    walletAddress !== asset.owner;
+    walletAddress !== asset.owner ||
+    isCheckingApproved;
+
+  const isLoading = isAppLoading || isCheckingApproved;
 
   const renderButtonText = useCallback(() => {
     if (!isApproved) {
@@ -209,15 +214,39 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     };
   };
 
-  const [errors, setErrors] = useState<{ [key in keyof LeaseForm]: string }>({
-    rentToken: '',
-    rentAmount: '',
-    deposit: '',
-    gracePeriod: '',
-    minLeaseLength: '',
-    maxLeaseLength: '',
-    autoRegenerate: '',
-  });
+  const initialErrors: Record<keyof LeaseForm, string> = useMemo(
+    () => ({
+      rentToken: '',
+      rentAmount: '',
+      deposit: '',
+      gracePeriod: '',
+      minLeaseLength: '',
+      maxLeaseLength: '',
+      autoRegenerate: '',
+    }),
+    [],
+  );
+
+  const [errors, setErrors] = useState<{ [key in keyof LeaseForm]: string }>(initialErrors);
+
+  const handleAPIError = useCallback(
+    (e: any) => {
+      if (e.reason === 'underlying network changed') {
+        const { detectedNetwork } = e;
+        dispatch(
+          openToast({
+            message: `The blockchain network has been changed unexpectedly. Current network is: ${capitalize(
+              detectedNetwork?.name,
+            )} (ENS Address: ${detectedNetwork?.ensAddress})`,
+            state: 'error',
+          }),
+        );
+      } else {
+        dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+      }
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     if (asset && asset.lease && leaseState !== LeaseStatus['COMPLETED']) {
@@ -237,16 +266,16 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     (async () => {
       if (dclLandContract) {
         try {
-          dispatch(startLoading());
+          setCheckingApproved(true);
           const isApproved = await dclLandContract.isApprovedForAll(walletAddress, dclLandRentalAddress || '');
           setIsApproved(isApproved);
         } catch (e) {
-          dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+          handleAPIError(e);
         }
-        dispatch(stopLoading());
+        setCheckingApproved(false);
       }
     })();
-  }, [dclLandContract, walletAddress, dclLandRentalAddress]);
+  }, [dclLandContract, walletAddress, dclLandRentalAddress, handleAPIError]);
 
   // can be moved into hooks
   const handleApproveLease = useCallback(async () => {
@@ -264,20 +293,46 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       const txn = await dclLandContract.setApprovalForAll(dclLandRentalAddress || '', true);
       const receipt = await txn.wait();
       setIsApproved(!!receipt);
-    } catch (e) {
-      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+    } catch (e: any) {
+      handleAPIError(e);
     }
     dispatch(stopLoading());
-  }, [dclLandContract, dclLandRentalAddress]);
+  }, [dclLandContract, dclLandRentalAddress, handleAPIError]);
 
-  const handleUpsertLease = useCallback(async () => {
+  const extractValidationErrors = useCallback(
+    (error: Joi.ValidationError) => {
+      const newErrors = cloneDeep(initialErrors);
+
+      error.details.forEach((detail) => {
+        newErrors[detail.path[0]] = parseError({
+          ...error,
+          details: [detail],
+        });
+      });
+
+      return newErrors;
+    },
+    [errors, initialErrors],
+  );
+
+  const validateForm = useCallback(() => {
     const result = Joi.object(EditLeaseSchema).validate(convertLeaseFrom(leaseForm), {
       convert: false,
+      abortEarly: false,
     });
+
     if (result.error) {
-      const newErrors = cloneDeep(errors);
-      newErrors[result.error.details[0].path[0]] = parseError(result.error);
-      setErrors(newErrors);
+      setErrors(extractValidationErrors(result.error));
+      return false;
+    } else {
+      setErrors(initialErrors);
+    }
+
+    return true;
+  }, [leaseForm, initialErrors]);
+
+  const handleUpsertLease = useCallback(async () => {
+    if (!validateForm()) {
       return;
     }
 
@@ -291,7 +346,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     );
 
     history.push(`/address/${asset.owner}`);
-  }, [leaseForm, walletAddress, asset, dclLandRentalContract, errors]);
+  }, [leaseForm, walletAddress, asset, dclLandRentalContract, validateForm]);
 
   const handleChange = useCallback(
     (e) => {
@@ -310,23 +365,13 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
 
   const handleBlur = useCallback(
     (e) => {
-      const rawValue = e.target.value;
-      const targetName = e.target.name;
-      const input = { [targetName]: rawValue };
-      const result = Joi.object({
-        [targetName]: EditLeaseSchema[targetName],
-      }).validate(input);
-      if (result.error) {
-        const newErrors = cloneDeep(errors);
-        newErrors[targetName] = parseError(result.error);
-        setErrors(newErrors);
+      if (!e) {
         return;
       }
-      const newErrors = cloneDeep(errors);
-      newErrors[targetName] = '';
-      setErrors(newErrors);
+
+      validateForm();
     },
-    [errors],
+    [errors, leaseForm, initialErrors, validateForm],
   );
 
   const handleInputChange = useCallback(
@@ -340,6 +385,20 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     [leaseForm],
   );
 
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (isApproved) {
+        handleUpsertLease();
+      } else {
+        handleApproveLease();
+      }
+    },
+    [isApproved, handleUpsertLease, handleApproveLease],
+  );
+
   return (
     <UIModal
       klasses={styles.modal}
@@ -347,7 +406,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       renderHeader={() => (
         <div className={styles.modalHeader}>
           <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-            {renderHeaderText()}
+            {isLoading ? 'Loading...' : renderHeaderText()}
           </Typography>
           <IconButton style={{ color: 'white' }} onClick={() => history.push(`/address/${asset.owner}`)}>
             <CloseIcon fontSize="medium" />
@@ -355,201 +414,203 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
         </div>
       )}
       renderBody={() => (
-        <div className={styles.modalContent}>
-          {mdOrAbove && (
-            <div className={styles.modalContentLeft}>
-              <Typography variant="body2" className={styles.assetName}>
-                {asset.name}
-              </Typography>
-              <div
-                className={styles.assetImage}
-                style={{
-                  backgroundImage: `url('${asset.imageOriginalUrl}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              ></div>
-            </div>
-          )}
-          <div className={styles.modalContentRight}>
-            <Grid container spacing={2} className={styles.modalContentRow} style={{ display: 'flex' }}>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Fee Token
+        <form id="editLeaseForm" onSubmit={handleSubmit}>
+          <div className={styles.modalContent}>
+            {mdOrAbove && (
+              <div className={styles.modalContentLeft}>
+                <Typography variant="body2" className={styles.assetName}>
+                  {asset.name}
                 </Typography>
-                <StyledSelect
-                  value={leaseForm.rentToken}
-                  variant="filled"
-                  fullWidth
-                  onChange={handleChange}
-                  input={<Input className={styles.underline} />}
-                  style={{ height: '30px' }}
-                  disabled={isFieldDisabled}
-                >
-                  {tokens.map((token) => (
-                    <MenuItem key={token.symbol} value={token.symbol}>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <div
-                          style={{
-                            width: '30px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginRight: '0.5rem',
-                          }}
-                        >
-                          <img src={token.icon} alt="" height="20px" />
-                        </div>
-                        {token.label}
-                      </div>
-                    </MenuItem>
-                  ))}
-                </StyledSelect>
-              </Grid>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Fee Per Month
-                </Typography>
-                <RadiusInput
-                  fullWidth
-                  placeholder={`Monthly rent in ${leaseForm.rentToken}`}
-                  style={{ height: '30px' }}
-                  name="rentAmount"
-                  onChange={handleInputChange}
-                  disabled={isFieldDisabled}
-                  onBlur={handleBlur}
-                  value={leaseForm.rentAmount}
-                  type="number"
-                />
-                {errors.rentAmount && (
-                  <Typography variant="body2" className={styles.errorMessage}>
-                    {errors.rentAmount}
-                  </Typography>
-                )}
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} className={styles.modalContentRow}>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Min. Lease Length
-                </Typography>
-                <RadiusInput
-                  fullWidth
-                  placeholder="Min."
-                  name="minLeaseLength"
-                  style={{ height: '30px' }}
-                  onChange={handleInputChange}
-                  disabled={isFieldDisabled}
-                  onBlur={handleBlur}
-                  value={leaseForm.minLeaseLength}
-                  type="number"
-                />
-                {errors.minLeaseLength && (
-                  <Typography variant="body2" className={styles.errorMessage}>
-                    {errors.minLeaseLength}
-                  </Typography>
-                )}
-              </Grid>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Max. Lease Length
-                </Typography>
-                <RadiusInput
-                  fullWidth
-                  placeholder="Max."
-                  style={{ height: '30px' }}
-                  name="maxLeaseLength"
-                  onChange={handleInputChange}
-                  disabled={isFieldDisabled}
-                  onBlur={handleBlur}
-                  value={leaseForm.maxLeaseLength}
-                  type="number"
-                />
-                {errors.maxLeaseLength && (
-                  <Typography variant="body2" className={styles.errorMessage}>
-                    {errors.maxLeaseLength}
-                  </Typography>
-                )}
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} className={styles.modalContentRow} style={{ display: 'flex' }}>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Security Deposit
-                </Typography>
-                <RadiusInput
-                  fullWidth
-                  style={{ height: '30px' }}
-                  name="deposit"
-                  placeholder={`Deposit in ${leaseForm.rentToken}`}
-                  onChange={handleInputChange}
-                  disabled={isFieldDisabled}
-                  onBlur={handleBlur}
-                  value={leaseForm.deposit}
-                  type="number"
-                />
-                {errors.deposit && (
-                  <Typography variant="body2" className={styles.errorMessage}>
-                    {errors.deposit}
-                  </Typography>
-                )}
-              </Grid>
-              <Grid sm={12} md={6} item style={{ width: '100%' }}>
-                <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
-                  Grace Period for Late Fees
-                </Typography>
-                <RadiusInput
-                  fullWidth
-                  placeholder="Late rent allowed (in days)"
-                  name="gracePeriod"
-                  style={{ height: '30px' }}
-                  onBlur={handleBlur}
-                  onChange={handleInputChange}
-                  disabled={isFieldDisabled}
-                  value={leaseForm.gracePeriod}
-                  type="number"
-                />
-                {errors.gracePeriod && (
-                  <Typography variant="body2" className={styles.errorMessage}>
-                    {errors.gracePeriod}
-                  </Typography>
-                )}
-              </Grid>
-            </Grid>
-            <div className={styles.modalContentRow}>
-              <Typography variant="body2" style={{ fontWeight: 'bold', paddingBottom: '0.25rem' }}>
-                Regenerate Lease
-              </Typography>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Checkbox
-                  indeterminate={false}
-                  checked={leaseForm.autoRegenerate}
-                  onChange={handleCheck}
+                <div
+                  className={styles.assetImage}
                   style={{
-                    padding: '0 0.5rem 0 0',
-                    color: theme.palette.primary.main,
+                    backgroundImage: `url('${asset.imageOriginalUrl}')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                   }}
-                  disabled={isFieldDisabled}
-                  value={leaseForm.autoRegenerate}
-                />
-                <Typography variant="body2" style={{ fontSize: '0.8rem' }}>
-                  When the renter terminates the lease early, allow DOKO to list the same lease back onto the market.
+                ></div>
+              </div>
+            )}
+            <div className={styles.modalContentRight}>
+              <Grid container spacing={2} className={styles.modalContentRow} style={{ display: 'flex' }}>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Fee Token
+                  </Typography>
+                  <StyledSelect
+                    value={leaseForm.rentToken}
+                    variant="filled"
+                    fullWidth
+                    onChange={handleChange}
+                    input={<Input className={styles.underline} />}
+                    style={{ height: '30px' }}
+                    disabled={isFieldDisabled}
+                  >
+                    {tokens.map((token) => (
+                      <MenuItem key={token.symbol} value={token.symbol}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <div
+                            style={{
+                              width: '30px',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              marginRight: '0.5rem',
+                            }}
+                          >
+                            <img src={token.icon} alt="" height="20px" />
+                          </div>
+                          {token.label}
+                        </div>
+                      </MenuItem>
+                    ))}
+                  </StyledSelect>
+                </Grid>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Fee Per Month
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    placeholder={`Monthly rent in ${leaseForm.rentToken}`}
+                    style={{ height: '30px' }}
+                    name="rentAmount"
+                    onChange={handleInputChange}
+                    disabled={isFieldDisabled}
+                    onBlur={handleBlur}
+                    value={leaseForm.rentAmount}
+                    type="number"
+                  />
+                  {errors.rentAmount && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.rentAmount}
+                    </Typography>
+                  )}
+                </Grid>
+              </Grid>
+              <Grid container spacing={2} className={styles.modalContentRow}>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Min. Lease Length
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    placeholder="Min."
+                    name="minLeaseLength"
+                    style={{ height: '30px' }}
+                    onChange={handleInputChange}
+                    disabled={isFieldDisabled}
+                    onBlur={handleBlur}
+                    value={leaseForm.minLeaseLength}
+                    type="number"
+                  />
+                  {errors.minLeaseLength && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.minLeaseLength}
+                    </Typography>
+                  )}
+                </Grid>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Max. Lease Length
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    placeholder="Max."
+                    style={{ height: '30px' }}
+                    name="maxLeaseLength"
+                    onChange={handleInputChange}
+                    disabled={isFieldDisabled}
+                    onBlur={handleBlur}
+                    value={leaseForm.maxLeaseLength}
+                    type="number"
+                  />
+                  {errors.maxLeaseLength && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.maxLeaseLength}
+                    </Typography>
+                  )}
+                </Grid>
+              </Grid>
+              <Grid container spacing={2} className={styles.modalContentRow} style={{ display: 'flex' }}>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Security Deposit
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    style={{ height: '30px' }}
+                    name="deposit"
+                    placeholder={`Deposit in ${leaseForm.rentToken}`}
+                    onChange={handleInputChange}
+                    disabled={isFieldDisabled}
+                    onBlur={handleBlur}
+                    value={leaseForm.deposit}
+                    type="number"
+                  />
+                  {errors.deposit && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.deposit}
+                    </Typography>
+                  )}
+                </Grid>
+                <Grid sm={12} md={6} item style={{ width: '100%' }}>
+                  <Typography variant="body2" style={{ paddingBottom: '0.25rem' }}>
+                    Grace Period for Late Fees
+                  </Typography>
+                  <RadiusInput
+                    fullWidth
+                    placeholder="Late rent allowed (in days)"
+                    name="gracePeriod"
+                    style={{ height: '30px' }}
+                    onBlur={handleBlur}
+                    onChange={handleInputChange}
+                    disabled={isFieldDisabled}
+                    value={leaseForm.gracePeriod}
+                    type="number"
+                  />
+                  {errors.gracePeriod && (
+                    <Typography variant="body2" className={styles.errorMessage}>
+                      {errors.gracePeriod}
+                    </Typography>
+                  )}
+                </Grid>
+              </Grid>
+              <div className={styles.modalContentRow}>
+                <Typography variant="body2" style={{ fontWeight: 'bold', paddingBottom: '0.25rem' }}>
+                  Regenerate Lease
+                </Typography>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Checkbox
+                    indeterminate={false}
+                    checked={leaseForm.autoRegenerate}
+                    onChange={handleCheck}
+                    style={{
+                      padding: '0 0.5rem 0 0',
+                      color: theme.palette.primary.main,
+                    }}
+                    disabled={isFieldDisabled}
+                    value={leaseForm.autoRegenerate}
+                  />
+                  <Typography variant="body2" style={{ fontSize: '0.8rem' }}>
+                    When the renter terminates the lease early, allow DOKO to list the same lease back onto the market.
+                  </Typography>
+                </div>
+              </div>
+              <div>
+                <Typography variant="body2" style={{ paddingBottom: '0.25rem', fontSize: '0.8rem' }}>
+                  Notes:
+                </Typography>
+                <Typography variant="body2" style={{ fontSize: '0.75rem' }}>
+                  All fees are sent directly to the address creating the lease so there is no need for you to claim.
+                </Typography>
+                <Typography variant="body2" style={{ fontSize: '0.75rem' }}>
+                  The smart contract is audited by PeckShield. However use at your own risk.
                 </Typography>
               </div>
             </div>
-            <div>
-              <Typography variant="body2" style={{ paddingBottom: '0.25rem', fontSize: '0.8rem' }}>
-                Notes:
-              </Typography>
-              <Typography variant="body2" style={{ fontSize: '0.75rem' }}>
-                All fees are sent directly to the address creating the lease so there is no need for you to claim.
-              </Typography>
-              <Typography variant="body2" style={{ fontSize: '0.75rem' }}>
-                The smart contract is audited by PeckShield. However use at your own risk.
-              </Typography>
-            </div>
           </div>
-        </div>
+        </form>
       )}
       renderFooter={() => (
         <div
@@ -560,13 +621,14 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
           }}
         >
           <Button
+            form="editLeaseForm"
+            type="submit"
             className="gradient-button"
             variant="contained"
             style={{ marginRight: '0.5rem', width: '110px' }}
-            onClick={!isApproved ? handleApproveLease : handleUpsertLease}
             disabled={isFieldDisabled}
           >
-            {renderButtonText()}
+            {isLoading ? <CircularProgress size={18} /> : renderButtonText()}
           </Button>
         </div>
       )}

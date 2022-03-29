@@ -54,7 +54,7 @@ const AssetMapSection = ({
       <>
         {assets.length ? (
           assets.map((asset, assetIndex) => (
-            <Grid key={assetIndex} item xs={6} style={{ maxHeight: 400 }}>
+            <Grid key={assetIndex} style={{ height: 300 }} item xs={6} spacing={0}>
               <LandCard
                 key={asset.id}
                 asset={asset}
@@ -175,7 +175,7 @@ const AssetMapSection = ({
                 direction="column"
                 container
                 style={{
-                  height: 300,
+                  height: 320,
                   overflowX: 'scroll',
                   width: '100%',
                 }}

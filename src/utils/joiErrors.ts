@@ -21,7 +21,9 @@ export const parseError = (error: Joi.ValidationError) => {
         return;
       }
       const min = error.details[0].context.limit;
-      return `Please enter a number greater than or equal to ${min}.`;
+      const field = error.details[0].context.limit.key;
+
+      return `Please enter a number greater than or equal to ${typeof min === 'number' ? min : camelToText(field)}.`;
     }
     case 'number.positive': {
       if (!error.details[0].context) {
@@ -37,7 +39,7 @@ export const parseError = (error: Joi.ValidationError) => {
       return `Please enter a number greater than ${camelToText(field)}`;
     }
     default: {
-      return '';
+      return error.details[0].message;
     }
   }
 };
