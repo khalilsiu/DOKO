@@ -53,8 +53,8 @@ const AssetMapSection = ({
     return (
       <>
         {assets.length ? (
-          [...assets, ...assets, ...assets, ...assets].map((asset, assetIndex) => (
-            <Grid key={assetIndex} item xs={6} spacing={0}>
+          assets.map((asset, assetIndex) => (
+            <Grid key={assetIndex} style={{ height: 300 }} item xs={6} spacing={0}>
               <LandCard
                 key={asset.id}
                 asset={asset}
