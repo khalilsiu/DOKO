@@ -18,6 +18,7 @@ import LeaseDetailModal from 'components/rentals/LeaseDetailModal';
 import { landlordTerminate, LeaseStatus } from 'store/lease/leasesSlice';
 import ConfirmModal from 'components/ConfirmModal';
 import { ContractContext } from 'contexts/ContractContext';
+import { openToast } from 'store/app/appStateSlice';
 
 export const CustomTabs = withStyles({
   root: {
@@ -74,7 +75,7 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
     tokenId: urlTokenId,
     mode,
   } = useParams<{ address: string; contractAddress: string; tokenId: string; mode: LeaseMode }>();
-  const { address: walletAddress } = useContext(AuthContext);
+  const { checkAndSwitchNetwork, address: walletAddress } = useContext(AuthContext);
   const asset = useAssetSliceSelector((state) => state);
   const {
     contracts: { dclLandRental: dclLandRentalContract },
@@ -108,6 +109,12 @@ const OwnershipView = ({ metaverseSummaries }: IOwnershipView) => {
   };
 
   const confirmModalAction = useCallback(async () => {
+    try {
+      await checkAndSwitchNetwork();
+    } catch (e: any) {
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+      return;
+    }
     await dispatch(
       landlordTerminate({
         assetId: confirmModalTargetId,
