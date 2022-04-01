@@ -48,7 +48,7 @@ const LeaseButton = withStyles({
 export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILandCard) => {
   const history = useHistory();
   const { address: urlAddress } = useParams<{ address: string }>();
-  const { isActive, address: walletAddress } = useContext(AuthContext);
+  const { address: walletAddress } = useContext(AuthContext);
   const styles = useStyles();
   const [shareActive, setShareActive] = useState(false);
   const [error, setError] = useState(false);
@@ -59,7 +59,6 @@ export const LandCard = memo(({ asset, onClick, mode, onActionButtonClick }: ILa
 
   // only decentraland right now
   const showLeaseButton =
-    isActive &&
     walletAddress === urlAddress &&
     (asset.assetContract.address === '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d' ||
       asset.assetContract.address === '0x959e104e1a4db6317fa58f8295f586e1a978c297');

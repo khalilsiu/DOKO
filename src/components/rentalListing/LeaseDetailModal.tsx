@@ -25,6 +25,7 @@ import config from 'config';
 import { ContractContext } from 'contexts/ContractContext';
 import { Asset } from 'store/profile/profileOwnershipSlice';
 import { acceptLease } from 'store/lease/leasesSlice';
+import { AuthContext } from 'contexts/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -149,6 +150,7 @@ const dclLandRentalAddress = config.dclLandRentalAddress;
 const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   const styles = useStyles();
   const history = useHistory();
+  const { checkAndSwitchNetwork } = useContext(AuthContext);
   const {
     contracts: { USDT: usdtContract, dclLandRental: dclLandRentalContract },
   } = useContext(ContractContext);
@@ -191,6 +193,12 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
   };
 
   const purchaseLease = useCallback(async () => {
+    try {
+      await checkAndSwitchNetwork();
+    } catch (e: any) {
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+      return;
+    }
     await dispatch(
       acceptLease({
         finalLeaseLength,
@@ -214,6 +222,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress }: ILeaseDetailModal) => {
       return;
     }
     try {
+      await checkAndSwitchNetwork();
       const txn = await usdtContract.approve(dclLandRentalAddress || '', ethers.constants.MaxUint256);
       const receipt = await txn.wait();
       // wait for approve to resolve

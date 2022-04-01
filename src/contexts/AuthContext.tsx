@@ -7,15 +7,29 @@ import { useWeb3React } from '@web3-react/core';
 import DOKOMetamaskLogoAsset from 'assets/doko/doko-metamask-logo-asset.png';
 import { AuthModal } from 'components/auth/AuthModal';
 import { ethers } from 'ethers';
+import config from 'config';
 import { DeviceCheckUtil } from 'utils/DeviceCheckUtil';
 import { ThirdPartyURL } from 'constants/ThirdPartyURL';
+import { web3 } from 'libs/web3';
+
+const {
+  targetChainId,
+  targetRpcUrl,
+  targetChainName,
+  targetNativeName,
+  targetNativeSymbol,
+  targetNativeDecimals,
+  targetExplorerUrl,
+} = config;
 
 declare let window: any;
 export interface AuthContextType {
   isActive: boolean;
+  isCorrectNetwork: boolean;
   address: string;
   connect: () => void;
   disconnect: () => Promise<void>;
+  checkAndSwitchNetwork: () => Promise<void>;
   signer: ethers.Signer | null;
   setSigner: React.Dispatch<React.SetStateAction<ethers.providers.JsonRpcSigner | null>>;
 }
@@ -37,8 +51,9 @@ export const AuthContextProvider = React.memo(({ children }) => {
   const [walletSelected, setWalletSelected] = React.useState<Wallet>(wallets[0]);
   const [walletModalVisible, setWalletModalVisible] = React.useState(false);
 
-  const { account, active, error, activate, deactivate } = useWeb3React();
+  const { account, active, error, activate, deactivate, chainId } = useWeb3React();
   const [isActive, setIsActive] = React.useState(false);
+  const [isCorrectNetwork, setIsCorrectNetwork] = React.useState(false);
   const [signer, setSigner] = React.useState<ethers.providers.JsonRpcSigner | null>(null);
 
   const showInstallMetamaskToastOrElseRedirect = React.useCallback(
@@ -82,6 +97,41 @@ export const AuthContextProvider = React.memo(({ children }) => {
     }
   }, [deactivate, dispatch]);
 
+  const checkAndSwitchNetwork = React.useCallback(async () => {
+    if (isCorrectNetwork) return;
+
+    try {
+      console.log('changing');
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: web3.utils.toHex(targetChainId) }],
+      });
+    } catch (e: any) {
+      console.log(e);
+      if (e.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainName: targetChainName,
+              chainId: web3.utils.toHex(targetChainId),
+              nativeCurrency: {
+                name: targetNativeName,
+                decimals: targetNativeDecimals,
+                symbol: targetNativeSymbol,
+              },
+              rpcUrls: [targetRpcUrl],
+              blockExplorerUrls: [targetExplorerUrl],
+            },
+          ],
+        });
+      }
+      throw new Error('Please switch to the correct network');
+    }
+
+    console.log('NO ERROR');
+  }, [isCorrectNetwork]);
+
   const login = React.useCallback(async () => {
     await connectMetamask();
     setWalletModalVisible(false);
@@ -114,8 +164,12 @@ export const AuthContextProvider = React.memo(({ children }) => {
   }, [active]);
 
   React.useEffect(() => {
+    setIsCorrectNetwork(chainId == Number(config.targetChainId));
+  }, [chainId]);
+
+  React.useEffect(() => {
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
       const signer = provider.getSigner();
       setSigner(signer);
     } catch (e: any) {
@@ -124,7 +178,7 @@ export const AuthContextProvider = React.memo(({ children }) => {
         showInstallMetamaskToastOrElseRedirect();
       }
     }
-  }, [showInstallMetamaskToastOrElseRedirect]);
+  }, [showInstallMetamaskToastOrElseRedirect, chainId]);
 
   return (
     <AuthContext.Provider
@@ -134,6 +188,8 @@ export const AuthContextProvider = React.memo(({ children }) => {
         setSigner,
         connect: handleConnectButtonClick,
         disconnect: disconnectMetamask,
+        checkAndSwitchNetwork,
+        isCorrectNetwork,
         isActive,
       }}
     >
