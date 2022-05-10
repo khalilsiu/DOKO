@@ -48,13 +48,12 @@ const AssetMapSection = ({
   const smOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'));
   const { isLoading } = useSelector((state: RootState) => state.appState);
   const styles = useStyles();
-
   const RenderAssets = memo(({ assets, metaverseIndex, mode, onActionButtonClick }: IRenderAssets) => {
     return (
       <>
         {assets.length ? (
           assets.map((asset, assetIndex) => (
-            <Grid key={assetIndex} style={{ height: 300 }} item xs={6} spacing={0}>
+            <Grid key={assetIndex} style={{ height: 300 }} item xs={6}>
               <LandCard
                 key={asset.id}
                 asset={asset}

@@ -61,7 +61,6 @@ export const processAssetFromOpensea = (asset: any): Asset => {
     : 0;
 
   const coordinates: L.LatLngExpression = getCoordinates(asset.collection.name, asset);
-
   return camelize<Asset>({
     ...picked,
     coordinates,

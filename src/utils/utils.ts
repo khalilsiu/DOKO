@@ -33,7 +33,8 @@ export const camelToText = (camelCase: string) => {
 
 export const getCoordinates = (metaverseName: string, asset: any): L.LatLngExpression => {
   switch (metaverseName) {
-    case 'Cryptovoxels': {
+    // to be replaced with slug or some other identifier, since name changes, but backend has to update as well
+    case 'Voxels (formerly Cryptovoxels)': {
       const matchX = asset.image_original_url.match(/x=([+-]?([0-9]*[.])?[0-9]+)/);
       const matchY = asset.image_original_url.match(/&y=([+-]?([0-9]*[.])?[0-9]+)/);
       if (!matchX || !matchY) {
