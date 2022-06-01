@@ -1,13 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { asset } from './asset/assetSlice';
-import { metaverseAssets } from './asset/metaverseAssetsFromServerSlice';
+import { listings } from './assets/listingsSlice';
 import { dclStats } from './stats/dclStatsSlice';
-import { metaverseLeases } from './lease/metaverseLeasesSlice';
+
 import { parcelTransactionHistory } from './asset/parcelTransactionHistorySlice';
 import { appState } from './app/appStateSlice';
-import { addressOwnership } from './summary/addressOwnershipSlice';
 import { metaverseSummary } from './summary/metaverseSummary';
-import { profileOwnership } from './summary/profileOwnershipSlice';
+import { profileOwnership } from './profile/profileOwnershipSlice';
+import { addressOwnership } from './address/addressOwnershipSlice';
+import { leases } from './lease/leasesSlice';
 
 const store = configureStore({
   reducer: {
@@ -16,8 +17,8 @@ const store = configureStore({
     addressOwnership,
     profileOwnership,
     metaverseSummary,
-    metaverseLeases,
-    metaverseAssets,
+    leases,
+    listings,
     dclStats,
     parcelTransactionHistory,
   },

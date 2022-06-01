@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import { useState } from 'react';
 import { minimizeAddress } from 'utils/utils';
+import CopyImage from 'assets/app/copy.png';
 
 interface Props {
   address?: string;
@@ -38,7 +39,7 @@ export const HeaderUserButton = ({ address, loading, connect }: Props) => {
     <Tooltip title={copied ? 'Copied' : 'Copy'}>
       <Button className={styles.loggedInBtn} variant="outlined" disabled={loading} onClick={copy}>
         {minimizeAddress(address)}
-        <img height={13} src="/copy.png" alt="" />
+        <img height={13} src={CopyImage} />
       </Button>
     </Tooltip>
   ) : (

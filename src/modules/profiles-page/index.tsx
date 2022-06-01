@@ -14,13 +14,16 @@ import CloseIcon from '@material-ui/icons/Close';
 import BackIcon from '@material-ui/icons/ArrowBack';
 import { useCookies } from 'react-cookie';
 import { ProfileItem } from './ProfileItem';
-import eth from '../../assets/tokens/eth-small.png';
-import bsc from '../../assets/tokens/bsc-small.png';
-import polygon from '../../assets//chains/polygon-small.png';
-import solana from '../../assets//chains/solana-small.png';
+import eth from 'assets/tokens/eth-small.png';
+import bsc from 'assets/tokens/bsc-small.png';
+import polygon from 'assets/chains/polygon-small.png';
+import solana from 'assets/chains/solana-small.png';
 import Intro from 'components/Intro';
 import Meta from 'components/Meta';
-import addAddressIcon from 'assets/app/ProfilesPage/addAddress.png';
+import addAddressIcon from 'assets/app/profiles-page/addAddress.png';
+import CreateProfileButtonImage from 'assets/app/profiles-page/create-profile-button.png';
+import DOKOLogo from 'assets/doko/doko-logo.png';
+import CreateProfileIcon from 'assets/app/profiles-page/create-profile-icon.png';
 
 type Icons = {
   [key: string]: string;
@@ -56,10 +59,10 @@ const useStyles = makeStyles((theme) => ({
   },
   titleContainer: {
     marginBottom: 12,
-    [theme.breakpoints.down('xs')]: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   titleText: {
     fontWeight: 'bolder',
@@ -243,27 +246,21 @@ export const Profiles = () => {
   const renderProfileList = () => (
     <div>
       <Grid className={styles.itemsContainer} container direction="column" alignItems="flex-start">
-        <Hidden smUp>
-          <Grid container direction="row" alignItems="center" justifyContent="flex-end" wrap="nowrap">
-            <IconButton onClick={handleClickOpen}>
-              <img src="/createProfileIcon.png" alt="share" />
-            </IconButton>
-          </Grid>
-        </Hidden>
-        <Grid container justifyContent="space-between" alignItems="center" className={styles.titleContainer}>
-          <Grid item xs={12} md="auto">
-            <Grid container direction="column">
-              <Typography className={styles.titleText} variant="h3" style={{ fontWeight: 'bolder' }}>
-                Manage Profile(s)
-              </Typography>
-            </Grid>
-          </Grid>
+        <div className={styles.titleContainer}>
+          <Typography className={styles.titleText} variant="h3" style={{ fontWeight: 'bolder' }}>
+            Manage Profile(s)
+          </Typography>
           <Hidden xsDown>
             <Button className={styles.createProfileButton} onClick={handleClickOpen}>
-              <img src="/createProfileButton.png" alt="Create Profile" />
+              <img src={CreateProfileButtonImage} alt="Create Profile" />
             </Button>
           </Hidden>
-        </Grid>
+          <Hidden smUp>
+            <IconButton onClick={handleClickOpen}>
+              <img src={CreateProfileIcon} alt="share" />
+            </IconButton>
+          </Hidden>
+        </div>
         <Grid container alignItems="center" style={{ paddingBottom: 40 }}>
           <Typography className={styles.descriptionText}>
             This is where you can view, edit or delete each of your created and saved profiles.
@@ -474,7 +471,7 @@ export const Profiles = () => {
         title="Manage Profile(s)"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>

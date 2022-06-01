@@ -2,8 +2,10 @@ import { MapContainer, ImageOverlay } from 'react-leaflet';
 import L from 'leaflet';
 import { makeStyles, Theme, useMediaQuery } from '@material-ui/core';
 import { MapsProps, MapStyles, StyleProps } from './constants';
-import useRenderMaps from '../../hooks/useRenderMaps';
+import useRenderMaps from 'hooks/useRenderMaps';
 import RenderAssets from './RenderMarkers';
+import { memo } from 'react';
+import SandboxMapImage from 'assets/app/sandbox-map.png';
 
 const useStyles = makeStyles<Theme, StyleProps>(() => MapStyles);
 
@@ -35,7 +37,7 @@ const SandboxMap = ({ selected, assets }: MapsProps) => {
           maxZoom={5}
           crs={L.CRS.Simple}
         >
-          <ImageOverlay attribution={`Map data &copy; ${MapName}`} url="/sandbox_map.png" bounds={latLangBounds} />
+          <ImageOverlay attribution={`Map data &copy; ${MapName}`} url={SandboxMapImage} bounds={latLangBounds} />
           <ResizeMap />
           <RenderAssets markerRefs={markerRefs} assets={assets} />
         </MapContainer>
@@ -44,4 +46,4 @@ const SandboxMap = ({ selected, assets }: MapsProps) => {
   );
 };
 
-export default SandboxMap;
+export default memo(SandboxMap);

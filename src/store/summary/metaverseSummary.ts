@@ -31,6 +31,7 @@ export const fetchMetaverseSummary = createAsyncThunk('MetaverseSummary/fetchMet
     for (const trait of metaverse.traits) {
       const response = await ContractServiceAPI.getAssetFloorPrice(metaverse.primaryAddress, trait);
       const { price, payment_token } = response;
+
       traitFloorPrices.push({
         floorPriceInEth: parsePriceETH(price, payment_token),
         floorPriceInUsd: parsePriceUSD(price, payment_token),

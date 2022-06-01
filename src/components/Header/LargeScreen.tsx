@@ -1,15 +1,14 @@
+import { memo } from 'react';
 import FormControl from '@material-ui/core/FormControl';
 import Grid from '@material-ui/core/Grid';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Typography from '@material-ui/core/Typography';
 import SearchIcon from '@material-ui/icons/Search';
 import RadiusInput from 'components/RadiusInput';
-
-import { memo } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-
 import { HeaderUserButton } from './HeaderUserButton';
 import { ToolbarItemsProps } from './types';
+import DOKOLockup from 'assets/doko/doko-lockup.png';
 
 export const LargeScreen = memo(({ setSearch, search, loading, address, connect }: ToolbarItemsProps) => {
   const history = useHistory();
@@ -31,7 +30,7 @@ export const LargeScreen = memo(({ setSearch, search, loading, address, connect 
       <Grid container justifyContent="space-between" alignItems="center">
         <Grid xs={4} item>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <img src="/DOKO_Lockup.png" height={36} alt="" />
+            <img src={DOKOLockup} height={36} />
           </Link>
         </Grid>
         <Grid item>

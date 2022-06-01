@@ -3,12 +3,14 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import { useDispatch } from 'react-redux';
 import { io, Socket } from 'socket.io-client';
 import { openToast } from 'store/app/appStateSlice';
-import { AuthContext, AuthContextType } from './AuthContext';
+import { AuthContext } from './AuthContext';
 
 interface ServerToClientEvents {
   event: (data: string) => void;
   LeaseCreated: (message: any) => void;
   LeaseAccepted: (message: any) => void;
+  RentPaid: (message: any) => void;
+  LeaseCancelled: (message: any) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -28,7 +30,7 @@ export const WSContext = createContext<WSContextValue>({
 
 export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
   const [socket, setSocket] = useState<SocketIO | null>(null);
-  const { address } = useContext(AuthContext) as AuthContextType;
+  const { address } = useContext(AuthContext);
   const dispatch = useDispatch();
   socket &&
     socket
@@ -49,7 +51,26 @@ export const WSContextProvider = ({ children }: PropsWithChildren<any>) => {
             action: 'refresh',
           }),
         );
+      })
+      .on('RentPaid', () => {
+        dispatch(
+          openToast({
+            message: 'Rent has been paid',
+            state: 'success',
+            action: 'refresh',
+          }),
+        );
+      })
+      .on('LeaseCancelled', () => {
+        dispatch(
+          openToast({
+            message: 'Lease has been terminated',
+            state: 'success',
+            action: 'refresh',
+          }),
+        );
       });
+
   useEffect(() => {
     const socket = io(config.holdingsServiceSocketUrl || '', {
       secure: true,

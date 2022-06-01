@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, makeStyles, Typography } from '@material-ui/core';
-import { Trait as TraitType } from 'store/summary/profileOwnershipSlice';
+import { Trait as TraitType } from 'store/profile/profileOwnershipSlice';
 import { startCase } from 'lodash';
 
 interface Props {
@@ -29,8 +29,6 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 180,
     width: 180,
     padding: theme.spacing(2),
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',

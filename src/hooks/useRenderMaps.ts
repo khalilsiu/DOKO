@@ -1,5 +1,5 @@
 import L, { Map } from 'leaflet';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { Pair } from '../types/interfaces';
 
@@ -25,12 +25,14 @@ const useRenderMaps = ({ bounds, items, selected, center }: IProps) => {
   );
 
   // for tilelayers to load tiles
-  const ResizeMap = () => {
+  const ResizeMap = useCallback(() => {
     setTimeout(() => {
-      map?.invalidateSize();
+      if (map) {
+        map.invalidateSize();
+      }
     }, 250);
     return null;
-  };
+  }, [map]);
 
   // for tilelayers to load tiles
   const ChangeMapView = ({ coords }) => {

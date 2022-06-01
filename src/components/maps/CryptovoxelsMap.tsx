@@ -3,6 +3,7 @@ import { makeStyles, Theme, useMediaQuery } from '@material-ui/core';
 import { MapsProps, MapStyles, StyleProps } from './constants';
 import useRenderMaps from '../../hooks/useRenderMaps';
 import RenderAssets from './RenderMarkers';
+import { memo } from 'react';
 
 const useStyles = makeStyles<Theme, StyleProps>(() => MapStyles);
 
@@ -32,4 +33,4 @@ const CryptovoxelsMap = ({ selected, assets }: MapsProps) => {
   );
 };
 
-export default CryptovoxelsMap;
+export default memo(CryptovoxelsMap);

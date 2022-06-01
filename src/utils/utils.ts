@@ -2,7 +2,7 @@ import { transform, isArray, camelCase, isDate, isObject, snakeCase } from 'loda
 import moment from 'moment';
 import { web3 } from '../libs/web3';
 
-export const camelize = (obj: any) =>
+export const camelize = <T>(obj: any): T =>
   transform(obj, (acc: any, value, key, target) => {
     const camelKey = isArray(target) ? key : camelCase(key as string);
     if (isDate(value)) {
@@ -33,7 +33,8 @@ export const camelToText = (camelCase: string) => {
 
 export const getCoordinates = (metaverseName: string, asset: any): L.LatLngExpression => {
   switch (metaverseName) {
-    case 'Cryptovoxels': {
+    // to be replaced with slug or some other identifier, since name changes, but backend has to update as well
+    case 'Voxels (formerly Cryptovoxels)': {
       const matchX = asset.image_original_url.match(/x=([+-]?([0-9]*[.])?[0-9]+)/);
       const matchY = asset.image_original_url.match(/&y=([+-]?([0-9]*[.])?[0-9]+)/);
       if (!matchX || !matchY) {

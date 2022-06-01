@@ -2,7 +2,7 @@ import { makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 
 import { memo } from 'react';
 import { Marker } from 'react-leaflet';
-import { Asset } from '../../store/summary/profileOwnershipSlice';
+import { Asset } from '../../store/profile/profileOwnershipSlice';
 import { StyleProps, marker, MapStyles, StyledPopup } from './constants';
 const useStyles = makeStyles<Theme, StyleProps>(() => MapStyles);
 
@@ -32,7 +32,7 @@ const RenderMarkers = memo(({ assets, markerRefs }: IProps) => {
             <StyledPopup color={theme.palette.secondary.main}>
               <div className={styles.popupTitleContainer}>{asset.name}</div>
               <div className={styles.popupContentContainer}>
-                <a href={`/nft/eth/${asset.assetContract.address}/${asset.tokenId}`}>
+                <a href={`/asset/${asset.assetContract.address}/${asset.tokenId}`}>
                   <div
                     className={styles.popupContent}
                     style={{

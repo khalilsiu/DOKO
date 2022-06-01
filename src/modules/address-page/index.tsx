@@ -1,14 +1,15 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { Card, Grid, Hidden, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { useParams } from 'react-router-dom';
-
-import CopyAddress from '../../components/CopyAddress';
-import { CreateProfileContext } from '../../contexts/CreateProfileContext';
-import useAddressSummaries from '../../hooks/summary/useAddressSummaries';
-import OwnershipView from '../../components/profile/OwnershipView';
-import { minimizeAddress } from '../../utils/utils';
+import CopyAddress from 'components/CopyAddress';
+import { CreateProfileContext } from 'contexts/CreateProfileContext';
+import useAddressSummaries from 'hooks/summary/useAddressSummaries';
+import OwnershipView from 'components/profile/OwnershipView';
+import { minimizeAddress } from 'utils/utils';
 import Intro from 'components/Intro';
 import Meta from 'components/Meta';
+import DOKOLogo from 'assets/doko/doko-logo.png';
+import CreateProfileIcon from 'assets/app/profiles-page/create-profile-icon.png';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -61,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const AddressPage = () => {
+const AddressPage = () => {
   const { address } = useParams<{ address: string }>();
   const styles = useStyles();
   const metaverseSummaries = useAddressSummaries(address);
@@ -76,7 +77,7 @@ export const AddressPage = () => {
         title="Address | DOKO"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>
@@ -90,7 +91,7 @@ export const AddressPage = () => {
           <Hidden smUp>
             <Grid container direction="row" alignItems="center" justifyContent="flex-end" wrap="nowrap">
               <IconButton onClick={handleClickOpen}>
-                <img src="/createProfileIcon.png" alt="share" />
+                <img src={CreateProfileIcon} alt="share" />
               </IconButton>
             </Grid>
           </Hidden>
@@ -113,4 +114,4 @@ export const AddressPage = () => {
   );
 };
 
-export default AddressPage;
+export default memo(AddressPage);

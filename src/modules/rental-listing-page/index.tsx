@@ -3,13 +3,14 @@ import Intro from 'components/Intro';
 import Meta from 'components/Meta';
 import { TabPanel } from 'components/TabPanel';
 import { cloneDeep } from 'lodash';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CustomTabs, CustomTab } from '../../components/profile/OwnershipView';
 import metaverses from '../../constants/metaverses';
-import { getMetaverseAssetsFromServer } from '../../store/asset/metaverseAssetsFromServerSlice';
+import { getListings } from '../../store/assets/listingsSlice';
 import { RootState } from '../../store/store';
 import RentalView, { sortOptions } from './RentalView';
+import DOKOLogo from 'assets/doko/doko-logo.png';
 
 const useStyles = makeStyles((theme) => ({
   collectionPageContainer: {
@@ -33,7 +34,7 @@ const RentalListingPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const [sortOpen, setSortOpen] = useState(false);
   const [sortStates, setSortStates] = useState(metaverses.map(() => 0));
-  const metaverseAssets = useSelector((state: RootState) => state.metaverseAssets);
+  const listings = useSelector((state: RootState) => state.listings);
   const mdOrAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const ref = useRef<HTMLDivElement>(null);
   const handleSortChange = (metaverseIndex: number, sortItemIndex: number) => {
@@ -59,7 +60,11 @@ const RentalListingPage = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getMetaverseAssetsFromServer(sortStates.map((sortItem) => sortOptions[sortItem].value)));
+    dispatch(
+      getListings({
+        sortOptions: sortStates.map((sortItem) => sortOptions[sortItem].value),
+      }),
+    );
   }, [sortStates]);
   return (
     <>
@@ -67,7 +72,7 @@ const RentalListingPage = () => {
         title="Rentals | DOKO"
         description="The Multi-Chain NFT Portfolio Manager that allows you to display, manage & trade your NFTs"
         url="https://doko.one"
-        image="/DOKO_LOGO.png"
+        image={DOKOLogo}
       />
       <Grid container wrap="nowrap" className={styles.collectionPageContainer}>
         <Hidden smDown>
@@ -111,15 +116,14 @@ const RentalListingPage = () => {
             />
           </CustomTabs>
           {metaverses.map((metaverse, index) => (
-            <TabPanel key={index} index={index} value={tabValue}>
+            <TabPanel key={metaverse.name} index={index} value={tabValue}>
               <RentalView
                 metaverseIndex={index}
                 handleSortChange={handleSortChange}
                 sortOpen={sortOpen}
                 setSortOpen={setSortOpen}
                 sortIndex={sortStates[index]}
-                assets={metaverseAssets[index]}
-                ref={ref}
+                assets={listings[index]}
               />
             </TabPanel>
           ))}

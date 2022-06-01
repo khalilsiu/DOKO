@@ -15,8 +15,6 @@ import SearchIcon from '@material-ui/icons/Search';
 import { DataGrid } from '@mui/x-data-grid';
 import RadiusInput from 'components/RadiusInput';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { forwardRef } from 'react';
-
 import { DclStats } from '../../store/stats/dclStatsSlice';
 
 interface IStatsView {
@@ -133,7 +131,7 @@ const QuickSearchToolbar = (props: QuickSearchToolbarProps) => (
   />
 );
 
-const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats, isLoading }: IStatsView) => {
+const StatsView = ({ stats, isLoading }: IStatsView) => {
   const styles = useStyles();
   const theme = useTheme();
   const [timeframeOpen, setTimeframeOpen] = useState(false);
@@ -244,6 +242,6 @@ const StatsView = forwardRef<HTMLDivElement, IStatsView>(({ stats, isLoading }: 
       />
     </div>
   );
-});
+};
 
 export default StatsView;
