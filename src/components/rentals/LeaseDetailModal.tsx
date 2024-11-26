@@ -15,6 +15,7 @@ import config from 'config';
 import { getLeaseState, LeaseMode } from 'components/profile/OwnershipView';
 import RenderLeaseDetails from './RenderLeaseDetails';
 import { ContractContext } from 'contexts/ContractContext';
+import { AuthContext } from 'contexts/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -99,6 +100,7 @@ const dclLandRentalAddress = config.dclLandRentalAddress;
 const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal) => {
   const styles = useStyles();
   const history = useHistory();
+  const { checkAndSwitchNetwork } = useContext(AuthContext);
   const {
     contracts: { USDT: usdtContract, dclLandRental: dclLandRentalContract },
   } = useContext(ContractContext);
@@ -160,11 +162,17 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
     return 'Error';
   }, [leaseState, isApproved, asset]);
 
-  const handleButtonClick = useCallback(() => {
+  const handleButtonClick = useCallback(async () => {
     if (!asset.lease) {
       return;
     }
     const requireApproval = asset.lease.rentToken !== 'ETH';
+    try {
+      await checkAndSwitchNetwork();
+    } catch (e: any) {
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+      return;
+    }
     if (requireApproval && !isApproved) {
       return approveToken();
     }
@@ -230,6 +238,7 @@ const LeaseDetailModal = memo(({ asset, walletAddress, mode }: ILeaseDetailModal
       if (usdtContract) {
         try {
           dispatch(startLoading());
+          await checkAndSwitchNetwork();
           const tokensApproved = await usdtContract.allowance(walletAddress, dclLandRentalAddress || '');
           // Returns number of token being approved, 0 is unapproved
           setIsApproved(tokensApproved.gt(0));

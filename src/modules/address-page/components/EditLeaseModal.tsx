@@ -35,6 +35,7 @@ import RadiusInput from 'components/RadiusInput';
 import config from 'config';
 import { getLeaseState } from 'components/profile/OwnershipView';
 import { ContractContext } from 'contexts/ContractContext';
+import { AuthContext } from 'contexts/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -141,6 +142,7 @@ const dclLandRentalAddress = config.dclLandRentalAddress;
 const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const styles = useStyles();
   const history = useHistory();
+  const { isCorrectNetwork, checkAndSwitchNetwork } = useContext(AuthContext);
   const {
     contracts: { dclLandRental: dclLandRentalContract, dclLand: dclLandContract },
   } = useContext(ContractContext);
@@ -166,6 +168,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const leaseState = useMemo(() => getLeaseState(asset), [asset]);
 
   const isFieldDisabled =
+    !isCorrectNetwork ||
     isTransacting ||
     isAppLoading ||
     leaseState === 'OVERDUE' ||
@@ -229,25 +232,6 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
 
   const [errors, setErrors] = useState<{ [key in keyof LeaseForm]: string }>(initialErrors);
 
-  const handleAPIError = useCallback(
-    (e: any) => {
-      if (e.reason === 'underlying network changed') {
-        const { detectedNetwork } = e;
-        dispatch(
-          openToast({
-            message: `The blockchain network has been changed unexpectedly. Current network is: ${capitalize(
-              detectedNetwork?.name,
-            )} (ENS Address: ${detectedNetwork?.ensAddress})`,
-            state: 'error',
-          }),
-        );
-      } else {
-        dispatch(openToast({ message: (e as Error).message, state: 'error' }));
-      }
-    },
-    [dispatch],
-  );
-
   useEffect(() => {
     if (asset && asset.lease && leaseState !== LeaseStatus['COMPLETED']) {
       setLeaseForm({
@@ -267,15 +251,16 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       if (dclLandContract) {
         try {
           setCheckingApproved(true);
+          await checkAndSwitchNetwork();
           const isApproved = await dclLandContract.isApprovedForAll(walletAddress, dclLandRentalAddress || '');
           setIsApproved(isApproved);
         } catch (e) {
-          handleAPIError(e);
+          dispatch(openToast({ message: (e as Error).message, state: 'error' }));
         }
         setCheckingApproved(false);
       }
     })();
-  }, [dclLandContract, walletAddress, dclLandRentalAddress, handleAPIError]);
+  }, [dclLandContract, walletAddress, dclLandRentalAddress]);
 
   // can be moved into hooks
   const handleApproveLease = useCallback(async () => {
@@ -290,14 +275,15 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       return;
     }
     try {
+      await checkAndSwitchNetwork();
       const txn = await dclLandContract.setApprovalForAll(dclLandRentalAddress || '', true);
       const receipt = await txn.wait();
       setIsApproved(!!receipt);
     } catch (e: any) {
-      handleAPIError(e);
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
     }
     dispatch(stopLoading());
-  }, [dclLandContract, dclLandRentalAddress, handleAPIError]);
+  }, [dclLandContract, dclLandRentalAddress]);
 
   const extractValidationErrors = useCallback(
     (error: Joi.ValidationError) => {
@@ -336,6 +322,12 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
       return;
     }
 
+    try {
+      await checkAndSwitchNetwork();
+    } catch (e: any) {
+      dispatch(openToast({ message: (e as Error).message, state: 'error' }));
+      return;
+    }
     await dispatch(
       upsertLease({
         leaseForm,
