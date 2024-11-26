@@ -29,7 +29,7 @@ const getListingsFromServer = async ({ filter, sortOptions }: IGetLstings) => {
         return ContractServiceAPI.getLeasedAssets({
           ...filter,
           contractAddress: address,
-          status: LeaseStatus['OPEN'],
+          status: LeaseStatus.OPEN,
           sort: sortOption,
         }).catch((err) => {
           if (err.response.status === 404) {

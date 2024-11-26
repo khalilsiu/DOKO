@@ -4,6 +4,80 @@ import { Asset } from '../../store/profile/profileOwnershipSlice';
 import ShareButton from '../ShareButton';
 import { MouseEvent } from 'react';
 import { useHistory } from 'react-router-dom';
+import { getRoundedAmountText } from 'utils/TokenUtils';
+
+interface ILeaseCard {
+  asset: Asset;
+  handleClick: () => void;
+}
+
+const LeaseCard = ({ asset, handleClick }: ILeaseCard) => {
+  const styles = useStyles();
+  const history = useHistory();
+  const handleBtnClick = (e: MouseEvent<HTMLButtonElement>, contractAddress: string, tokenId: string) => {
+    const leaseDetailUrl = `/rentals/${contractAddress}/${tokenId}/lease`;
+    e.stopPropagation();
+    history.push(leaseDetailUrl);
+  };
+
+  return (
+    <Card className={styles.card} onClick={handleClick}>
+      <div
+        style={{
+          backgroundImage: `url('${asset.imageOriginalUrl}')`,
+        }}
+        className={styles.cardImage}
+      ></div>
+      <CardContent className={styles.cardContent}>
+        <div>
+          <div className={styles.cardTitle}>
+            <Typography variant="subtitle2" style={{ color: '#333', fontSize: '0.9rem' }}>
+              {asset.name}
+            </Typography>
+            <ShareButton />
+          </div>
+          <Typography variant="subtitle2" className={styles.leaseLength}>
+            Min. {asset.lease?.minLeaseLength}m - Max. {asset.lease?.maxLeaseLength}m
+          </Typography>
+          <div className={styles.deposit}>
+            <Typography
+              className={styles.text}
+              style={{
+                fontSize: '0.7rem',
+                marginRight: '0.3rem',
+              }}
+              variant="body1"
+            >
+              Deposit
+            </Typography>
+            <img src={eth} alt="ETH" width="8px" style={{ marginRight: '0.3rem' }} />
+            <Typography className={styles.text} style={{ fontSize: '0.7rem' }} variant="body1">
+              {asset.lease ? getRoundedAmountText(asset.lease.deposit) : '0.00'}
+            </Typography>
+          </div>
+        </div>
+
+        <div className={styles.cardBottom}>
+          <div className={styles.rent}>
+            <img src={eth} alt="ETH" width="10px" style={{ marginRight: '0.3rem' }} />
+            <Typography className={styles.text} variant="body1">
+              {asset.lease ? getRoundedAmountText(asset.lease.rentAmount) : '0.00'}
+            </Typography>
+          </div>
+          <Button
+            className={`gradient-button ${styles.button}`}
+            variant="outlined"
+            onClick={(e) => handleBtnClick(e, asset.assetContract.address, asset.tokenId)}
+          >
+            <span style={{ fontSize: '0.8rem' }}>Details</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default LeaseCard;
 
 const useStyles = makeStyles((theme: Theme) => ({
   card: {
@@ -79,76 +153,3 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
 }));
-
-interface ILeaseCard {
-  asset: Asset;
-  handleClick: () => void;
-}
-
-const LeaseCard = ({ asset, handleClick }: ILeaseCard) => {
-  const styles = useStyles();
-  const history = useHistory();
-  const handleBtnClick = (e: MouseEvent<HTMLButtonElement>, contractAddress: string, tokenId: string) => {
-    const leaseDetailUrl = `/rentals/${contractAddress}/${tokenId}/lease`;
-    e.stopPropagation();
-    history.push(leaseDetailUrl);
-  };
-
-  return (
-    <Card className={styles.card} onClick={handleClick}>
-      <div
-        style={{
-          backgroundImage: `url('${asset.imageOriginalUrl}')`,
-        }}
-        className={styles.cardImage}
-      ></div>
-      <CardContent className={styles.cardContent}>
-        <div>
-          <div className={styles.cardTitle}>
-            <Typography variant="subtitle2" style={{ color: '#333', fontSize: '0.9rem' }}>
-              {asset.name}
-            </Typography>
-            <ShareButton />
-          </div>
-          <Typography variant="subtitle2" className={styles.leaseLength}>
-            Min. {asset.lease?.minLeaseLength}m - Max. {asset.lease?.maxLeaseLength}m
-          </Typography>
-          <div className={styles.deposit}>
-            <Typography
-              className={styles.text}
-              style={{
-                fontSize: '0.7rem',
-                marginRight: '0.3rem',
-              }}
-              variant="body1"
-            >
-              Deposit
-            </Typography>
-            <img src={eth} alt="ETH" width="8px" style={{ marginRight: '0.3rem' }} />
-            <Typography className={styles.text} style={{ fontSize: '0.7rem' }} variant="body1">
-              {asset.lease?.deposit.toFixed(2)}
-            </Typography>
-          </div>
-        </div>
-
-        <div className={styles.cardBottom}>
-          <div className={styles.rent}>
-            <img src={eth} alt="ETH" width="10px" style={{ marginRight: '0.3rem' }} />
-            <Typography className={styles.text} variant="body1">
-              {asset.lease?.rentAmount.toFixed(2)}
-            </Typography>
-          </div>
-          <Button
-            className={`gradient-button ${styles.button}`}
-            variant="outlined"
-            onClick={(e) => handleBtnClick(e, asset.assetContract.address, asset.tokenId)}
-          >
-            <span style={{ fontSize: '0.8rem' }}>Details</span>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default LeaseCard;

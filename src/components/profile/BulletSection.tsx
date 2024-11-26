@@ -23,7 +23,7 @@ const BulletSection = ({ metaverseSummaries }: IBulletSection) => {
       totalFloorPrice += collection.totalFloorPrice;
       totalLandsListed += collection.leasedAssets.length;
       totalLandsLeased += collection.leasedAssets.reduce((leased, asset) => {
-        if (asset.lease && asset.lease.status === LeaseStatus['LEASED']) {
+        if (asset.lease && asset.lease.status === LeaseStatus.LEASED) {
           leased++;
         }
         return leased;
@@ -68,7 +68,9 @@ const BulletSection = ({ metaverseSummaries }: IBulletSection) => {
   return (
     <div className={styles.totalSummary}>
       {bullets.map((bullet) => (
-        <Bullet key={bullet.value} data={bullet.data} className={styles.bulletStyle} color={bullet.color} />
+        <div key={bullet.value} className={styles.bulletSection}>
+          <Bullet data={bullet.data} className={styles.bulletStyle} color={bullet.color} />
+        </div>
       ))}
     </div>
   );
@@ -78,7 +80,11 @@ const useStyles = makeStyles((theme) => ({
   totalSummary: {
     display: 'flex',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingBottom: theme.spacing(3),
+  },
+  bulletSection: {
+    marginBottom: theme.spacing(2),
   },
   bulletTitle: { fontSize: 14 },
   bulletText: { fontSize: 18, fontWeight: 700 },

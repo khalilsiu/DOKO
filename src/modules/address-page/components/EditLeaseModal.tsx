@@ -23,7 +23,7 @@ import { capitalize, cloneDeep } from 'lodash';
 import Joi from 'joi';
 import { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { LeaseStatus, upsertLease } from '../../../store/lease/leasesSlice';
+import { Lease, LeaseStatus, upsertLease } from '../../../store/lease/leasesSlice';
 import { RootState } from '../../../store/store';
 import { Asset } from '../../../store/profile/profileOwnershipSlice';
 import { parseError } from '../../../utils/joiErrors';
@@ -35,6 +35,7 @@ import RadiusInput from 'components/RadiusInput';
 import config from 'config';
 import { getLeaseState } from 'components/profile/OwnershipView';
 import { ContractContext } from 'contexts/ContractContext';
+import { getTokenDecimals } from 'utils/TokenUtils';
 
 const useStyles = makeStyles((theme) => ({
   modalHeader: {
@@ -152,7 +153,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   const [isCheckingApproved, setCheckingApproved] = useState(false);
 
   const initialState = {
-    rentToken: AcceptedTokens['ETH'],
+    rentToken: AcceptedTokens.ETH,
     rentAmount: '',
     deposit: '',
     gracePeriod: '',
@@ -169,7 +170,7 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     isTransacting ||
     isAppLoading ||
     leaseState === 'OVERDUE' ||
-    leaseState === LeaseStatus['LEASED'] ||
+    leaseState === LeaseStatus.LEASED ||
     walletAddress !== asset.owner ||
     isCheckingApproved;
 
@@ -179,25 +180,25 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
     if (!isApproved) {
       return 'Approve';
     }
-    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus['COMPLETED']) {
+    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus.COMPLETED) {
       return 'Create';
     }
-    if (leaseState === LeaseStatus['OPEN']) {
+    if (leaseState === LeaseStatus.OPEN) {
       return 'Update';
     }
-    if (leaseState === LeaseStatus['LEASED']) {
+    if (leaseState === LeaseStatus.LEASED) {
       return 'Leased';
     }
   }, [isApproved, leaseState]);
 
   const renderHeaderText = useCallback(() => {
-    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus['COMPLETED']) {
+    if (leaseState === 'TOBECREATED' || leaseState === LeaseStatus.COMPLETED) {
       return 'Create Lease';
     }
-    if (leaseState === LeaseStatus['OPEN']) {
+    if (leaseState === LeaseStatus.OPEN) {
       return 'Update Lease';
     }
-    if (leaseState === LeaseStatus['LEASED']) {
+    if (leaseState === LeaseStatus.LEASED) {
       return 'Lease Details';
     }
   }, [isApproved, leaseState]);
@@ -249,17 +250,23 @@ const EditLeaseModal = memo(({ walletAddress, asset }: ILeaseModal) => {
   );
 
   useEffect(() => {
-    if (asset && asset.lease && leaseState !== LeaseStatus['COMPLETED']) {
-      setLeaseForm({
-        rentToken: asset.lease?.rentToken,
-        rentAmount: (asset.lease?.rentAmount).toString(),
-        deposit: (asset.lease?.deposit).toString(),
-        gracePeriod: (asset.lease?.gracePeriod).toString(),
-        minLeaseLength: (asset.lease?.minLeaseLength).toString(),
-        maxLeaseLength: (asset.lease?.maxLeaseLength).toString(),
-        autoRegenerate: asset.lease?.autoRegenerate,
-      });
+    if (!asset || !asset.lease || leaseState === LeaseStatus.COMPLETED || leaseState === LeaseStatus.CANCELLED) {
+      return;
     }
+    const decimals = getTokenDecimals((asset.lease as Lease).rentToken);
+    if (!decimals) {
+      dispatch(openToast({ message: 'Token does not exist.', state: 'error' }));
+      return;
+    }
+    setLeaseForm({
+      rentToken: asset.lease?.rentToken,
+      rentAmount: parseFloat((asset.lease?.rentAmount).toFixed(decimals)).toString(),
+      deposit: parseFloat((asset.lease?.deposit).toFixed(decimals)).toString(),
+      gracePeriod: (asset.lease?.gracePeriod).toString(),
+      minLeaseLength: (asset.lease?.minLeaseLength).toString(),
+      maxLeaseLength: (asset.lease?.maxLeaseLength).toString(),
+      autoRegenerate: asset.lease?.autoRegenerate,
+    });
   }, [asset, asset.lease, leaseState]);
 
   useEffect(() => {
